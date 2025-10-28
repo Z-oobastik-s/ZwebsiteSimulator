@@ -335,54 +335,9 @@ function selectLessonLanguage(lang) {
 }
 
 // Load lessons
-async function loadLessons() {
+function loadLessons() {
     const container = document.getElementById('lessonsList');
     container.innerHTML = '';
-    
-    // Если выбран украинский, загружаем из JSON файла
-    if (selectedLessonLang === 'ua') {
-        try {
-            const response = await fetch('lessons/ukrainian.json');
-            const ukrainianData = await response.json();
-            
-            // Группируем по сложности
-            const grouped = {
-                beginner: { level: 'beginner', name_ru: 'Початковий', name_en: 'Beginner', lessons: [] },
-                medium: { level: 'medium', name_ru: 'Середній', name_en: 'Medium', lessons: [] },
-                advanced: { level: 'advanced', name_ru: 'Просунутий', name_en: 'Advanced', lessons: [] }
-            };
-            
-            ukrainianData.lessons.forEach(lesson => {
-                if (lesson.difficulty === 'easy') grouped.beginner.lessons.push(lesson);
-                else if (lesson.difficulty === 'medium') grouped.medium.lessons.push(lesson);
-                else if (lesson.difficulty === 'hard') grouped.advanced.lessons.push(lesson);
-            });
-            
-            for (const [level, data] of Object.entries(grouped)) {
-                if (data.lessons.length === 0) continue;
-                
-                const card = document.createElement('div');
-                card.className = 'bg-gradient-to-br from-gray-800/60 to-gray-900/80 dark:from-gray-800/80 dark:to-gray-900/90 rounded-2xl p-6 hover:scale-105 transition-all cursor-pointer border border-gray-700/30 shadow-xl hover:shadow-2xl hover:border-primary/50';
-                card.onclick = () => showLessonList({ ...data, lessons: data.lessons });
-                
-                const levelName = app.lang === 'ru' ? data.name_ru : data.name_en;
-                
-                const levelColors = { beginner: 'text-success', medium: 'text-warning', advanced: 'text-red-400' };
-                const levelIcons = { beginner: '🌱', medium: '⚡', advanced: '🔥' };
-                
-                card.innerHTML = `
-                    <div class="text-4xl mb-3">${levelIcons[level]}</div>
-                    <h3 class="text-2xl font-bold mb-2 ${levelColors[level]}">${levelName}</h3>
-                    <p class="text-gray-400">${data.lessons.length} ${app.lang === 'ru' ? 'уроків' : 'lessons'}</p>
-                `;
-                
-                container.appendChild(card);
-            }
-        } catch (e) {
-            console.error('Failed to load Ukrainian lessons:', e);
-        }
-        return;
-    }
     
     const levels = ['beginner', 'medium', 'advanced'];
     
@@ -490,7 +445,13 @@ function startPractice(text, mode, lesson = null) {
     hideAllScreens();
     document.getElementById('practiceScreen').classList.remove('hidden');
     
-    app.currentMode = 'practice';
+    // Очищаем старый таймер если он есть
+    if (app.timerInterval) {
+        clearInterval(app.timerInterval);
+        app.timerInterval = null;
+    }
+    
+    app.currentMode = mode;
     app.currentText = text;
     app.currentLesson = lesson;
     app.currentPosition = 0;
@@ -504,7 +465,8 @@ function startPractice(text, mode, lesson = null) {
     // Автоматически устанавливаем раскладку по языку урока
     if (lesson && lesson.layout) {
         app.currentLayout = lesson.layout;
-        document.getElementById('currentLayout').textContent = app.currentLayout === 'ru' ? 'РУС' : 'ENG';
+        const layoutNames = { 'ru': 'РУС', 'en': 'ENG', 'ua': 'УКР' };
+        document.getElementById('currentLayout').textContent = layoutNames[app.currentLayout] || 'РУС';
         window.keyboardModule.render(app.currentLayout);
     }
     
@@ -519,6 +481,9 @@ function startPractice(text, mode, lesson = null) {
     
     if (mode === 'speedtest') {
         startSpeedTestTimer();
+    } else {
+        // Для обычных уроков - запускаем таймер обновления статистики
+        startStatsTimer();
     }
 }
 
@@ -660,24 +625,57 @@ function updateStats() {
     document.getElementById('progressBar').style.width = progress + '%';
 }
 
-// Speed test timer
+// Stats timer for regular lessons - обновляет время каждую секунду
+function startStatsTimer() {
+    app.timerInterval = setInterval(() => {
+        if (app.isPaused) return;
+        
+        const elapsed = (Date.now() - app.startTime) / 1000;
+        const mins = Math.floor(elapsed / 60);
+        const secs = Math.floor(elapsed % 60);
+        document.getElementById('currentTime').textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+        
+        // Обновляем скорость тоже
+        const minutes = elapsed / 60;
+        const speed = minutes > 0 ? Math.round(app.currentPosition / minutes) : 0;
+        document.getElementById('currentSpeed').textContent = speed;
+    }, 1000);
+}
+
+// Speed test timer - обратный отсчёт
 function startSpeedTestTimer() {
-    let remaining = app.speedTestDuration;
+    // Сохраняем начальное время и продолжительность
+    app.speedTestStartTime = Date.now();
+    app.speedTestEndTime = app.speedTestStartTime + (app.speedTestDuration * 1000);
+    
+    // Показываем начальное время
+    const mins = Math.floor(app.speedTestDuration / 60);
+    const secs = app.speedTestDuration % 60;
+    document.getElementById('currentTime').textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
     
     app.timerInterval = setInterval(() => {
         if (app.isPaused) return;
         
-        remaining--;
+        const now = Date.now();
+        const remaining = Math.max(0, Math.ceil((app.speedTestEndTime - now) / 1000));
         
         if (remaining <= 0) {
             clearInterval(app.timerInterval);
+            app.timerInterval = null;
             finishPractice();
+            return;
         }
         
         const mins = Math.floor(remaining / 60);
         const secs = remaining % 60;
         document.getElementById('currentTime').textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
-    }, 1000);
+        
+        // Обновляем скорость
+        const elapsed = (now - app.speedTestStartTime) / 1000;
+        const minutes = elapsed / 60;
+        const speed = minutes > 0 ? Math.round(app.currentPosition / minutes) : 0;
+        document.getElementById('currentSpeed').textContent = speed;
+    }, 100); // Обновляем чаще для более плавного отсчёта
 }
 
 // Toggle pause
@@ -694,7 +692,7 @@ function togglePause() {
 
 // Restart practice
 function restartPractice() {
-    startPractice(app.currentText, app.currentMode === 'speedtest' ? 'speedtest' : 'practice', app.currentLesson);
+    startPractice(app.currentText, app.currentMode, app.currentLesson);
 }
 
 // Exit practice
