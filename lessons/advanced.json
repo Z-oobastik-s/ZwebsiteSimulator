@@ -1,0 +1,72 @@
+{
+  "level": "advanced",
+  "name": "Продвинутый",
+  "description": "Сложные тексты и высокая скорость",
+  "lessons": [
+    {
+      "id": 1,
+      "name": "Код: JavaScript",
+      "description": "Набор кода на JavaScript",
+      "layout": "en",
+      "text": "function calculateSum(arr) { return arr.reduce((acc, curr) => acc + curr, 0); } const result = calculateSum([1, 2, 3, 4, 5]); console.log(result);",
+      "difficulty": "hard"
+    },
+    {
+      "id": 2,
+      "name": "Код: Python",
+      "description": "Набор кода на Python",
+      "layout": "en",
+      "text": "def calculate_sum(arr): return sum(arr)\n\nresult = calculate_sum([1, 2, 3, 4, 5])\nprint(f\"Result: {result}\")\n\nfor i in range(10): print(i)",
+      "difficulty": "hard"
+    },
+    {
+      "id": 3,
+      "name": "JSON структура",
+      "description": "Набор JSON данных",
+      "layout": "en",
+      "text": "{\"name\": \"John\", \"age\": 30, \"city\": \"New York\", \"hobbies\": [\"reading\", \"swimming\"], \"active\": true}",
+      "difficulty": "hard"
+    },
+    {
+      "id": 4,
+      "name": "Специальные символы",
+      "description": "Практика спецсимволов",
+      "layout": "en",
+      "text": "@#$%^&*()_+-=[]{}|\\:;\"'<>,.?/~` email@example.com https://website.com/path?param=value&other=123",
+      "difficulty": "hard"
+    },
+    {
+      "id": 5,
+      "name": "Длинный текст: Литература",
+      "description": "Художественный текст",
+      "layout": "ru",
+      "text": "В начале июля, в чрезвычайно жаркое время, под вечер, один молодой человек вышел из своей каморки, которую нанимал от жильцов в переулке, на улицу и медленно, как бы в нерешительности, отправился к мосту. Он благополучно избегнул встречи с своею хозяйкой на лестнице. Каморка его приходилась под самою кровлей высокого пятиэтажного дома и походила более на шкаф, чем на квартиру.",
+      "difficulty": "hard"
+    },
+    {
+      "id": 6,
+      "name": "Научный текст",
+      "description": "Академический стиль",
+      "layout": "ru",
+      "text": "Квантовая механика представляет собой фундаментальную теорию в физике, описывающую физические явления на масштабах атомов и субатомных частиц. Принцип неопределённости Гейзенберга устанавливает фундаментальный предел точности одновременного измерения координаты и импульса частицы.",
+      "difficulty": "hard"
+    },
+    {
+      "id": 7,
+      "name": "Long Text: Literature",
+      "description": "Literary text",
+      "layout": "en",
+      "text": "It was the best of times, it was the worst of times, it was the age of wisdom, it was the age of foolishness, it was the epoch of belief, it was the epoch of incredulity, it was the season of Light, it was the season of Darkness, it was the spring of hope, it was the winter of despair.",
+      "difficulty": "hard"
+    },
+    {
+      "id": 8,
+      "name": "Scientific Text",
+      "description": "Academic style",
+      "layout": "en",
+      "text": "Quantum mechanics is a fundamental theory in physics that describes physical phenomena at the scale of atoms and subatomic particles. Heisenberg's uncertainty principle establishes a fundamental limit to the precision with which position and momentum of a particle can be simultaneously measured.",
+      "difficulty": "hard"
+    }
+  ]
+}
+

@@ -1,0 +1,88 @@
+{
+  "level": "beginner",
+  "name": "Начинающий",
+  "description": "Основные позиции и базовые упражнения",
+  "lessons": [
+    {
+      "id": 1,
+      "name": "Домашний ряд - ФЫВА ОЛДЖ",
+      "description": "Изучение базовых позиций пальцев",
+      "layout": "ru",
+      "text": "фыва олдж фыва олдж фыва олдж фыва олдж фыва олдж фыва олдж фыва олдж фыва олдж",
+      "difficulty": "easy"
+    },
+    {
+      "id": 2,
+      "name": "Домашний ряд - расширенный",
+      "description": "Добавляем больше букв",
+      "layout": "ru",
+      "text": "фыва олдж фывап олдж фыва олдж асдф фыва олдж фывапролдж фыва олдж асдфг",
+      "difficulty": "easy"
+    },
+    {
+      "id": 3,
+      "name": "Верхний ряд - основы",
+      "description": "Учимся набирать верхний ряд",
+      "layout": "ru",
+      "text": "йцукен гшщз йцукен гшщз йцукен гшщз фыва олдж йцукен гшщз фыва олдж йцукен",
+      "difficulty": "easy"
+    },
+    {
+      "id": 4,
+      "name": "Нижний ряд - основы",
+      "description": "Изучаем нижний ряд клавиатуры",
+      "layout": "ru",
+      "text": "ячсмить бюячсм ячсмить бю фыва олдж ячсм фыва олдж ячсмить бюфыва",
+      "difficulty": "easy"
+    },
+    {
+      "id": 5,
+      "name": "Простые слова",
+      "description": "Набираем первые слова",
+      "layout": "ru",
+      "text": "дом кот мама папа вода рука нога день ночь стол стул окно дверь лампа книга",
+      "difficulty": "easy"
+    },
+    {
+      "id": 6,
+      "name": "Короткие предложения",
+      "description": "Практика с простыми предложениями",
+      "layout": "ru",
+      "text": "Я иду домой. Кот спит. Мама готовит обед. Папа читает книгу. Дети играют во дворе.",
+      "difficulty": "easy"
+    },
+    {
+      "id": 7,
+      "name": "Home Row - ASDF JKL;",
+      "description": "Basic finger positions in English",
+      "layout": "en",
+      "text": "asdf jkl asdf jkl asdf jkl asdf jkl asdf jkl asdf jkl asdf jkl asdf jkl asdf",
+      "difficulty": "easy"
+    },
+    {
+      "id": 8,
+      "name": "Home Row Extended",
+      "description": "More letters from home row",
+      "layout": "en",
+      "text": "asdf jkl asdfg jkl asdf jkl asdfg hjkl asdf jkl asdfgh jkl asdf jkl asdfg",
+      "difficulty": "easy"
+    },
+    {
+      "id": 9,
+      "name": "Simple Words",
+      "description": "Type your first words",
+      "layout": "en",
+      "text": "dad sad fall glass all add ask flask lad salad glad hall shall falllass",
+      "difficulty": "easy"
+    },
+    {
+      "id": 10,
+      "name": "Basic Sentences",
+      "description": "Practice with simple sentences",
+      "layout": "en",
+      "text": "A sad dad had a salad. All falls shall fall. Add a glass flask. Ask a lad.",
+      "difficulty": "easy"
+    }
+  ]
+}
+

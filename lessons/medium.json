@@ -1,0 +1,72 @@
+{
+  "level": "medium",
+  "name": "Средний",
+  "description": "Усложнённые упражнения и более длинные тексты",
+  "lessons": [
+    {
+      "id": 1,
+      "name": "Все буквы русского алфавита",
+      "description": "Практика всех букв",
+      "layout": "ru",
+      "text": "Съешь же ещё этих мягких французских булок, да выпей чаю. Широкая электрификация южных губерний даст мощный толчок подъёму сельского хозяйства.",
+      "difficulty": "medium"
+    },
+    {
+      "id": 2,
+      "name": "Цифры и знаки препинания",
+      "description": "Добавляем цифры и символы",
+      "layout": "ru",
+      "text": "1234567890 точка, запятая; двоеточие: кавычки \"текст\" скобки (пример) восклицательный! вопросительный?",
+      "difficulty": "medium"
+    },
+    {
+      "id": 3,
+      "name": "Технический текст",
+      "description": "Набор с терминами",
+      "layout": "ru",
+      "text": "Программирование требует внимания к деталям. Функция обрабатывает входные данные и возвращает результат. Алгоритм состоит из последовательности шагов.",
+      "difficulty": "medium"
+    },
+    {
+      "id": 4,
+      "name": "Средний абзац 1",
+      "description": "Практика связного текста",
+      "layout": "ru",
+      "text": "Каждый день мы сталкиваемся с необходимостью быстро набирать текст на клавиатуре. Это важный навык в современном мире, где большая часть общения происходит в цифровом формате. Практика помогает улучшить скорость и точность печати.",
+      "difficulty": "medium"
+    },
+    {
+      "id": 5,
+      "name": "All English Letters",
+      "description": "Practice all letters",
+      "layout": "en",
+      "text": "The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs. How vexingly quick daft zebras jump!",
+      "difficulty": "medium"
+    },
+    {
+      "id": 6,
+      "name": "Numbers and Punctuation",
+      "description": "Adding numbers and symbols",
+      "layout": "en",
+      "text": "1234567890 period. comma, semicolon; colon: quotes \"text\" brackets (example) exclamation! question?",
+      "difficulty": "medium"
+    },
+    {
+      "id": 7,
+      "name": "Technical Text",
+      "description": "Programming terminology",
+      "layout": "en",
+      "text": "Programming requires attention to detail. The function processes input data and returns a result. An algorithm consists of a sequence of steps.",
+      "difficulty": "medium"
+    },
+    {
+      "id": 8,
+      "name": "Medium Paragraph",
+      "description": "Connected text practice",
+      "layout": "en",
+      "text": "Every day we face the need to quickly type text on a keyboard. This is an important skill in the modern world, where most communication takes place in digital format. Practice helps improve typing speed and accuracy.",
+      "difficulty": "medium"
+    }
+  ]
+}
+

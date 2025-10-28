@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="ru" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Современный тренажёр слепой печати. Обучение быстрой и точной печати вслепую на русском и английском языках.">
+    <meta name="keywords" content="слепая печать, тренажёр печати, typing tutor, клавиатурный тренажёр">
+    <meta name="author" content="TypeMaster">
+    <title>Zoobastiks - Тренажёр Слепой Печати</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+    
+    <!-- TailwindCSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .mono {
+            font-family: 'Roboto Mono', monospace;
+        }
+        
+        :root {
+            --primary: #00BCD4;
+            --success: #8BC34A;
+            --warning: #FFC107;
+        }
+        
+        /* Glassmorphism */
+        .glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .dark .glass {
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Smooth transitions */
+        * {
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        
+        /* Hide scrollbar but keep functionality */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        /* Custom animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.3s ease;
+        }
+        
+        /* Key highlight */
+        .key-active {
+            background: var(--primary) !important;
+            transform: scale(0.95);
+            box-shadow: 0 0 20px rgba(0, 188, 212, 0.5);
+        }
+        
+        /* Static highlight - показывает какую клавишу нажать */
+        .key-static-highlight {
+            background: var(--warning) !important;
+            color: #000 !important;
+            box-shadow: 0 0 30px rgba(255, 193, 7, 0.6);
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        /* Custom hover scale */
+        .hover\:scale-102:hover {
+            transform: scale(1.02);
+        }
+        
+        /* Character states - НОВЫЕ СТИЛИ */
+        .char-typed {
+            color: var(--success);
+            transition: opacity 0.3s ease, font-size 0.3s ease;
+        }
+        
+        .char-current {
+            background: var(--primary);
+            color: white;
+            padding: 2px 4px;
+            border-radius: 4px;
+            animation: blink 1s infinite;
+            font-weight: bold;
+            transform: scale(1.1);
+        }
+        
+        .char-future {
+            color: inherit;
+            opacity: 0.7;
+        }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.5; }
+        }
+        
+        /* Shake animation для ошибок */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+    </style>
+    
+    <script>
+        // Theme configuration for TailwindCSS
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#00BCD4',
+                        success: '#8BC34A',
+                        warning: '#FFC107',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen">
+    
+    <!-- Header -->
+    <header class="glass fixed top-0 left-0 right-0 z-50 shadow-lg">
+        <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <svg class="w-8 h-8 text-primary" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm3.293 1.293a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 01-1.414-1.414L7.586 10 5.293 7.707a1 1 0 010-1.414zM11 12a1 1 0 100 2h3a1 1 0 100-2h-3z" />
+                </svg>
+                <h1 class="text-2xl font-bold">Zooba<span class="text-primary">stiks</span></h1>
+            </div>
+            
+            <div class="flex items-center space-x-4">
+                <!-- Language Toggle -->
+                <button id="langToggle" class="px-3 py-1 rounded-lg glass hover:bg-white/20 dark:hover:bg-black/20 font-medium">
+                    <span id="currentLang">RU</span>
+                </button>
+                
+                <!-- Layout Toggle -->
+                <button id="layoutToggle" class="px-3 py-1 rounded-lg glass hover:bg-white/20 dark:hover:bg-black/20 font-medium">
+                    <span id="currentLayout">РУС</span>
+                </button>
+                
+                <!-- Sound Toggle -->
+                <button id="soundToggle" class="p-2 rounded-lg glass hover:bg-white/20 dark:hover:bg-black/20">
+                    <svg id="soundIcon" class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.929a1 1 0 011.414 0A9.972 9.972 0 0119 10a9.972 9.972 0 01-2.929 7.071 1 1 0 01-1.414-1.414A7.971 7.971 0 0017 10c0-2.21-.894-4.208-2.343-5.657a1 1 0 010-1.414zm-2.829 2.828a1 1 0 011.415 0A5.983 5.983 0 0115 10a5.984 5.984 0 01-1.757 4.243 1 1 0 01-1.415-1.415A3.984 3.984 0 0013 10a3.983 3.983 0 00-1.172-2.828 1 1 0 010-1.415z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+                
+                <!-- Theme Toggle -->
+                <button id="themeToggle" class="p-2 rounded-lg glass hover:bg-white/20 dark:hover:bg-black/20">
+                    <svg id="themeIcon" class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 pt-24 pb-8">
+        
+        <!-- Home Screen -->
+        <div id="homeScreen" class="fade-in">
+            <div class="text-center mb-12">
+                <h2 class="text-5xl font-bold mb-4" data-i18n="welcome">Добро пожаловать в Zoobastiks</h2>
+                <p class="text-xl text-gray-600 dark:text-gray-400" data-i18n="subtitle">Научитесь печатать быстро и без ошибок</p>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+                <!-- Lessons Mode -->
+                <div class="glass rounded-2xl p-8 hover:scale-105 transition-transform cursor-pointer" onclick="showLessons()">
+                    <div class="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mb-4 mx-auto">
+                        <svg class="w-8 h-8 text-primary" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-semibold mb-2 text-center" data-i18n="lessons">Уроки</h3>
+                    <p class="text-gray-600 dark:text-gray-400 text-center" data-i18n="lessonsDesc">Обучение с нуля до профи</p>
+                </div>
+                
+                <!-- Free Mode -->
+                <div class="glass rounded-2xl p-8 hover:scale-105 transition-transform cursor-pointer" onclick="showFreeMode()">
+                    <div class="w-16 h-16 bg-success/20 rounded-full flex items-center justify-center mb-4 mx-auto">
+                        <svg class="w-8 h-8 text-success" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-semibold mb-2 text-center" data-i18n="freeMode">Свободная печать</h3>
+                    <p class="text-gray-600 dark:text-gray-400 text-center" data-i18n="freeModeDesc">Свой текст для тренировки</p>
+                </div>
+                
+                <!-- Speed Test -->
+                <div class="glass rounded-2xl p-8 hover:scale-105 transition-transform cursor-pointer" onclick="showSpeedTest()">
+                    <div class="w-16 h-16 bg-warning/20 rounded-full flex items-center justify-center mb-4 mx-auto">
+                        <svg class="w-8 h-8 text-warning" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-semibold mb-2 text-center" data-i18n="speedTest">Тест скорости</h3>
+                    <p class="text-gray-600 dark:text-gray-400 text-center" data-i18n="speedTestDesc">60 секунд на максимум</p>
+                </div>
+            </div>
+            
+            <!-- Stats Preview -->
+            <div class="mt-12 max-w-4xl mx-auto">
+                <h3 class="text-2xl font-semibold mb-4 text-center" data-i18n="yourProgress">Ваш прогресс</h3>
+                <div class="glass rounded-2xl p-6">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="statsPreview">
+                        <div class="text-center">
+                            <div class="text-3xl font-bold text-primary" id="bestSpeed">0</div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400" data-i18n="bestSpeed">Лучший результат</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-3xl font-bold text-success" id="avgAccuracy">0%</div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400" data-i18n="avgAccuracy">Средняя точность</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-3xl font-bold text-warning"><span id="completedLessons">0</span>/<span id="totalLessonsCount">26</span></div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400" data-i18n="completedLessons">Пройдено уроков</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-3xl font-bold text-purple-500" id="totalTime">0м</div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400" data-i18n="totalTime">Общее время</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Lessons Selection Screen -->
+        <div id="lessonsScreen" class="hidden fade-in">
+            <div class="flex items-center justify-between mb-8">
+                <button onclick="showHome()" class="glass px-6 py-3 rounded-xl hover:bg-white/20 dark:hover:bg-black/20 flex items-center space-x-2 transition-all">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                    </svg>
+                    <span data-i18n="back">Назад</span>
+                </button>
+                
+                <h2 class="text-3xl font-bold" data-i18n="chooseDifficulty">Выберите уровень сложности</h2>
+                
+                <div class="w-32"></div> <!-- spacer -->
+            </div>
+            
+            <div class="max-w-7xl mx-auto">
+                <div class="flex gap-6">
+                    <!-- Left sidebar - Language tabs -->
+                    <div class="w-24 flex-shrink-0">
+                        <div class="bg-gray-800/40 dark:bg-gray-900/60 rounded-2xl p-3 space-y-3 sticky top-24 border border-gray-700/30">
+                            <button onclick="selectLessonLanguage('ru')" id="lessonLangRu" class="w-full px-4 py-4 rounded-xl bg-gradient-to-br from-primary to-cyan-500 text-white font-bold text-lg shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all transform hover:scale-105">
+                                RU
+                            </button>
+                            <button onclick="selectLessonLanguage('en')" id="lessonLangEn" class="w-full px-4 py-4 rounded-xl bg-gray-700/50 dark:bg-gray-800/50 hover:bg-gray-600/50 text-gray-300 font-bold text-lg transition-all transform hover:scale-105">
+                                EN
+                            </button>
+                            <button onclick="selectLessonLanguage('ua')" id="lessonLangUa" class="w-full px-4 py-4 rounded-xl bg-gray-700/50 dark:bg-gray-800/50 hover:bg-gray-600/50 text-gray-300 font-bold text-lg transition-all transform hover:scale-105">
+                                UA
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Right side - Lessons grid -->
+                    <div class="flex-1">
+                        <div class="grid md:grid-cols-3 gap-5" id="lessonsList">
+                            <!-- Will be populated by JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Practice Screen -->
+        <div id="practiceScreen" class="hidden fade-in">
+            <div class="max-w-5xl mx-auto">
+                <div class="flex items-center justify-between mb-6">
+                    <button onclick="exitPractice()" class="glass px-4 py-2 rounded-lg hover:bg-white/20 dark:hover:bg-black/20">
+                        ← <span data-i18n="exit">Выйти</span>
+                    </button>
+                    
+                    <div class="flex items-center space-x-4">
+                        <button onclick="restartPractice()" class="glass px-4 py-2 rounded-lg hover:bg-white/20 dark:hover:bg-black/20">
+                            <span data-i18n="restart">Заново</span>
+                        </button>
+                        <button onclick="togglePause()" id="pauseBtn" class="glass px-4 py-2 rounded-lg hover:bg-white/20 dark:hover:bg-black/20">
+                            <span data-i18n="pause">Пауза</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Stats Bar -->
+                <div class="glass rounded-2xl p-4 mb-6">
+                    <div class="grid grid-cols-4 gap-4 text-center">
+                        <div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400" data-i18n="speed">Скорость</div>
+                            <div class="text-2xl font-bold text-primary"><span id="currentSpeed">0</span> <span class="text-sm" data-i18n="cpm">зн/мин</span></div>
+                        </div>
+                        <div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400" data-i18n="accuracy">Точность</div>
+                            <div class="text-2xl font-bold text-success"><span id="currentAccuracy">100</span>%</div>
+                        </div>
+                        <div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400" data-i18n="time">Время</div>
+                            <div class="text-2xl font-bold text-warning" id="currentTime">0:00</div>
+                        </div>
+                        <div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400" data-i18n="progress">Прогресс</div>
+                            <div class="text-2xl font-bold text-purple-500"><span id="currentProgress">0</span>%</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Progress Bar -->
+                <div class="w-full h-2 bg-gray-300 dark:bg-gray-700 rounded-full mb-6 overflow-hidden">
+                    <div id="progressBar" class="h-full bg-gradient-to-r from-primary to-success transition-all duration-300" style="width: 0%"></div>
+                </div>
+                
+                <!-- Text Display -->
+                <div class="glass rounded-2xl p-8 mb-6 max-h-[200px] overflow-y-auto">
+                    <div id="textDisplay" class="text-3xl mono leading-relaxed text-left select-none min-h-[120px] flex items-center flex-wrap">
+                        <!-- Text will be rendered here -->
+                    </div>
+                </div>
+                
+                <!-- Virtual Keyboard -->
+                <div class="glass rounded-2xl p-6" id="keyboardContainer">
+                    <!-- Keyboard will be rendered here -->
+                </div>
+            </div>
+        </div>
+        
+    </main>
+    
+    <!-- Results Modal -->
+    <div id="resultsModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50">
+        <div class="glass rounded-2xl p-8 max-w-md w-full mx-4 fade-in">
+            <h3 class="text-3xl font-bold mb-6 text-center" data-i18n="results">Результаты</h3>
+            
+            <div class="space-y-4 mb-6">
+                <div class="flex justify-between items-center p-4 bg-white/10 dark:bg-black/20 rounded-lg">
+                    <span data-i18n="speed">Скорость</span>
+                    <span class="text-2xl font-bold text-primary"><span id="resultSpeed">0</span> <span class="text-sm" data-i18n="cpm">зн/мин</span></span>
+                </div>
+                <div class="flex justify-between items-center p-4 bg-white/10 dark:bg-black/20 rounded-lg">
+                    <span data-i18n="accuracy">Точность</span>
+                    <span class="text-2xl font-bold text-success"><span id="resultAccuracy">0</span>%</span>
+                </div>
+                <div class="flex justify-between items-center p-4 bg-white/10 dark:bg-black/20 rounded-lg">
+                    <span data-i18n="time">Время</span>
+                    <span class="text-2xl font-bold text-warning" id="resultTime">0:00</span>
+                </div>
+                <div class="flex justify-between items-center p-4 bg-white/10 dark:bg-black/20 rounded-lg">
+                    <span data-i18n="errors">Ошибки</span>
+                    <span class="text-2xl font-bold text-red-500" id="resultErrors">0</span>
+                </div>
+            </div>
+            
+            <div class="flex space-x-4">
+                <button onclick="repeatPractice()" class="flex-1 bg-primary hover:bg-primary/80 text-white font-semibold py-3 rounded-lg">
+                    <span data-i18n="repeat">Повторить</span>
+                </button>
+                <button onclick="closeResults()" class="flex-1 glass hover:bg-white/20 dark:hover:bg-black/20 font-semibold py-3 rounded-lg">
+                    <span data-i18n="close">Закрыть</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="scripts/lessons-data.js"></script>
+    <script src="scripts/keyboard.js"></script>
+    <script src="scripts/stats.js"></script>
+    <script src="scripts/main.js"></script>
+    
+</body>
+</html>
+

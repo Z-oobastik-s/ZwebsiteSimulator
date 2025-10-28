@@ -1,0 +1,23 @@
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+
+# Optional
+node_modules/
+
+# Sensitive files - НЕ коммитить!
+deploy-config.bat
+deploy-config.sh
+github-token.txt
+.env
+upload-to-github.bat
