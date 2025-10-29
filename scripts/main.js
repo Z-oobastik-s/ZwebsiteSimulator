@@ -113,6 +113,9 @@ let currentLevelData = null; // Сохраняем данные текущего
 
 // Initialize app
 document.addEventListener('DOMContentLoaded', () => {
+    // Гарантируем что при загрузке страницы паузы нет
+    app.isPaused = false;
+    
     loadSettings();
     initializeAudio();
     initializeUI();
@@ -455,6 +458,9 @@ function showLessonList(levelData) {
 
 // Start practice
 function startPractice(text, mode, lesson = null) {
+    // КРИТИЧНО: Сразу сбрасываем паузу чтобы избежать блокировки ввода
+    app.isPaused = false;
+    
     hideAllScreens();
     document.getElementById('practiceScreen').classList.remove('hidden');
     
@@ -475,7 +481,7 @@ function startPractice(text, mode, lesson = null) {
     app.currentPosition = 0;
     app.startTime = Date.now();
     app.endTime = null;
-    app.isPaused = false;
+    app.isPaused = false; // Дублируем для надёжности
     app.errors = 0;
     app.totalChars = text.length;
     app.typedText = ''; // Обнуляем набранный текст
@@ -554,7 +560,8 @@ function renderText() {
 
 // Handle key press
 function handleKeyPress(e) {
-    if (app.currentMode !== 'practice' || app.isPaused) return;
+    // Разрешаем ввод только в режиме практики или теста на скорость
+    if ((app.currentMode !== 'practice' && app.currentMode !== 'speedtest') || app.isPaused) return;
     
     // Ignore special keys
     if (e.key.length > 1 && e.key !== 'Backspace' && e.key !== 'Enter') return;
@@ -730,6 +737,9 @@ function restartPractice() {
 
 // Exit practice
 function exitPractice() {
+    // Сбрасываем паузу при выходе
+    app.isPaused = false;
+    
     if (app.timerInterval) {
         clearInterval(app.timerInterval);
     }
