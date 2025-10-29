@@ -373,6 +373,9 @@ function hideAllScreens() {
     document.getElementById('homeScreen').classList.add('hidden');
     document.getElementById('lessonsScreen').classList.add('hidden');
     document.getElementById('practiceScreen').classList.add('hidden');
+    document.getElementById('multiplayerMenuScreen')?.classList.add('hidden');
+    document.getElementById('multiplayerWaitingScreen')?.classList.add('hidden');
+    document.getElementById('multiplayerGameScreen')?.classList.add('hidden');
 }
 
 // Select lesson language
@@ -917,5 +920,230 @@ function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+}
+
+// ============================================
+// MULTIPLAYER MODE FUNCTIONS
+// ============================================
+
+// Show multiplayer menu
+function showMultiplayerMenu() {
+    hideAllScreens();
+    document.getElementById('multiplayerMenuScreen').classList.remove('hidden');
+    app.currentMode = 'multiplayer-menu';
+}
+
+// Show join room dialog
+function showJoinRoomDialog() {
+    document.getElementById('joinRoomDialog').classList.remove('hidden');
+    document.getElementById('joinRoomCodeInput').value = '';
+    document.getElementById('joinRoomError').classList.add('hidden');
+}
+
+// Hide join room dialog
+function hideJoinRoomDialog() {
+    document.getElementById('joinRoomDialog').classList.add('hidden');
+}
+
+// Create multiplayer room
+async function createMultiplayerRoom() {
+    try {
+        const roomCode = await window.multiplayerModule.createRoom();
+        
+        hideAllScreens();
+        document.getElementById('multiplayerWaitingScreen').classList.remove('hidden');
+        document.getElementById('multiplayerRoomCode').textContent = roomCode;
+        app.currentMode = 'multiplayer-waiting';
+        
+    } catch (error) {
+        console.error('Failed to create room:', error);
+        alert('Ошибка создания комнаты: ' + error.message);
+    }
+}
+
+// Join multiplayer room
+async function joinMultiplayerRoom() {
+    const roomCode = document.getElementById('joinRoomCodeInput').value.trim().toUpperCase();
+    
+    if (!roomCode || roomCode.length !== 6) {
+        document.getElementById('joinRoomError').textContent = 'Введи корректный код (6 символов)';
+        document.getElementById('joinRoomError').classList.remove('hidden');
+        return;
+    }
+    
+    try {
+        await window.multiplayerModule.joinRoom(roomCode);
+        
+        hideAllScreens();
+        document.getElementById('multiplayerWaitingScreen').classList.remove('hidden');
+        document.getElementById('multiplayerRoomCode').textContent = roomCode;
+        app.currentMode = 'multiplayer-waiting';
+        
+    } catch (error) {
+        console.error('Failed to join room:', error);
+        document.getElementById('joinRoomError').textContent = error.message;
+        document.getElementById('joinRoomError').classList.remove('hidden');
+    }
+}
+
+// Leave multiplayer room
+async function leaveMultiplayerRoom() {
+    try {
+        await window.multiplayerModule.leaveRoom();
+        showHome();
+    } catch (error) {
+        console.error('Failed to leave room:', error);
+        showHome();
+    }
+}
+
+// Copy room code to clipboard
+function copyRoomCode() {
+    const roomCode = document.getElementById('multiplayerRoomCode').textContent;
+    navigator.clipboard.writeText(roomCode).then(() => {
+        alert('Код скопирован: ' + roomCode);
+    });
+}
+
+// Multiplayer callbacks
+window.onMultiplayerUpdate = (data) => {
+    // Update player count
+    if (data.playerCount) {
+        const countEl = document.getElementById('multiplayerPlayerCount');
+        if (countEl) {
+            countEl.innerHTML = `<span class="text-success font-bold">${data.playerCount}</span> / <span class="text-gray-400">2</span> игроков`;
+        }
+    }
+    
+    // Update opponent progress in game
+    if (data.opponentProgress !== undefined && app.currentMode === 'multiplayer-game') {
+        const progress = Math.round(data.opponentProgress);
+        document.getElementById('multiplayerOpponentProgress').textContent = progress;
+        document.getElementById('multiplayerOpponentProgressBar').style.width = progress + '%';
+    }
+};
+
+window.onMultiplayerStart = (gameText) => {
+    hideAllScreens();
+    document.getElementById('multiplayerGameScreen').classList.remove('hidden');
+    app.currentMode = 'multiplayer-game';
+    
+    // Setup game
+    app.currentText = gameText;
+    app.currentPosition = 0;
+    app.errors = 0;
+    app.startTime = Date.now();
+    app.isPaused = false;
+    
+    // Render text
+    const display = document.getElementById('multiplayerTextDisplay');
+    display.innerHTML = '';
+    for (let i = 0; i < gameText.length; i++) {
+        const span = document.createElement('span');
+        span.textContent = gameText[i];
+        span.className = i === 0 ? 'char-current' : 'char-future';
+        span.dataset.index = i;
+        display.appendChild(span);
+    }
+    
+    // Reset progress bars
+    document.getElementById('multiplayerMyProgress').textContent = '0';
+    document.getElementById('multiplayerMyProgressBar').style.width = '0%';
+    document.getElementById('multiplayerOpponentProgress').textContent = '0';
+    document.getElementById('multiplayerOpponentProgressBar').style.width = '0%';
+    
+    // Render keyboard
+    const keyboardContainer = document.getElementById('multiplayerKeyboardContainer');
+    keyboardContainer.innerHTML = '';
+    window.keyboardModule.render(app.currentLayout, keyboardContainer);
+    
+    // Focus input
+    document.addEventListener('keydown', handleMultiplayerKeyPress);
+};
+
+window.onMultiplayerRoomDeleted = () => {
+    alert('Комната была закрыта');
+    showHome();
+};
+
+window.onOpponentFinished = () => {
+    if (!app.gameEnded) {
+        setTimeout(() => {
+            alert('Противник финишировал! Ты проиграл 😢');
+            leaveMultiplayerRoom();
+        }, 100);
+    }
+};
+
+// Handle multiplayer key press
+function handleMultiplayerKeyPress(e) {
+    if (app.currentMode !== 'multiplayer-game' || app.isPaused) return;
+    
+    if (e.key.length > 1 && e.key !== 'Backspace' && e.key !== 'Enter') return;
+    
+    e.preventDefault();
+    
+    const display = document.getElementById('multiplayerTextDisplay');
+    
+    if (e.key === 'Backspace') {
+        if (app.currentPosition > 0) {
+            app.currentPosition--;
+            const spans = display.querySelectorAll('span');
+            spans[app.currentPosition].className = 'char-current';
+            if (app.currentPosition + 1 < spans.length) {
+                spans[app.currentPosition + 1].className = 'char-future';
+            }
+            updateMultiplayerProgress();
+        }
+        return;
+    }
+    
+    const expectedChar = app.currentText[app.currentPosition];
+    const spans = display.querySelectorAll('span');
+    
+    if (e.key === expectedChar) {
+        // Correct
+        spans[app.currentPosition].className = 'char-typed';
+        app.currentPosition++;
+        
+        if (app.currentPosition < app.currentText.length) {
+            spans[app.currentPosition].className = 'char-current';
+        }
+        
+        playSound('correct');
+        updateMultiplayerProgress();
+        
+        // Check if finished
+        if (app.currentPosition >= app.currentText.length) {
+            finishMultiplayerGame();
+        }
+    } else {
+        // Error
+        app.errors++;
+        playSound('error');
+    }
+}
+
+// Update multiplayer progress
+function updateMultiplayerProgress() {
+    const progress = Math.round((app.currentPosition / app.currentText.length) * 100);
+    document.getElementById('multiplayerMyProgress').textContent = progress;
+    document.getElementById('multiplayerMyProgressBar').style.width = progress + '%';
+    
+    // Send to Firebase
+    window.multiplayerModule.updateProgress(progress);
+}
+
+// Finish multiplayer game
+async function finishMultiplayerGame() {
+    app.gameEnded = true;
+    document.removeEventListener('keydown', handleMultiplayerKeyPress);
+    
+    await window.multiplayerModule.finishGame();
+    
+    setTimeout(() => {
+        alert('🏆 Победа! Ты первый!');
+        leaveMultiplayerRoom();
+    }, 500);
 }
 
