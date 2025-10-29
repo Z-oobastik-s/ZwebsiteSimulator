@@ -641,7 +641,8 @@
                     <div class="w-32"></div>
                 </div>
                 
-                <div class="glass rounded-2xl p-8 mb-6">
+                <!-- Main Menu -->
+                <div id="multiplayerMainMenu" class="glass rounded-2xl p-8 mb-6">
                     <div class="grid md:grid-cols-2 gap-6">
                         <!-- Create Room -->
                         <button onclick="showRoomSettings()" class="glass rounded-xl p-8 hover:scale-105 transition-transform text-center">
@@ -668,15 +669,49 @@
                 </div>
                 
                 <!-- Room Settings Dialog -->
-                <div id="roomSettingsDialog" class="glass rounded-2xl p-8 hidden">
-                    <h3 class="text-2xl font-bold mb-4 text-center" data-i18n="chooseGameMode">Выбери режим игры</h3>
-                    <div class="space-y-4 mb-6">
+                <div id="roomSettingsDialog" class="glass rounded-2xl p-8 mb-6 hidden">
+                    <h3 class="text-2xl font-bold mb-6 text-center" data-i18n="chooseGameMode">Выбери режим игры</h3>
+                    
+                    <!-- Themes -->
+                    <div class="mb-6">
+                        <h4 class="text-lg font-semibold mb-3 text-center">Тематика текста</h4>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                            <button onclick="selectTheme('random')" class="theme-btn glass rounded-lg px-4 py-3 hover:bg-success/20 transition-all text-center border-2 border-success" data-theme="random">
+                                <div class="text-2xl mb-1">🎲</div>
+                                <div class="text-sm font-semibold">Случайные</div>
+                            </button>
+                            <button onclick="selectTheme('anime')" class="theme-btn glass rounded-lg px-4 py-3 hover:bg-success/20 transition-all text-center border-2 border-transparent hover:border-success" data-theme="anime">
+                                <div class="text-2xl mb-1">🎌</div>
+                                <div class="text-sm font-semibold">Аниме</div>
+                            </button>
+                            <button onclick="selectTheme('games')" class="theme-btn glass rounded-lg px-4 py-3 hover:bg-success/20 transition-all text-center border-2 border-transparent hover:border-success" data-theme="games">
+                                <div class="text-2xl mb-1">🎮</div>
+                                <div class="text-sm font-semibold">Игры</div>
+                            </button>
+                            <button onclick="selectTheme('animals')" class="theme-btn glass rounded-lg px-4 py-3 hover:bg-success/20 transition-all text-center border-2 border-transparent hover:border-success" data-theme="animals">
+                                <div class="text-2xl mb-1">🐾</div>
+                                <div class="text-sm font-semibold">Животные</div>
+                            </button>
+                            <button onclick="selectTheme('space')" class="theme-btn glass rounded-lg px-4 py-3 hover:bg-success/20 transition-all text-center border-2 border-transparent hover:border-success" data-theme="space">
+                                <div class="text-2xl mb-1">🚀</div>
+                                <div class="text-sm font-semibold">Космос</div>
+                            </button>
+                            <button onclick="selectTheme('nature')" class="theme-btn glass rounded-lg px-4 py-3 hover:bg-success/20 transition-all text-center border-2 border-transparent hover:border-success" data-theme="nature">
+                                <div class="text-2xl mb-1">🌲</div>
+                                <div class="text-sm font-semibold">Природа</div>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Word Count -->
+                    <div class="mb-6">
+                        <h4 class="text-lg font-semibold mb-3 text-center">Количество слов</h4>
                         <div class="grid grid-cols-3 gap-4">
                             <button onclick="selectWordCount(30)" class="room-setting-btn glass rounded-lg px-4 py-6 hover:bg-primary/20 transition-all text-center border-2 border-transparent hover:border-primary" data-words="30">
                                 <div class="text-3xl font-bold text-primary mb-2">30</div>
                                 <div class="text-sm" data-i18n="words30">слов</div>
                             </button>
-                            <button onclick="selectWordCount(50)" class="room-setting-btn glass rounded-lg px-4 py-6 hover:bg-primary/20 transition-all text-center border-2 border-primary" data-words="50">
+                            <button onclick="selectWordCount(50)" class="room-setting-btn glass rounded-lg px-4 py-6 bg-primary/20 transition-all text-center border-2 border-primary" data-words="50">
                                 <div class="text-3xl font-bold text-primary mb-2">50</div>
                                 <div class="text-sm" data-i18n="words50">слов</div>
                             </button>
@@ -686,8 +721,9 @@
                             </button>
                         </div>
                     </div>
+                    
                     <div class="flex gap-4">
-                        <button onclick="hideRoomSettings()" class="flex-1 px-6 py-3 rounded-lg glass hover:bg-white/20 dark:hover:bg-black/20" data-i18n="back">Отмена</button>
+                        <button onclick="hideRoomSettings()" class="flex-1 px-6 py-3 rounded-lg glass hover:bg-white/20 dark:hover:bg-black/20" data-i18n="back">Назад</button>
                         <button onclick="createMultiplayerRoomWithSettings()" class="flex-1 px-6 py-3 rounded-lg bg-purple-500 hover:bg-purple-600 text-white font-semibold" data-i18n="createRoom">Создать</button>
                     </div>
                 </div>

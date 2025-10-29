@@ -1038,16 +1038,35 @@ function showMultiplayerMenu() {
 
 // Room settings
 let selectedWordCount = 50; // Default
+let selectedTheme = 'random'; // Default
 
 // Show room settings
 function showRoomSettings() {
+    document.getElementById('multiplayerMainMenu').classList.add('hidden');
     document.getElementById('roomSettingsDialog').classList.remove('hidden');
     document.getElementById('joinRoomDialog').classList.add('hidden');
+}
+
+// Select theme
+function selectTheme(theme) {
+    selectedTheme = theme;
+    // Update button styles
+    document.querySelectorAll('.theme-btn').forEach(btn => {
+        const btnTheme = btn.getAttribute('data-theme');
+        if (btnTheme === theme) {
+            btn.classList.add('border-success', 'bg-success/20');
+            btn.classList.remove('border-transparent');
+        } else {
+            btn.classList.remove('border-success', 'bg-success/20');
+            btn.classList.add('border-transparent');
+        }
+    });
 }
 
 // Hide room settings
 function hideRoomSettings() {
     document.getElementById('roomSettingsDialog').classList.add('hidden');
+    document.getElementById('multiplayerMainMenu').classList.remove('hidden');
 }
 
 // Select word count
@@ -1057,10 +1076,10 @@ function selectWordCount(count) {
     document.querySelectorAll('.room-setting-btn').forEach(btn => {
         const wordCount = parseInt(btn.getAttribute('data-words'));
         if (wordCount === count) {
-            btn.classList.add('border-primary');
+            btn.classList.add('border-primary', 'bg-primary/20');
             btn.classList.remove('border-transparent');
         } else {
-            btn.classList.remove('border-primary');
+            btn.classList.remove('border-primary', 'bg-primary/20');
             btn.classList.add('border-transparent');
         }
     });
@@ -1068,6 +1087,7 @@ function selectWordCount(count) {
 
 // Show join room dialog
 function showJoinRoomDialog() {
+    document.getElementById('multiplayerMainMenu').classList.add('hidden');
     document.getElementById('joinRoomDialog').classList.remove('hidden');
     document.getElementById('roomSettingsDialog').classList.add('hidden');
     document.getElementById('joinRoomCodeInput').value = '';
@@ -1077,12 +1097,13 @@ function showJoinRoomDialog() {
 // Hide join room dialog
 function hideJoinRoomDialog() {
     document.getElementById('joinRoomDialog').classList.add('hidden');
+    document.getElementById('multiplayerMainMenu').classList.remove('hidden');
 }
 
 // Create multiplayer room with settings
 async function createMultiplayerRoomWithSettings() {
     try {
-        const roomCode = await window.multiplayerModule.createRoom(selectedWordCount);
+        const roomCode = await window.multiplayerModule.createRoom(selectedWordCount, selectedTheme);
         
         hideRoomSettings();
         hideAllScreens();
@@ -1131,9 +1152,14 @@ async function leaveMultiplayerRoom() {
         await window.multiplayerModule.leaveRoom();
         showToast(t('leftRoom'), 'info', t('multiplayer'));
         showHome();
+        // Восстанавливаем фон и частицы
+        setRandomBackground();
+        createParticles();
     } catch (error) {
         console.error('Failed to leave room:', error);
         showHome();
+        setRandomBackground();
+        createParticles();
     }
 }
 
@@ -1180,10 +1206,20 @@ window.onMultiplayerStart = (gameText) => {
     // Render text
     const display = document.getElementById('multiplayerTextDisplay');
     display.innerHTML = '';
+    display.style.whiteSpace = 'pre-wrap'; // Сохраняем пробелы
     for (let i = 0; i < gameText.length; i++) {
         const span = document.createElement('span');
-        span.textContent = gameText[i];
-        span.className = i === 0 ? 'char-current' : 'char-future';
+        const char = gameText[i];
+        
+        // Для пробелов используем специальный символ
+        if (char === ' ') {
+            span.innerHTML = '&nbsp;';
+            span.className = (i === 0 ? 'char-current' : 'char-future') + ' char-space';
+        } else {
+            span.textContent = char;
+            span.className = i === 0 ? 'char-current' : 'char-future';
+        }
+        
         span.dataset.index = i;
         display.appendChild(span);
     }
@@ -1231,9 +1267,11 @@ function handleMultiplayerKeyPress(e) {
         if (app.currentPosition > 0) {
             app.currentPosition--;
             const spans = display.querySelectorAll('span');
-            spans[app.currentPosition].className = 'char-current';
+            const isSpace = app.currentText[app.currentPosition] === ' ';
+            spans[app.currentPosition].className = isSpace ? 'char-current char-space' : 'char-current';
             if (app.currentPosition + 1 < spans.length) {
-                spans[app.currentPosition + 1].className = 'char-future';
+                const nextIsSpace = app.currentText[app.currentPosition + 1] === ' ';
+                spans[app.currentPosition + 1].className = nextIsSpace ? 'char-future char-space' : 'char-future';
             }
             updateMultiplayerProgress();
         }
@@ -1245,11 +1283,13 @@ function handleMultiplayerKeyPress(e) {
     
     if (e.key === expectedChar) {
         // Correct
-        spans[app.currentPosition].className = 'char-typed';
+        const isSpace = expectedChar === ' ';
+        spans[app.currentPosition].className = isSpace ? 'char-typed char-space' : 'char-typed';
         app.currentPosition++;
         
         if (app.currentPosition < app.currentText.length) {
-            spans[app.currentPosition].className = 'char-current';
+            const nextIsSpace = app.currentText[app.currentPosition] === ' ';
+            spans[app.currentPosition].className = nextIsSpace ? 'char-current char-space' : 'char-current';
         }
         
         playSound('correct');
