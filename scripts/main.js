@@ -84,7 +84,8 @@ const translations = {
         youWonMsg: 'Ты первый допечатал текст!',
         youLostMsg: 'Противник был быстрее',
         roomCreated: 'Комната создана',
-        joinedRoom: 'Подключён к комнате',
+        joinedRoom: 'Вы подключились к комнате',
+        playerJoined: 'Игрок подключился',
         leftRoom: 'Вы покинули комнату',
         errorCreatingRoom: 'Ошибка создания комнаты',
         errorJoiningRoom: 'Ошибка подключения',
@@ -150,7 +151,8 @@ const translations = {
         youWonMsg: 'You finished first!',
         youLostMsg: 'Opponent was faster',
         roomCreated: 'Room Created',
-        joinedRoom: 'Joined Room',
+        joinedRoom: 'You joined the room',
+        playerJoined: 'Player joined',
         leftRoom: 'You left the room',
         errorCreatingRoom: 'Error creating room',
         errorJoiningRoom: 'Error joining room',
@@ -1039,12 +1041,29 @@ function showMultiplayerMenu() {
 // Room settings
 let selectedWordCount = 50; // Default
 let selectedTheme = 'random'; // Default
+let selectedMultiplayerLang = 'ru'; // Default
 
 // Show room settings
 function showRoomSettings() {
     document.getElementById('multiplayerMainMenu').classList.add('hidden');
     document.getElementById('roomSettingsDialog').classList.remove('hidden');
     document.getElementById('joinRoomDialog').classList.add('hidden');
+}
+
+// Select multiplayer language
+function selectMultiplayerLang(lang) {
+    selectedMultiplayerLang = lang;
+    // Update button styles
+    document.querySelectorAll('.mp-lang-btn').forEach(btn => {
+        const btnLang = btn.getAttribute('data-lang');
+        if (btnLang === lang) {
+            btn.classList.add('border-warning', 'bg-warning/20');
+            btn.classList.remove('border-transparent');
+        } else {
+            btn.classList.remove('border-warning', 'bg-warning/20');
+            btn.classList.add('border-transparent');
+        }
+    });
 }
 
 // Select theme
@@ -1103,7 +1122,8 @@ function hideJoinRoomDialog() {
 // Create multiplayer room with settings
 async function createMultiplayerRoomWithSettings() {
     try {
-        const roomCode = await window.multiplayerModule.createRoom(selectedWordCount, selectedTheme);
+        window.secondPlayerNotified = false; // Сброс флага
+        const roomCode = await window.multiplayerModule.createRoom(selectedWordCount, selectedTheme, selectedMultiplayerLang);
         
         hideRoomSettings();
         hideAllScreens();
@@ -1174,12 +1194,59 @@ function copyRoomCode() {
 }
 
 // Multiplayer callbacks
+// Render multiplayer text with scrolling effect
+function renderMultiplayerText() {
+    const display = document.getElementById('multiplayerTextDisplay');
+    display.innerHTML = '';
+    
+    const WINDOW_SIZE = 60;
+    const TYPED_VISIBLE = 10;
+    
+    const startPos = Math.max(0, app.currentPosition - TYPED_VISIBLE);
+    const endPos = Math.min(app.currentText.length, startPos + WINDOW_SIZE);
+    
+    for (let i = startPos; i < endPos; i++) {
+        const char = app.currentText[i];
+        const span = document.createElement('span');
+        
+        if (i < app.currentPosition) {
+            // Набранный текст
+            span.className = 'char-typed';
+            const distanceFromCurrent = app.currentPosition - i;
+            const opacity = Math.max(0.2, 1 - (distanceFromCurrent / TYPED_VISIBLE));
+            span.style.opacity = opacity;
+            span.style.fontSize = '0.9em';
+        } else if (i === app.currentPosition) {
+            // Текущий символ
+            span.className = 'char-current';
+        } else {
+            // Будущие символы
+            span.className = 'char-future';
+        }
+        
+        // Пробелы
+        if (char === ' ') {
+            span.innerHTML = '&nbsp;';
+        } else {
+            span.textContent = char;
+        }
+        
+        display.appendChild(span);
+    }
+}
+
 window.onMultiplayerUpdate = (data) => {
     // Update player count
     if (data.playerCount) {
         const countEl = document.getElementById('multiplayerPlayerCount');
         if (countEl) {
-            countEl.innerHTML = `<span class="text-success font-bold">${data.playerCount}</span> / <span class="text-gray-400">2</span> игроков`;
+            countEl.innerHTML = `<span class="text-success font-bold">${data.playerCount}</span> / <span class="text-gray-400">2</span> <span data-i18n="playersCount">${t('playersCount')}</span>`;
+        }
+        
+        // Уведомление когда второй игрок подключился
+        if (data.playerCount === 2 && !window.secondPlayerNotified) {
+            window.secondPlayerNotified = true;
+            showToast(t('playerJoined'), 'success', t('multiplayer'));
         }
     }
     
@@ -1205,24 +1272,7 @@ window.onMultiplayerStart = (gameText) => {
     
     // Render text
     const display = document.getElementById('multiplayerTextDisplay');
-    display.innerHTML = '';
-    display.style.whiteSpace = 'pre-wrap'; // Сохраняем пробелы
-    for (let i = 0; i < gameText.length; i++) {
-        const span = document.createElement('span');
-        const char = gameText[i];
-        
-        // Для пробелов используем специальный символ
-        if (char === ' ') {
-            span.innerHTML = '&nbsp;';
-            span.className = (i === 0 ? 'char-current' : 'char-future') + ' char-space';
-        } else {
-            span.textContent = char;
-            span.className = i === 0 ? 'char-current' : 'char-future';
-        }
-        
-        span.dataset.index = i;
-        display.appendChild(span);
-    }
+    renderMultiplayerText();
     
     // Reset progress bars
     document.getElementById('multiplayerMyProgress').textContent = '0';
@@ -1240,16 +1290,22 @@ window.onMultiplayerStart = (gameText) => {
 };
 
 window.onMultiplayerRoomDeleted = () => {
-    showToast(t('opponentLeft'), 'warning', t('roomClosed'));
-    setTimeout(() => showHome(), 1000);
+    if (!app.gameEnded) { // Показываем только если игра не закончилась
+        showToast(t('opponentLeft'), 'warning', t('roomClosed'));
+        setTimeout(() => {
+            showHome();
+            setRandomBackground();
+            createParticles();
+        }, 1500);
+    }
 };
 
 window.onOpponentFinished = () => {
     if (!app.gameEnded) {
-        setTimeout(() => {
-            showToast(t('youLostMsg'), 'error', t('youLost'));
-            setTimeout(() => leaveMultiplayerRoom(), 2000);
-        }, 100);
+        app.gameEnded = true;
+        document.removeEventListener('keydown', handleMultiplayerKeyPress);
+        showToast(t('youLostMsg'), 'error', t('youLost'));
+        setTimeout(() => leaveMultiplayerRoom(), 2500);
     }
 };
 
@@ -1266,32 +1322,18 @@ function handleMultiplayerKeyPress(e) {
     if (e.key === 'Backspace') {
         if (app.currentPosition > 0) {
             app.currentPosition--;
-            const spans = display.querySelectorAll('span');
-            const isSpace = app.currentText[app.currentPosition] === ' ';
-            spans[app.currentPosition].className = isSpace ? 'char-current char-space' : 'char-current';
-            if (app.currentPosition + 1 < spans.length) {
-                const nextIsSpace = app.currentText[app.currentPosition + 1] === ' ';
-                spans[app.currentPosition + 1].className = nextIsSpace ? 'char-future char-space' : 'char-future';
-            }
+            renderMultiplayerText();
             updateMultiplayerProgress();
         }
         return;
     }
     
     const expectedChar = app.currentText[app.currentPosition];
-    const spans = display.querySelectorAll('span');
     
     if (e.key === expectedChar) {
         // Correct
-        const isSpace = expectedChar === ' ';
-        spans[app.currentPosition].className = isSpace ? 'char-typed char-space' : 'char-typed';
         app.currentPosition++;
-        
-        if (app.currentPosition < app.currentText.length) {
-            const nextIsSpace = app.currentText[app.currentPosition] === ' ';
-            spans[app.currentPosition].className = nextIsSpace ? 'char-current char-space' : 'char-current';
-        }
-        
+        renderMultiplayerText();
         playSound('correct');
         updateMultiplayerProgress();
         
@@ -1318,14 +1360,19 @@ function updateMultiplayerProgress() {
 
 // Finish multiplayer game
 async function finishMultiplayerGame() {
+    if (app.gameEnded) return; // Защита от повторного вызова
+    
     app.gameEnded = true;
     document.removeEventListener('keydown', handleMultiplayerKeyPress);
     
     await window.multiplayerModule.finishGame();
     
-    setTimeout(() => {
-        showToast(t('youWonMsg'), 'success', '🏆 ' + t('youWon'));
-        setTimeout(() => leaveMultiplayerRoom(), 2000);
-    }, 500);
+    showToast(t('youWonMsg'), 'success', '🏆 ' + t('youWon'));
+    setTimeout(async () => {
+        await window.multiplayerModule.leaveRoom();
+        showHome();
+        setRandomBackground();
+        createParticles();
+    }, 2500);
 }
 

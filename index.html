@@ -676,7 +676,7 @@
                     <div class="mb-6">
                         <h4 class="text-lg font-semibold mb-3 text-center">Тематика текста</h4>
                         <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
-                            <button onclick="selectTheme('random')" class="theme-btn glass rounded-lg px-4 py-3 hover:bg-success/20 transition-all text-center border-2 border-success" data-theme="random">
+                            <button onclick="selectTheme('random')" class="theme-btn glass rounded-lg px-4 py-3 bg-success/20 hover:bg-success/30 transition-all text-center border-2 border-success" data-theme="random">
                                 <div class="text-2xl mb-1">🎲</div>
                                 <div class="text-sm font-semibold">Случайные</div>
                             </button>
@@ -703,21 +703,44 @@
                         </div>
                     </div>
                     
+                    <!-- Language Selection -->
+                    <div class="mb-6">
+                        <h4 class="text-lg font-semibold mb-3 text-center">Язык текста</h4>
+                        <div class="grid grid-cols-3 gap-4">
+                            <button onclick="selectMultiplayerLang('ru')" class="mp-lang-btn glass rounded-lg px-4 py-4 bg-warning/20 hover:bg-warning/30 transition-all text-center border-2 border-warning" data-lang="ru">
+                                <div class="text-2xl font-bold mb-1">РУС</div>
+                                <div class="text-xs">Русский</div>
+                            </button>
+                            <button onclick="selectMultiplayerLang('en')" class="mp-lang-btn glass rounded-lg px-4 py-4 hover:bg-warning/20 transition-all text-center border-2 border-transparent hover:border-warning" data-lang="en">
+                                <div class="text-2xl font-bold mb-1">ENG</div>
+                                <div class="text-xs">English</div>
+                            </button>
+                            <button onclick="selectMultiplayerLang('ua')" class="mp-lang-btn glass rounded-lg px-4 py-4 hover:bg-warning/20 transition-all text-center border-2 border-transparent hover:border-warning" data-lang="ua">
+                                <div class="text-2xl font-bold mb-1">УКР</div>
+                                <div class="text-xs">Українська</div>
+                            </button>
+                        </div>
+                    </div>
+                    
                     <!-- Word Count -->
                     <div class="mb-6">
                         <h4 class="text-lg font-semibold mb-3 text-center">Количество слов</h4>
-                        <div class="grid grid-cols-3 gap-4">
-                            <button onclick="selectWordCount(30)" class="room-setting-btn glass rounded-lg px-4 py-6 hover:bg-primary/20 transition-all text-center border-2 border-transparent hover:border-primary" data-words="30">
-                                <div class="text-3xl font-bold text-primary mb-2">30</div>
-                                <div class="text-sm" data-i18n="words30">слов</div>
+                        <div class="grid grid-cols-4 gap-3">
+                            <button onclick="selectWordCount(30)" class="room-setting-btn glass rounded-lg px-3 py-5 hover:bg-primary/20 transition-all text-center border-2 border-transparent hover:border-primary" data-words="30">
+                                <div class="text-2xl font-bold text-primary mb-1">30</div>
+                                <div class="text-xs" data-i18n="words30">слов</div>
                             </button>
-                            <button onclick="selectWordCount(50)" class="room-setting-btn glass rounded-lg px-4 py-6 bg-primary/20 transition-all text-center border-2 border-primary" data-words="50">
-                                <div class="text-3xl font-bold text-primary mb-2">50</div>
-                                <div class="text-sm" data-i18n="words50">слов</div>
+                            <button onclick="selectWordCount(50)" class="room-setting-btn glass rounded-lg px-3 py-5 bg-primary/20 hover:bg-primary/30 transition-all text-center border-2 border-primary" data-words="50">
+                                <div class="text-2xl font-bold text-primary mb-1">50</div>
+                                <div class="text-xs" data-i18n="words50">слов</div>
                             </button>
-                            <button onclick="selectWordCount(100)" class="room-setting-btn glass rounded-lg px-4 py-6 hover:bg-primary/20 transition-all text-center border-2 border-transparent hover:border-primary" data-words="100">
-                                <div class="text-3xl font-bold text-primary mb-2">100</div>
-                                <div class="text-sm" data-i18n="words100">слов</div>
+                            <button onclick="selectWordCount(100)" class="room-setting-btn glass rounded-lg px-3 py-5 hover:bg-primary/20 transition-all text-center border-2 border-transparent hover:border-primary" data-words="100">
+                                <div class="text-2xl font-bold text-primary mb-1">100</div>
+                                <div class="text-xs" data-i18n="words100">слов</div>
+                            </button>
+                            <button onclick="selectWordCount(1000)" class="room-setting-btn glass rounded-lg px-3 py-5 hover:bg-primary/20 transition-all text-center border-2 border-transparent hover:border-primary" data-words="1000">
+                                <div class="text-2xl font-bold text-primary mb-1">1K</div>
+                                <div class="text-xs">слов</div>
                             </button>
                         </div>
                     </div>

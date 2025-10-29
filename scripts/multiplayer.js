@@ -84,7 +84,7 @@ function getThemedText(theme, layout, wordCount) {
 }
 
 // Create new room
-export async function createRoom(wordCount = 50, theme = 'random') {
+export async function createRoom(wordCount = 50, theme = 'random', layout = 'ru') {
     const roomCode = generateRoomCode();
     const playerId = generatePlayerId();
     
@@ -95,7 +95,6 @@ export async function createRoom(wordCount = 50, theme = 'random') {
     
     // Generate game text
     let gameText;
-    const layout = window.app?.currentLayout || 'ru';
     
     if (theme !== 'random' && textLibrary[theme]) {
         // Use themed text
