@@ -41,7 +41,7 @@ function generatePlayerId() {
 }
 
 // Create new room
-export async function createRoom() {
+export async function createRoom(wordCount = 50) {
     const roomCode = generateRoomCode();
     const playerId = generatePlayerId();
     
@@ -51,12 +51,15 @@ export async function createRoom() {
     multiplayerState.playerNumber = 1;
     
     // Generate game text (random words)
-    const words = window.app?.currentLayout === 'en' 
-        ? ['the', 'and', 'for', 'are', 'but', 'not', 'you', 'all', 'can', 'her', 'was', 'one', 'our', 'out', 'day']
-        : ['как', 'так', 'все', 'это', 'был', 'она', 'они', 'мой', 'его', 'что', 'год', 'дом', 'день', 'раз', 'рука'];
+    const layout = window.app?.currentLayout || 'ru';
+    const words = layout === 'en' 
+        ? ['the', 'and', 'for', 'are', 'but', 'not', 'you', 'all', 'can', 'her', 'was', 'one', 'our', 'out', 'day', 'get', 'has', 'him', 'his', 'how', 'man', 'new', 'now', 'old', 'see', 'time', 'two', 'way', 'who', 'boy', 'did', 'its', 'let', 'put', 'say', 'she', 'too', 'use', 'with', 'work', 'year', 'back', 'call', 'come', 'made', 'make', 'more', 'over', 'such', 'take', 'than', 'them', 'then', 'very', 'well', 'when', 'your']
+        : layout === 'ua'
+        ? ['як', 'так', 'все', 'це', 'був', 'вона', 'вони', 'мій', 'його', 'що', 'рік', 'дім', 'день', 'раз', 'рука', 'нога', 'мама', 'тато', 'вода', 'небо', 'земля', 'місто', 'стіл', 'вікно', 'двері', 'книга', 'лампа', 'стілець', 'друг', 'життя', 'час', 'люди', 'справа', 'місце', 'слово', 'сторона', 'питання', 'робота', 'школа', 'дитина', 'батько', 'сестра', 'брат', 'країна', 'мова', 'дерево', 'квітка', 'сонце', 'місяць', 'зірка']
+        : ['как', 'так', 'все', 'это', 'был', 'она', 'они', 'мой', 'его', 'что', 'год', 'дом', 'день', 'раз', 'рука', 'нога', 'мама', 'папа', 'вода', 'небо', 'земля', 'город', 'стол', 'окно', 'дверь', 'книга', 'лампа', 'стул', 'друг', 'жизнь', 'время', 'человек', 'дело', 'место', 'слово', 'сторона', 'вопрос', 'работа', 'школа', 'ребенок', 'отец', 'мать', 'брат', 'сестра', 'страна', 'язык', 'дерево', 'цветок', 'солнце', 'луна', 'звезда'];
     
     const gameText = [];
-    for (let i = 0; i < 30; i++) {
+    for (let i = 0; i < wordCount; i++) {
         gameText.push(words[Math.floor(Math.random() * words.length)]);
     }
     multiplayerState.gameText = gameText.join(' ');

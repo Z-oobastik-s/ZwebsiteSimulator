@@ -41,6 +41,8 @@ const translations = {
         freeModeDesc: 'Свой текст для тренировки',
         speedTest: 'Тест скорости',
         speedTestDesc: '60 секунд на максимум',
+        multiplayer: 'Мультиплеер',
+        multiplayerDesc: 'Соревнуйся с друзьями!',
         yourProgress: 'Ваш прогресс',
         bestSpeed: 'Лучший результат',
         avgAccuracy: 'Средняя точность',
@@ -63,7 +65,38 @@ const translations = {
         repeat: 'Повторить',
         close: 'Закрыть',
         enterYourText: 'Введите свой текст для тренировки...',
-        start: 'Начать'
+        start: 'Начать',
+        // Multiplayer
+        multiplayerMenu: 'Мультиплеер',
+        createRoom: 'Создать комнату',
+        createRoomDesc: 'Получи код и отправь другу',
+        joinRoom: 'Подключиться',
+        joinRoomDesc: 'Введи код комнаты друга',
+        roomCode: 'Код комнаты',
+        copyCode: 'Копировать код',
+        codeCopied: 'Код скопирован',
+        waitingForPlayer: 'Ожидание игрока...',
+        playersCount: 'игроков',
+        roomClosed: 'Комната закрыта',
+        opponentLeft: 'Противник покинул игру',
+        youWon: 'Победа!',
+        youLost: 'Поражение',
+        youWonMsg: 'Ты первый допечатал текст!',
+        youLostMsg: 'Противник был быстрее',
+        roomCreated: 'Комната создана',
+        joinedRoom: 'Подключён к комнате',
+        leftRoom: 'Вы покинули комнату',
+        errorCreatingRoom: 'Ошибка создания комнаты',
+        errorJoiningRoom: 'Ошибка подключения',
+        enterRoomCode: 'Введи код комнаты (например: ABC123)',
+        invalidCode: 'Введи корректный код (6 символов)',
+        chooseGameMode: 'Выбери режим игры',
+        shortText: 'Короткий текст',
+        mediumText: 'Средний текст',
+        longText: 'Длинный текст',
+        words30: '30 слов',
+        words50: '50 слов',
+        words100: '100 слов'
     },
     en: {
         welcome: 'Welcome to Zoobastiks',
@@ -74,6 +107,8 @@ const translations = {
         freeModeDesc: 'Custom text practice',
         speedTest: 'Speed Test',
         speedTestDesc: '60 seconds challenge',
+        multiplayer: 'Multiplayer',
+        multiplayerDesc: 'Compete with friends!',
         yourProgress: 'Your Progress',
         bestSpeed: 'Best Speed',
         avgAccuracy: 'Average Accuracy',
@@ -96,7 +131,38 @@ const translations = {
         repeat: 'Repeat',
         close: 'Close',
         enterYourText: 'Enter your text to practice...',
-        start: 'Start'
+        start: 'Start',
+        // Multiplayer
+        multiplayerMenu: 'Multiplayer',
+        createRoom: 'Create Room',
+        createRoomDesc: 'Get code and send to friend',
+        joinRoom: 'Join Room',
+        joinRoomDesc: 'Enter friend\'s room code',
+        roomCode: 'Room Code',
+        copyCode: 'Copy Code',
+        codeCopied: 'Code Copied',
+        waitingForPlayer: 'Waiting for player...',
+        playersCount: 'players',
+        roomClosed: 'Room Closed',
+        opponentLeft: 'Opponent Left',
+        youWon: 'Victory!',
+        youLost: 'Defeat',
+        youWonMsg: 'You finished first!',
+        youLostMsg: 'Opponent was faster',
+        roomCreated: 'Room Created',
+        joinedRoom: 'Joined Room',
+        leftRoom: 'You left the room',
+        errorCreatingRoom: 'Error creating room',
+        errorJoiningRoom: 'Error joining room',
+        enterRoomCode: 'Enter room code (e.g.: ABC123)',
+        invalidCode: 'Enter valid code (6 characters)',
+        chooseGameMode: 'Choose game mode',
+        shortText: 'Short Text',
+        mediumText: 'Medium Text',
+        longText: 'Long Text',
+        words30: '30 words',
+        words50: '50 words',
+        words100: '100 words'
     }
 };
 
@@ -922,6 +988,43 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
+// Toast notifications
+function showToast(message, type = 'info', title = '') {
+    const container = document.getElementById('toastContainer');
+    if (!container) return;
+    
+    const icons = {
+        success: '✓',
+        error: '✕',
+        warning: '⚠',
+        info: 'ℹ'
+    };
+    
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.innerHTML = `
+        <div class="toast-icon">${icons[type] || icons.info}</div>
+        <div class="toast-content">
+            ${title ? `<div class="toast-title">${title}</div>` : ''}
+            <div class="toast-message">${message}</div>
+        </div>
+    `;
+    
+    container.appendChild(toast);
+    
+    // Auto remove after 3 seconds
+    setTimeout(() => {
+        toast.classList.add('hiding');
+        setTimeout(() => {
+            toast.remove();
+        }, 300);
+    }, 3000);
+}
+
+function t(key) {
+    return translations[app.lang]?.[key] || key;
+}
+
 // ============================================
 // MULTIPLAYER MODE FUNCTIONS
 // ============================================
@@ -933,9 +1036,40 @@ function showMultiplayerMenu() {
     app.currentMode = 'multiplayer-menu';
 }
 
+// Room settings
+let selectedWordCount = 50; // Default
+
+// Show room settings
+function showRoomSettings() {
+    document.getElementById('roomSettingsDialog').classList.remove('hidden');
+    document.getElementById('joinRoomDialog').classList.add('hidden');
+}
+
+// Hide room settings
+function hideRoomSettings() {
+    document.getElementById('roomSettingsDialog').classList.add('hidden');
+}
+
+// Select word count
+function selectWordCount(count) {
+    selectedWordCount = count;
+    // Update button styles
+    document.querySelectorAll('.room-setting-btn').forEach(btn => {
+        const wordCount = parseInt(btn.getAttribute('data-words'));
+        if (wordCount === count) {
+            btn.classList.add('border-primary');
+            btn.classList.remove('border-transparent');
+        } else {
+            btn.classList.remove('border-primary');
+            btn.classList.add('border-transparent');
+        }
+    });
+}
+
 // Show join room dialog
 function showJoinRoomDialog() {
     document.getElementById('joinRoomDialog').classList.remove('hidden');
+    document.getElementById('roomSettingsDialog').classList.add('hidden');
     document.getElementById('joinRoomCodeInput').value = '';
     document.getElementById('joinRoomError').classList.add('hidden');
 }
@@ -945,19 +1079,22 @@ function hideJoinRoomDialog() {
     document.getElementById('joinRoomDialog').classList.add('hidden');
 }
 
-// Create multiplayer room
-async function createMultiplayerRoom() {
+// Create multiplayer room with settings
+async function createMultiplayerRoomWithSettings() {
     try {
-        const roomCode = await window.multiplayerModule.createRoom();
+        const roomCode = await window.multiplayerModule.createRoom(selectedWordCount);
         
+        hideRoomSettings();
         hideAllScreens();
         document.getElementById('multiplayerWaitingScreen').classList.remove('hidden');
         document.getElementById('multiplayerRoomCode').textContent = roomCode;
         app.currentMode = 'multiplayer-waiting';
         
+        showToast(t('roomCreated'), 'success', t('multiplayer'));
+        
     } catch (error) {
         console.error('Failed to create room:', error);
-        alert('Ошибка создания комнаты: ' + error.message);
+        showToast(error.message, 'error', t('errorCreatingRoom'));
     }
 }
 
@@ -966,7 +1103,7 @@ async function joinMultiplayerRoom() {
     const roomCode = document.getElementById('joinRoomCodeInput').value.trim().toUpperCase();
     
     if (!roomCode || roomCode.length !== 6) {
-        document.getElementById('joinRoomError').textContent = 'Введи корректный код (6 символов)';
+        document.getElementById('joinRoomError').textContent = t('invalidCode');
         document.getElementById('joinRoomError').classList.remove('hidden');
         return;
     }
@@ -979,6 +1116,8 @@ async function joinMultiplayerRoom() {
         document.getElementById('multiplayerRoomCode').textContent = roomCode;
         app.currentMode = 'multiplayer-waiting';
         
+        showToast(t('joinedRoom'), 'success', t('multiplayer'));
+        
     } catch (error) {
         console.error('Failed to join room:', error);
         document.getElementById('joinRoomError').textContent = error.message;
@@ -990,6 +1129,7 @@ async function joinMultiplayerRoom() {
 async function leaveMultiplayerRoom() {
     try {
         await window.multiplayerModule.leaveRoom();
+        showToast(t('leftRoom'), 'info', t('multiplayer'));
         showHome();
     } catch (error) {
         console.error('Failed to leave room:', error);
@@ -1001,7 +1141,9 @@ async function leaveMultiplayerRoom() {
 function copyRoomCode() {
     const roomCode = document.getElementById('multiplayerRoomCode').textContent;
     navigator.clipboard.writeText(roomCode).then(() => {
-        alert('Код скопирован: ' + roomCode);
+        showToast(`${t('codeCopied')}: ${roomCode}`, 'success');
+    }).catch(() => {
+        showToast('Ошибка копирования', 'error');
     });
 }
 
@@ -1062,15 +1204,15 @@ window.onMultiplayerStart = (gameText) => {
 };
 
 window.onMultiplayerRoomDeleted = () => {
-    alert('Комната была закрыта');
-    showHome();
+    showToast(t('opponentLeft'), 'warning', t('roomClosed'));
+    setTimeout(() => showHome(), 1000);
 };
 
 window.onOpponentFinished = () => {
     if (!app.gameEnded) {
         setTimeout(() => {
-            alert('Противник финишировал! Ты проиграл 😢');
-            leaveMultiplayerRoom();
+            showToast(t('youLostMsg'), 'error', t('youLost'));
+            setTimeout(() => leaveMultiplayerRoom(), 2000);
         }, 100);
     }
 };
@@ -1142,8 +1284,8 @@ async function finishMultiplayerGame() {
     await window.multiplayerModule.finishGame();
     
     setTimeout(() => {
-        alert('🏆 Победа! Ты первый!');
-        leaveMultiplayerRoom();
+        showToast(t('youWonMsg'), 'success', '🏆 ' + t('youWon'));
+        setTimeout(() => leaveMultiplayerRoom(), 2000);
     }, 500);
 }
 
