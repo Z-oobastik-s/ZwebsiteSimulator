@@ -33,7 +33,7 @@ let welcomePlayed = false;
 
 const translations = {
     ru: {
-        welcome: 'Добро пожаловать в Zoobastiks',
+        welcome: 'Добро пожаловать в игру',
         subtitle: 'Научитесь печатать быстро и без ошибок',
         lessons: 'Уроки',
         lessonsDesc: 'Обучение с нуля до профи',
