@@ -560,8 +560,9 @@ function renderText() {
 
 // Handle key press
 function handleKeyPress(e) {
-    // Разрешаем ввод только в режиме практики или теста на скорость
-    if ((app.currentMode !== 'practice' && app.currentMode !== 'speedtest') || app.isPaused) return;
+    // Разрешаем ввод во всех режимах практики
+    const validModes = ['practice', 'speedtest', 'lesson', 'free'];
+    if (!validModes.includes(app.currentMode) || app.isPaused) return;
     
     // Ignore special keys
     if (e.key.length > 1 && e.key !== 'Backspace' && e.key !== 'Enter') return;
