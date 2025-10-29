@@ -111,12 +111,46 @@ const speedTestWords = {
 let selectedLessonLang = 'ru';
 let currentLevelData = null; // Сохраняем данные текущего уровня
 
+// Background images setup
+function setRandomBackground() {
+    const isDark = document.documentElement.classList.contains('dark');
+    const backgrounds = isDark 
+        ? ['background_black.jpg', 'background_black_1.jpg', 'background_black_2.jpg']
+        : ['background_white.jpg', 'background_white_1.jpg', 'background_white_2.jpg'];
+    
+    const randomBg = backgrounds[Math.floor(Math.random() * backgrounds.length)];
+    document.body.style.backgroundImage = `url('assets/images/${randomBg}')`;
+}
+
+// Create floating particles effect
+function createParticles() {
+    const heroContainer = document.querySelector('.hero-container');
+    if (!heroContainer) return;
+    
+    // Удаляем старые частицы если есть
+    const oldParticles = heroContainer.querySelectorAll('.particle');
+    oldParticles.forEach(p => p.remove());
+    
+    // Создаем 20 частиц
+    for (let i = 0; i < 20; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+        particle.style.animationDelay = Math.random() * 5 + 's';
+        particle.style.opacity = Math.random() * 0.5 + 0.3;
+        heroContainer.appendChild(particle);
+    }
+}
+
 // Initialize app
 document.addEventListener('DOMContentLoaded', () => {
     // Гарантируем что при загрузке страницы паузы нет
     app.isPaused = false;
     
     loadSettings();
+    setRandomBackground(); // Устанавливаем случайный фон
+    createParticles(); // Создаём плавающие частицы
     initializeAudio();
     initializeUI();
     updateTranslations();
@@ -226,6 +260,9 @@ function toggleTheme() {
     document.documentElement.classList.toggle('dark', app.theme === 'dark');
     localStorage.setItem('theme', app.theme);
     
+    // Меняем фон при переключении темы
+    setRandomBackground();
+    
     // Update icon
     const icon = document.getElementById('themeIcon');
     if (app.theme === 'dark') {
@@ -292,6 +329,7 @@ function showHome() {
     hideAllScreens();
     document.getElementById('homeScreen').classList.remove('hidden');
     app.currentMode = 'home';
+    createParticles(); // Пересоздаём частицы при возврате
 }
 
 function showLessons() {
