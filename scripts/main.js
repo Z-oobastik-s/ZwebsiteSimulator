@@ -103,7 +103,8 @@ const translations = {
 // Speed test word lists
 const speedTestWords = {
     ru: ['как', 'так', 'все', 'это', 'был', 'она', 'они', 'мой', 'его', 'что', 'год', 'дом', 'день', 'раз', 'рука', 'нога', 'мама', 'папа', 'вода', 'небо', 'земля', 'город', 'стол', 'окно', 'дверь', 'книга', 'лампа', 'стул', 'друг', 'жизнь', 'время', 'человек', 'дело', 'место', 'слово', 'сторона', 'вопрос'],
-    en: ['the', 'and', 'for', 'are', 'but', 'not', 'you', 'all', 'can', 'her', 'was', 'one', 'our', 'out', 'day', 'get', 'has', 'him', 'his', 'how', 'man', 'new', 'now', 'old', 'see', 'time', 'two', 'way', 'who', 'boy', 'did', 'its', 'let', 'put', 'say', 'she', 'too', 'use']
+    en: ['the', 'and', 'for', 'are', 'but', 'not', 'you', 'all', 'can', 'her', 'was', 'one', 'our', 'out', 'day', 'get', 'has', 'him', 'his', 'how', 'man', 'new', 'now', 'old', 'see', 'time', 'two', 'way', 'who', 'boy', 'did', 'its', 'let', 'put', 'say', 'she', 'too', 'use'],
+    ua: ['як', 'так', 'все', 'це', 'був', 'вона', 'вони', 'мій', 'його', 'що', 'рік', 'дім', 'день', 'раз', 'рука', 'нога', 'мама', 'тато', 'вода', 'небо', 'земля', 'місто', 'стіл', 'вікно', 'двері', 'книга', 'лампа', 'стілець', 'друг', 'життя', 'час', 'люди', 'справа', 'місце', 'слово', 'сторона', 'питання']
 };
 
 // Current selected lesson language
@@ -306,8 +307,20 @@ function showFreeMode() {
 
 function showSpeedTest() {
     const words = speedTestWords[app.currentLayout];
-    const testText = [];
     
+    // Если слов нет для текущей раскладки, используем английские
+    if (!words || words.length === 0) {
+        console.warn(`No speed test words for layout: ${app.currentLayout}, using English`);
+        const fallbackWords = speedTestWords['en'];
+        const testText = [];
+        for (let i = 0; i < 100; i++) {
+            testText.push(fallbackWords[Math.floor(Math.random() * fallbackWords.length)]);
+        }
+        startPractice(testText.join(' '), 'speedtest');
+        return;
+    }
+    
+    const testText = [];
     for (let i = 0; i < 100; i++) {
         testText.push(words[Math.floor(Math.random() * words.length)]);
     }
@@ -450,6 +463,11 @@ function startPractice(text, mode, lesson = null) {
         clearInterval(app.timerInterval);
         app.timerInterval = null;
     }
+    
+    // Очищаем переменные теста на скорость
+    app.speedTestStartTime = null;
+    app.speedTestEndTime = null;
+    app.pauseStartTime = null;
     
     app.currentMode = mode;
     app.currentText = text;
@@ -680,13 +698,28 @@ function startSpeedTestTimer() {
 
 // Toggle pause
 function togglePause() {
-    app.isPaused = !app.isPaused;
-    const btn = document.getElementById('pauseBtn');
-    
     if (app.isPaused) {
-        btn.querySelector('span').textContent = translations[app.lang].resume;
+        // Снимаем паузу
+        app.isPaused = false;
+        
+        // Для теста на скорость корректируем время окончания
+        if (app.currentMode === 'speedtest' && app.pauseStartTime) {
+            const pauseDuration = Date.now() - app.pauseStartTime;
+            app.speedTestEndTime += pauseDuration;
+            app.pauseStartTime = null;
+        }
+        
+        document.getElementById('pauseBtn').querySelector('span').textContent = translations[app.lang].pause;
     } else {
-        btn.querySelector('span').textContent = translations[app.lang].pause;
+        // Ставим на паузу
+        app.isPaused = true;
+        
+        // Запоминаем время начала паузы для теста на скорость
+        if (app.currentMode === 'speedtest') {
+            app.pauseStartTime = Date.now();
+        }
+        
+        document.getElementById('pauseBtn').querySelector('span').textContent = translations[app.lang].resume;
     }
 }
 

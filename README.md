@@ -8,7 +8,7 @@
 ![License](https://img.shields.io/badge/License-MIT-8BC34A?style=for-the-badge)
 ![Status](https://img.shields.io/badge/Status-Online-success?style=for-the-badge)
 
-[🚀 Открыть тренажёр]( https://z-oobastik-s.github.io/ZwebsiteSimulator/)
+[🚀 Открыть тренажёр](https://z-oobastik-s.github.io/ZwebsiteSimulator/)
 
 </div>
 
