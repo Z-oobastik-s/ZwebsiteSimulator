@@ -312,7 +312,7 @@ function showSpeedTest() {
     if (!words || words.length === 0) {
         console.warn(`No speed test words for layout: ${app.currentLayout}, using English`);
         const fallbackWords = speedTestWords['en'];
-        const testText = [];
+    const testText = [];
         for (let i = 0; i < 100; i++) {
             testText.push(fallbackWords[Math.floor(Math.random() * fallbackWords.length)]);
         }
