@@ -321,6 +321,31 @@ export function isMultiplayerActive() {
     return multiplayerState.roomCode !== null;
 }
 
+// Reset game for rematch (keep room alive)
+export async function resetGame() {
+    if (!multiplayerState.roomCode || !multiplayerState.playerId) return;
+    
+    multiplayerState.gameStarted = false;
+    multiplayerState.gameEnded = false;
+    multiplayerState.myProgress = 0;
+    multiplayerState.opponentProgress = 0;
+    
+    const playerRef = ref(database, `rooms/${multiplayerState.roomCode}/players/${multiplayerState.playerId}`);
+    await update(playerRef, {
+        progress: 0,
+        finished: false,
+        ready: true
+    });
+    
+    // If host, reset game state
+    if (multiplayerState.isHost) {
+        const roomRef = ref(database, `rooms/${multiplayerState.roomCode}`);
+        await update(roomRef, {
+            started: false
+        });
+    }
+}
+
 // Export for global access
 window.multiplayerModule = {
     createRoom,
@@ -328,6 +353,7 @@ window.multiplayerModule = {
     updateProgress,
     finishGame,
     leaveRoom,
+    resetGame,
     getMultiplayerState,
     isMultiplayerActive
 };

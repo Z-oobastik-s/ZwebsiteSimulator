@@ -669,13 +669,13 @@
                 </div>
                 
                 <!-- Room Settings Dialog -->
-                <div id="roomSettingsDialog" class="glass rounded-2xl p-8 mb-6 hidden">
-                    <h3 class="text-2xl font-bold mb-6 text-center" data-i18n="chooseGameMode">Выбери режим игры</h3>
+                <div id="roomSettingsDialog" class="glass rounded-2xl p-6 mb-6 hidden">
+                    <h3 class="text-xl font-bold mb-4 text-center" data-i18n="chooseGameMode">Выбери режим игры</h3>
                     
                     <!-- Themes -->
-                    <div class="mb-6">
-                        <h4 class="text-lg font-semibold mb-3 text-center">Тематика текста</h4>
-                        <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    <div class="mb-4">
+                        <h4 class="text-sm font-semibold mb-2 text-center" data-i18n="textTheme">Тематика текста</h4>
+                        <div class="grid grid-cols-3 gap-2">
                             <button onclick="selectTheme('random')" class="theme-btn glass rounded-lg px-4 py-3 bg-success/20 hover:bg-success/30 transition-all text-center border-2 border-success" data-theme="random">
                                 <div class="text-2xl mb-1">🎲</div>
                                 <div class="text-sm font-semibold">Случайные</div>
@@ -704,9 +704,9 @@
                     </div>
                     
                     <!-- Language Selection -->
-                    <div class="mb-6">
-                        <h4 class="text-lg font-semibold mb-3 text-center">Язык текста</h4>
-                        <div class="grid grid-cols-3 gap-4">
+                    <div class="mb-4">
+                        <h4 class="text-sm font-semibold mb-2 text-center" data-i18n="textLanguage">Язык текста</h4>
+                        <div class="grid grid-cols-3 gap-2">
                             <button onclick="selectMultiplayerLang('ru')" class="mp-lang-btn glass rounded-lg px-4 py-4 bg-warning/20 hover:bg-warning/30 transition-all text-center border-2 border-warning" data-lang="ru">
                                 <div class="text-2xl font-bold mb-1">РУС</div>
                                 <div class="text-xs">Русский</div>
@@ -723,9 +723,9 @@
                     </div>
                     
                     <!-- Word Count -->
-                    <div class="mb-6">
-                        <h4 class="text-lg font-semibold mb-3 text-center">Количество слов</h4>
-                        <div class="grid grid-cols-4 gap-3">
+                    <div class="mb-4">
+                        <h4 class="text-sm font-semibold mb-2 text-center" data-i18n="wordCount">Количество слов</h4>
+                        <div class="grid grid-cols-4 gap-2">
                             <button onclick="selectWordCount(30)" class="room-setting-btn glass rounded-lg px-3 py-5 hover:bg-primary/20 transition-all text-center border-2 border-transparent hover:border-primary" data-words="30">
                                 <div class="text-2xl font-bold text-primary mb-1">30</div>
                                 <div class="text-xs" data-i18n="words30">слов</div>
@@ -739,8 +739,8 @@
                                 <div class="text-xs" data-i18n="words100">слов</div>
                             </button>
                             <button onclick="selectWordCount(1000)" class="room-setting-btn glass rounded-lg px-3 py-5 hover:bg-primary/20 transition-all text-center border-2 border-transparent hover:border-primary" data-words="1000">
-                                <div class="text-2xl font-bold text-primary mb-1">1K</div>
-                                <div class="text-xs">слов</div>
+                                <div class="text-2xl font-bold text-primary mb-1">1000</div>
+                                <div class="text-xs" data-i18n="words100">слов</div>
                             </button>
                         </div>
                     </div>
@@ -753,7 +753,7 @@
                 
                 <!-- Join Room Dialog -->
                 <div id="joinRoomDialog" class="glass rounded-2xl p-8 hidden">
-                    <h3 class="text-2xl font-bold mb-4 text-center">Подключение к комнате</h3>
+                    <h3 class="text-2xl font-bold mb-4 text-center" data-i18n="joinRoom">Подключение к комнате</h3>
                     <div class="space-y-4">
                         <input type="text" id="joinRoomCodeInput" data-i18n-placeholder="enterRoomCode" placeholder="Введи код комнаты (например: ABC123)" class="w-full px-4 py-3 rounded-lg bg-gray-700/50 border border-gray-600 text-white text-center text-2xl tracking-widest uppercase" maxlength="6">
                         <div id="joinRoomError" class="text-red-500 text-center hidden"></div>
@@ -792,7 +792,7 @@
                                 </svg>
                             </button>
                         </div>
-                        <p class="text-gray-400">Отправь этот код другу!</p>
+                        <p class="text-gray-400" data-i18n="sendCodeToFriend">Отправь этот код другу!</p>
                     </div>
                     
                     <div class="mb-6">
@@ -813,9 +813,9 @@
             <div class="max-w-5xl mx-auto">
                 <div class="flex items-center justify-between mb-6">
                     <button onclick="leaveMultiplayerRoom()" class="glass px-4 py-2 rounded-lg hover:bg-white/20 dark:hover:bg-black/20">
-                        ← Выйти
+                        ← <span data-i18n="exit">Выйти</span>
                     </button>
-                    <h2 class="text-2xl font-bold text-purple-400">🏆 Multiplayer Race</h2>
+                    <h2 class="text-2xl font-bold text-purple-400">🏆 <span data-i18n="multiplayer">Multiplayer</span></h2>
                     <div class="w-32"></div>
                 </div>
                 

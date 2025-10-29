@@ -92,12 +92,16 @@ const translations = {
         enterRoomCode: 'Введи код комнаты (например: ABC123)',
         invalidCode: 'Введи корректный код (6 символов)',
         chooseGameMode: 'Выбери режим игры',
+        textTheme: 'Тематика текста',
+        textLanguage: 'Язык текста',
+        wordCount: 'Количество слов',
+        sendCodeToFriend: 'Отправь этот код другу!',
         shortText: 'Короткий текст',
         mediumText: 'Средний текст',
         longText: 'Длинный текст',
-        words30: '30 слов',
-        words50: '50 слов',
-        words100: '100 слов'
+        words30: 'слов',
+        words50: 'слов',
+        words100: 'слов'
     },
     en: {
         welcome: 'Welcome to Zoobastiks',
@@ -159,12 +163,16 @@ const translations = {
         enterRoomCode: 'Enter room code (e.g.: ABC123)',
         invalidCode: 'Enter valid code (6 characters)',
         chooseGameMode: 'Choose game mode',
+        textTheme: 'Text Theme',
+        textLanguage: 'Text Language',
+        wordCount: 'Word Count',
+        sendCodeToFriend: 'Send this code to friend!',
         shortText: 'Short Text',
         mediumText: 'Medium Text',
         longText: 'Long Text',
-        words30: '30 words',
-        words50: '50 words',
-        words100: '100 words'
+        words30: 'words',
+        words50: 'words',
+        words100: 'words'
     }
 };
 
@@ -1056,12 +1064,15 @@ function selectMultiplayerLang(lang) {
     // Update button styles
     document.querySelectorAll('.mp-lang-btn').forEach(btn => {
         const btnLang = btn.getAttribute('data-lang');
+        const divs = btn.querySelectorAll('div');
         if (btnLang === lang) {
             btn.classList.add('border-warning', 'bg-warning/20');
             btn.classList.remove('border-transparent');
+            divs.forEach(div => div.classList.add('text-white'));
         } else {
             btn.classList.remove('border-warning', 'bg-warning/20');
             btn.classList.add('border-transparent');
+            divs.forEach(div => div.classList.remove('text-white'));
         }
     });
 }
@@ -1072,12 +1083,15 @@ function selectTheme(theme) {
     // Update button styles
     document.querySelectorAll('.theme-btn').forEach(btn => {
         const btnTheme = btn.getAttribute('data-theme');
+        const divs = btn.querySelectorAll('div');
         if (btnTheme === theme) {
             btn.classList.add('border-success', 'bg-success/20');
             btn.classList.remove('border-transparent');
+            divs.forEach(div => div.classList.add('text-white'));
         } else {
             btn.classList.remove('border-success', 'bg-success/20');
             btn.classList.add('border-transparent');
+            divs.forEach(div => div.classList.remove('text-white'));
         }
     });
 }
@@ -1094,12 +1108,15 @@ function selectWordCount(count) {
     // Update button styles
     document.querySelectorAll('.room-setting-btn').forEach(btn => {
         const wordCount = parseInt(btn.getAttribute('data-words'));
+        const divs = btn.querySelectorAll('div');
         if (wordCount === count) {
             btn.classList.add('border-primary', 'bg-primary/20');
             btn.classList.remove('border-transparent');
+            divs.forEach(div => div.classList.add('text-white'));
         } else {
             btn.classList.remove('border-primary', 'bg-primary/20');
             btn.classList.add('border-transparent');
+            divs.forEach(div => div.classList.remove('text-white'));
         }
     });
 }
@@ -1305,7 +1322,7 @@ window.onOpponentFinished = () => {
         app.gameEnded = true;
         document.removeEventListener('keydown', handleMultiplayerKeyPress);
         showToast(t('youLostMsg'), 'error', t('youLost'));
-        setTimeout(() => leaveMultiplayerRoom(), 2500);
+        setTimeout(() => returnToMultiplayerLobby(), 2500);
     }
 };
 
@@ -1368,11 +1385,18 @@ async function finishMultiplayerGame() {
     await window.multiplayerModule.finishGame();
     
     showToast(t('youWonMsg'), 'success', '🏆 ' + t('youWon'));
-    setTimeout(async () => {
-        await window.multiplayerModule.leaveRoom();
-        showHome();
-        setRandomBackground();
-        createParticles();
+    setTimeout(() => {
+        returnToMultiplayerLobby();
     }, 2500);
+}
+
+// Return to lobby after match
+function returnToMultiplayerLobby() {
+    window.multiplayerModule.resetGame();
+    hideAllScreens();
+    document.getElementById('multiplayerWaitingScreen').classList.remove('hidden');
+    app.currentMode = 'multiplayer-waiting';
+    app.gameEnded = false;
+    window.secondPlayerNotified = false;
 }
 

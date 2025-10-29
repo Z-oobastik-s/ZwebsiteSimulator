@@ -87,7 +87,7 @@ function renderKeyboard(layout = 'ru') {
         row.forEach(key => {
             const fingerColor = fingerColors[keyFingerMap[key.toLowerCase()]] || 'bg-gray-500/20';
             const keyWidth = getKeyWidth(key);
-            const keyClass = `key-btn ${fingerColor} ${keyWidth} h-12 rounded-lg flex items-center justify-center font-mono font-semibold text-sm hover:bg-white/30 dark:hover:bg-black/30 transition-all`;
+            const keyClass = `key-btn ${fingerColor} ${keyWidth} h-10 rounded-lg flex items-center justify-center font-mono font-semibold text-xs hover:bg-white/30 dark:hover:bg-black/30 transition-all`;
             
             html += `<button class="${keyClass}" data-key="${key.toLowerCase()}">${escapeHtml(key)}</button>`;
         });
@@ -101,14 +101,14 @@ function renderKeyboard(layout = 'ru') {
 
 function getKeyWidth(key) {
     switch(key) {
-        case 'Backspace': return 'w-20';
-        case 'Tab': return 'w-16';
-        case 'Caps': return 'w-20';
-        case 'Enter': return 'w-20';
-        case 'Shift': return 'w-24';
-        case 'Space': return 'w-96';
-        case 'Ctrl': case 'Win': case 'Alt': return 'w-16';
-        default: return 'w-12';
+        case 'Backspace': return 'w-16';
+        case 'Tab': return 'w-12';
+        case 'Caps': return 'w-16';
+        case 'Enter': return 'w-16';
+        case 'Shift': return 'w-20';
+        case 'Space': return 'w-80';
+        case 'Ctrl': case 'Win': case 'Alt': return 'w-12';
+        default: return 'w-10';
     }
 }
 
