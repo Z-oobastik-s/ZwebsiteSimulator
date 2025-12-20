@@ -1630,29 +1630,37 @@ function showAvatarSelector() {
     if (window.authModule && window.authModule.AVAILABLE_AVATARS) {
         window.authModule.AVAILABLE_AVATARS.forEach((avatarPath, index) => {
             const avatarItem = document.createElement('div');
-            avatarItem.className = `relative cursor-pointer rounded-xl overflow-hidden border-4 transition-all hover:scale-105 ${
-                index === currentAvatarIndex 
-                    ? 'border-primary shadow-lg shadow-primary/50' 
-                    : 'border-gray-700 hover:border-primary/50'
+            const isSelected = index === currentAvatarIndex;
+            avatarItem.className = `relative cursor-pointer rounded-2xl overflow-hidden border-4 transition-all duration-300 group ${
+                isSelected 
+                    ? 'border-primary shadow-2xl shadow-primary/50 scale-105' 
+                    : 'border-gray-700/50 hover:border-primary/70 hover:shadow-xl hover:shadow-primary/30'
             }`;
+            
+            // Gradient overlay for selected
+            if (isSelected) {
+                const overlay = document.createElement('div');
+                overlay.className = 'absolute inset-0 bg-gradient-to-br from-primary/20 to-cyan-500/20 z-10';
+                avatarItem.appendChild(overlay);
+            }
             
             const img = document.createElement('img');
             img.src = avatarPath;
             img.alt = `Avatar ${index + 1}`;
-            img.className = 'w-full h-full object-cover';
+            img.className = 'w-full h-full object-cover transition-transform duration-300 group-hover:scale-110';
             img.style.width = '100%';
             img.style.height = '200px';
             img.style.objectFit = 'cover';
             img.style.objectPosition = 'center';
-            img.loading = 'lazy'; // Ленивая загрузка для производительности
+            img.loading = 'lazy';
             
             avatarItem.appendChild(img);
             
             // Checkmark for selected avatar
-            if (index === currentAvatarIndex) {
+            if (isSelected) {
                 const checkmark = document.createElement('div');
-                checkmark.className = 'absolute top-2 right-2 bg-primary rounded-full p-1';
-                checkmark.innerHTML = '<svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>';
+                checkmark.className = 'absolute top-3 right-3 bg-gradient-to-r from-primary to-cyan-500 rounded-full p-2 shadow-lg z-20 animate-pulse';
+                checkmark.innerHTML = '<svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>';
                 avatarItem.appendChild(checkmark);
             }
             
