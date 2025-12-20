@@ -6,14 +6,22 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, getDocs, query, where, deleteDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
-import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
 import { firebaseConfig } from './firebase-config.js';
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-const storage = getStorage(app);
+
+// Available profile avatars (6 заготовок)
+export const AVAILABLE_AVATARS = [
+    'assets/images/profile photo/profile_1.png',
+    'assets/images/profile photo/profile_2.jpg',
+    'assets/images/profile photo/profile_3.jpg',
+    'assets/images/profile photo/profile_4.jpg',
+    'assets/images/profile photo/profile_5.jpg',
+    'assets/images/profile photo/profile_6.jpg'
+];
 
 // Get user's IP and country (using free API)
 async function getUserInfo() {
@@ -37,6 +45,14 @@ async function getUserInfo() {
 // Register new user
 export async function registerUser(email, password, username) {
     try {
+        // Check if auth is initialized
+        if (!auth) {
+            return { 
+                success: false, 
+                error: 'Firebase Authentication не настроен. Пожалуйста, включите Email/Password в Firebase Console.' 
+            };
+        }
+        
         const userInfo = await getUserInfo();
         
         // Create user account
@@ -52,7 +68,8 @@ export async function registerUser(email, password, username) {
             email: email,
             username: username,
             displayName: username,
-            photoURL: '',
+            photoURL: AVAILABLE_AVATARS[0], // Аватар по умолчанию (первый)
+            avatarIndex: 0, // Индекс выбранного аватара (0-5)
             bio: '',
             createdAt: serverTimestamp(),
             lastLogin: serverTimestamp(),
@@ -75,13 +92,36 @@ export async function registerUser(email, password, username) {
         
         return { success: true, user: user };
     } catch (error) {
-        return { success: false, error: error.message };
+        // Более понятные сообщения об ошибках
+        let errorMessage = error.message;
+        
+        if (error.code === 'auth/configuration-not-found') {
+            errorMessage = 'Firebase Authentication не настроен. Включите Email/Password в Firebase Console → Authentication → Sign-in method';
+        } else if (error.code === 'auth/email-already-in-use') {
+            errorMessage = 'Этот email уже зарегистрирован';
+        } else if (error.code === 'auth/weak-password') {
+            errorMessage = 'Пароль слишком слабый (минимум 6 символов)';
+        } else if (error.code === 'auth/invalid-email') {
+            errorMessage = 'Неверный формат email';
+        } else if (error.code === 'permission-denied') {
+            errorMessage = 'Нет доступа к базе данных. Проверьте Firestore Security Rules';
+        }
+        
+        return { success: false, error: errorMessage };
     }
 }
 
 // Login user
 export async function loginUser(email, password) {
     try {
+        // Check if auth is initialized
+        if (!auth) {
+            return { 
+                success: false, 
+                error: 'Firebase Authentication не настроен. Пожалуйста, включите Email/Password в Firebase Console.' 
+            };
+        }
+        
         const userInfo = await getUserInfo();
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
@@ -97,7 +137,22 @@ export async function loginUser(email, password) {
         
         return { success: true, user: user };
     } catch (error) {
-        return { success: false, error: error.message };
+        // Более понятные сообщения об ошибках
+        let errorMessage = error.message;
+        
+        if (error.code === 'auth/configuration-not-found') {
+            errorMessage = 'Firebase Authentication не настроен. Включите Email/Password в Firebase Console → Authentication → Sign-in method';
+        } else if (error.code === 'auth/user-not-found') {
+            errorMessage = 'Пользователь с таким email не найден';
+        } else if (error.code === 'auth/wrong-password') {
+            errorMessage = 'Неверный пароль';
+        } else if (error.code === 'auth/invalid-email') {
+            errorMessage = 'Неверный формат email';
+        } else if (error.code === 'auth/too-many-requests') {
+            errorMessage = 'Слишком много попыток. Попробуйте позже';
+        }
+        
+        return { success: false, error: errorMessage };
     }
 }
 
@@ -134,42 +189,39 @@ export async function updateUserProfile(uid, updates) {
     try {
         const userRef = doc(db, 'users', uid);
         await updateDoc(userRef, updates);
+        
+        // Also update auth profile if photoURL changed
+        if (updates.photoURL && auth.currentUser) {
+            await updateProfile(auth.currentUser, { photoURL: updates.photoURL });
+        }
+        
         return { success: true };
     } catch (error) {
         return { success: false, error: error.message };
     }
 }
 
-// Upload profile photo
-export async function uploadProfilePhoto(uid, file) {
+// Update profile avatar (выбор из заготовок)
+export async function updateProfileAvatar(uid, avatarIndex) {
     try {
-        // Validate file type
-        if (!file.type.startsWith('image/')) {
-            return { success: false, error: 'Файл должен быть изображением' };
+        // Validate avatar index
+        if (avatarIndex < 0 || avatarIndex >= AVAILABLE_AVATARS.length) {
+            return { success: false, error: 'Неверный индекс аватара' };
         }
         
-        // Validate file size (max 5MB)
-        if (file.size > 5 * 1024 * 1024) {
-            return { success: false, error: 'Размер файла не должен превышать 5MB' };
+        const avatarURL = AVAILABLE_AVATARS[avatarIndex];
+        
+        // Update user profile (updateUserProfile уже обновляет auth profile)
+        const result = await updateUserProfile(uid, { photoURL: avatarURL, avatarIndex: avatarIndex });
+        
+        if (result.success) {
+            return { success: true, photoURL: avatarURL };
         }
         
-        const storageRef = ref(storage, `profile-photos/${uid}/${Date.now()}_${file.name}`);
-        await uploadBytes(storageRef, file);
-        const downloadURL = await getDownloadURL(storageRef);
-        
-        // Update user profile
-        await updateUserProfile(uid, { photoURL: downloadURL });
-        
-        // Update auth profile
-        const user = auth.currentUser;
-        if (user) {
-            await updateProfile(user, { photoURL: downloadURL });
-        }
-        
-        return { success: true, photoURL: downloadURL };
+        return result;
     } catch (error) {
-        console.error('Photo upload error:', error);
-        return { success: false, error: error.message || 'Ошибка загрузки фото' };
+        console.error('Avatar update error:', error);
+        return { success: false, error: error.message || 'Ошибка обновления аватара' };
     }
 }
 
@@ -306,7 +358,8 @@ window.authModule = {
     getCurrentUser,
     getUserProfile,
     updateUserProfile,
-    uploadProfilePhoto,
+    updateProfileAvatar,
+    AVAILABLE_AVATARS,
     addUserSession,
     isAdmin,
     getAllUsers,

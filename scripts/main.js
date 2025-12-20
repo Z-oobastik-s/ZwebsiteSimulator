@@ -177,10 +177,10 @@ const translations = {
         passwordTooShort: 'Пароль должен быть не менее 6 символов',
         profileSaved: 'Профиль сохранён',
         saveError: 'Ошибка сохранения',
-        fileTooLarge: 'Файл слишком большой (макс. 5MB)',
-        uploading: 'Загрузка...',
-        photoUploaded: 'Фото загружено',
-        uploadError: 'Ошибка загрузки',
+        chooseAvatar: 'Выберите аватар',
+        updatingAvatar: 'Обновление аватара...',
+        avatarUpdated: 'Аватар обновлён',
+        updateError: 'Ошибка обновления',
         noAccount: 'Нет аккаунта?',
         haveAccount: 'Уже есть аккаунт?',
         admin: 'Админ',
@@ -290,10 +290,10 @@ const translations = {
         passwordTooShort: 'Password must be at least 6 characters',
         profileSaved: 'Profile saved',
         saveError: 'Save error',
-        fileTooLarge: 'File too large (max 5MB)',
-        uploading: 'Uploading...',
-        photoUploaded: 'Photo uploaded',
-        uploadError: 'Upload error',
+        chooseAvatar: 'Choose Avatar',
+        updatingAvatar: 'Updating avatar...',
+        avatarUpdated: 'Avatar updated',
+        updateError: 'Update error',
         noAccount: 'No account?',
         haveAccount: 'Already have account?',
         admin: 'Admin',
@@ -1381,25 +1381,36 @@ let currentUserProfile = null;
 
 // Auth state listener will be initialized in DOMContentLoaded
 
-// Update user UI in header
+// Update user UI in header - ОПТИМИЗИРОВАНА
 function updateUserUI(user, profile) {
-    const profileBtn = document.getElementById('userProfileBtn');
-    const loginBtn = document.getElementById('loginBtn');
-    const userName = document.getElementById('userName');
-    const userAvatar = document.getElementById('userAvatar');
+    const profileBtn = DOM.get('userProfileBtn');
+    const loginBtn = DOM.get('loginBtn');
+    const userName = DOM.get('userName');
+    const userAvatar = DOM.get('userAvatar');
+    
+    if (!profileBtn || !loginBtn || !userName || !userAvatar) return;
     
     profileBtn.classList.remove('hidden');
     loginBtn.classList.add('hidden');
     
     userName.textContent = profile?.username || profile?.displayName || user.displayName || 'User';
     
-    if (profile?.photoURL || user.photoURL) {
-        userAvatar.src = profile.photoURL || user.photoURL;
+    // Используем аватар из профиля или первый по умолчанию
+    const avatarURL = profile?.photoURL || user.photoURL || 
+        (window.authModule?.AVAILABLE_AVATARS ? window.authModule.AVAILABLE_AVATARS[0] : '');
+    
+    if (avatarURL) {
+        userAvatar.src = avatarURL;
         userAvatar.style.display = 'block';
-        document.getElementById('profilePhotoPlaceholder').style.display = 'none';
+        userAvatar.style.width = '32px';
+        userAvatar.style.height = '32px';
+        userAvatar.style.objectFit = 'cover';
+        const placeholder = DOM.get('profilePhotoPlaceholder');
+        if (placeholder) placeholder.style.display = 'none';
     } else {
         userAvatar.style.display = 'none';
-        document.getElementById('profilePhotoPlaceholder').style.display = 'flex';
+        const placeholder = DOM.get('profilePhotoPlaceholder');
+        if (placeholder) placeholder.style.display = 'flex';
     }
 }
 
@@ -1526,39 +1537,55 @@ async function showProfile() {
     }
 }
 
-// Load profile data into UI
+// Load profile data into UI - ОПТИМИЗИРОВАНА
 function loadProfileData(profile) {
-    document.getElementById('profileUsername').textContent = profile.username || profile.displayName || 'User';
-    document.getElementById('profileEmail').textContent = profile.email || '';
-    document.getElementById('profileBio').value = profile.bio || '';
+    const usernameEl = DOM.get('profileUsername');
+    const emailEl = DOM.get('profileEmail');
+    const bioEl = DOM.get('profileBio');
     
-    const photoEl = document.getElementById('profilePhoto');
-    const placeholderEl = document.getElementById('profilePhotoPlaceholder');
+    if (usernameEl) usernameEl.textContent = profile.username || profile.displayName || 'User';
+    if (emailEl) emailEl.textContent = profile.email || '';
+    if (bioEl) bioEl.value = profile.bio || '';
     
-    if (profile.photoURL) {
-        photoEl.src = profile.photoURL;
+    const photoEl = DOM.get('profilePhoto');
+    const placeholderEl = DOM.get('profilePhotoPlaceholder');
+    
+    // Используем аватар из профиля или первый по умолчанию
+    const avatarURL = profile.photoURL || 
+        (window.authModule?.AVAILABLE_AVATARS ? window.authModule.AVAILABLE_AVATARS[0] : '');
+    
+    if (avatarURL && photoEl && placeholderEl) {
+        photoEl.src = avatarURL;
         photoEl.style.display = 'block';
+        photoEl.style.width = '128px';
+        photoEl.style.height = '128px';
+        photoEl.style.objectFit = 'cover';
         placeholderEl.style.display = 'none';
-    } else {
+    } else if (photoEl && placeholderEl) {
         photoEl.style.display = 'none';
         placeholderEl.style.display = 'flex';
     }
     
     // Load statistics
     const stats = profile.stats || {};
-    document.getElementById('profileBestSpeed').textContent = stats.bestSpeed || 0;
-    document.getElementById('profileAvgAccuracy').textContent = (stats.averageAccuracy || 0) + '%';
-    document.getElementById('profileTotalSessions').textContent = stats.totalSessions || 0;
-    document.getElementById('profileCompletedLessons').textContent = stats.completedLessons || 0;
-    document.getElementById('profileTotalErrors').textContent = stats.totalErrors || 0;
+    const bestSpeedEl = DOM.get('profileBestSpeed');
+    const avgAccuracyEl = DOM.get('profileAvgAccuracy');
+    const totalSessionsEl = DOM.get('profileTotalSessions');
+    const completedLessonsEl = DOM.get('profileCompletedLessons');
+    const totalErrorsEl = DOM.get('profileTotalErrors');
+    const totalTimeEl = DOM.get('profileTotalTime');
+    
+    if (bestSpeedEl) bestSpeedEl.textContent = stats.bestSpeed || 0;
+    if (avgAccuracyEl) avgAccuracyEl.textContent = (stats.averageAccuracy || 0) + '%';
+    if (totalSessionsEl) totalSessionsEl.textContent = stats.totalSessions || 0;
+    if (completedLessonsEl) completedLessonsEl.textContent = stats.completedLessons || 0;
+    if (totalErrorsEl) totalErrorsEl.textContent = stats.totalErrors || 0;
     
     // Format total time
-    const totalMinutes = Math.floor((stats.totalTime || 0) / 60);
-    const hours = Math.floor(totalMinutes / 60);
-    if (hours > 0) {
-        document.getElementById('profileTotalTime').textContent = hours + 'ч';
-    } else {
-        document.getElementById('profileTotalTime').textContent = totalMinutes + 'м';
+    if (totalTimeEl) {
+        const totalMinutes = Math.floor((stats.totalTime || 0) / 60);
+        const hours = Math.floor(totalMinutes / 60);
+        totalTimeEl.textContent = hours > 0 ? hours + 'ч' : totalMinutes + 'м';
     }
 }
 
@@ -1585,32 +1612,113 @@ async function saveProfile() {
     }
 }
 
-// Handle photo upload
-async function handlePhotoUpload(event) {
-    const file = event.target.files[0];
-    if (!file) return;
+// Show avatar selector modal
+function showAvatarSelector() {
+    const modal = DOM.get('avatarSelectorModal');
+    if (!modal) return;
     
-    if (file.size > 5 * 1024 * 1024) {
-        showToast(t('fileTooLarge'), 'error');
-        return;
+    const avatarGrid = DOM.get('avatarGrid');
+    if (!avatarGrid) return;
+    
+    // Clear previous avatars
+    avatarGrid.innerHTML = '';
+    
+    // Get current avatar index
+    const currentAvatarIndex = currentUserProfile?.avatarIndex ?? 0;
+    
+    // Create avatar selection grid
+    if (window.authModule && window.authModule.AVAILABLE_AVATARS) {
+        window.authModule.AVAILABLE_AVATARS.forEach((avatarPath, index) => {
+            const avatarItem = document.createElement('div');
+            avatarItem.className = `relative cursor-pointer rounded-xl overflow-hidden border-4 transition-all hover:scale-105 ${
+                index === currentAvatarIndex 
+                    ? 'border-primary shadow-lg shadow-primary/50' 
+                    : 'border-gray-700 hover:border-primary/50'
+            }`;
+            
+            const img = document.createElement('img');
+            img.src = avatarPath;
+            img.alt = `Avatar ${index + 1}`;
+            img.className = 'w-full h-full object-cover';
+            img.style.width = '100%';
+            img.style.height = '200px';
+            img.style.objectFit = 'cover';
+            img.style.objectPosition = 'center';
+            img.loading = 'lazy'; // Ленивая загрузка для производительности
+            
+            avatarItem.appendChild(img);
+            
+            // Checkmark for selected avatar
+            if (index === currentAvatarIndex) {
+                const checkmark = document.createElement('div');
+                checkmark.className = 'absolute top-2 right-2 bg-primary rounded-full p-1';
+                checkmark.innerHTML = '<svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>';
+                avatarItem.appendChild(checkmark);
+            }
+            
+            avatarItem.onclick = () => selectAvatar(index);
+            avatarGrid.appendChild(avatarItem);
+        });
     }
     
-    const user = window.authModule.getCurrentUser();
-    if (!user) return;
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+}
+
+// Close avatar selector
+function closeAvatarSelector() {
+    const modal = DOM.get('avatarSelectorModal');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+}
+
+// Select avatar
+async function selectAvatar(avatarIndex) {
+    const user = window.authModule?.getCurrentUser();
+    if (!user || !window.authModule) return;
     
-    showToast(t('uploading'), 'info');
+    showToast(t('updatingAvatar'), 'info');
     
-    const result = await window.authModule.uploadProfilePhoto(user.uid, file);
+    const result = await window.authModule.updateProfileAvatar(user.uid, avatarIndex);
     
     if (result.success) {
-        document.getElementById('profilePhoto').src = result.photoURL;
-        document.getElementById('profilePhoto').style.display = 'block';
-        document.getElementById('profilePhotoPlaceholder').style.display = 'none';
-        document.getElementById('userAvatar').src = result.photoURL;
-        document.getElementById('userAvatar').style.display = 'block';
-        showToast(t('photoUploaded'), 'success');
+        // Update profile photo display
+        const profilePhoto = DOM.get('profilePhoto');
+        const profilePlaceholder = DOM.get('profilePhotoPlaceholder');
+        const userAvatar = DOM.get('userAvatar');
+        
+        if (profilePhoto) {
+            profilePhoto.src = result.photoURL;
+            profilePhoto.style.display = 'block';
+            profilePhoto.style.width = '128px';
+            profilePhoto.style.height = '128px';
+            profilePhoto.style.objectFit = 'cover';
+            profilePhoto.style.objectPosition = 'center';
+        }
+        if (profilePlaceholder) {
+            profilePlaceholder.style.display = 'none';
+        }
+        if (userAvatar) {
+            userAvatar.src = result.photoURL;
+            userAvatar.style.display = 'block';
+            userAvatar.style.width = '32px';
+            userAvatar.style.height = '32px';
+            userAvatar.style.objectFit = 'cover';
+            userAvatar.style.objectPosition = 'center';
+        }
+        
+        // Update current profile
+        if (currentUserProfile) {
+            currentUserProfile.photoURL = result.photoURL;
+            currentUserProfile.avatarIndex = avatarIndex;
+        }
+        
+        closeAvatarSelector();
+        showToast(t('avatarUpdated'), 'success');
     } else {
-        showToast(t('uploadError'), 'error');
+        showToast(result.error || t('updateError'), 'error');
     }
 }
 

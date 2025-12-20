@@ -1,5 +1,7 @@
 # Настройка админ-панели
 
+> **Важно:** Если вы видите ошибку `auth/configuration-not-found` при регистрации, сначала настройте Firebase по инструкции в файле `FIREBASE_SETUP.md`
+
 ## Как сделать пользователя администратором
 
 1. Откройте Firebase Console: https://console.firebase.google.com/
