@@ -411,6 +411,24 @@
             </div>
             
             <div class="flex items-center space-x-4">
+                <!-- User Profile Button -->
+                <div id="userProfileBtn" class="hidden">
+                    <button onclick="showProfile()" class="flex items-center space-x-2 px-3 py-2 rounded-lg glass hover:bg-white/20 dark:hover:bg-black/20">
+                        <img id="userAvatar" src="" alt="Profile" class="w-8 h-8 rounded-full border-2 border-primary" style="display: none;">
+                        <span id="userName" class="font-medium"></span>
+                    </button>
+                </div>
+                
+                <!-- Login/Register Button -->
+                <button id="loginBtn" onclick="showLoginModal()" class="px-4 py-2 rounded-lg glass hover:bg-white/20 dark:hover:bg-black/20 font-medium">
+                    <span data-i18n="login">Войти</span>
+                </button>
+                
+                <!-- Admin Panel Button -->
+                <button id="adminBtn" onclick="showAdminPanel()" class="hidden px-4 py-2 rounded-lg bg-red-500/20 hover:bg-red-500/30 text-red-400 font-medium">
+                    <span data-i18n="admin">Админ</span>
+                </button>
+                
                 <!-- Language Toggle -->
                 <button id="langToggle" class="px-3 py-1 rounded-lg glass hover:bg-white/20 dark:hover:bg-black/20 font-medium">
                     <span id="currentLang">RU</span>
@@ -906,11 +924,191 @@
         </div>
     </div>
     
+    <!-- Login/Register Modal -->
+    <div id="loginModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50">
+        <div class="glass rounded-2xl p-8 max-w-md w-full mx-4 fade-in">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold" id="authModalTitle" data-i18n="login">Войти</h3>
+                <button onclick="closeLoginModal()" class="text-gray-400 hover:text-white">✕</button>
+            </div>
+            
+            <div id="loginForm">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2" data-i18n="email">Email</label>
+                        <input type="email" id="loginEmail" class="w-full px-4 py-2 rounded-lg bg-gray-700/50 border border-gray-600 text-white" placeholder="email@example.com">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2" data-i18n="password">Пароль</label>
+                        <input type="password" id="loginPassword" class="w-full px-4 py-2 rounded-lg bg-gray-700/50 border border-gray-600 text-white" placeholder="••••••••" onkeypress="if(event.key==='Enter') handleLogin()">
+                    </div>
+                    <div id="loginError" class="text-red-500 text-sm hidden"></div>
+                    <button onclick="handleLogin()" class="w-full bg-primary hover:bg-primary/80 text-white font-semibold py-3 rounded-lg">
+                        <span data-i18n="login">Войти</span>
+                    </button>
+                    <p class="text-center text-sm">
+                        <span data-i18n="noAccount">Нет аккаунта?</span>
+                        <button onclick="switchToRegister()" class="text-primary hover:underline ml-1" data-i18n="register">Зарегистрироваться</button>
+                    </p>
+                </div>
+            </div>
+            
+            <div id="registerForm" class="hidden">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2" data-i18n="username">Никнейм</label>
+                        <input type="text" id="registerUsername" class="w-full px-4 py-2 rounded-lg bg-gray-700/50 border border-gray-600 text-white" placeholder="Ваш никнейм">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2" data-i18n="email">Email</label>
+                        <input type="email" id="registerEmail" class="w-full px-4 py-2 rounded-lg bg-gray-700/50 border border-gray-600 text-white" placeholder="email@example.com">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2" data-i18n="password">Пароль</label>
+                        <input type="password" id="registerPassword" class="w-full px-4 py-2 rounded-lg bg-gray-700/50 border border-gray-600 text-white" placeholder="••••••••" onkeypress="if(event.key==='Enter') handleRegister()">
+                    </div>
+                    <div id="registerError" class="text-red-500 text-sm hidden"></div>
+                    <button onclick="handleRegister()" class="w-full bg-success hover:bg-success/80 text-white font-semibold py-3 rounded-lg">
+                        <span data-i18n="register">Зарегистрироваться</span>
+                    </button>
+                    <p class="text-center text-sm">
+                        <span data-i18n="haveAccount">Уже есть аккаунт?</span>
+                        <button onclick="switchToLogin()" class="text-primary hover:underline ml-1" data-i18n="login">Войти</button>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Profile Screen -->
+    <div id="profileScreen" class="hidden fade-in">
+        <div class="max-w-4xl mx-auto">
+            <div class="flex items-center justify-between mb-8">
+                <button onclick="showHome()" class="glass px-6 py-3 rounded-xl hover:bg-white/20 dark:hover:bg-black/20 flex items-center space-x-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                    </svg>
+                    <span data-i18n="back">Назад</span>
+                </button>
+                <h2 class="text-3xl font-bold" data-i18n="profile">Профиль</h2>
+                <button onclick="logoutUser()" class="glass px-4 py-2 rounded-lg hover:bg-red-500/20 text-red-400">
+                    <span data-i18n="logout">Выйти</span>
+                </button>
+            </div>
+            
+            <!-- Profile Info -->
+            <div class="glass rounded-2xl p-8 mb-6">
+                <div class="flex items-start gap-6 mb-6">
+                    <div class="relative">
+                        <img id="profilePhoto" src="" alt="Profile" class="w-32 h-32 rounded-full border-4 border-primary object-cover" style="display: none;">
+                        <div id="profilePhotoPlaceholder" class="w-32 h-32 rounded-full border-4 border-primary bg-gray-700 flex items-center justify-center text-4xl">
+                            👤
+                        </div>
+                        <label for="photoUpload" class="absolute bottom-0 right-0 bg-primary rounded-full p-2 cursor-pointer hover:bg-primary/80">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                            </svg>
+                            <input type="file" id="photoUpload" accept="image/*" class="hidden" onchange="handlePhotoUpload(event)">
+                        </label>
+                    </div>
+                    <div class="flex-1">
+                        <h3 id="profileUsername" class="text-2xl font-bold mb-2"></h3>
+                        <p id="profileEmail" class="text-gray-400 mb-4"></p>
+                        <div>
+                            <label class="block text-sm font-medium mb-2" data-i18n="bio">О себе</label>
+                            <textarea id="profileBio" rows="3" class="w-full px-4 py-2 rounded-lg bg-gray-700/50 border border-gray-600 text-white resize-none" placeholder="Расскажите о себе..."></textarea>
+                            <button onclick="saveProfile()" class="mt-2 px-4 py-2 bg-primary hover:bg-primary/80 text-white rounded-lg">
+                                <span data-i18n="save">Сохранить</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Statistics -->
+            <div class="glass rounded-2xl p-8">
+                <h3 class="text-2xl font-bold mb-6" data-i18n="statistics">Статистика</h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    <div class="text-center p-4 bg-gray-700/30 rounded-lg">
+                        <div class="text-3xl font-bold text-primary" id="profileBestSpeed">0</div>
+                        <div class="text-sm text-gray-400" data-i18n="bestSpeed">Лучшая скорость</div>
+                    </div>
+                    <div class="text-center p-4 bg-gray-700/30 rounded-lg">
+                        <div class="text-3xl font-bold text-success" id="profileAvgAccuracy">0%</div>
+                        <div class="text-sm text-gray-400" data-i18n="avgAccuracy">Средняя точность</div>
+                    </div>
+                    <div class="text-center p-4 bg-gray-700/30 rounded-lg">
+                        <div class="text-3xl font-bold text-warning" id="profileTotalSessions">0</div>
+                        <div class="text-sm text-gray-400" data-i18n="totalSessions">Всего сессий</div>
+                    </div>
+                    <div class="text-center p-4 bg-gray-700/30 rounded-lg">
+                        <div class="text-3xl font-bold text-purple-500" id="profileTotalTime">0м</div>
+                        <div class="text-sm text-gray-400" data-i18n="totalTime">Общее время</div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="text-center p-4 bg-gray-700/30 rounded-lg">
+                        <div class="text-3xl font-bold text-cyan-500" id="profileCompletedLessons">0</div>
+                        <div class="text-sm text-gray-400" data-i18n="completedLessons">Пройдено уроков</div>
+                    </div>
+                    <div class="text-center p-4 bg-gray-700/30 rounded-lg">
+                        <div class="text-3xl font-bold text-red-500" id="profileTotalErrors">0</div>
+                        <div class="text-sm text-gray-400" data-i18n="totalErrors">Всего ошибок</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Admin Panel Screen -->
+    <div id="adminPanelScreen" class="hidden fade-in">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex items-center justify-between mb-8">
+                <button onclick="showHome()" class="glass px-6 py-3 rounded-xl hover:bg-white/20 dark:hover:bg-black/20 flex items-center space-x-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                    </svg>
+                    <span data-i18n="back">Назад</span>
+                </button>
+                <h2 class="text-3xl font-bold text-red-400">🔐 <span data-i18n="adminPanel">Админ-панель</span></h2>
+                <div class="w-32"></div>
+            </div>
+            
+            <div class="glass rounded-2xl p-6 mb-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold" data-i18n="allUsers">Все пользователи</h3>
+                    <button onclick="refreshUsersList()" class="px-4 py-2 bg-primary hover:bg-primary/80 text-white rounded-lg">
+                        <span data-i18n="refresh">Обновить</span>
+                    </button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="border-b border-gray-700">
+                                <th class="text-left p-3" data-i18n="username">Никнейм</th>
+                                <th class="text-left p-3" data-i18n="email">Email</th>
+                                <th class="text-left p-3" data-i18n="country">Страна</th>
+                                <th class="text-left p-3">IP</th>
+                                <th class="text-left p-3" data-i18n="lastLogin">Последний вход</th>
+                                <th class="text-left p-3" data-i18n="sessions">Сессий</th>
+                                <th class="text-left p-3" data-i18n="actions">Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody">
+                            <!-- Users will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <!-- Scripts -->
     <script src="scripts/lessons-data.js"></script>
     <script src="scripts/keyboard.js"></script>
     <script src="scripts/stats.js"></script>
     <script type="module" src="scripts/multiplayer.js"></script>
+    <script type="module" src="scripts/auth.js"></script>
     <script src="scripts/main.js"></script>
     
 </body>

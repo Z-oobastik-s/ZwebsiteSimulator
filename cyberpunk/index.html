@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="NEURAL TYPER - Киберпанк тренажёр слепой печати с нейронной эстетикой">
+    <title>NEURAL TYPER - Киберпанк Тренажёр</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="cyber-bg">
+        <canvas id="neuralCanvas"></canvas>
+        <div class="grid-overlay"></div>
+        <div class="scan-line"></div>
+    </div>
+
+    <!-- Glitch Effect Overlay -->
+    <div class="glitch-overlay"></div>
+
+    <!-- Header -->
+    <header class="cyber-header">
+        <div class="container">
+            <div class="logo-section">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 50 50" class="neural-icon">
+                        <circle cx="25" cy="25" r="20" class="pulse-ring"/>
+                        <circle cx="25" cy="25" r="15" class="core"/>
+                        <path d="M15,25 L35,25 M25,15 L25,35" class="cross"/>
+                    </svg>
+                </div>
+                <h1 class="logo-text">
+                    <span class="glitch" data-text="NEURAL">NEURAL</span>
+                    <span class="accent">TYPER</span>
+                </h1>
+            </div>
+            
+            <nav class="controls">
+                <button class="cyber-btn" id="themeToggle">
+                    <span class="icon">◐</span>
+                </button>
+                <button class="cyber-btn" id="soundToggle">
+                    <span class="icon">♪</span>
+                </button>
+                <button class="cyber-btn active" id="langToggle">
+                    <span id="currentLang">RU</span>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Home Screen -->
+        <section id="homeScreen" class="screen active">
+            <div class="hero-section">
+                <h2 class="hero-title">
+                    <span class="glitch" data-text="NEURAL">NEURAL</span>
+                    <span class="accent">TYPER</span>
+                </h2>
+            </div>
+
+            <div class="mode-grid">
+                <div class="mode-card" data-mode="lessons">
+                    <div class="card-glow"></div>
+                    <div class="card-content">
+                        <div class="icon-wrapper">
+                            <div class="hex-icon">📚</div>
+                        </div>
+                        <h3 data-i18n="training">ОБУЧЕНИЕ</h3>
+                        <p data-i18n="trainingDesc">Программа нейро-адаптации</p>
+                        <div class="card-stats">
+                            <span class="stat" data-i18n="trainingStats">46 модулей</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mode-card" data-mode="speedtest">
+                    <div class="card-glow"></div>
+                    <div class="card-content">
+                        <div class="icon-wrapper">
+                            <div class="hex-icon">⚡</div>
+                        </div>
+                        <h3 data-i18n="speedTest">ТЕСТ СКОРОСТИ</h3>
+                        <p data-i18n="speedTestDesc">Анализ производительности</p>
+                        <div class="card-stats">
+                            <span class="stat" data-i18n="speedTestStats">60 секунд</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mode-card" data-mode="free">
+                    <div class="card-glow"></div>
+                    <div class="card-content">
+                        <div class="icon-wrapper">
+                            <div class="hex-icon">🎯</div>
+                        </div>
+                        <h3 data-i18n="freeMode">СВОБОДНЫЙ РЕЖИМ</h3>
+                        <p data-i18n="freeModeDesc">Кастомная тренировка</p>
+                        <div class="card-stats">
+                            <span class="stat" data-i18n="freeModeStats">Без ограничений</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mode-card premium" data-mode="multiplayer">
+                    <div class="card-glow"></div>
+                    <div class="premium-badge">NEW</div>
+                    <div class="card-content">
+                        <div class="icon-wrapper">
+                            <div class="hex-icon">👥</div>
+                        </div>
+                        <h3 data-i18n="multiplayer">МУЛЬТИПЛЕЕР</h3>
+                        <p data-i18n="multiplayerDesc">Нейро-дуэль онлайн</p>
+                        <div class="card-stats">
+                            <span class="stat" data-i18n="multiplayerStats">PvP режим</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Panel -->
+            <div class="stats-panel">
+                <h3 class="panel-title" data-i18n="statsTitle">СТАТИСТИКА СИСТЕМЫ</h3>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-label" data-i18n="speed">СКОРОСТЬ</div>
+                        <div class="stat-value" id="bestSpeed">0</div>
+                        <div class="stat-unit" data-i18n="speedUnit">зн/мин</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label" data-i18n="accuracy">ТОЧНОСТЬ</div>
+                        <div class="stat-value" id="avgAccuracy">0</div>
+                        <div class="stat-unit" data-i18n="accuracyUnit">%</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label" data-i18n="modules">МОДУЛИ</div>
+                        <div class="stat-value"><span id="completedLessons">0</span>/<span id="totalLessons">46</span></div>
+                        <div class="stat-unit" data-i18n="modulesUnit">пройдено</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label" data-i18n="time">ВРЕМЯ</div>
+                        <div class="stat-value" id="totalTime">0</div>
+                        <div class="stat-unit" data-i18n="timeUnit">минут</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Practice Screen -->
+        <section id="practiceScreen" class="screen">
+            <div class="practice-container">
+                <div class="practice-header">
+                    <button class="cyber-btn" id="exitBtn">
+                        <span class="icon">←</span> <span data-i18n="exit">ВЫХОД</span>
+                    </button>
+                    <div class="session-info">
+                        <span class="session-id">SESSION #<span id="sessionId">001</span></span>
+                    </div>
+                    <button class="cyber-btn" id="restartBtn">
+                        <span class="icon">↻</span> <span data-i18n="restart">РЕСТАРТ</span>
+                    </button>
+                </div>
+
+                <!-- Live Stats -->
+                <div class="live-stats">
+                    <div class="stat-box">
+                        <div class="stat-icon">⚡</div>
+                        <div class="stat-info">
+                            <div class="stat-label">СКОРОСТЬ</div>
+                            <div class="stat-value"><span id="currentSpeed">0</span> зн/м</div>
+                        </div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-icon">🎯</div>
+                        <div class="stat-info">
+                            <div class="stat-label">ТОЧНОСТЬ</div>
+                            <div class="stat-value"><span id="currentAccuracy">100</span>%</div>
+                        </div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-icon">⏱</div>
+                        <div class="stat-info">
+                            <div class="stat-label">ВРЕМЯ</div>
+                            <div class="stat-value" id="currentTime">0:00</div>
+                        </div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-icon">📊</div>
+                        <div class="stat-info">
+                            <div class="stat-label">ПРОГРЕСС</div>
+                            <div class="stat-value"><span id="currentProgress">0</span>%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressBar"></div>
+                        <div class="progress-glow"></div>
+                    </div>
+                </div>
+
+                <!-- Text Display -->
+                <div class="text-display">
+                    <div class="text-content" id="textDisplay">
+                        <!-- Text will be rendered here -->
+                    </div>
+                </div>
+
+                <!-- Virtual Keyboard -->
+                <div class="keyboard-container" id="keyboardContainer">
+                    <!-- Keyboard will be rendered here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Lessons Screen -->
+        <section id="lessonsScreen" class="screen">
+            <div class="lessons-container">
+                <div class="screen-header">
+                    <button class="cyber-btn" id="backBtn">
+                        <span class="icon">←</span> <span data-i18n="back">НАЗАД</span>
+                    </button>
+                    <h2 class="screen-title" data-i18n="lessonsTitle">МОДУЛИ ОБУЧЕНИЯ</h2>
+                    <div class="spacer"></div>
+                </div>
+
+                <div class="lessons-grid" id="lessonsList">
+                    <!-- Lessons will be rendered here -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Notification System -->
+    <div id="notifications" class="notifications"></div>
+
+    <!-- Results Modal -->
+    <div id="resultsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>АНАЛИЗ ЗАВЕРШЁН</h3>
+                <div class="modal-status">SUCCESS</div>
+            </div>
+            <div class="results-grid">
+                <div class="result-item">
+                    <div class="result-label">СКОРОСТЬ</div>
+                    <div class="result-value"><span id="resultSpeed">0</span> зн/м</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">ТОЧНОСТЬ</div>
+                    <div class="result-value"><span id="resultAccuracy">0</span>%</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">ВРЕМЯ</div>
+                    <div class="result-value" id="resultTime">0:00</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">ОШИБКИ</div>
+                    <div class="result-value" id="resultErrors">0</div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="cyber-btn secondary" id="closeResultsBtn"><span data-i18n="close">ЗАКРЫТЬ</span></button>
+                <button class="cyber-btn primary" id="repeatBtn"><span data-i18n="repeat">ПОВТОРИТЬ</span></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="neural-bg.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

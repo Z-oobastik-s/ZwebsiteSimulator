@@ -101,7 +101,49 @@ const translations = {
         longText: 'Длинный текст',
         words30: 'слов',
         words50: 'слов',
-        words100: 'слов'
+        words100: 'слов',
+        // Auth & Profile
+        login: 'Войти',
+        register: 'Зарегистрироваться',
+        logout: 'Выйти',
+        profile: 'Профиль',
+        username: 'Никнейм',
+        email: 'Email',
+        password: 'Пароль',
+        bio: 'О себе',
+        save: 'Сохранить',
+        statistics: 'Статистика',
+        totalSessions: 'Всего сессий',
+        totalErrors: 'Всего ошибок',
+        loginSuccess: 'Вход выполнен успешно',
+        registerSuccess: 'Регистрация успешна',
+        logoutSuccess: 'Выход выполнен',
+        loginError: 'Ошибка входа',
+        registerError: 'Ошибка регистрации',
+        fillAllFields: 'Заполните все поля',
+        passwordTooShort: 'Пароль должен быть не менее 6 символов',
+        profileSaved: 'Профиль сохранён',
+        saveError: 'Ошибка сохранения',
+        fileTooLarge: 'Файл слишком большой (макс. 5MB)',
+        uploading: 'Загрузка...',
+        photoUploaded: 'Фото загружено',
+        uploadError: 'Ошибка загрузки',
+        noAccount: 'Нет аккаунта?',
+        haveAccount: 'Уже есть аккаунт?',
+        admin: 'Админ',
+        adminPanel: 'Админ-панель',
+        allUsers: 'Все пользователи',
+        country: 'Страна',
+        lastLogin: 'Последний вход',
+        sessions: 'Сессий',
+        actions: 'Действия',
+        delete: 'Удалить',
+        refresh: 'Обновить',
+        confirmDelete: 'Вы уверены, что хотите удалить этого пользователя?',
+        userDeleted: 'Пользователь удалён',
+        deleteError: 'Ошибка удаления',
+        loadError: 'Ошибка загрузки',
+        accessDenied: 'Доступ запрещён'
     },
     en: {
         welcome: 'Welcome to Zoobastiks',
@@ -172,7 +214,49 @@ const translations = {
         longText: 'Long Text',
         words30: 'words',
         words50: 'words',
-        words100: 'words'
+        words100: 'words',
+        // Auth & Profile
+        login: 'Login',
+        register: 'Register',
+        logout: 'Logout',
+        profile: 'Profile',
+        username: 'Username',
+        email: 'Email',
+        password: 'Password',
+        bio: 'About me',
+        save: 'Save',
+        statistics: 'Statistics',
+        totalSessions: 'Total Sessions',
+        totalErrors: 'Total Errors',
+        loginSuccess: 'Login successful',
+        registerSuccess: 'Registration successful',
+        logoutSuccess: 'Logout successful',
+        loginError: 'Login error',
+        registerError: 'Registration error',
+        fillAllFields: 'Please fill all fields',
+        passwordTooShort: 'Password must be at least 6 characters',
+        profileSaved: 'Profile saved',
+        saveError: 'Save error',
+        fileTooLarge: 'File too large (max 5MB)',
+        uploading: 'Uploading...',
+        photoUploaded: 'Photo uploaded',
+        uploadError: 'Upload error',
+        noAccount: 'No account?',
+        haveAccount: 'Already have account?',
+        admin: 'Admin',
+        adminPanel: 'Admin Panel',
+        allUsers: 'All Users',
+        country: 'Country',
+        lastLogin: 'Last Login',
+        sessions: 'Sessions',
+        actions: 'Actions',
+        delete: 'Delete',
+        refresh: 'Refresh',
+        confirmDelete: 'Are you sure you want to delete this user?',
+        userDeleted: 'User deleted',
+        deleteError: 'Delete error',
+        loadError: 'Load error',
+        accessDenied: 'Access denied'
     }
 };
 
@@ -232,6 +316,29 @@ document.addEventListener('DOMContentLoaded', () => {
     updateTranslations();
     window.statsModule.updateDisplay();
     window.keyboardModule.render(app.currentLayout);
+    
+    // Initialize auth state listener (will be set up when auth.js loads)
+    if (window.authModule) {
+        window.authModule.onAuthStateChange(async (user) => {
+            if (user) {
+                const profileResult = await window.authModule.getUserProfile(user.uid);
+                if (profileResult.success) {
+                    currentUserProfile = profileResult.data;
+                    updateUserUI(user, profileResult.data);
+                    
+                    const adminCheck = await window.authModule.isAdmin(user.uid);
+                    if (adminCheck) {
+                        document.getElementById('adminBtn').classList.remove('hidden');
+                    }
+                }
+            } else {
+                currentUserProfile = null;
+                document.getElementById('userProfileBtn').classList.add('hidden');
+                document.getElementById('loginBtn').classList.remove('hidden');
+                document.getElementById('adminBtn').classList.add('hidden');
+            }
+        });
+    }
     
     // Воспроизводим welcome звук при загрузке главной страницы
     setTimeout(() => {
@@ -452,6 +559,8 @@ function hideAllScreens() {
     document.getElementById('multiplayerMenuScreen')?.classList.add('hidden');
     document.getElementById('multiplayerWaitingScreen')?.classList.add('hidden');
     document.getElementById('multiplayerGameScreen')?.classList.add('hidden');
+    document.getElementById('profileScreen')?.classList.add('hidden');
+    document.getElementById('adminPanelScreen')?.classList.add('hidden');
 }
 
 // Select lesson language
@@ -881,7 +990,7 @@ function exitPractice() {
 }
 
 // Finish practice
-function finishPractice() {
+async function finishPractice() {
     if (app.timerInterval) {
         clearInterval(app.timerInterval);
     }
@@ -901,7 +1010,7 @@ function finishPractice() {
         : 100;
     
     // Save to statistics
-    window.statsModule.addSession({
+    const sessionData = {
         speed,
         accuracy,
         time: Math.round(elapsed),
@@ -909,7 +1018,15 @@ function finishPractice() {
         mode: app.currentMode === 'practice' && app.currentLesson ? 'lesson' : app.currentMode,
         layout: app.currentLayout,
         lessonKey: app.currentLesson?.key || null
-    });
+    };
+    
+    window.statsModule.addSession(sessionData);
+    
+    // Save to user profile if logged in
+    const user = window.authModule?.getCurrentUser();
+    if (user && window.authModule) {
+        await window.authModule.addUserSession(user.uid, sessionData);
+    }
     
     // Show results modal
     showResults(speed, accuracy, elapsed, app.errors);
@@ -1033,6 +1150,313 @@ function showToast(message, type = 'info', title = '') {
 
 function t(key) {
     return translations[app.lang]?.[key] || key;
+}
+
+// ============================================
+// AUTHENTICATION & PROFILE FUNCTIONS
+// ============================================
+
+let currentUserProfile = null;
+
+// Auth state listener will be initialized in DOMContentLoaded
+
+// Update user UI in header
+function updateUserUI(user, profile) {
+    const profileBtn = document.getElementById('userProfileBtn');
+    const loginBtn = document.getElementById('loginBtn');
+    const userName = document.getElementById('userName');
+    const userAvatar = document.getElementById('userAvatar');
+    
+    profileBtn.classList.remove('hidden');
+    loginBtn.classList.add('hidden');
+    
+    userName.textContent = profile?.username || profile?.displayName || user.displayName || 'User';
+    
+    if (profile?.photoURL || user.photoURL) {
+        userAvatar.src = profile.photoURL || user.photoURL;
+        userAvatar.style.display = 'block';
+        document.getElementById('profilePhotoPlaceholder').style.display = 'none';
+    } else {
+        userAvatar.style.display = 'none';
+        document.getElementById('profilePhotoPlaceholder').style.display = 'flex';
+    }
+}
+
+// Show login modal
+function showLoginModal() {
+    document.getElementById('loginModal').classList.remove('hidden');
+    document.getElementById('loginModal').classList.add('flex');
+    switchToLogin();
+}
+
+// Close login modal
+function closeLoginModal() {
+    document.getElementById('loginModal').classList.add('hidden');
+    document.getElementById('loginModal').classList.remove('flex');
+    document.getElementById('loginError').classList.add('hidden');
+    document.getElementById('registerError').classList.add('hidden');
+}
+
+// Switch to login form
+function switchToLogin() {
+    document.getElementById('loginForm').classList.remove('hidden');
+    document.getElementById('registerForm').classList.add('hidden');
+    document.getElementById('authModalTitle').textContent = t('login');
+    document.getElementById('loginError').classList.add('hidden');
+}
+
+// Switch to register form
+function switchToRegister() {
+    document.getElementById('loginForm').classList.add('hidden');
+    document.getElementById('registerForm').classList.remove('hidden');
+    document.getElementById('authModalTitle').textContent = t('register');
+    document.getElementById('registerError').classList.add('hidden');
+}
+
+// Handle login
+async function handleLogin() {
+    if (!window.authModule) {
+        showToast('Система авторизации не загружена', 'error');
+        return;
+    }
+    
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+    const errorEl = document.getElementById('loginError');
+    
+    if (!email || !password) {
+        errorEl.textContent = t('fillAllFields');
+        errorEl.classList.remove('hidden');
+        return;
+    }
+    
+    const result = await window.authModule.loginUser(email, password);
+    
+    if (result.success) {
+        closeLoginModal();
+        showToast(t('loginSuccess'), 'success');
+    } else {
+        errorEl.textContent = result.error || t('loginError');
+        errorEl.classList.remove('hidden');
+    }
+}
+
+// Handle register
+async function handleRegister() {
+    if (!window.authModule) {
+        showToast('Система авторизации не загружена', 'error');
+        return;
+    }
+    
+    const username = document.getElementById('registerUsername').value;
+    const email = document.getElementById('registerEmail').value;
+    const password = document.getElementById('registerPassword').value;
+    const errorEl = document.getElementById('registerError');
+    
+    if (!username || !email || !password) {
+        errorEl.textContent = t('fillAllFields');
+        errorEl.classList.remove('hidden');
+        return;
+    }
+    
+    if (password.length < 6) {
+        errorEl.textContent = t('passwordTooShort');
+        errorEl.classList.remove('hidden');
+        return;
+    }
+    
+    const result = await window.authModule.registerUser(email, password, username);
+    
+    if (result.success) {
+        closeLoginModal();
+        showToast(t('registerSuccess'), 'success');
+    } else {
+        errorEl.textContent = result.error || t('registerError');
+        errorEl.classList.remove('hidden');
+    }
+}
+
+// Logout user
+async function logoutUser() {
+    const result = await window.authModule.logoutUser();
+    if (result.success) {
+        currentUserProfile = null;
+        showHome();
+        showToast(t('logoutSuccess'), 'info');
+    }
+}
+
+// Show profile screen
+async function showProfile() {
+    const user = window.authModule.getCurrentUser();
+    if (!user) {
+        showLoginModal();
+        return;
+    }
+    
+    hideAllScreens();
+    document.getElementById('profileScreen').classList.remove('hidden');
+    
+    // Load profile data
+    const profileResult = await window.authModule.getUserProfile(user.uid);
+    if (profileResult.success) {
+        currentUserProfile = profileResult.data;
+        loadProfileData(profileResult.data);
+    }
+}
+
+// Load profile data into UI
+function loadProfileData(profile) {
+    document.getElementById('profileUsername').textContent = profile.username || profile.displayName || 'User';
+    document.getElementById('profileEmail').textContent = profile.email || '';
+    document.getElementById('profileBio').value = profile.bio || '';
+    
+    const photoEl = document.getElementById('profilePhoto');
+    const placeholderEl = document.getElementById('profilePhotoPlaceholder');
+    
+    if (profile.photoURL) {
+        photoEl.src = profile.photoURL;
+        photoEl.style.display = 'block';
+        placeholderEl.style.display = 'none';
+    } else {
+        photoEl.style.display = 'none';
+        placeholderEl.style.display = 'flex';
+    }
+    
+    // Load statistics
+    const stats = profile.stats || {};
+    document.getElementById('profileBestSpeed').textContent = stats.bestSpeed || 0;
+    document.getElementById('profileAvgAccuracy').textContent = (stats.averageAccuracy || 0) + '%';
+    document.getElementById('profileTotalSessions').textContent = stats.totalSessions || 0;
+    document.getElementById('profileCompletedLessons').textContent = stats.completedLessons || 0;
+    document.getElementById('profileTotalErrors').textContent = stats.totalErrors || 0;
+    
+    // Format total time
+    const totalMinutes = Math.floor((stats.totalTime || 0) / 60);
+    const hours = Math.floor(totalMinutes / 60);
+    if (hours > 0) {
+        document.getElementById('profileTotalTime').textContent = hours + 'ч';
+    } else {
+        document.getElementById('profileTotalTime').textContent = totalMinutes + 'м';
+    }
+}
+
+// Save profile
+async function saveProfile() {
+    const user = window.authModule.getCurrentUser();
+    if (!user) return;
+    
+    const bio = document.getElementById('profileBio').value;
+    const username = document.getElementById('profileUsername').textContent;
+    
+    const updates = {
+        bio: bio,
+        username: username
+    };
+    
+    const result = await window.authModule.updateUserProfile(user.uid, updates);
+    
+    if (result.success) {
+        showToast(t('profileSaved'), 'success');
+        currentUserProfile = { ...currentUserProfile, ...updates };
+    } else {
+        showToast(t('saveError'), 'error');
+    }
+}
+
+// Handle photo upload
+async function handlePhotoUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    if (file.size > 5 * 1024 * 1024) {
+        showToast(t('fileTooLarge'), 'error');
+        return;
+    }
+    
+    const user = window.authModule.getCurrentUser();
+    if (!user) return;
+    
+    showToast(t('uploading'), 'info');
+    
+    const result = await window.authModule.uploadProfilePhoto(user.uid, file);
+    
+    if (result.success) {
+        document.getElementById('profilePhoto').src = result.photoURL;
+        document.getElementById('profilePhoto').style.display = 'block';
+        document.getElementById('profilePhotoPlaceholder').style.display = 'none';
+        document.getElementById('userAvatar').src = result.photoURL;
+        document.getElementById('userAvatar').style.display = 'block';
+        showToast(t('photoUploaded'), 'success');
+    } else {
+        showToast(t('uploadError'), 'error');
+    }
+}
+
+// Show admin panel
+async function showAdminPanel() {
+    const user = window.authModule.getCurrentUser();
+    if (!user) return;
+    
+    const isAdmin = await window.authModule.isAdmin(user.uid);
+    if (!isAdmin) {
+        showToast(t('accessDenied'), 'error');
+        return;
+    }
+    
+    hideAllScreens();
+    document.getElementById('adminPanelScreen').classList.remove('hidden');
+    refreshUsersList();
+}
+
+// Refresh users list
+async function refreshUsersList() {
+    const result = await window.authModule.getAllUsers();
+    if (!result.success) {
+        showToast(t('loadError'), 'error');
+        return;
+    }
+    
+    const tbody = document.getElementById('usersTableBody');
+    tbody.innerHTML = '';
+    
+    result.users.forEach(user => {
+        const row = document.createElement('tr');
+        row.className = 'border-b border-gray-700 hover:bg-gray-700/30';
+        
+        const lastLogin = user.lastLogin ? new Date(user.lastLogin.toDate()).toLocaleString() : 'Never';
+        const stats = user.stats || {};
+        
+        row.innerHTML = `
+            <td class="p-3">${user.username || user.displayName || 'N/A'}</td>
+            <td class="p-3">${user.email || 'N/A'}</td>
+            <td class="p-3">${user.country || 'Unknown'}</td>
+            <td class="p-3 font-mono text-sm">${user.ip || 'N/A'}</td>
+            <td class="p-3 text-sm">${lastLogin}</td>
+            <td class="p-3">${stats.totalSessions || 0}</td>
+            <td class="p-3">
+                <button onclick="deleteUserFromAdmin('${user.id}')" class="px-3 py-1 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg text-sm">
+                    ${t('delete')}
+                </button>
+            </td>
+        `;
+        
+        tbody.appendChild(row);
+    });
+}
+
+// Delete user from admin panel
+async function deleteUserFromAdmin(uid) {
+    if (!confirm(t('confirmDelete'))) return;
+    
+    const result = await window.authModule.deleteUser(uid);
+    
+    if (result.success) {
+        showToast(t('userDeleted'), 'success');
+        refreshUsersList();
+    } else {
+        showToast(t('deleteError'), 'error');
+    }
 }
 
 // ============================================
