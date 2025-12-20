@@ -67,23 +67,25 @@ export async function registerUser(username, password, email = '') {
             return { success: false, error: 'Пароль должен быть не менее 6 символов' };
         }
         
-        // Check if username already exists
-        const usersRef = collection(db, 'users');
-        const usernameQuery = query(usersRef, where('username', '==', username));
-        const usernameSnapshot = await getDocs(usernameQuery);
-        
-        if (!usernameSnapshot.empty) {
-            return { success: false, error: 'Этот логин уже занят' };
-        }
-        
         const userInfo = await getUserInfo();
         
         // Hash password
         const hashedPassword = await hashPassword(password);
         
-        // Create anonymous Firebase auth user
+        // Create anonymous Firebase auth user FIRST (needed for Firestore access)
         const userCredential = await signInAnonymously(auth);
         const user = userCredential.user;
+        
+        // Check if username already exists (after auth, so we have permissions)
+        const usersRef = collection(db, 'users');
+        const usernameQuery = query(usersRef, where('username', '==', username));
+        const usernameSnapshot = await getDocs(usernameQuery);
+        
+        if (!usernameSnapshot.empty) {
+            // Username taken, sign out and return error
+            await signOut(auth);
+            return { success: false, error: 'Этот логин уже занят' };
+        }
         
         // Update display name
         await updateProfile(user, { displayName: username });
@@ -115,7 +117,9 @@ export async function registerUser(username, password, email = '') {
             }
         };
         
-        await setDoc(doc(db, 'users', user.uid), userDoc);
+        // Create user document with UID as document ID
+        const userDocRef = doc(db, 'users', user.uid);
+        await setDoc(userDocRef, userDoc);
         
         return { success: true, user: user };
     } catch (error) {
@@ -138,12 +142,21 @@ export async function loginUser(username, password) {
             return { success: false, error: 'Введите логин и пароль' };
         }
         
-        // Find user by username
+        // Sign in anonymously first to get Firestore access
+        if (auth.currentUser) {
+            await signOut(auth);
+        }
+        
+        const tempCredential = await signInAnonymously(auth);
+        const tempUser = tempCredential.user;
+        
+        // Find user by username (now we have auth)
         const usersRef = collection(db, 'users');
         const usernameQuery = query(usersRef, where('username', '==', username));
         const usernameSnapshot = await getDocs(usernameQuery);
         
         if (usernameSnapshot.empty) {
+            await signOut(auth);
             return { success: false, error: 'Неверный логин или пароль' };
         }
         
@@ -154,30 +167,34 @@ export async function loginUser(username, password) {
         // Verify password
         const hashedPassword = await hashPassword(password);
         if (userData.passwordHash !== hashedPassword) {
+            await signOut(auth);
             return { success: false, error: 'Неверный логин или пароль' };
         }
         
         const userInfo = await getUserInfo();
         
-        // Если у пользователя уже есть UID (старая система), используем его
-        let firebaseUser = null;
+        // Get document ID (could be old UID or current UID)
+        const docId = userDoc.id;
         const existingUid = userData.uid;
         
-        if (existingUid && auth.currentUser?.uid === existingUid) {
-            // Пользователь уже авторизован с правильным UID
-            firebaseUser = auth.currentUser;
+        // If UID changed, we need to move document to new UID
+        if (existingUid && existingUid !== tempUser.uid) {
+            // Create new document with new UID
+            const newUserDoc = {
+                ...userData,
+                uid: tempUser.uid,
+                lastLogin: serverTimestamp(),
+                ip: userInfo.ip,
+                country: userInfo.country,
+                city: userInfo.city
+            };
+            await setDoc(doc(db, 'users', tempUser.uid), newUserDoc);
+            // Optionally delete old document (or keep for history)
+            // await deleteDoc(doc(db, 'users', docId));
         } else {
-            // Создаём новую анонимную сессию
-            if (auth.currentUser) {
-                await signOut(auth);
-            }
-            
-            const userCredential = await signInAnonymously(auth);
-            firebaseUser = userCredential.user;
-            
-            // Обновляем UID в документе пользователя
-            await updateDoc(doc(db, 'users', userDoc.id), {
-                uid: firebaseUser.uid,
+            // Update existing document
+            await updateDoc(doc(db, 'users', docId), {
+                uid: tempUser.uid,
                 lastLogin: serverTimestamp(),
                 ip: userInfo.ip,
                 country: userInfo.country,
@@ -186,9 +203,9 @@ export async function loginUser(username, password) {
         }
         
         // Update display name
-        await updateProfile(firebaseUser, { displayName: userData.username });
+        await updateProfile(tempUser, { displayName: userData.username });
         
-        return { success: true, user: firebaseUser };
+        return { success: true, user: tempUser };
     } catch (error) {
         let errorMessage = error.message;
         
