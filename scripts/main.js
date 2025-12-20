@@ -160,9 +160,10 @@ const translations = {
         register: 'Зарегистрироваться',
         logout: 'Выйти',
         profile: 'Профиль',
-        username: 'Никнейм',
+        username: 'Логин',
         email: 'Email',
         password: 'Пароль',
+        emailOptional: 'Email не обязателен',
         bio: 'О себе',
         save: 'Сохранить',
         statistics: 'Статистика',
@@ -276,6 +277,7 @@ const translations = {
         username: 'Username',
         email: 'Email',
         password: 'Password',
+        emailOptional: 'Email is optional',
         bio: 'About me',
         save: 'Save',
         statistics: 'Statistics',
@@ -1452,24 +1454,28 @@ async function handleLogin() {
         return;
     }
     
-    const email = document.getElementById('loginEmail').value;
-    const password = document.getElementById('loginPassword').value;
-    const errorEl = document.getElementById('loginError');
+    const username = DOM.get('loginUsername')?.value || '';
+    const password = DOM.get('loginPassword')?.value || '';
+    const errorEl = DOM.get('loginError');
     
-    if (!email || !password) {
-        errorEl.textContent = t('fillAllFields');
-        errorEl.classList.remove('hidden');
+    if (!username || !password) {
+        if (errorEl) {
+            errorEl.textContent = t('fillAllFields');
+            errorEl.classList.remove('hidden');
+        }
         return;
     }
     
-    const result = await window.authModule.loginUser(email, password);
+    const result = await window.authModule.loginUser(username, password);
     
     if (result.success) {
         closeLoginModal();
         showToast(t('loginSuccess'), 'success');
     } else {
-        errorEl.textContent = result.error || t('loginError');
-        errorEl.classList.remove('hidden');
+        if (errorEl) {
+            errorEl.textContent = result.error || t('loginError');
+            errorEl.classList.remove('hidden');
+        }
     }
 }
 
@@ -1480,31 +1486,45 @@ async function handleRegister() {
         return;
     }
     
-    const username = document.getElementById('registerUsername').value;
-    const email = document.getElementById('registerEmail').value;
-    const password = document.getElementById('registerPassword').value;
-    const errorEl = document.getElementById('registerError');
+    const username = DOM.get('registerUsername')?.value || '';
+    const password = DOM.get('registerPassword')?.value || '';
+    const errorEl = DOM.get('registerError');
     
-    if (!username || !email || !password) {
-        errorEl.textContent = t('fillAllFields');
-        errorEl.classList.remove('hidden');
+    if (!username || !password) {
+        if (errorEl) {
+            errorEl.textContent = t('fillAllFields');
+            errorEl.classList.remove('hidden');
+        }
+        return;
+    }
+    
+    if (username.length < 3) {
+        if (errorEl) {
+            errorEl.textContent = 'Логин должен быть не менее 3 символов';
+            errorEl.classList.remove('hidden');
+        }
         return;
     }
     
     if (password.length < 6) {
-        errorEl.textContent = t('passwordTooShort');
-        errorEl.classList.remove('hidden');
+        if (errorEl) {
+            errorEl.textContent = t('passwordTooShort');
+            errorEl.classList.remove('hidden');
+        }
         return;
     }
     
-    const result = await window.authModule.registerUser(email, password, username);
+    // Email не обязателен, передаём пустую строку
+    const result = await window.authModule.registerUser(username, password, '');
     
     if (result.success) {
         closeLoginModal();
         showToast(t('registerSuccess'), 'success');
     } else {
-        errorEl.textContent = result.error || t('registerError');
-        errorEl.classList.remove('hidden');
+        if (errorEl) {
+            errorEl.textContent = result.error || t('registerError');
+            errorEl.classList.remove('hidden');
+        }
     }
 }
 

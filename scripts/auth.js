@@ -4,7 +4,7 @@
  */
 
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+import { getAuth, signInAnonymously, signOut, onAuthStateChanged, updateProfile } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, getDocs, query, where, deleteDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 import { firebaseConfig } from './firebase-config.js';
 
@@ -12,6 +12,15 @@ import { firebaseConfig } from './firebase-config.js';
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+
+// Simple password hashing (для безопасности лучше использовать bcrypt на backend, но для фронтенда используем простой хеш)
+async function hashPassword(password) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(password);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
 
 // Available profile avatars (6 заготовок)
 export const AVAILABLE_AVATARS = [
@@ -42,21 +51,38 @@ async function getUserInfo() {
     }
 }
 
-// Register new user
-export async function registerUser(email, password, username) {
+// Register new user (только логин и пароль, email не обязателен)
+export async function registerUser(username, password, email = '') {
     try {
-        // Check if auth is initialized
-        if (!auth) {
-            return { 
-                success: false, 
-                error: 'Firebase Authentication не настроен. Пожалуйста, включите Email/Password в Firebase Console.' 
-            };
+        // Validate input
+        if (!username || !password) {
+            return { success: false, error: 'Логин и пароль обязательны' };
+        }
+        
+        if (username.length < 3) {
+            return { success: false, error: 'Логин должен быть не менее 3 символов' };
+        }
+        
+        if (password.length < 6) {
+            return { success: false, error: 'Пароль должен быть не менее 6 символов' };
+        }
+        
+        // Check if username already exists
+        const usersRef = collection(db, 'users');
+        const usernameQuery = query(usersRef, where('username', '==', username));
+        const usernameSnapshot = await getDocs(usernameQuery);
+        
+        if (!usernameSnapshot.empty) {
+            return { success: false, error: 'Этот логин уже занят' };
         }
         
         const userInfo = await getUserInfo();
         
-        // Create user account
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        // Hash password
+        const hashedPassword = await hashPassword(password);
+        
+        // Create anonymous Firebase auth user
+        const userCredential = await signInAnonymously(auth);
         const user = userCredential.user;
         
         // Update display name
@@ -65,11 +91,12 @@ export async function registerUser(email, password, username) {
         // Create user document in Firestore
         const userDoc = {
             uid: user.uid,
-            email: email,
             username: username,
             displayName: username,
-            photoURL: AVAILABLE_AVATARS[0], // Аватар по умолчанию (первый)
-            avatarIndex: 0, // Индекс выбранного аватара (0-5)
+            passwordHash: hashedPassword, // Храним хеш пароля
+            email: email || '', // Email опциональный
+            photoURL: AVAILABLE_AVATARS[0],
+            avatarIndex: 0,
             bio: '',
             createdAt: serverTimestamp(),
             lastLogin: serverTimestamp(),
@@ -92,17 +119,10 @@ export async function registerUser(email, password, username) {
         
         return { success: true, user: user };
     } catch (error) {
-        // Более понятные сообщения об ошибках
         let errorMessage = error.message;
         
         if (error.code === 'auth/configuration-not-found') {
-            errorMessage = 'Firebase Authentication не настроен. Включите Email/Password в Firebase Console → Authentication → Sign-in method';
-        } else if (error.code === 'auth/email-already-in-use') {
-            errorMessage = 'Этот email уже зарегистрирован';
-        } else if (error.code === 'auth/weak-password') {
-            errorMessage = 'Пароль слишком слабый (минимум 6 символов)';
-        } else if (error.code === 'auth/invalid-email') {
-            errorMessage = 'Неверный формат email';
+            errorMessage = 'Firebase Authentication не настроен. Включите Anonymous Auth в Firebase Console → Authentication → Sign-in method';
         } else if (error.code === 'permission-denied') {
             errorMessage = 'Нет доступа к базе данных. Проверьте Firestore Security Rules';
         }
@@ -111,45 +131,71 @@ export async function registerUser(email, password, username) {
     }
 }
 
-// Login user
-export async function loginUser(email, password) {
+// Login user (только логин и пароль)
+export async function loginUser(username, password) {
     try {
-        // Check if auth is initialized
-        if (!auth) {
-            return { 
-                success: false, 
-                error: 'Firebase Authentication не настроен. Пожалуйста, включите Email/Password в Firebase Console.' 
-            };
+        if (!username || !password) {
+            return { success: false, error: 'Введите логин и пароль' };
+        }
+        
+        // Find user by username
+        const usersRef = collection(db, 'users');
+        const usernameQuery = query(usersRef, where('username', '==', username));
+        const usernameSnapshot = await getDocs(usernameQuery);
+        
+        if (usernameSnapshot.empty) {
+            return { success: false, error: 'Неверный логин или пароль' };
+        }
+        
+        // Get user document
+        const userDoc = usernameSnapshot.docs[0];
+        const userData = userDoc.data();
+        
+        // Verify password
+        const hashedPassword = await hashPassword(password);
+        if (userData.passwordHash !== hashedPassword) {
+            return { success: false, error: 'Неверный логин или пароль' };
         }
         
         const userInfo = await getUserInfo();
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        const user = userCredential.user;
         
-        // Update last login info
-        const userRef = doc(db, 'users', user.uid);
-        await updateDoc(userRef, {
-            lastLogin: serverTimestamp(),
-            ip: userInfo.ip,
-            country: userInfo.country,
-            city: userInfo.city
-        });
+        // Если у пользователя уже есть UID (старая система), используем его
+        let firebaseUser = null;
+        const existingUid = userData.uid;
         
-        return { success: true, user: user };
+        if (existingUid && auth.currentUser?.uid === existingUid) {
+            // Пользователь уже авторизован с правильным UID
+            firebaseUser = auth.currentUser;
+        } else {
+            // Создаём новую анонимную сессию
+            if (auth.currentUser) {
+                await signOut(auth);
+            }
+            
+            const userCredential = await signInAnonymously(auth);
+            firebaseUser = userCredential.user;
+            
+            // Обновляем UID в документе пользователя
+            await updateDoc(doc(db, 'users', userDoc.id), {
+                uid: firebaseUser.uid,
+                lastLogin: serverTimestamp(),
+                ip: userInfo.ip,
+                country: userInfo.country,
+                city: userInfo.city
+            });
+        }
+        
+        // Update display name
+        await updateProfile(firebaseUser, { displayName: userData.username });
+        
+        return { success: true, user: firebaseUser };
     } catch (error) {
-        // Более понятные сообщения об ошибках
         let errorMessage = error.message;
         
         if (error.code === 'auth/configuration-not-found') {
-            errorMessage = 'Firebase Authentication не настроен. Включите Email/Password в Firebase Console → Authentication → Sign-in method';
-        } else if (error.code === 'auth/user-not-found') {
-            errorMessage = 'Пользователь с таким email не найден';
-        } else if (error.code === 'auth/wrong-password') {
-            errorMessage = 'Неверный пароль';
-        } else if (error.code === 'auth/invalid-email') {
-            errorMessage = 'Неверный формат email';
-        } else if (error.code === 'auth/too-many-requests') {
-            errorMessage = 'Слишком много попыток. Попробуйте позже';
+            errorMessage = 'Firebase Authentication не настроен. Включите Anonymous Auth в Firebase Console → Authentication → Sign-in method';
+        } else if (error.code === 'permission-denied') {
+            errorMessage = 'Нет доступа к базе данных. Проверьте Firestore Security Rules';
         }
         
         return { success: false, error: errorMessage };
