@@ -1,28 +1,9 @@
 /**
  * Authentication Module
- * Handles user registration, login, and profile management
+ * Все данные хранятся в localStorage
  */
 
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-import { getAuth, signInAnonymously, signOut, onAuthStateChanged, updateProfile } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, getDocs, query, where, deleteDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
-import { firebaseConfig } from './firebase-config.js';
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-
-// Simple password hashing (для безопасности лучше использовать bcrypt на backend, но для фронтенда используем простой хеш)
-async function hashPassword(password) {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(password);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-}
-
-// Available profile avatars (6 заготовок)
+// Available profile avatars
 export const AVAILABLE_AVATARS = [
     'assets/images/profile photo/profile_1.png',
     'assets/images/profile photo/profile_2.jpg',
@@ -32,7 +13,66 @@ export const AVAILABLE_AVATARS = [
     'assets/images/profile photo/profile_6.jpg'
 ];
 
-// Get user's IP and country (using free API)
+// Storage keys
+const STORAGE_KEY_USERS = 'zwebsitesimulator_users';
+const STORAGE_KEY_CURRENT_USER = 'zwebsitesimulator_current_user';
+
+// Password hashing
+async function hashPassword(password) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(password);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+// Get all users from localStorage
+function getAllUsersStorage() {
+    try {
+        const usersJson = localStorage.getItem(STORAGE_KEY_USERS);
+        return usersJson ? JSON.parse(usersJson) : {};
+    } catch (e) {
+        return {};
+    }
+}
+
+// Save all users to localStorage
+function saveAllUsersStorage(users) {
+    try {
+        localStorage.setItem(STORAGE_KEY_USERS, JSON.stringify(users));
+        return true;
+    } catch (e) {
+        console.error('Failed to save users:', e);
+        return false;
+    }
+}
+
+// Get current user from localStorage
+function getCurrentUserFromStorage() {
+    try {
+        const userJson = localStorage.getItem(STORAGE_KEY_CURRENT_USER);
+        return userJson ? JSON.parse(userJson) : null;
+    } catch (e) {
+        return null;
+    }
+}
+
+// Save current user to localStorage
+function saveCurrentUserToStorage(user) {
+    try {
+        if (user) {
+            localStorage.setItem(STORAGE_KEY_CURRENT_USER, JSON.stringify(user));
+        } else {
+            localStorage.removeItem(STORAGE_KEY_CURRENT_USER);
+        }
+        return true;
+    } catch (e) {
+        console.error('Failed to save current user:', e);
+        return false;
+    }
+}
+
+// Get user's IP and country
 async function getUserInfo() {
     try {
         const response = await fetch('https://ipapi.co/json/');
@@ -51,10 +91,14 @@ async function getUserInfo() {
     }
 }
 
-// Register new user (только логин и пароль, email не обязателен)
+// Generate unique user ID
+function generateUserId() {
+    return 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+}
+
+// Register new user
 export async function registerUser(username, password, email = '') {
     try {
-        // Validate input
         if (!username || !password) {
             return { success: false, error: 'Логин и пароль обязательны' };
         }
@@ -67,41 +111,27 @@ export async function registerUser(username, password, email = '') {
             return { success: false, error: 'Пароль должен быть не менее 6 символов' };
         }
         
-        const userInfo = await getUserInfo();
-        
-        // Hash password
-        const hashedPassword = await hashPassword(password);
-        
-        // Create anonymous Firebase auth user FIRST (needed for Firestore access)
-        const userCredential = await signInAnonymously(auth);
-        const user = userCredential.user;
-        
-        // Check if username already exists (after auth, so we have permissions)
-        const usersRef = collection(db, 'users');
-        const usernameQuery = query(usersRef, where('username', '==', username));
-        const usernameSnapshot = await getDocs(usernameQuery);
-        
-        if (!usernameSnapshot.empty) {
-            // Username taken, sign out and return error
-            await signOut(auth);
+        const users = getAllUsersStorage();
+        const existingUser = Object.values(users).find(u => u.username === username);
+        if (existingUser) {
             return { success: false, error: 'Этот логин уже занят' };
         }
         
-        // Update display name
-        await updateProfile(user, { displayName: username });
+        const userInfo = await getUserInfo();
+        const hashedPassword = await hashPassword(password);
+        const uid = generateUserId();
         
-        // Create user document in Firestore
-        const userDoc = {
-            uid: user.uid,
+        const user = {
+            uid: uid,
             username: username,
             displayName: username,
-            passwordHash: hashedPassword, // Храним хеш пароля
-            email: email || '', // Email опциональный
+            passwordHash: hashedPassword,
+            email: email || '',
             photoURL: AVAILABLE_AVATARS[0],
             avatarIndex: 0,
             bio: '',
-            createdAt: serverTimestamp(),
-            lastLogin: serverTimestamp(),
+            createdAt: Date.now(),
+            lastLogin: Date.now(),
             ip: userInfo.ip,
             country: userInfo.country,
             city: userInfo.city,
@@ -117,112 +147,59 @@ export async function registerUser(username, password, email = '') {
             }
         };
         
-        // Create user document with UID as document ID
-        const userDocRef = doc(db, 'users', user.uid);
-        await setDoc(userDocRef, userDoc);
-        
-        return { success: true, user: user };
-    } catch (error) {
-        let errorMessage = error.message;
-        
-        if (error.code === 'auth/configuration-not-found') {
-            errorMessage = 'Firebase Authentication не настроен. Включите Anonymous Auth в Firebase Console → Authentication → Sign-in method';
-        } else if (error.code === 'permission-denied') {
-            errorMessage = 'Нет доступа к базе данных. Проверьте Firestore Security Rules';
+        users[uid] = user;
+        if (!saveAllUsersStorage(users)) {
+            return { success: false, error: 'Ошибка сохранения данных' };
         }
         
-        return { success: false, error: errorMessage };
+        saveCurrentUserToStorage(user);
+        return { success: true, user: user };
+    } catch (error) {
+        return { success: false, error: error.message || 'Ошибка регистрации' };
     }
 }
 
-// Login user (только логин и пароль)
+// Login user
 export async function loginUser(username, password) {
     try {
         if (!username || !password) {
             return { success: false, error: 'Введите логин и пароль' };
         }
         
-        // Sign in anonymously first to get Firestore access
-        if (auth.currentUser) {
-            await signOut(auth);
-        }
+        const users = getAllUsersStorage();
+        const user = Object.values(users).find(u => u.username === username);
         
-        const tempCredential = await signInAnonymously(auth);
-        const tempUser = tempCredential.user;
-        
-        // Find user by username (now we have auth)
-        const usersRef = collection(db, 'users');
-        const usernameQuery = query(usersRef, where('username', '==', username));
-        const usernameSnapshot = await getDocs(usernameQuery);
-        
-        if (usernameSnapshot.empty) {
-            await signOut(auth);
+        if (!user) {
             return { success: false, error: 'Неверный логин или пароль' };
         }
         
-        // Get user document
-        const userDoc = usernameSnapshot.docs[0];
-        const userData = userDoc.data();
-        
-        // Verify password
         const hashedPassword = await hashPassword(password);
-        if (userData.passwordHash !== hashedPassword) {
-            await signOut(auth);
+        if (user.passwordHash !== hashedPassword) {
             return { success: false, error: 'Неверный логин или пароль' };
         }
         
         const userInfo = await getUserInfo();
+        user.lastLogin = Date.now();
+        user.ip = userInfo.ip;
+        user.country = userInfo.country;
+        user.city = userInfo.city;
         
-        // Get document ID (could be old UID or current UID)
-        const docId = userDoc.id;
-        const existingUid = userData.uid;
-        
-        // If UID changed, we need to move document to new UID
-        if (existingUid && existingUid !== tempUser.uid) {
-            // Create new document with new UID
-            const newUserDoc = {
-                ...userData,
-                uid: tempUser.uid,
-                lastLogin: serverTimestamp(),
-                ip: userInfo.ip,
-                country: userInfo.country,
-                city: userInfo.city
-            };
-            await setDoc(doc(db, 'users', tempUser.uid), newUserDoc);
-            // Optionally delete old document (or keep for history)
-            // await deleteDoc(doc(db, 'users', docId));
-        } else {
-            // Update existing document
-            await updateDoc(doc(db, 'users', docId), {
-                uid: tempUser.uid,
-                lastLogin: serverTimestamp(),
-                ip: userInfo.ip,
-                country: userInfo.country,
-                city: userInfo.city
-            });
+        users[user.uid] = user;
+        if (!saveAllUsersStorage(users)) {
+            return { success: false, error: 'Ошибка сохранения данных' };
         }
         
-        // Update display name
-        await updateProfile(tempUser, { displayName: userData.username });
-        
-        return { success: true, user: tempUser };
+        saveCurrentUserToStorage(user);
+        return { success: true, user: user };
     } catch (error) {
-        let errorMessage = error.message;
-        
-        if (error.code === 'auth/configuration-not-found') {
-            errorMessage = 'Firebase Authentication не настроен. Включите Anonymous Auth в Firebase Console → Authentication → Sign-in method';
-        } else if (error.code === 'permission-denied') {
-            errorMessage = 'Нет доступа к базе данных. Проверьте Firestore Security Rules';
-        }
-        
-        return { success: false, error: errorMessage };
+        return { success: false, error: error.message || 'Ошибка входа' };
     }
 }
 
 // Logout user
 export async function logoutUser() {
     try {
-        await signOut(auth);
+        saveCurrentUserToStorage(null);
         return { success: true };
     } catch (error) {
         return { success: false, error: error.message };
@@ -231,15 +208,16 @@ export async function logoutUser() {
 
 // Get current user
 export function getCurrentUser() {
-    return auth.currentUser;
+    return getCurrentUserFromStorage();
 }
 
-// Get user profile from Firestore
+// Get user profile
 export async function getUserProfile(uid) {
     try {
-        const userDoc = await getDoc(doc(db, 'users', uid));
-        if (userDoc.exists()) {
-            return { success: true, data: userDoc.data() };
+        const users = getAllUsersStorage();
+        const user = users[uid];
+        if (user) {
+            return { success: true, data: user };
         }
         return { success: false, error: 'User not found' };
     } catch (error) {
@@ -250,12 +228,22 @@ export async function getUserProfile(uid) {
 // Update user profile
 export async function updateUserProfile(uid, updates) {
     try {
-        const userRef = doc(db, 'users', uid);
-        await updateDoc(userRef, updates);
+        const users = getAllUsersStorage();
+        const user = users[uid];
+        if (!user) {
+            return { success: false, error: 'User not found' };
+        }
         
-        // Also update auth profile if photoURL changed
-        if (updates.photoURL && auth.currentUser) {
-            await updateProfile(auth.currentUser, { photoURL: updates.photoURL });
+        Object.assign(user, updates);
+        users[uid] = user;
+        
+        if (!saveAllUsersStorage(users)) {
+            return { success: false, error: 'Ошибка сохранения данных' };
+        }
+        
+        const currentUser = getCurrentUserFromStorage();
+        if (currentUser && currentUser.uid === uid) {
+            saveCurrentUserToStorage(user);
         }
         
         return { success: true };
@@ -264,17 +252,14 @@ export async function updateUserProfile(uid, updates) {
     }
 }
 
-// Update profile avatar (выбор из заготовок)
+// Update profile avatar
 export async function updateProfileAvatar(uid, avatarIndex) {
     try {
-        // Validate avatar index
         if (avatarIndex < 0 || avatarIndex >= AVAILABLE_AVATARS.length) {
             return { success: false, error: 'Неверный индекс аватара' };
         }
         
         const avatarURL = AVAILABLE_AVATARS[avatarIndex];
-        
-        // Update user profile (updateUserProfile уже обновляет auth profile)
         const result = await updateUserProfile(uid, { photoURL: avatarURL, avatarIndex: avatarIndex });
         
         if (result.success) {
@@ -283,7 +268,6 @@ export async function updateProfileAvatar(uid, avatarIndex) {
         
         return result;
     } catch (error) {
-        console.error('Avatar update error:', error);
         return { success: false, error: error.message || 'Ошибка обновления аватара' };
     }
 }
@@ -292,36 +276,33 @@ export async function updateProfileAvatar(uid, avatarIndex) {
 let sessionQueue = [];
 let sessionUpdateTimeout = null;
 
-// Debounced session update - собирает сессии и обновляет батчами
+// Debounced session update
 function debouncedSessionUpdate(uid) {
     if (sessionUpdateTimeout) {
         clearTimeout(sessionUpdateTimeout);
     }
     
-    sessionUpdateTimeout = setTimeout(async () => {
+    sessionUpdateTimeout = setTimeout(() => {
         if (sessionQueue.length === 0) return;
         
         const sessionsToProcess = [...sessionQueue];
         sessionQueue = [];
         
         try {
-            const userRef = doc(db, 'users', uid);
-            const userDoc = await getDoc(userRef);
+            const users = getAllUsersStorage();
+            const user = users[uid];
+            if (!user) return;
             
-            if (!userDoc.exists()) return;
-            
-            const currentStats = userDoc.data().stats || {};
+            const currentStats = user.stats || {};
             const sessions = currentStats.sessions || [];
             
-            // Add all queued sessions
             sessionsToProcess.forEach(sessionData => {
                 sessions.push({
                     ...sessionData,
-                    timestamp: serverTimestamp()
+                    timestamp: Date.now()
                 });
             });
             
-            // Update stats
             const totalSessions = sessions.length;
             const totalTime = sessionsToProcess.reduce((sum, s) => sum + (s.time || 0), currentStats.totalTime || 0);
             const bestSpeed = Math.max(
@@ -329,53 +310,48 @@ function debouncedSessionUpdate(uid) {
                 ...sessionsToProcess.map(s => s.speed || 0)
             );
             const totalErrors = sessionsToProcess.reduce((sum, s) => sum + (s.errors || 0), currentStats.totalErrors || 0);
-            
-            // Calculate average accuracy
             const totalAccuracy = sessions.reduce((sum, s) => sum + (s.accuracy || 0), 0);
             const averageAccuracy = totalSessions > 0 ? Math.round(totalAccuracy / totalSessions) : 0;
-            
-            // Count completed lessons
             const completedLessons = new Set(
-                sessions
-                    .filter(s => s.lessonKey)
-                    .map(s => s.lessonKey)
+                sessions.filter(s => s.lessonKey).map(s => s.lessonKey)
             ).size;
             
-            await updateDoc(userRef, {
-                stats: {
-                    totalSessions,
-                    totalTime,
-                    bestSpeed,
-                    averageAccuracy,
-                    completedLessons,
-                    totalErrors,
-                    sessions: sessions.slice(-100) // Keep last 100 sessions
-                }
-            });
+            user.stats = {
+                totalSessions,
+                totalTime,
+                bestSpeed,
+                averageAccuracy,
+                completedLessons,
+                totalErrors,
+                sessions: sessions.slice(-100)
+            };
+            
+            users[uid] = user;
+            saveAllUsersStorage(users);
+            
+            const currentUser = getCurrentUserFromStorage();
+            if (currentUser && currentUser.uid === uid) {
+                saveCurrentUserToStorage(user);
+            }
         } catch (error) {
             console.error('Failed to update user session:', error);
         }
-    }, 2000); // Обновляем каждые 2 секунды или при накоплении сессий
+    }, 2000);
 }
 
-// Add session to user stats - ОПТИМИЗИРОВАНА с debounce
+// Add session to user stats
 export async function addUserSession(uid, sessionData) {
-    // Добавляем в очередь вместо немедленного обновления
     sessionQueue.push(sessionData);
     debouncedSessionUpdate(uid);
-    
-    // Возвращаем успех сразу, не ждём обновления
     return { success: true };
 }
 
 // Check if user is admin
 export async function isAdmin(uid) {
     try {
-        const userDoc = await getDoc(doc(db, 'users', uid));
-        if (userDoc.exists()) {
-            return userDoc.data().isAdmin === true;
-        }
-        return false;
+        const users = getAllUsersStorage();
+        const user = users[uid];
+        return user ? user.isAdmin === true : false;
     } catch (error) {
         return false;
     }
@@ -384,15 +360,12 @@ export async function isAdmin(uid) {
 // Get all users (admin only)
 export async function getAllUsers() {
     try {
-        const usersSnapshot = await getDocs(collection(db, 'users'));
-        const users = [];
-        usersSnapshot.forEach((doc) => {
-            users.push({
-                id: doc.id,
-                ...doc.data()
-            });
-        });
-        return { success: true, users: users };
+        const users = getAllUsersStorage();
+        const usersList = Object.values(users).map(user => ({
+            id: user.uid,
+            ...user
+        }));
+        return { success: true, users: usersList };
     } catch (error) {
         return { success: false, error: error.message };
     }
@@ -401,16 +374,58 @@ export async function getAllUsers() {
 // Delete user (admin only)
 export async function deleteUser(uid) {
     try {
-        await deleteDoc(doc(db, 'users', uid));
+        const users = getAllUsersStorage();
+        delete users[uid];
+        if (!saveAllUsersStorage(users)) {
+            return { success: false, error: 'Ошибка сохранения данных' };
+        }
         return { success: true };
     } catch (error) {
         return { success: false, error: error.message };
     }
 }
 
+// Auth state observer (simulate Firebase onAuthStateChanged)
+let authStateListeners = [];
+let currentAuthUser = null;
+
+function notifyAuthStateListeners(user) {
+    currentAuthUser = user;
+    authStateListeners.forEach(callback => {
+        try {
+            callback(user);
+        } catch (e) {
+            console.error('Auth state listener error:', e);
+        }
+    });
+}
+
+// Check auth state on load
+function checkAuthState() {
+    const user = getCurrentUserFromStorage();
+    if (user !== currentAuthUser) {
+        notifyAuthStateListeners(user);
+    }
+}
+
+// Check auth state periodically
+setInterval(checkAuthState, 1000);
+
+// Initial check
+checkAuthState();
+
 // Auth state observer
 export function onAuthStateChange(callback) {
-    return onAuthStateChanged(auth, callback);
+    authStateListeners.push(callback);
+    // Immediately call with current user
+    const user = getCurrentUserFromStorage();
+    if (user) {
+        setTimeout(() => callback(user), 0);
+    }
+    // Return unsubscribe function
+    return () => {
+        authStateListeners = authStateListeners.filter(cb => cb !== callback);
+    };
 }
 
 // Export for global access
@@ -429,4 +444,3 @@ window.authModule = {
     deleteUser,
     onAuthStateChange
 };
-

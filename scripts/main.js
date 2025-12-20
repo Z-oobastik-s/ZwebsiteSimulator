@@ -372,20 +372,18 @@ document.addEventListener('DOMContentLoaded', () => {
     window.statsModule.updateDisplay();
     window.keyboardModule.render(app.currentLayout);
     
-    // Initialize auth state listener (will be set up when auth.js loads)
+    // Initialize auth state listener
     if (window.authModule) {
         window.authModule.onAuthStateChange(async (user) => {
             if (user) {
-                const profileResult = await window.authModule.getUserProfile(user.uid);
-                if (profileResult.success) {
-                    currentUserProfile = profileResult.data;
-                    updateUserUI(user, profileResult.data);
-                    
-                    const adminCheck = await window.authModule.isAdmin(user.uid);
-                    if (adminCheck) {
-                        const adminBtn = DOM.get('adminBtn');
-                        if (adminBtn) adminBtn.classList.remove('hidden');
-                    }
+                // user уже полный объект из localStorage
+                currentUserProfile = user;
+                updateUserUI(user, user);
+                
+                const adminCheck = await window.authModule.isAdmin(user.uid);
+                if (adminCheck) {
+                    const adminBtn = DOM.get('adminBtn');
+                    if (adminBtn) adminBtn.classList.remove('hidden');
                 }
             } else {
                 currentUserProfile = null;
@@ -1395,10 +1393,12 @@ function updateUserUI(user, profile) {
     profileBtn.classList.remove('hidden');
     loginBtn.classList.add('hidden');
     
-    userName.textContent = profile?.username || profile?.displayName || user.displayName || 'User';
+    // user теперь объект из localStorage
+    const displayUser = profile || user;
+    userName.textContent = displayUser?.username || displayUser?.displayName || 'User';
     
     // Используем аватар из профиля или первый по умолчанию
-    const avatarURL = profile?.photoURL || user.photoURL || 
+    const avatarURL = displayUser?.photoURL || 
         (window.authModule?.AVAILABLE_AVATARS ? window.authModule.AVAILABLE_AVATARS[0] : '');
     
     if (avatarURL) {
@@ -1547,14 +1547,12 @@ async function showProfile() {
     }
     
     hideAllScreens();
-    document.getElementById('profileScreen').classList.remove('hidden');
+    const profileScreen = DOM.get('profileScreen');
+    if (profileScreen) profileScreen.classList.remove('hidden');
     
-    // Load profile data
-    const profileResult = await window.authModule.getUserProfile(user.uid);
-    if (profileResult.success) {
-        currentUserProfile = profileResult.data;
-        loadProfileData(profileResult.data);
-    }
+    // user уже полный объект из localStorage
+    currentUserProfile = user;
+    loadProfileData(user);
 }
 
 // Load profile data into UI - ОПТИМИЗИРОВАНА
@@ -1792,7 +1790,7 @@ async function refreshUsersList() {
         const row = document.createElement('tr');
         row.className = 'border-b border-gray-700 hover:bg-gray-700/30';
         
-        const lastLogin = user.lastLogin ? new Date(user.lastLogin.toDate()).toLocaleString() : 'Never';
+        const lastLogin = user.lastLogin ? new Date(user.lastLogin).toLocaleString() : 'Never';
         const stats = user.stats || {};
         
         row.innerHTML = `
