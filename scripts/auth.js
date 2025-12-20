@@ -173,56 +173,84 @@ export async function uploadProfilePhoto(uid, file) {
     }
 }
 
-// Add session to user stats
-export async function addUserSession(uid, sessionData) {
-    try {
-        const userRef = doc(db, 'users', uid);
-        const userDoc = await getDoc(userRef);
-        
-        if (!userDoc.exists()) return { success: false, error: 'User not found' };
-        
-        const currentStats = userDoc.data().stats || {};
-        const sessions = currentStats.sessions || [];
-        
-        // Add new session
-        sessions.push({
-            ...sessionData,
-            timestamp: serverTimestamp()
-        });
-        
-        // Update stats
-        const totalSessions = sessions.length;
-        const totalTime = (currentStats.totalTime || 0) + (sessionData.time || 0);
-        const bestSpeed = Math.max(currentStats.bestSpeed || 0, sessionData.speed || 0);
-        const totalErrors = (currentStats.totalErrors || 0) + (sessionData.errors || 0);
-        
-        // Calculate average accuracy
-        const totalAccuracy = sessions.reduce((sum, s) => sum + (s.accuracy || 0), 0);
-        const averageAccuracy = totalSessions > 0 ? Math.round(totalAccuracy / totalSessions) : 0;
-        
-        // Count completed lessons
-        const completedLessons = new Set(
-            sessions
-                .filter(s => s.lessonKey)
-                .map(s => s.lessonKey)
-        ).size;
-        
-        await updateDoc(userRef, {
-            stats: {
-                totalSessions,
-                totalTime,
-                bestSpeed,
-                averageAccuracy,
-                completedLessons,
-                totalErrors,
-                sessions: sessions.slice(-100) // Keep last 100 sessions
-            }
-        });
-        
-        return { success: true };
-    } catch (error) {
-        return { success: false, error: error.message };
+// Session queue for batch updates
+let sessionQueue = [];
+let sessionUpdateTimeout = null;
+
+// Debounced session update - собирает сессии и обновляет батчами
+function debouncedSessionUpdate(uid) {
+    if (sessionUpdateTimeout) {
+        clearTimeout(sessionUpdateTimeout);
     }
+    
+    sessionUpdateTimeout = setTimeout(async () => {
+        if (sessionQueue.length === 0) return;
+        
+        const sessionsToProcess = [...sessionQueue];
+        sessionQueue = [];
+        
+        try {
+            const userRef = doc(db, 'users', uid);
+            const userDoc = await getDoc(userRef);
+            
+            if (!userDoc.exists()) return;
+            
+            const currentStats = userDoc.data().stats || {};
+            const sessions = currentStats.sessions || [];
+            
+            // Add all queued sessions
+            sessionsToProcess.forEach(sessionData => {
+                sessions.push({
+                    ...sessionData,
+                    timestamp: serverTimestamp()
+                });
+            });
+            
+            // Update stats
+            const totalSessions = sessions.length;
+            const totalTime = sessionsToProcess.reduce((sum, s) => sum + (s.time || 0), currentStats.totalTime || 0);
+            const bestSpeed = Math.max(
+                currentStats.bestSpeed || 0,
+                ...sessionsToProcess.map(s => s.speed || 0)
+            );
+            const totalErrors = sessionsToProcess.reduce((sum, s) => sum + (s.errors || 0), currentStats.totalErrors || 0);
+            
+            // Calculate average accuracy
+            const totalAccuracy = sessions.reduce((sum, s) => sum + (s.accuracy || 0), 0);
+            const averageAccuracy = totalSessions > 0 ? Math.round(totalAccuracy / totalSessions) : 0;
+            
+            // Count completed lessons
+            const completedLessons = new Set(
+                sessions
+                    .filter(s => s.lessonKey)
+                    .map(s => s.lessonKey)
+            ).size;
+            
+            await updateDoc(userRef, {
+                stats: {
+                    totalSessions,
+                    totalTime,
+                    bestSpeed,
+                    averageAccuracy,
+                    completedLessons,
+                    totalErrors,
+                    sessions: sessions.slice(-100) // Keep last 100 sessions
+                }
+            });
+        } catch (error) {
+            console.error('Failed to update user session:', error);
+        }
+    }, 2000); // Обновляем каждые 2 секунды или при накоплении сессий
+}
+
+// Add session to user stats - ОПТИМИЗИРОВАНА с debounce
+export async function addUserSession(uid, sessionData) {
+    // Добавляем в очередь вместо немедленного обновления
+    sessionQueue.push(sessionData);
+    debouncedSessionUpdate(uid);
+    
+    // Возвращаем успех сразу, не ждём обновления
+    return { success: true };
 }
 
 // Check if user is admin

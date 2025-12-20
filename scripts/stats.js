@@ -100,40 +100,40 @@ class Statistics {
     }
     
     updateDisplay() {
-        // Update stats preview on home screen
+        // Update stats preview on home screen - ОПТИМИЗИРОВАНА с кэшированием
         const bestSpeedEl = document.getElementById('bestSpeed');
         const avgAccuracyEl = document.getElementById('avgAccuracy');
         const completedLessonsEl = document.getElementById('completedLessons');
         const totalLessonsCountEl = document.getElementById('totalLessonsCount');
         const totalTimeEl = document.getElementById('totalTime');
         
-        if (bestSpeedEl) {
+        // Batch updates - обновляем только если значение изменилось
+        if (bestSpeedEl && bestSpeedEl.textContent !== String(this.data.bestSpeed)) {
             bestSpeedEl.textContent = this.data.bestSpeed;
         }
         
-        if (avgAccuracyEl) {
-            avgAccuracyEl.textContent = this.data.averageAccuracy + '%';
+        const accuracyText = this.data.averageAccuracy + '%';
+        if (avgAccuracyEl && avgAccuracyEl.textContent !== accuracyText) {
+            avgAccuracyEl.textContent = accuracyText;
         }
         
         if (completedLessonsEl) {
-            // Подсчитываем уникальные пройденные уроки
             const uniqueLessons = this.data.lessonStats ? Object.keys(this.data.lessonStats).length : 0;
-            completedLessonsEl.textContent = uniqueLessons;
+            if (completedLessonsEl.textContent !== String(uniqueLessons)) {
+                completedLessonsEl.textContent = uniqueLessons;
+            }
         }
         
-        if (totalLessonsCountEl) {
-            // Общее количество уроков: 26 (RU+EN) + 20 (UA) = 46
+        if (totalLessonsCountEl && totalLessonsCountEl.textContent !== '46') {
             totalLessonsCountEl.textContent = '46';
         }
         
         if (totalTimeEl) {
             const minutes = Math.floor(this.data.totalTime / 60);
             const hours = Math.floor(minutes / 60);
-            
-            if (hours > 0) {
-                totalTimeEl.textContent = hours + 'ч';
-            } else {
-                totalTimeEl.textContent = minutes + 'м';
+            const timeText = hours > 0 ? hours + 'ч' : minutes + 'м';
+            if (totalTimeEl.textContent !== timeText) {
+                totalTimeEl.textContent = timeText;
             }
         }
     }

@@ -20,8 +20,61 @@ const app = {
     lang: 'ru',
     timerInterval: null,
     speedTestDuration: 60,
-    speedTestWords: []
+    speedTestWords: [],
+    // Performance optimizations
+    statsUpdatePending: false,
+    lastStatsUpdate: 0,
+    cachedDOM: {},
+    animationFrameId: null
 };
+
+// DOM Cache - кэшируем часто используемые элементы
+const DOM = {
+    get: function(id) {
+        if (!this.cache) this.cache = {};
+        if (!this.cache[id]) {
+            this.cache[id] = document.getElementById(id);
+        }
+        return this.cache[id];
+    },
+    clear: function() {
+        this.cache = {};
+    }
+};
+
+// Throttle function для оптимизации обновлений
+function throttle(func, limit) {
+    let inThrottle;
+    return function() {
+        const args = arguments;
+        const context = this;
+        if (!inThrottle) {
+            func.apply(context, args);
+            inThrottle = true;
+            setTimeout(() => inThrottle = false, limit);
+        }
+    };
+}
+
+// RequestAnimationFrame wrapper для таймеров
+function rafTimer(callback) {
+    let lastTime = 0;
+    const frame = (currentTime) => {
+        const delta = currentTime - lastTime;
+        if (delta >= 1000) { // Update every second
+            callback();
+            lastTime = currentTime;
+        }
+        app.animationFrameId = requestAnimationFrame(frame);
+    };
+    app.animationFrameId = requestAnimationFrame(frame);
+    return () => {
+        if (app.animationFrameId) {
+            cancelAnimationFrame(app.animationFrameId);
+            app.animationFrameId = null;
+        }
+    };
+}
 
 // Translations
 // Audio elements
@@ -328,14 +381,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     
                     const adminCheck = await window.authModule.isAdmin(user.uid);
                     if (adminCheck) {
-                        document.getElementById('adminBtn').classList.remove('hidden');
+                        const adminBtn = DOM.get('adminBtn');
+                        if (adminBtn) adminBtn.classList.remove('hidden');
                     }
                 }
             } else {
                 currentUserProfile = null;
-                document.getElementById('userProfileBtn').classList.add('hidden');
-                document.getElementById('loginBtn').classList.remove('hidden');
-                document.getElementById('adminBtn').classList.add('hidden');
+                const profileBtn = DOM.get('userProfileBtn');
+                const loginBtn = DOM.get('loginBtn');
+                const adminBtn = DOM.get('adminBtn');
+                if (profileBtn) profileBtn.classList.add('hidden');
+                if (loginBtn) loginBtn.classList.remove('hidden');
+                if (adminBtn) adminBtn.classList.add('hidden');
             }
         });
     }
@@ -408,7 +465,7 @@ function loadSettings() {
     if (savedLayout) {
         app.currentLayout = savedLayout;
         // Обновляем отображение кнопки раскладки
-        const layoutBtn = document.getElementById('currentLayout');
+        const layoutBtn = DOM.get('currentLayout');
         if (layoutBtn) {
             layoutBtn.textContent = app.currentLayout === 'ru' ? 'РУС' : app.currentLayout === 'en' ? 'ENG' : 'УКР';
         }
@@ -419,22 +476,26 @@ function loadSettings() {
     }
 }
 
-// Initialize UI event listeners
+// Initialize UI event listeners - ОПТИМИЗИРОВАНА
 function initializeUI() {
     // Theme toggle
-    document.getElementById('themeToggle')?.addEventListener('click', toggleTheme);
+    const themeToggle = DOM.get('themeToggle');
+    if (themeToggle) themeToggle.addEventListener('click', toggleTheme);
     
     // Language toggle
-    document.getElementById('langToggle')?.addEventListener('click', toggleLanguage);
+    const langToggle = DOM.get('langToggle');
+    if (langToggle) langToggle.addEventListener('click', toggleLanguage);
     
     // Layout toggle
-    document.getElementById('layoutToggle')?.addEventListener('click', toggleLayout);
+    const layoutToggle = DOM.get('layoutToggle');
+    if (layoutToggle) layoutToggle.addEventListener('click', toggleLayout);
     
     // Sound toggle
-    document.getElementById('soundToggle')?.addEventListener('click', toggleSound);
+    const soundToggle = DOM.get('soundToggle');
+    if (soundToggle) soundToggle.addEventListener('click', toggleSound);
     
-    // Keyboard input
-    document.addEventListener('keydown', handleKeyPress);
+    // Keyboard input - используем passive для лучшей производительности
+    document.addEventListener('keydown', handleKeyPress, { passive: false });
 }
 
 // Theme toggle
@@ -447,19 +508,22 @@ function toggleTheme() {
     setRandomBackground();
     
     // Update icon
-    const icon = document.getElementById('themeIcon');
-    if (app.theme === 'dark') {
-        icon.innerHTML = '<path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />';
-    } else {
-        icon.innerHTML = '<path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd" />';
+    const icon = DOM.get('themeIcon');
+    if (icon) {
+        if (app.theme === 'dark') {
+            icon.innerHTML = '<path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />';
+        } else {
+            icon.innerHTML = '<path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd" />';
+        }
     }
 }
 
-// Language toggle
+// Language toggle - ОПТИМИЗИРОВАНА
 function toggleLanguage() {
     app.lang = app.lang === 'ru' ? 'en' : 'ru';
     localStorage.setItem('lang', app.lang);
-    document.getElementById('currentLang').textContent = app.lang.toUpperCase();
+    const langEl = DOM.get('currentLang');
+    if (langEl) langEl.textContent = app.lang.toUpperCase();
     updateTranslations();
 }
 
@@ -472,7 +536,8 @@ function toggleLayout() {
     
     localStorage.setItem('layout', app.currentLayout);
     const layoutText = app.currentLayout === 'ru' ? 'РУС' : app.currentLayout === 'en' ? 'ENG' : 'УКР';
-    document.getElementById('currentLayout').textContent = layoutText;
+    const layoutEl = DOM.get('currentLayout');
+    if (layoutEl) layoutEl.textContent = layoutText;
     
     // Обновляем клавиатуру с новой раскладкой
     window.keyboardModule.render(app.currentLayout);
@@ -489,11 +554,13 @@ function toggleSound() {
     app.soundEnabled = !app.soundEnabled;
     localStorage.setItem('sound', app.soundEnabled);
     
-    const icon = document.getElementById('soundIcon');
-    if (app.soundEnabled) {
-        icon.innerHTML = '<path fill-rule="evenodd" d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.929a1 1 0 011.414 0A9.972 9.972 0 0119 10a9.972 9.972 0 01-2.929 7.071 1 1 0 01-1.414-1.414A7.971 7.971 0 0017 10c0-2.21-.894-4.208-2.343-5.657a1 1 0 010-1.414zm-2.829 2.828a1 1 0 011.415 0A5.983 5.983 0 0115 10a5.984 5.984 0 01-1.757 4.243 1 1 0 01-1.415-1.415A3.984 3.984 0 0013 10a3.983 3.983 0 00-1.172-2.828 1 1 0 010-1.415z" clip-rule="evenodd" />';
-    } else {
-        icon.innerHTML = '<path fill-rule="evenodd" d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM12.293 7.293a1 1 0 011.414 0L15 8.586l1.293-1.293a1 1 0 111.414 1.414L16.414 10l1.293 1.293a1 1 0 01-1.414 1.414L15 11.414l-1.293 1.293a1 1 0 01-1.414-1.414L13.586 10l-1.293-1.293a1 1 0 010-1.414z" clip-rule="evenodd" />';
+    const icon = DOM.get('soundIcon');
+    if (icon) {
+        if (app.soundEnabled) {
+            icon.innerHTML = '<path fill-rule="evenodd" d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.929a1 1 0 011.414 0A9.972 9.972 0 0119 10a9.972 9.972 0 01-2.929 7.071 1 1 0 01-1.414-1.414A7.971 7.971 0 0017 10c0-2.21-.894-4.208-2.343-5.657a1 1 0 010-1.414zm-2.829 2.828a1 1 0 011.415 0A5.983 5.983 0 0115 10a5.984 5.984 0 01-1.757 4.243 1 1 0 01-1.415-1.415A3.984 3.984 0 0013 10a3.983 3.983 0 00-1.172-2.828 1 1 0 010-1.415z" clip-rule="evenodd" />';
+        } else {
+            icon.innerHTML = '<path fill-rule="evenodd" d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM12.293 7.293a1 1 0 011.414 0L15 8.586l1.293-1.293a1 1 0 111.414 1.414L16.414 10l1.293 1.293a1 1 0 01-1.414 1.414L15 11.414l-1.293 1.293a1 1 0 01-1.414-1.414L13.586 10l-1.293-1.293a1 1 0 010-1.414z" clip-rule="evenodd" />';
+        }
     }
 }
 
@@ -510,14 +577,16 @@ function updateTranslations() {
 // Navigation functions
 function showHome() {
     hideAllScreens();
-    document.getElementById('homeScreen').classList.remove('hidden');
+    const homeScreen = DOM.get('homeScreen');
+    if (homeScreen) homeScreen.classList.remove('hidden');
     app.currentMode = 'home';
-    createParticles(); // Пересоздаём частицы при возврате
+    createParticles();
 }
 
 function showLessons() {
     hideAllScreens();
-    document.getElementById('lessonsScreen').classList.remove('hidden');
+    const lessonsScreen = DOM.get('lessonsScreen');
+    if (lessonsScreen) lessonsScreen.classList.remove('hidden');
     app.currentMode = 'lessons';
     loadLessons();
 }
@@ -553,14 +622,16 @@ function showSpeedTest() {
 }
 
 function hideAllScreens() {
-    document.getElementById('homeScreen').classList.add('hidden');
-    document.getElementById('lessonsScreen').classList.add('hidden');
-    document.getElementById('practiceScreen').classList.add('hidden');
-    document.getElementById('multiplayerMenuScreen')?.classList.add('hidden');
-    document.getElementById('multiplayerWaitingScreen')?.classList.add('hidden');
-    document.getElementById('multiplayerGameScreen')?.classList.add('hidden');
-    document.getElementById('profileScreen')?.classList.add('hidden');
-    document.getElementById('adminPanelScreen')?.classList.add('hidden');
+    const screens = [
+        'homeScreen', 'lessonsScreen', 'practiceScreen',
+        'multiplayerMenuScreen', 'multiplayerWaitingScreen', 'multiplayerGameScreen',
+        'profileScreen', 'adminPanelScreen'
+    ];
+    
+    screens.forEach(id => {
+        const el = DOM.get(id);
+        if (el) el.classList.add('hidden');
+    });
 }
 
 // Select lesson language
@@ -571,17 +642,21 @@ function selectLessonLanguage(lang) {
     document.querySelectorAll('[id^="lessonLang"]').forEach(btn => {
         btn.className = 'w-full px-4 py-4 rounded-xl bg-gray-700/50 dark:bg-gray-800/50 hover:bg-gray-600/50 text-gray-300 font-bold text-lg transition-all transform hover:scale-105';
     });
-    document.getElementById(`lessonLang${lang.charAt(0).toUpperCase() + lang.slice(1)}`).className = 'w-full px-4 py-4 rounded-xl bg-gradient-to-br from-primary to-cyan-500 text-white font-bold text-lg shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all transform hover:scale-105';
+    const activeBtn = DOM.get(`lessonLang${lang.charAt(0).toUpperCase() + lang.slice(1)}`);
+    if (activeBtn) {
+        activeBtn.className = 'w-full px-4 py-4 rounded-xl bg-gradient-to-br from-primary to-cyan-500 text-white font-bold text-lg shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all transform hover:scale-105';
+    }
     
     loadLessons();
 }
 
-// Load lessons
+// Load lessons - ОПТИМИЗИРОВАНА с DocumentFragment
 function loadLessons() {
-    const container = document.getElementById('lessonsList');
-    container.innerHTML = '';
+    const container = DOM.get('lessonsList');
+    if (!container) return;
     
     const levels = ['beginner', 'medium', 'advanced'];
+    const fragment = document.createDocumentFragment();
     
     for (const level of levels) {
         const data = LESSONS_DATA[level];
@@ -612,19 +687,26 @@ function loadLessons() {
         
         card.innerHTML = `
             <div class="text-4xl mb-3">${levelIcons[level]}</div>
-            <h3 class="text-2xl font-bold mb-2 ${levelColors[level]}">${levelName}</h3>
+            <h3 class="text-2xl font-bold mb-2 ${levelColors[level]}">${escapeHtml(levelName)}</h3>
             <p class="text-gray-400">${lessonsForLang.length} ${app.lang === 'ru' ? 'уроков' : 'lessons'}</p>
         `;
         
-        container.appendChild(card);
+        fragment.appendChild(card);
     }
+    
+    // Batch update
+    container.innerHTML = '';
+    container.appendChild(fragment);
 }
 
-// Show lesson list
+// Show lesson list - ОПТИМИЗИРОВАНА с DocumentFragment
 function showLessonList(levelData) {
-    currentLevelData = levelData; // Сохраняем для возврата после урока
-    const container = document.getElementById('lessonsList');
-    container.innerHTML = '';
+    currentLevelData = levelData;
+    const container = DOM.get('lessonsList');
+    if (!container) return;
+    
+    // Используем DocumentFragment для batch updates
+    const fragment = document.createDocumentFragment();
     
     levelData.lessons.forEach(lesson => {
         const lessonKey = `lesson_${levelData.level}_${lesson.id}`;
@@ -669,31 +751,42 @@ function showLessonList(levelData) {
         
         card.innerHTML = `
             ${completeBadge}
-            <h4 class="font-bold text-lg mb-2 text-gray-100">${lesson.name}</h4>
-            <p class="text-sm text-gray-400 mb-3">${lesson.description}</p>
+            <h4 class="font-bold text-lg mb-2 text-gray-100">${escapeHtml(lesson.name)}</h4>
+            <p class="text-sm text-gray-400 mb-3">${escapeHtml(lesson.description)}</p>
             <div class="flex items-center justify-between">
                 <span class="px-3 py-1 rounded-lg bg-primary/20 text-primary text-xs font-semibold">${lesson.layout.toUpperCase()}</span>
-                <span class="text-xs text-gray-500">${lesson.difficulty}</span>
+                <span class="text-xs text-gray-500">${escapeHtml(lesson.difficulty)}</span>
             </div>
             ${statsHtml}
         `;
         
-        container.appendChild(card);
+        fragment.appendChild(card);
     });
+    
+    // Batch update - один раз заменяем весь контент
+    container.innerHTML = '';
+    container.appendChild(fragment);
 }
 
-// Start practice
+// Start practice - ОПТИМИЗИРОВАНА
 function startPractice(text, mode, lesson = null) {
     // КРИТИЧНО: Сразу сбрасываем паузу чтобы избежать блокировки ввода
     app.isPaused = false;
     
     hideAllScreens();
-    document.getElementById('practiceScreen').classList.remove('hidden');
+    const practiceScreen = DOM.get('practiceScreen');
+    if (practiceScreen) {
+        practiceScreen.classList.remove('hidden');
+    }
     
-    // Очищаем старый таймер если он есть
+    // Очищаем старые таймеры
     if (app.timerInterval) {
         clearInterval(app.timerInterval);
         app.timerInterval = null;
+    }
+    if (app.animationFrameId) {
+        cancelAnimationFrame(app.animationFrameId);
+        app.animationFrameId = null;
     }
     
     // Очищаем переменные теста на скорость
@@ -707,23 +800,32 @@ function startPractice(text, mode, lesson = null) {
     app.currentPosition = 0;
     app.startTime = Date.now();
     app.endTime = null;
-    app.isPaused = false; // Дублируем для надёжности
+    app.isPaused = false;
     app.errors = 0;
     app.totalChars = text.length;
-    app.typedText = ''; // Обнуляем набранный текст
+    app.typedText = '';
+    
+    // Очищаем кэш DOM при смене экрана
+    DOM.clear();
     
     // Автоматически устанавливаем раскладку по языку урока
     if (lesson && lesson.layout) {
         app.currentLayout = lesson.layout;
         const layoutNames = { 'ru': 'РУС', 'en': 'ENG', 'ua': 'УКР' };
-        document.getElementById('currentLayout').textContent = layoutNames[app.currentLayout] || 'РУС';
+        const layoutEl = DOM.get('currentLayout');
+        if (layoutEl) {
+            layoutEl.textContent = layoutNames[app.currentLayout] || 'РУС';
+        }
         window.keyboardModule.render(app.currentLayout);
     }
     
     // Сбросить кнопку паузы
-    const pauseBtn = document.getElementById('pauseBtn');
+    const pauseBtn = DOM.get('pauseBtn');
     if (pauseBtn) {
-        pauseBtn.querySelector('span').textContent = translations[app.lang].pause;
+        const span = pauseBtn.querySelector('span');
+        if (span) {
+            span.textContent = translations[app.lang].pause;
+        }
     }
     
     renderText();
@@ -732,14 +834,14 @@ function startPractice(text, mode, lesson = null) {
     if (mode === 'speedtest') {
         startSpeedTestTimer();
     } else {
-        // Для обычных уроков - запускаем таймер обновления статистики
         startStatsTimer();
     }
 }
 
-// Render text display - НОВАЯ ЛОГИКА: бегущая строка
+// Render text display - ОПТИМИЗИРОВАННАЯ ВЕРСИЯ с DocumentFragment
 function renderText() {
-    const display = document.getElementById('textDisplay');
+    const display = DOM.get('textDisplay');
+    if (!display) return;
     
     // Определяем окно видимости (сколько символов показывать)
     const WINDOW_SIZE = 60; // Показываем ~60 символов
@@ -749,33 +851,41 @@ function renderText() {
     const startPos = Math.max(0, app.currentPosition - TYPED_VISIBLE);
     const endPos = Math.min(app.currentText.length, startPos + WINDOW_SIZE);
     
-    let html = '';
+    // Используем DocumentFragment для batch updates
+    const fragment = document.createDocumentFragment();
+    const tempDiv = document.createElement('div');
     
     for (let i = startPos; i < endPos; i++) {
         const char = app.currentText[i];
-        let className = '';
-        let style = '';
+        const span = document.createElement('span');
         
         if (i < app.currentPosition) {
             // Уже набранный текст
-            className = 'char-typed';
-            // Делаем уже набранный текст полупрозрачным и меньше
+            span.className = 'char-typed';
             const distanceFromCurrent = app.currentPosition - i;
             const opacity = Math.max(0.2, 1 - (distanceFromCurrent / TYPED_VISIBLE));
-            style = `opacity: ${opacity}; font-size: 0.9em;`;
+            span.style.opacity = opacity;
+            span.style.fontSize = '0.9em';
         } else if (i === app.currentPosition) {
             // Текущий символ для набора
-            className = 'char-current';
+            span.className = 'char-current';
         } else {
             // Будущие символы
-            className = 'char-future';
+            span.className = 'char-future';
         }
         
-        const displayChar = char === ' ' ? '&nbsp;' : escapeHtml(char);
-        html += `<span class="${className}" style="${style}">${displayChar}</span>`;
+        if (char === ' ') {
+            span.innerHTML = '&nbsp;';
+        } else {
+            span.textContent = char;
+        }
+        
+        fragment.appendChild(span);
     }
     
-    display.innerHTML = html;
+    // Batch update - один раз заменяем весь контент
+    display.innerHTML = '';
+    display.appendChild(fragment);
     
     // Подсветить текущую клавишу на клавиатуре
     if (app.currentPosition < app.currentText.length) {
@@ -784,7 +894,7 @@ function renderText() {
     }
 }
 
-// Handle key press
+// Handle key press - ОПТИМИЗИРОВАНА
 function handleKeyPress(e) {
     // Разрешаем ввод во всех режимах практики
     const validModes = ['practice', 'speedtest', 'lesson', 'free'];
@@ -805,20 +915,18 @@ function handleKeyPress(e) {
                 app.typedText = app.typedText.slice(0, -1);
             }
             renderText();
-            updateStats();
+            updateStats(); // Throttled
         }
         return;
     }
     
     // НОВАЯ ЛОГИКА: Блокируем неправильный ввод
-    // Проверяем, совпадает ли нажатая клавиша с ожидаемым символом
     if (e.key !== expectedChar) {
         // Неправильный символ - играем звук ошибки и НЕ двигаемся дальше
         playSound('error');
         app.errors++;
-        // Подсвечиваем текущий символ красным на мгновение
         highlightError();
-        return; // Не продолжаем!
+        return;
     }
     
     // Если дошли сюда - символ правильный
@@ -831,8 +939,8 @@ function handleKeyPress(e) {
     if (!app.typedText) app.typedText = '';
     app.typedText += e.key;
     
-    renderText();
-    updateStats();
+    renderText(); // Оптимизирован с DocumentFragment
+    updateStats(); // Throttled - не обновляет DOM при каждом нажатии
     
     // Check if finished
     if (app.currentPosition >= app.currentText.length) {
@@ -840,94 +948,178 @@ function handleKeyPress(e) {
     }
 }
 
-// Подсветка ошибки (мигание)
+// Подсветка ошибки (мигание) - ОПТИМИЗИРОВАНА
 function highlightError() {
-    const display = document.getElementById('textDisplay');
+    const display = DOM.get('textDisplay');
+    if (!display) return;
+    
     display.style.animation = 'shake 0.3s';
     setTimeout(() => {
-        display.style.animation = '';
+        if (display) {
+            display.style.animation = '';
+        }
     }, 300);
 }
 
-// Update stats during practice
-function updateStats() {
+// Update stats during practice - ОПТИМИЗИРОВАННАЯ с кэшированием DOM
+const updateStats = throttle(function() {
     const elapsed = app.isPaused ? 0 : (Date.now() - app.startTime) / 1000;
     const minutes = elapsed / 60;
     
+    // Кэшируем элементы
+    const speedEl = DOM.get('currentSpeed');
+    const accuracyEl = DOM.get('currentAccuracy');
+    const timeEl = DOM.get('currentTime');
+    const progressEl = DOM.get('currentProgress');
+    const progressBar = DOM.get('progressBar');
+    
+    if (!speedEl || !accuracyEl || !timeEl || !progressEl || !progressBar) return;
+    
     // Speed (characters per minute)
     const speed = minutes > 0 ? Math.round(app.currentPosition / minutes) : 0;
-    document.getElementById('currentSpeed').textContent = speed;
+    if (speedEl.textContent !== String(speed)) {
+        speedEl.textContent = speed;
+    }
     
-    // Accuracy - НОВАЯ ФОРМУЛА
-    // Точность = правильные символы / (правильные символы + ошибки) * 100
+    // Accuracy
     const totalAttempts = app.currentPosition + app.errors;
     const accuracy = totalAttempts > 0 
         ? Math.round((app.currentPosition / totalAttempts) * 100) 
         : 100;
-    document.getElementById('currentAccuracy').textContent = accuracy;
+    if (accuracyEl.textContent !== String(accuracy)) {
+        accuracyEl.textContent = accuracy;
+    }
     
     // Time
     const mins = Math.floor(elapsed / 60);
     const secs = Math.floor(elapsed % 60);
-    document.getElementById('currentTime').textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+    const timeStr = `${mins}:${secs.toString().padStart(2, '0')}`;
+    if (timeEl.textContent !== timeStr) {
+        timeEl.textContent = timeStr;
+    }
     
     // Progress
     const progress = Math.round((app.currentPosition / app.totalChars) * 100);
-    document.getElementById('currentProgress').textContent = progress;
-    document.getElementById('progressBar').style.width = progress + '%';
-}
+    if (progressEl.textContent !== String(progress)) {
+        progressEl.textContent = progress;
+    }
+    const progressWidth = progress + '%';
+    if (progressBar.style.width !== progressWidth) {
+        progressBar.style.width = progressWidth;
+    }
+}, 100); // Throttle to max 10 updates per second
 
-// Stats timer for regular lessons - обновляет время каждую секунду
+// Stats timer for regular lessons - ОПТИМИЗИРОВАН с requestAnimationFrame
 function startStatsTimer() {
-    app.timerInterval = setInterval(() => {
-        if (app.isPaused) return;
+    if (app.timerInterval) {
+        clearInterval(app.timerInterval);
+    }
+    if (app.animationFrameId) {
+        cancelAnimationFrame(app.animationFrameId);
+    }
+    
+    let lastUpdate = 0;
+    const update = (currentTime) => {
+        if (app.isPaused) {
+            app.animationFrameId = requestAnimationFrame(update);
+            return;
+        }
         
-        const elapsed = (Date.now() - app.startTime) / 1000;
-        const mins = Math.floor(elapsed / 60);
-        const secs = Math.floor(elapsed % 60);
-        document.getElementById('currentTime').textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+        if (currentTime - lastUpdate >= 1000) {
+            const elapsed = (Date.now() - app.startTime) / 1000;
+            const timeEl = DOM.get('currentTime');
+            const speedEl = DOM.get('currentSpeed');
+            
+            if (timeEl) {
+                const mins = Math.floor(elapsed / 60);
+                const secs = Math.floor(elapsed % 60);
+                const timeStr = `${mins}:${secs.toString().padStart(2, '0')}`;
+                if (timeEl.textContent !== timeStr) {
+                    timeEl.textContent = timeStr;
+                }
+            }
+            
+            if (speedEl) {
+                const minutes = elapsed / 60;
+                const speed = minutes > 0 ? Math.round(app.currentPosition / minutes) : 0;
+                if (speedEl.textContent !== String(speed)) {
+                    speedEl.textContent = speed;
+                }
+            }
+            
+            lastUpdate = currentTime;
+        }
         
-        // Обновляем скорость тоже
-        const minutes = elapsed / 60;
-        const speed = minutes > 0 ? Math.round(app.currentPosition / minutes) : 0;
-        document.getElementById('currentSpeed').textContent = speed;
-    }, 1000);
+        app.animationFrameId = requestAnimationFrame(update);
+    };
+    
+    app.animationFrameId = requestAnimationFrame(update);
 }
 
-// Speed test timer - обратный отсчёт
+// Speed test timer - ОПТИМИЗИРОВАН с requestAnimationFrame
 function startSpeedTestTimer() {
+    if (app.timerInterval) {
+        clearInterval(app.timerInterval);
+    }
+    if (app.animationFrameId) {
+        cancelAnimationFrame(app.animationFrameId);
+    }
+    
     // Сохраняем начальное время и продолжительность
     app.speedTestStartTime = Date.now();
     app.speedTestEndTime = app.speedTestStartTime + (app.speedTestDuration * 1000);
     
     // Показываем начальное время
-    const mins = Math.floor(app.speedTestDuration / 60);
-    const secs = app.speedTestDuration % 60;
-    document.getElementById('currentTime').textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+    const timeEl = DOM.get('currentTime');
+    if (timeEl) {
+        const mins = Math.floor(app.speedTestDuration / 60);
+        const secs = app.speedTestDuration % 60;
+        timeEl.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+    }
     
-    app.timerInterval = setInterval(() => {
-        if (app.isPaused) return;
+    const update = (currentTime) => {
+        if (app.isPaused) {
+            app.animationFrameId = requestAnimationFrame(update);
+            return;
+        }
         
         const now = Date.now();
         const remaining = Math.max(0, Math.ceil((app.speedTestEndTime - now) / 1000));
         
         if (remaining <= 0) {
-            clearInterval(app.timerInterval);
-            app.timerInterval = null;
+            if (app.animationFrameId) {
+                cancelAnimationFrame(app.animationFrameId);
+                app.animationFrameId = null;
+            }
             finishPractice();
             return;
         }
         
-        const mins = Math.floor(remaining / 60);
-        const secs = remaining % 60;
-        document.getElementById('currentTime').textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+        const timeEl = DOM.get('currentTime');
+        const speedEl = DOM.get('currentSpeed');
         
-        // Обновляем скорость
-        const elapsed = (now - app.speedTestStartTime) / 1000;
-        const minutes = elapsed / 60;
-        const speed = minutes > 0 ? Math.round(app.currentPosition / minutes) : 0;
-        document.getElementById('currentSpeed').textContent = speed;
-    }, 100); // Обновляем чаще для более плавного отсчёта
+        if (timeEl) {
+            const mins = Math.floor(remaining / 60);
+            const secs = remaining % 60;
+            const timeStr = `${mins}:${secs.toString().padStart(2, '0')}`;
+            if (timeEl.textContent !== timeStr) {
+                timeEl.textContent = timeStr;
+            }
+        }
+        
+        if (speedEl) {
+            const elapsed = (now - app.speedTestStartTime) / 1000;
+            const minutes = elapsed / 60;
+            const speed = minutes > 0 ? Math.round(app.currentPosition / minutes) : 0;
+            if (speedEl.textContent !== String(speed)) {
+                speedEl.textContent = speed;
+            }
+        }
+        
+        app.animationFrameId = requestAnimationFrame(update);
+    };
+    
+    app.animationFrameId = requestAnimationFrame(update);
 }
 
 // Toggle pause
@@ -943,7 +1135,11 @@ function togglePause() {
             app.pauseStartTime = null;
         }
         
-        document.getElementById('pauseBtn').querySelector('span').textContent = translations[app.lang].pause;
+        const pauseBtn = DOM.get('pauseBtn');
+        if (pauseBtn) {
+            const span = pauseBtn.querySelector('span');
+            if (span) span.textContent = translations[app.lang].pause;
+        }
     } else {
         // Ставим на паузу
         app.isPaused = true;
@@ -953,7 +1149,11 @@ function togglePause() {
             app.pauseStartTime = Date.now();
         }
         
-        document.getElementById('pauseBtn').querySelector('span').textContent = translations[app.lang].resume;
+        const pauseBtn = DOM.get('pauseBtn');
+        if (pauseBtn) {
+            const span = pauseBtn.querySelector('span');
+            if (span) span.textContent = translations[app.lang].resume;
+        }
     }
 }
 
@@ -962,13 +1162,19 @@ function restartPractice() {
     startPractice(app.currentText, app.currentMode, app.currentLesson);
 }
 
-// Exit practice
+// Exit practice - ОПТИМИЗИРОВАНА
 function exitPractice() {
     // Сбрасываем паузу при выходе
     app.isPaused = false;
     
     if (app.timerInterval) {
         clearInterval(app.timerInterval);
+        app.timerInterval = null;
+    }
+    
+    if (app.animationFrameId) {
+        cancelAnimationFrame(app.animationFrameId);
+        app.animationFrameId = null;
     }
     
     // Останавливаем welcome звук если играет
@@ -978,9 +1184,7 @@ function exitPractice() {
     }
     
     if (app.currentLesson && currentLevelData) {
-        // Возвращаемся в список уроков того же уровня
         showLessons();
-        // Перезагружаем список уроков текущего уровня
         setTimeout(() => showLessonList(currentLevelData), 100);
     } else if (app.currentLesson) {
         showLessons();
@@ -989,10 +1193,16 @@ function exitPractice() {
     }
 }
 
-// Finish practice
+// Finish practice - ОПТИМИЗИРОВАНА
 async function finishPractice() {
     if (app.timerInterval) {
         clearInterval(app.timerInterval);
+        app.timerInterval = null;
+    }
+    
+    if (app.animationFrameId) {
+        cancelAnimationFrame(app.animationFrameId);
+        app.animationFrameId = null;
     }
     
     // БЛОКИРУЕМ ДАЛЬНЕЙШИЙ ВВОД
@@ -1022,42 +1232,53 @@ async function finishPractice() {
     
     window.statsModule.addSession(sessionData);
     
-    // Save to user profile if logged in
+    // Save to user profile if logged in (async, не блокируем UI)
     const user = window.authModule?.getCurrentUser();
     if (user && window.authModule) {
-        await window.authModule.addUserSession(user.uid, sessionData);
+        window.authModule.addUserSession(user.uid, sessionData).catch(err => {
+            console.error('Failed to save session to profile:', err);
+        });
     }
     
     // Show results modal
     showResults(speed, accuracy, elapsed, app.errors);
 }
 
-// Show results modal
+// Show results modal - ОПТИМИЗИРОВАНА
 function showResults(speed, accuracy, time, errors) {
-    document.getElementById('resultSpeed').textContent = speed;
-    document.getElementById('resultAccuracy').textContent = accuracy;
+    const speedEl = DOM.get('resultSpeed');
+    const accuracyEl = DOM.get('resultAccuracy');
+    const timeEl = DOM.get('resultTime');
+    const errorsEl = DOM.get('resultErrors');
+    
+    if (speedEl) speedEl.textContent = speed;
+    if (accuracyEl) accuracyEl.textContent = accuracy;
     
     const mins = Math.floor(time / 60);
     const secs = Math.floor(time % 60);
-    document.getElementById('resultTime').textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
-    document.getElementById('resultErrors').textContent = errors;
+    if (timeEl) timeEl.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+    if (errorsEl) errorsEl.textContent = errors;
     
     // Воспроизводим звук победы
     if (app.soundEnabled && audioVictory) {
-        audioVictory.currentTime = 0; // Сброс на начало
+        audioVictory.currentTime = 0;
         audioVictory.play().catch(() => {});
     }
     
-    const modal = document.getElementById('resultsModal');
-    modal.classList.remove('hidden');
-    modal.classList.add('flex');
+    const modal = DOM.get('resultsModal');
+    if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
 }
 
-// Close results modal
+// Close results modal - ОПТИМИЗИРОВАНА
 function closeResults() {
-    const modal = document.getElementById('resultsModal');
-    modal.classList.add('hidden');
-    modal.classList.remove('flex');
+    const modal = DOM.get('resultsModal');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
     exitPractice();
 }
 
@@ -1635,10 +1856,10 @@ function copyRoomCode() {
 }
 
 // Multiplayer callbacks
-// Render multiplayer text with scrolling effect
+// Render multiplayer text - ОПТИМИЗИРОВАНА с DocumentFragment
 function renderMultiplayerText() {
-    const display = document.getElementById('multiplayerTextDisplay');
-    display.innerHTML = '';
+    const display = DOM.get('multiplayerTextDisplay');
+    if (!display) return;
     
     const WINDOW_SIZE = 60;
     const TYPED_VISIBLE = 10;
@@ -1646,34 +1867,36 @@ function renderMultiplayerText() {
     const startPos = Math.max(0, app.currentPosition - TYPED_VISIBLE);
     const endPos = Math.min(app.currentText.length, startPos + WINDOW_SIZE);
     
+    const fragment = document.createDocumentFragment();
+    
     for (let i = startPos; i < endPos; i++) {
         const char = app.currentText[i];
         const span = document.createElement('span');
         
         if (i < app.currentPosition) {
-            // Набранный текст
             span.className = 'char-typed';
             const distanceFromCurrent = app.currentPosition - i;
             const opacity = Math.max(0.2, 1 - (distanceFromCurrent / TYPED_VISIBLE));
             span.style.opacity = opacity;
             span.style.fontSize = '0.9em';
         } else if (i === app.currentPosition) {
-            // Текущий символ
             span.className = 'char-current';
         } else {
-            // Будущие символы
             span.className = 'char-future';
         }
         
-        // Пробелы
         if (char === ' ') {
             span.innerHTML = '&nbsp;';
         } else {
             span.textContent = char;
         }
         
-        display.appendChild(span);
+        fragment.appendChild(span);
     }
+    
+    // Batch update
+    display.innerHTML = '';
+    display.appendChild(fragment);
 }
 
 window.onMultiplayerUpdate = (data) => {
