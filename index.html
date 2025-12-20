@@ -444,6 +444,23 @@
         
         #profileScreen {
             animation: profileFadeIn 0.5s ease-out;
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Avatar Modal - гарантируем что оно поверх всего */
+        #avatarSelectorModal {
+            z-index: 9999 !important;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+        }
+        
+        #avatarSelectorModal > div {
+            z-index: 10000 !important;
+            position: relative !important;
         }
         
         /* Gradient text */
@@ -1110,11 +1127,11 @@
             </div>
             
             <!-- Statistics Grid -->
-            <div class="mb-6">
+            <div class="mb-6" style="position: relative; z-index: 1;">
                 <h3 class="text-3xl font-bold mb-6 text-center md:text-left" data-i18n="statistics">
                     <span class="bg-gradient-to-r from-primary to-cyan-400 bg-clip-text text-transparent">Статистика</span>
                 </h3>
-                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4" style="position: relative; z-index: 1;">
                     <!-- Best Speed -->
                     <div class="glass rounded-2xl p-6 text-center hover:scale-105 transition-all cursor-default group relative overflow-hidden">
                         <div class="absolute inset-0 bg-gradient-to-br from-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -1174,8 +1191,8 @@
     </div>
     
     <!-- Avatar Selector Modal (вынесен за пределы профиля) -->
-    <div id="avatarSelectorModal" class="fixed inset-0 bg-black/70 backdrop-blur-md hidden items-center justify-center z-[100]">
-        <div class="glass rounded-3xl p-8 max-w-3xl w-full mx-4 fade-in shadow-2xl border border-white/10">
+    <div id="avatarSelectorModal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden items-center justify-center" style="z-index: 9999; position: fixed !important;">
+        <div class="glass rounded-3xl p-8 max-w-3xl w-full mx-4 fade-in shadow-2xl border border-white/10 relative" style="z-index: 10000; position: relative;">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="text-3xl font-bold bg-gradient-to-r from-primary to-cyan-400 bg-clip-text text-transparent" data-i18n="chooseAvatar">Выберите аватар</h3>
                 <button onclick="closeAvatarSelector()" class="text-gray-400 hover:text-white transition-all hover:scale-110 transform p-2 rounded-lg hover:bg-white/10">

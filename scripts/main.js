@@ -1669,8 +1669,18 @@ function showAvatarSelector() {
         });
     }
     
+    // Убеждаемся что модальное окно поверх всего
+    modal.style.zIndex = '9999';
+    modal.style.position = 'fixed';
     modal.classList.remove('hidden');
     modal.classList.add('flex');
+    
+    // Закрытие при клике вне модального окна
+    modal.onclick = (e) => {
+        if (e.target === modal) {
+            closeAvatarSelector();
+        }
+    };
 }
 
 // Close avatar selector
@@ -1679,6 +1689,7 @@ function closeAvatarSelector() {
     if (modal) {
         modal.classList.add('hidden');
         modal.classList.remove('flex');
+        modal.onclick = null; // Убираем обработчик
     }
 }
 
