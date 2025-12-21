@@ -532,16 +532,16 @@
             
             <div class="flex items-center space-x-4">
                 <!-- Balance Display (only when logged in) -->
-                <div id="balanceDisplay" class="hidden flex items-center space-x-2 px-3 py-2 rounded-lg glass bg-warning/20 border border-warning/30">
-                    <svg class="w-5 h-5 text-warning" fill="currentColor" viewBox="0 0 20 20">
+                <div id="balanceDisplay" class="hidden flex items-center space-x-2 px-3 py-2 rounded-lg glass bg-purple-600/30 border border-purple-500/50 shadow-md">
+                    <svg class="w-5 h-5 text-purple-300" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/>
                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941a2.305 2.305 0 01-.567-.267C8.07 11.66 8 11.434 8 11c0-.114.07-.34.433-.582A2.305 2.305 0 019 10.151V8.151c-.22.071-.412.164-.567.267C8.07 8.66 8 8.886 8 9c0 .114.07.34.433.582.155.103.346.196.567.267v1.698a2.305 2.305 0 01-.567-.267C8.07 11.66 8 11.434 8 11c0-.114.07-.34.433-.582A2.305 2.305 0 019 10.151V8.151c.22.071.412.164.567.267C9.93 8.66 10 8.886 10 9c0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267v1.941a4.535 4.535 0 001.676-.662C11.398 9.765 12 8.99 12 8c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 009 5.092V3.151a2.305 2.305 0 01.567.267C9.93 3.66 10 3.886 10 4c0 .114-.07.34-.433.582A2.305 2.305 0 019 4.849v1.698z" clip-rule="evenodd"/>
                     </svg>
-                    <span id="userBalance" class="font-bold text-warning">0</span>
+                    <span id="userBalance" class="font-bold text-purple-200">0</span>
                 </div>
                 
                 <!-- Shop Button (only when logged in) -->
-                <button id="shopBtn" onclick="showShop()" class="hidden px-4 py-2 rounded-lg glass hover:bg-white/20 dark:hover:bg-black/20 font-medium">
+                <button id="shopBtn" onclick="showShop()" class="hidden px-4 py-2 rounded-lg glass bg-gradient-to-r from-purple-600/30 to-pink-600/30 border border-purple-500/50 hover:from-purple-500/40 hover:to-pink-500/40 font-medium text-purple-200 transition-all shadow-md hover:shadow-lg">
                     <span data-i18n="shop">Магазин</span>
                 </button>
                 
@@ -1267,25 +1267,25 @@
                     </svg>
                     <span data-i18n="back">Назад</span>
                 </button>
-                <h2 class="text-3xl font-bold bg-gradient-to-r from-warning to-yellow-400 bg-clip-text text-transparent">🛒 <span data-i18n="shop">Магазин уроков</span></h2>
-                <div class="flex items-center space-x-2 px-4 py-2 rounded-lg glass bg-warning/20 border border-warning/30">
-                    <svg class="w-6 h-6 text-warning" fill="currentColor" viewBox="0 0 20 20">
+                <h2 class="text-3xl font-bold bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent">🛒 <span data-i18n="shop">Магазин уроков</span></h2>
+                <div class="flex items-center space-x-2 px-4 py-2 rounded-lg glass bg-purple-600/30 border border-purple-500/50 shadow-lg">
+                    <svg class="w-6 h-6 text-purple-300" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/>
                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941a2.305 2.305 0 01-.567-.267C8.07 11.66 8 11.434 8 11c0-.114.07-.34.433-.582A2.305 2.305 0 019 10.151V8.151c-.22.071-.412.164-.567.267C8.07 8.66 8 8.886 8 9c0 .114.07.34.433.582.155.103.346.196.567.267v1.698a2.305 2.305 0 01-.567-.267C8.07 11.66 8 11.434 8 11c0-.114.07-.34.433-.582A2.305 2.305 0 019 10.151V8.151c.22.071.412.164.567.267C9.93 8.66 10 8.886 10 9c0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267v1.941a4.535 4.535 0 001.676-.662C11.398 9.765 12 8.99 12 8c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 009 5.092V3.151a2.305 2.305 0 01.567.267C9.93 3.66 10 3.886 10 4c0 .114-.07.34-.433.582A2.305 2.305 0 019 4.849v1.698z" clip-rule="evenodd"/>
                     </svg>
-                    <span id="shopBalance" class="font-bold text-warning text-xl">0</span>
+                    <span id="shopBalance" class="font-bold text-purple-200 text-xl">0</span>
                 </div>
             </div>
             
             <!-- Category Tabs -->
-            <div class="flex flex-wrap gap-3 mb-6 justify-center">
-                <button onclick="selectShopCategory('all')" class="shop-category-btn px-6 py-3 rounded-xl glass hover:bg-white/20 dark:hover:bg-black/20 font-medium border-2 border-primary" data-category="all">
+            <div class="flex flex-wrap gap-2 mb-4 justify-center">
+                <button onclick="selectShopCategory('all')" class="shop-category-btn px-4 py-2 rounded-lg glass hover:bg-purple-600/30 dark:hover:bg-purple-600/30 font-medium border-2 border-purple-500 text-sm transition-all" data-category="all">
                     <span data-i18n="allCategories">Все категории</span>
                 </button>
             </div>
             
             <!-- Shop Lessons Grid -->
-            <div id="shopLessonsGrid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div id="shopLessonsGrid" class="grid md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                 <!-- Lessons will be populated here -->
             </div>
         </div>

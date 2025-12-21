@@ -2372,7 +2372,7 @@ function loadShopLessons() {
     if (categoryContainer && categoryContainer.children.length === 1) {
         Object.values(window.shopModule.SHOP_LESSONS).forEach(category => {
             const btn = document.createElement('button');
-            btn.className = 'shop-category-btn px-6 py-3 rounded-xl glass hover:bg-white/20 dark:hover:bg-black/20 font-medium border-2 border-transparent hover:border-primary';
+            btn.className = 'shop-category-btn px-4 py-2 rounded-lg glass hover:bg-purple-600/30 dark:hover:bg-purple-600/30 font-medium border-2 border-transparent hover:border-purple-500 text-sm transition-all';
             btn.setAttribute('data-category', category.category);
             btn.textContent = category.name_ru;
             btn.onclick = () => selectShopCategory(category.category);
@@ -2387,11 +2387,11 @@ function loadShopLessons() {
     filteredLessons.forEach(lesson => {
         const isPurchased = purchasedLessons.includes(lesson.id);
         const card = document.createElement('div');
-        card.className = `glass rounded-2xl p-6 border-2 ${
+        card.className = `glass rounded-xl p-4 border-2 ${
             isPurchased 
                 ? 'border-success/50 bg-gradient-to-br from-gray-800/70 to-gray-900/90' 
-                : 'border-gray-700/30 bg-gradient-to-br from-gray-800/50 to-gray-900/80'
-        }`;
+                : 'border-purple-500/40 bg-gradient-to-br from-gray-800/50 to-gray-900/80 hover:border-purple-500/60'
+        } transition-all hover:scale-[1.02]`;
         
         const difficultyColors = {
             easy: 'text-success',
@@ -2406,32 +2406,32 @@ function loadShopLessons() {
         };
         
         card.innerHTML = `
-            <div class="flex justify-between items-start mb-4">
-                <div>
-                    <h3 class="text-xl font-bold mb-2">${escapeHtml(lesson.name)}</h3>
-                    <p class="text-sm text-gray-400 mb-2">${escapeHtml(lesson.description)}</p>
+            <div class="flex justify-between items-start mb-2">
+                <div class="flex-1 min-w-0 pr-2">
+                    <h3 class="text-base font-bold mb-1 text-gray-100 line-clamp-1">${escapeHtml(lesson.name)}</h3>
+                    <p class="text-xs text-gray-400 mb-1 line-clamp-2">${escapeHtml(lesson.description)}</p>
                     <span class="text-xs ${difficultyColors[lesson.difficulty]} font-semibold">${difficultyNames[lesson.difficulty]}</span>
                 </div>
                 ${isPurchased ? `
-                    <div class="bg-success/20 text-success px-3 py-1 rounded-full text-xs font-bold">
-                        ✓ Куплено
+                    <div class="bg-success/20 text-success px-2 py-1 rounded-full text-xs font-bold whitespace-nowrap">
+                        ✓
                     </div>
                 ` : `
-                    <div class="text-right">
-                        <div class="text-2xl font-bold text-warning">${lesson.price}</div>
+                    <div class="text-right flex-shrink-0">
+                        <div class="text-lg font-bold text-purple-400">${lesson.price}</div>
                         <div class="text-xs text-gray-400">монет</div>
                     </div>
                 `}
             </div>
-            <div class="bg-gray-800/50 rounded-lg p-3 mb-4 text-sm text-gray-300 italic">
+            <div class="bg-gray-800/50 rounded-lg p-2 mb-2 text-xs text-gray-300 italic line-clamp-2">
                 "${escapeHtml(lesson.preview)}"
             </div>
             ${isPurchased ? `
-                <button onclick="startPurchasedLesson('${lesson.id}')" class="w-full bg-gradient-to-r from-success to-green-500 hover:from-green-500 hover:to-emerald-500 text-white font-semibold py-3 rounded-lg transition-all shadow-lg hover:shadow-xl">
+                <button onclick="startPurchasedLesson('${lesson.id}')" class="w-full bg-gradient-to-r from-success to-green-500 hover:from-green-500 hover:to-emerald-500 text-white font-semibold py-2 rounded-lg transition-all shadow-lg hover:shadow-xl text-sm">
                     Начать урок
                 </button>
             ` : `
-                <button onclick="purchaseLesson('${lesson.id}')" class="w-full bg-gradient-to-r from-warning to-yellow-500 hover:from-yellow-500 hover:to-orange-500 text-white font-semibold py-3 rounded-lg transition-all shadow-lg hover:shadow-xl ${(user.balance || 0) < lesson.price ? 'opacity-50 cursor-not-allowed' : ''}">
+                <button onclick="purchaseLesson('${lesson.id}')" class="w-full bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-pink-500 text-white font-semibold py-2 rounded-lg transition-all shadow-lg hover:shadow-xl text-sm ${(user.balance || 0) < lesson.price ? 'opacity-50 cursor-not-allowed' : ''}">
                     ${(user.balance || 0) >= lesson.price ? 'Купить' : 'Недостаточно монет'}
                 </button>
             `}
@@ -2451,10 +2451,10 @@ function selectShopCategory(category) {
     document.querySelectorAll('.shop-category-btn').forEach(btn => {
         const btnCategory = btn.getAttribute('data-category');
         if (btnCategory === category || (category === 'all' && btnCategory === 'all')) {
-            btn.classList.add('border-primary');
+            btn.classList.add('border-purple-500', 'bg-purple-600/30');
             btn.classList.remove('border-transparent');
         } else {
-            btn.classList.remove('border-primary');
+            btn.classList.remove('border-purple-500', 'bg-purple-600/30');
             btn.classList.add('border-transparent');
         }
     });
