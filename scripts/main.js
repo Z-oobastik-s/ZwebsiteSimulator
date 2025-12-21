@@ -16,6 +16,7 @@ const app = {
     errors: 0,
     totalChars: 0,
     soundEnabled: true,
+    animationsEnabled: true,
     theme: 'dark',
     lang: 'ru',
     timerInterval: null,
@@ -339,6 +340,9 @@ function setRandomBackground() {
 
 // Create floating particles effect
 function createParticles() {
+    // Не создаём частицы если анимации отключены
+    if (!app.animationsEnabled) return;
+    
     const heroContainer = document.querySelector('.hero-container');
     if (!heroContainer) return;
     
@@ -365,7 +369,8 @@ document.addEventListener('DOMContentLoaded', () => {
     
     loadSettings();
     setRandomBackground(); // Устанавливаем случайный фон
-    createParticles(); // Создаём плавающие частицы
+    applyAnimationsSetting(); // Применяем настройку анимаций
+    createParticles(); // Создаём плавающие частицы (если включены)
     initializeAudio();
     initializeUI();
     updateTranslations();
@@ -452,6 +457,7 @@ function loadSettings() {
     const savedLang = localStorage.getItem('lang');
     const savedLayout = localStorage.getItem('layout');
     const savedSound = localStorage.getItem('sound');
+    const savedAnimations = localStorage.getItem('animations');
     
     if (savedTheme) {
         app.theme = savedTheme;
@@ -474,6 +480,11 @@ function loadSettings() {
     if (savedSound !== null) {
         app.soundEnabled = savedSound === 'true';
     }
+    
+    if (savedAnimations !== null) {
+        app.animationsEnabled = savedAnimations === 'true';
+        applyAnimationsSetting();
+    }
 }
 
 // Initialize UI event listeners - ОПТИМИЗИРОВАНА
@@ -493,6 +504,10 @@ function initializeUI() {
     // Sound toggle
     const soundToggle = DOM.get('soundToggle');
     if (soundToggle) soundToggle.addEventListener('click', toggleSound);
+    
+    // Animations toggle
+    const animationsToggle = DOM.get('animationsToggle');
+    if (animationsToggle) animationsToggle.addEventListener('click', toggleAnimations);
     
     // Keyboard input - используем passive для лучшей производительности
     document.addEventListener('keydown', handleKeyPress, { passive: false });
@@ -561,6 +576,42 @@ function toggleSound() {
         } else {
             icon.innerHTML = '<path fill-rule="evenodd" d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM12.293 7.293a1 1 0 011.414 0L15 8.586l1.293-1.293a1 1 0 111.414 1.414L16.414 10l1.293 1.293a1 1 0 01-1.414 1.414L15 11.414l-1.293 1.293a1 1 0 01-1.414-1.414L13.586 10l-1.293-1.293a1 1 0 010-1.414z" clip-rule="evenodd" />';
         }
+    }
+}
+
+// Apply animations setting to body
+function applyAnimationsSetting() {
+    if (app.animationsEnabled) {
+        document.body.classList.remove('no-animations');
+    } else {
+        document.body.classList.add('no-animations');
+        // Удаляем все частицы если анимации отключены
+        const particles = document.querySelectorAll('.particle');
+        particles.forEach(p => p.remove());
+    }
+    
+    // Обновляем иконку
+    const icon = DOM.get('animationsIcon');
+    if (icon) {
+        if (app.animationsEnabled) {
+            // Иконка включенных анимаций (play/pause)
+            icon.innerHTML = '<path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" />';
+        } else {
+            // Иконка отключенных анимаций (стоп)
+            icon.innerHTML = '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 001 1h4a1 1 0 001-1V8a1 1 0 00-1-1H8z" clip-rule="evenodd" />';
+        }
+    }
+}
+
+// Animations toggle
+function toggleAnimations() {
+    app.animationsEnabled = !app.animationsEnabled;
+    localStorage.setItem('animations', app.animationsEnabled);
+    applyAnimationsSetting();
+    
+    // Если анимации включили, создаём частицы
+    if (app.animationsEnabled) {
+        createParticles();
     }
 }
 
