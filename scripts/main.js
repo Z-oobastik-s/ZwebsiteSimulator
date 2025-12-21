@@ -803,7 +803,20 @@ function showLessonList(levelData) {
         const completedClass = (lessonStats && lessonStats.completed) ? 'border-success/50 bg-gradient-to-br from-gray-800/70 to-gray-900/90' : 'border-gray-700/30 bg-gradient-to-br from-gray-800/50 to-gray-900/80';
         
         card.className = `${completedClass} rounded-xl p-5 hover:scale-102 transition-all cursor-pointer relative border shadow-lg hover:shadow-xl dark:from-gray-800/70 dark:to-gray-900/95`;
-        card.onclick = () => startPractice(lesson.text, 'lesson', { ...lesson, key: lessonKey });
+        // Определяем difficulty на основе уровня
+        let lessonDifficulty = lesson.difficulty;
+        if (!lessonDifficulty || lessonDifficulty === 'easy') {
+            if (levelData.level === 'advanced') lessonDifficulty = 'hard';
+            else if (levelData.level === 'medium') lessonDifficulty = 'medium';
+            else lessonDifficulty = 'easy';
+        }
+        
+        // Вычисляем награду за урок
+        let rewardCoins = 10;
+        if (lessonDifficulty === 'hard' || lessonDifficulty === 'advanced') rewardCoins = 20;
+        else if (lessonDifficulty === 'medium') rewardCoins = 15;
+        
+        card.onclick = () => startPractice(lesson.text, 'lesson', { ...lesson, key: lessonKey, difficulty: lessonDifficulty, level: levelData.level });
         
         let statsHtml = '';
         let completeBadge = '';
@@ -852,9 +865,16 @@ function showLessonList(levelData) {
             ${shopBadge}
             <h4 class="font-bold text-lg mb-2 text-gray-100">${escapeHtml(lesson.name)}</h4>
             <p class="text-sm text-gray-400 mb-3">${escapeHtml(lesson.description)}</p>
-            <div class="flex items-center justify-between">
+            <div class="flex items-center justify-between mb-2">
                 <span class="px-3 py-1 rounded-lg bg-primary/20 text-primary text-xs font-semibold">${lesson.layout.toUpperCase()}</span>
-                <span class="text-xs text-gray-500">${escapeHtml(lesson.difficulty)}</span>
+                <span class="text-xs text-gray-500">${escapeHtml(lessonDifficulty)}</span>
+            </div>
+            <div class="flex items-center space-x-2 text-xs text-purple-300 bg-purple-600/20 px-2 py-1 rounded-lg">
+                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/>
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941a2.305 2.305 0 01-.567-.267C8.07 11.66 8 11.434 8 11c0-.114.07-.34.433-.582A2.305 2.305 0 019 10.151V8.151c-.22.071-.412.164-.567.267C8.07 8.66 8 8.886 8 9c0 .114.07.34.433.582.155.103.346.196.567.267v1.698a2.305 2.305 0 01-.567-.267C8.07 11.66 8 11.434 8 11c0-.114.07-.34.433-.582A2.305 2.305 0 019 10.151V8.151c.22.071.412.164.567.267C9.93 8.66 10 8.886 10 9c0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267v1.941a4.535 4.535 0 001.676-.662C11.398 9.765 12 8.99 12 8c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 009 5.092V3.151a2.305 2.305 0 01.567.267C9.93 3.66 10 3.886 10 4c0 .114-.07.34-.433.582A2.305 2.305 0 019 4.849v1.698z" clip-rule="evenodd"/>
+                </svg>
+                <span>Награда: до ${rewardCoins * 2} монет (при точности ≥90%)</span>
             </div>
             ${statsHtml}
         `;
@@ -1339,11 +1359,33 @@ async function finishPractice() {
         });
         
         // Начисляем монеты если точность >= 90% и это урок
-        if (accuracy >= 90 && app.currentLesson && app.currentMode === 'practice') {
-            // Начисляем монеты в зависимости от сложности и длины урока
-            let coins = 10; // Базовое начисление
-            if (app.currentLesson.difficulty === 'hard') coins = 20;
-            else if (app.currentLesson.difficulty === 'medium') coins = 15;
+        if (accuracy >= 90 && app.currentLesson && (app.currentMode === 'lesson' || app.currentMode === 'practice')) {
+            // Определяем сложность урока
+            let difficulty = app.currentLesson.difficulty;
+            
+            // Если difficulty не указан, определяем по levelData или по ключу урока
+            if (!difficulty || difficulty === 'easy') {
+                // Проверяем ключ урока для определения уровня
+                if (app.currentLesson.key) {
+                    if (app.currentLesson.key.includes('advanced') || app.currentLesson.key.includes('hard')) {
+                        difficulty = 'hard';
+                    } else if (app.currentLesson.key.includes('medium')) {
+                        difficulty = 'medium';
+                    } else {
+                        difficulty = 'easy';
+                    }
+                } else if (currentLevelData) {
+                    // Определяем по текущему уровню
+                    if (currentLevelData.level === 'advanced') difficulty = 'hard';
+                    else if (currentLevelData.level === 'medium') difficulty = 'medium';
+                    else difficulty = 'easy';
+                }
+            }
+            
+            // Начисляем монеты в зависимости от сложности
+            let coins = 10; // Базовое начисление для easy/beginner
+            if (difficulty === 'hard' || difficulty === 'advanced') coins = 20;
+            else if (difficulty === 'medium') coins = 15;
             
             // Бонус за высокую точность
             if (accuracy >= 95) coins = Math.round(coins * 1.5);
@@ -1356,6 +1398,8 @@ async function finishPractice() {
                     updateUserUI(updatedUser, updatedUser);
                     // Показываем уведомление о начислении монет
                     showToast(`+${coins} монет за урок!`, 'success', 'Баланс');
+                } else {
+                    console.error('Failed to add coins:', result.error);
                 }
             }).catch(err => {
                 console.error('Failed to add coins:', err);
@@ -1373,6 +1417,8 @@ function showResults(speed, accuracy, time, errors) {
     const accuracyEl = DOM.get('resultAccuracy');
     const timeEl = DOM.get('resultTime');
     const errorsEl = DOM.get('resultErrors');
+    const rewardEl = DOM.get('resultReward');
+    const rewardAmountEl = DOM.get('resultRewardAmount');
     
     if (speedEl) speedEl.textContent = speed;
     if (accuracyEl) accuracyEl.textContent = accuracy;
@@ -1381,6 +1427,43 @@ function showResults(speed, accuracy, time, errors) {
     const secs = Math.floor(time % 60);
     if (timeEl) timeEl.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
     if (errorsEl) errorsEl.textContent = errors;
+    
+    // Показываем награду если это урок и точность >= 90%
+    if (rewardEl && rewardAmountEl && app.currentLesson && (app.currentMode === 'lesson' || app.currentMode === 'practice')) {
+        if (accuracy >= 90) {
+            // Определяем сложность
+            let difficulty = app.currentLesson.difficulty;
+            if (!difficulty || difficulty === 'easy') {
+                if (app.currentLesson.key) {
+                    if (app.currentLesson.key.includes('advanced') || app.currentLesson.key.includes('hard')) {
+                        difficulty = 'hard';
+                    } else if (app.currentLesson.key.includes('medium')) {
+                        difficulty = 'medium';
+                    } else {
+                        difficulty = 'easy';
+                    }
+                } else if (currentLevelData) {
+                    if (currentLevelData.level === 'advanced') difficulty = 'hard';
+                    else if (currentLevelData.level === 'medium') difficulty = 'medium';
+                    else difficulty = 'easy';
+                }
+            }
+            
+            let coins = 10;
+            if (difficulty === 'hard' || difficulty === 'advanced') coins = 20;
+            else if (difficulty === 'medium') coins = 15;
+            
+            if (accuracy >= 95) coins = Math.round(coins * 1.5);
+            if (accuracy === 100) coins = Math.round(coins * 2);
+            
+            rewardAmountEl.textContent = `+${coins} монет`;
+            rewardEl.classList.remove('hidden');
+        } else {
+            rewardEl.classList.add('hidden');
+        }
+    } else if (rewardEl) {
+        rewardEl.classList.add('hidden');
+    }
     
     // Воспроизводим звук победы
     if (app.soundEnabled && audioVictory) {
