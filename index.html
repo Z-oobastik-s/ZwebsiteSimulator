@@ -119,11 +119,22 @@
         
         /* Hide scrollbar but keep functionality */
         .no-scrollbar::-webkit-scrollbar {
-            display: none;
+            display: none !important;
+            width: 0 !important;
+            height: 0 !important;
         }
         .no-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
+            -ms-overflow-style: none !important;
+            scrollbar-width: none !important;
+        }
+        #textDisplay::-webkit-scrollbar {
+            display: none !important;
+            width: 0 !important;
+            height: 0 !important;
+        }
+        #textDisplay {
+            -ms-overflow-style: none !important;
+            scrollbar-width: none !important;
         }
         
         /* Custom animations */
@@ -774,7 +785,7 @@
                 
                 <!-- Text Display -->
                 <div class="glass rounded-2xl p-8 mb-6 max-h-[200px] overflow-y-auto">
-                    <div id="textDisplay" class="text-3xl mono leading-relaxed text-left select-none min-h-[120px] flex items-center whitespace-nowrap overflow-x-auto">
+                    <div id="textDisplay" class="text-3xl mono leading-relaxed text-left select-none min-h-[120px] flex items-center whitespace-nowrap overflow-x-auto no-scrollbar">
                         <!-- Text will be rendered here -->
                     </div>
                 </div>

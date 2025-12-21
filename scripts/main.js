@@ -2491,7 +2491,7 @@ function selectShopLanguage(lang) {
         }
     });
     
-    // Показываем категории после выбора языка
+    // Показываем категории после выбора языка (или если выбраны все языки)
     const categoryTabs = DOM.get('shopCategoryTabs');
     if (categoryTabs) categoryTabs.classList.remove('hidden');
     
@@ -2508,17 +2508,14 @@ function loadShopLessons() {
     const user = window.authModule?.getCurrentUser();
     if (!user) return;
     
-    // Если язык не выбран, не показываем уроки
-    if (currentShopLanguage === 'all') {
-        grid.innerHTML = '<div class="col-span-full text-center text-gray-400 py-8">Выберите язык урока</div>';
-        return;
-    }
-    
     const purchasedLessons = user.purchasedLessons || [];
     const allLessons = window.shopModule.getAllShopLessons();
     
-    // Фильтруем по языку
-    let filteredLessons = allLessons.filter(lesson => lesson.layout === currentShopLanguage);
+    // Фильтруем по языку (если выбран конкретный язык)
+    let filteredLessons = allLessons;
+    if (currentShopLanguage !== 'all') {
+        filteredLessons = allLessons.filter(lesson => lesson.layout === currentShopLanguage);
+    }
     
     // Фильтруем по категории сложности
     if (currentShopCategory !== 'all') {

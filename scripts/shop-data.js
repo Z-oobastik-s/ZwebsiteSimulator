@@ -260,6 +260,264 @@ const SHOP_LESSONS = {
                 preview: "Жизнь это то, что происходит..."
             }
         ]
+    },
+    movies_en: {
+        category: "movies",
+        name_ru: "Фильмы",
+        name_en: "Movies",
+        name_ua: "Фільми",
+        lessons: [
+            {
+                id: "movie_en_1",
+                name: "Harry Potter - Quotes",
+                description: "Famous quotes from the wizard boy movies",
+                layout: "en",
+                text: "Happiness can be found even in the darkest of times if one only remembers to turn on the light. It does not do to dwell on dreams and forget to live. It is our choices that show what we truly are far more than our abilities. Love leaves a mark. Not such as a scar that remains forever. A visible mark. Love leaves its mark.",
+                difficulty: "medium",
+                price: 50,
+                preview: "Happiness can be found even in the darkest of times..."
+            },
+            {
+                id: "movie_en_2",
+                name: "The Lord of the Rings - Wisdom",
+                description: "Wise words from the epic saga",
+                layout: "en",
+                text: "All that is gold does not glitter not all those who wander are lost. The old that is strong does not wither. Even the smallest person can change the course of the future. You cannot simply walk into Mordor. Friendship and loyalty are more important than any treasure.",
+                difficulty: "medium",
+                price: 50,
+                preview: "All that is gold does not glitter..."
+            },
+            {
+                id: "movie_en_3",
+                name: "Star Wars - Legends",
+                description: "Quotes from a galaxy far far away",
+                layout: "en",
+                text: "May the Force be with you always. Fear is the path to the dark side. Fear leads to anger anger leads to hate hate leads to suffering. Do or do not there is no try. You must feel the Force around you.",
+                difficulty: "medium",
+                price: 50,
+                preview: "May the Force be with you always..."
+            },
+            {
+                id: "movie_en_4",
+                name: "The Matrix - Philosophy",
+                description: "Deep thoughts from cyberpunk world",
+                layout: "en",
+                text: "There is no spoon. You must understand there is no spoon. Then you will see that it is not the spoon that bends it is only yourself. Do you know the difference between knowledge and belief? Knowledge is a carrot pie and belief is a cake. The choice has already been made now you just need to understand it.",
+                difficulty: "hard",
+                price: 75,
+                preview: "There is no spoon..."
+            },
+            {
+                id: "movie_en_5",
+                name: "Forrest Gump - Life",
+                description: "Simple wisdom of a simple man",
+                layout: "en",
+                text: "Life is like a box of chocolates you never know what you are going to get. Stupidity is doing the same thing over and over again and expecting different results. Mama always said life is like a box of chocolates. You never know what you are going to get.",
+                difficulty: "medium",
+                price: 50,
+                preview: "Life is like a box of chocolates..."
+            }
+        ]
+    },
+    anime_en: {
+        category: "anime",
+        name_ru: "Аниме",
+        name_en: "Anime",
+        name_ua: "Аніме",
+        lessons: [
+            {
+                id: "anime_en_1",
+                name: "Naruto - Ninja Way",
+                description: "Quotes about willpower and friendship",
+                layout: "en",
+                text: "I will not run away and I will not go back on my word. That is my ninja way. Those who break the rules and regulations are scum. But those who abandon their friends are worse than scum. Power comes not from physical abilities but from an indomitable will.",
+                difficulty: "medium",
+                price: 50,
+                preview: "I will not run away and I will not go back..."
+            },
+            {
+                id: "anime_en_2",
+                name: "Attack on Titan - Freedom",
+                description: "Philosophy of freedom and struggle",
+                layout: "en",
+                text: "We are born free. All people are born free. Freedom is the right of every person. If someone tries to take your freedom fight. Fight to the end. Because in this world there is nothing more important than freedom.",
+                difficulty: "hard",
+                price: 75,
+                preview: "We are born free..."
+            },
+            {
+                id: "anime_en_3",
+                name: "One Piece - Dreams",
+                description: "About dreams and adventures",
+                layout: "en",
+                text: "Dreams never die. As long as there is a dream there is hope. I will become the king of pirates. This is my dream and I will never give up on it. Friends are those who support your dreams. A true friend will never say that your dream is impossible.",
+                difficulty: "medium",
+                price: 50,
+                preview: "Dreams never die..."
+            }
+        ]
+    },
+    quotes_en: {
+        category: "quotes",
+        name_ru: "Цитаты",
+        name_en: "Quotes",
+        name_ua: "Цитати",
+        lessons: [
+            {
+                id: "quote_en_1",
+                name: "Motivational Quotes",
+                description: "Inspiring words",
+                layout: "en",
+                text: "Success is the ability to go from one failure to another with no loss of enthusiasm. The only way to do great work is to love what you do. Do not be afraid of perfection you will never reach it. But strive for it and you will become better.",
+                difficulty: "medium",
+                price: 50,
+                preview: "Success is the ability to go from one failure..."
+            },
+            {
+                id: "quote_en_2",
+                name: "Philosophical Thoughts",
+                description: "Deep reflections",
+                layout: "en",
+                text: "Life is what happens to you while you are busy making other plans. It is not what happens to you but how you react to it that matters. Happiness is not about having everything but about appreciating what you have. Wisdom comes with experience and experience comes with mistakes.",
+                difficulty: "hard",
+                price: 75,
+                preview: "Life is what happens to you while you are busy..."
+            },
+            {
+                id: "quote_en_3",
+                name: "Beginner Quotes",
+                description: "Simple inspiring quotes",
+                layout: "en",
+                text: "the journey of a thousand miles begins with a single step every expert was once a beginner practice makes perfect believe you can and you are halfway there the only way to do great work is to love what you do",
+                difficulty: "easy",
+                price: 30,
+                preview: "the journey of a thousand miles begins..."
+            }
+        ]
+    },
+    movies_ua: {
+        category: "movies",
+        name_ru: "Фильмы",
+        name_en: "Movies",
+        name_ua: "Фільми",
+        lessons: [
+            {
+                id: "movie_ua_1",
+                name: "Гаррі Поттер - цитати",
+                description: "Відомі цитати з фільмів про хлопчика-чарівника",
+                layout: "ua",
+                text: "Щастя можна знайти навіть у найтемніші часи якщо не забувати звертатися до світла. Не варто зациклюватися на мріях і забувати жити. Важливо не те що ми маємо а те ким ми стаємо. Любов залишає слід. Не такий як шрам який залишається назавжди. Видимий слід. Любов залишає свій слід.",
+                difficulty: "medium",
+                price: 50,
+                preview: "Щастя можна знайти навіть у найтемніші часи..."
+            },
+            {
+                id: "movie_ua_2",
+                name: "Володар перснів - мудрість",
+                description: "Мудрі слова з епічної саги",
+                layout: "ua",
+                text: "Не все золото що блищить не всі мандрівники загублені. Старе вмирає нове народжується. Навіть найменша істота може змінити хід майбутнього. Не можна просто так взяти і увійти в Мордор. Дружба і вірність важливіші за будь-які скарби.",
+                difficulty: "medium",
+                price: 50,
+                preview: "Не все золото що блищить..."
+            },
+            {
+                id: "movie_ua_3",
+                name: "Зоряні війни - легенди",
+                description: "Цитати з далекої галактики",
+                layout: "ua",
+                text: "Сила буде з тобою завжди. Страх шлях до темної сторони. Страх веде до гніву гнів веде до ненависті ненависть веде до страждань. Не намагайся роби або не роби. Немає жодних спроб. Ти повинен відчути Силу навколо себе.",
+                difficulty: "medium",
+                price: 50,
+                preview: "Сила буде з тобою завжди..."
+            },
+            {
+                id: "movie_ua_4",
+                name: "Матриця - філософія",
+                description: "Глибокі думки з кіберпанк світу",
+                layout: "ua",
+                text: "Не існує ложки. Ти повинен зрозуміти що ложки немає. Тоді ти побачиш що гнеться не ложка а ти сам. Знаєш у чому різниця між знанням і вірою? Знання це морквяний пиріг а віра це торт. Вибір вже зроблено залишилося тільки зрозуміти його.",
+                difficulty: "hard",
+                price: 75,
+                preview: "Не існує ложки..."
+            }
+        ]
+    },
+    anime_ua: {
+        category: "anime",
+        name_ru: "Аниме",
+        name_en: "Anime",
+        name_ua: "Аніме",
+        lessons: [
+            {
+                id: "anime_ua_1",
+                name: "Наруто - шлях ніндзя",
+                description: "Цитати про силу волі та дружбу",
+                layout: "ua",
+                text: "Я не втечу і не буду ховатися. Я ніколи не відмовлюся від своїх слів це мій шлях ніндзя. Той хто порушує правила та передписання сміття. Але той хто кидає своїх друзів гірше за сміття. Сила приходить не від фізичних здібностей а від нездоланної волі.",
+                difficulty: "medium",
+                price: 50,
+                preview: "Я не втечу і не буду ховатися..."
+            },
+            {
+                id: "anime_ua_2",
+                name: "Атака титанів - свобода",
+                description: "Філософія свободи та боротьби",
+                layout: "ua",
+                text: "Ми народжені вільними. Всі люди народжені вільними. Свобода це право кожної людини. Якщо хтось намагається відібрати твою свободу борися. Борися до кінця. Тому що в цьому світі немає нічого важливішого за свободу.",
+                difficulty: "hard",
+                price: 75,
+                preview: "Ми народжені вільними..."
+            },
+            {
+                id: "anime_ua_3",
+                name: "Ван Піс - мрії",
+                description: "Про мрії та пригоди",
+                layout: "ua",
+                text: "Мрії ніколи не вмирають. Поки є мрія є надія. Я стану королем піратів. Це моя мрія і я ніколи не відмовлюся від неї. Друзі це ті хто підтримує твої мрії. Справжній друг ніколи не скаже що твоя мрія неможлива.",
+                difficulty: "medium",
+                price: 50,
+                preview: "Мрії ніколи не вмирають..."
+            }
+        ]
+    },
+    quotes_ua: {
+        category: "quotes",
+        name_ru: "Цитаты",
+        name_en: "Quotes",
+        name_ua: "Цитати",
+        lessons: [
+            {
+                id: "quote_ua_1",
+                name: "Мотивуючі цитати",
+                description: "Надихаючі слова",
+                layout: "ua",
+                text: "Успіх це здатність йти від невдачі до невдачі не втрачаючи ентузіазму. Єдиний спосіб робити велику роботу це любити те що ти робиш. Не бійся досконалості тобі її все одно не досягти. Але прагни до неї і ти станеш краще.",
+                difficulty: "medium",
+                price: 50,
+                preview: "Успіх це здатність йти від невдачі..."
+            },
+            {
+                id: "quote_ua_2",
+                name: "Філософські думки",
+                description: "Глибокі роздуми",
+                layout: "ua",
+                text: "Життя це те що відбувається з тобою поки ти будуєш плани. Важливо не те що з тобою відбувається а те як ти на це реагуєш. Щастя не в тому щоб мати все а в тому щоб цінувати те що маєш. Мудрість приходить з досвідом а досвід приходить з помилками.",
+                difficulty: "hard",
+                price: 75,
+                preview: "Життя це те що відбувається з тобою..."
+            },
+            {
+                id: "quote_ua_3",
+                name: "Прості цитати",
+                description: "Легкі надихаючі цитати",
+                layout: "ua",
+                text: "подорож у тисячу миль починається з одного кроку кожен експерт колись був початківцем практика робить досконалим віри що можеш і ти вже на півдорозі єдиний спосіб робити велику роботу це любити те що робиш",
+                difficulty: "easy",
+                price: 30,
+                preview: "подорож у тисячу миль починається..."
+            }
+        ]
     }
 };
 
