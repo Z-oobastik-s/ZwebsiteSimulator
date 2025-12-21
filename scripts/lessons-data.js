@@ -133,6 +133,166 @@ const LESSONS_DATA = {
                 layout: "ua",
                 text: "ведмідь вовк лось олень кабан заєць лисиця білка сова лелека журавель",
                 difficulty: "easy"
+            },
+            {
+                id: 11,
+                name: "Животные дома",
+                description: "Наши питомцы",
+                layout: "ru",
+                text: "кот собака попугай хомяк рыбка кролик черепаха морская свинка",
+                difficulty: "easy"
+            },
+            {
+                id: 12,
+                name: "Фрукты и овощи",
+                description: "Полезная еда",
+                layout: "ru",
+                text: "яблоко банан апельсин помидор огурец морковь картофель капуста",
+                difficulty: "easy"
+            },
+            {
+                id: 13,
+                name: "Цвета радуги",
+                description: "Яркие краски",
+                layout: "ru",
+                text: "красный оранжевый жёлтый зелёный голубой синий фиолетовый",
+                difficulty: "easy"
+            },
+            {
+                id: 14,
+                name: "Времена года",
+                description: "Смена сезонов",
+                layout: "ru",
+                text: "весна лето осень зима солнце дождь снег листья",
+                difficulty: "easy"
+            },
+            {
+                id: 15,
+                name: "Спорт и игры",
+                description: "Активный отдых",
+                layout: "ru",
+                text: "футбол баскетбол плавание бег теннис велосипед",
+                difficulty: "easy"
+            },
+            {
+                id: 16,
+                name: "Музыкальные инструменты",
+                description: "Звуки музыки",
+                layout: "ru",
+                text: "гитара пианино скрипка барабан флейта саксофон",
+                difficulty: "easy"
+            },
+            {
+                id: 17,
+                name: "Техника и гаджеты",
+                description: "Современные устройства",
+                layout: "ru",
+                text: "компьютер телефон планшет наушники клавиатура мышь",
+                difficulty: "easy"
+            },
+            {
+                id: 18,
+                name: "Транспорт",
+                description: "Средства передвижения",
+                layout: "ru",
+                text: "машина автобус поезд самолёт велосипед мотоцикл",
+                difficulty: "easy"
+            },
+            {
+                id: 19,
+                name: "Школьные предметы",
+                description: "Учёба",
+                layout: "ru",
+                text: "математика русский язык история география биология химия физика",
+                difficulty: "easy"
+            },
+            {
+                id: 20,
+                name: "Домашние дела",
+                description: "Повседневные задачи",
+                layout: "ru",
+                text: "уборка готовка стирка мытьё посуда пылесос",
+                difficulty: "easy"
+            },
+            {
+                id: 21,
+                name: "Animals at Home",
+                description: "Our pets",
+                layout: "en",
+                text: "cat dog parrot hamster fish rabbit turtle guinea pig",
+                difficulty: "easy"
+            },
+            {
+                id: 22,
+                name: "Fruits and Vegetables",
+                description: "Healthy food",
+                layout: "en",
+                text: "apple banana orange tomato cucumber carrot potato cabbage",
+                difficulty: "easy"
+            },
+            {
+                id: 23,
+                name: "Rainbow Colors",
+                description: "Bright colors",
+                layout: "en",
+                text: "red orange yellow green blue indigo violet",
+                difficulty: "easy"
+            },
+            {
+                id: 24,
+                name: "Seasons",
+                description: "Changing weather",
+                layout: "en",
+                text: "spring summer autumn winter sun rain snow leaves",
+                difficulty: "easy"
+            },
+            {
+                id: 25,
+                name: "Sports and Games",
+                description: "Active fun",
+                layout: "en",
+                text: "football basketball swimming running tennis bicycle",
+                difficulty: "easy"
+            },
+            {
+                id: 106,
+                name: "Фрукти та овочі",
+                description: "Корисна їжа",
+                layout: "ua",
+                text: "яблуко банан апельсин помідор огірок морква картопля капуста",
+                difficulty: "easy"
+            },
+            {
+                id: 107,
+                name: "Кольори веселки",
+                description: "Яскраві фарби",
+                layout: "ua",
+                text: "червоний помаранчевий жовтий зелений блакитний синій фіолетовий",
+                difficulty: "easy"
+            },
+            {
+                id: 108,
+                name: "Пори року",
+                description: "Зміна сезонів",
+                layout: "ua",
+                text: "весна літо осінь зима сонце дощ сніг листя",
+                difficulty: "easy"
+            },
+            {
+                id: 109,
+                name: "Спорт та ігри",
+                description: "Активний відпочинок",
+                layout: "ua",
+                text: "футбол баскетбол плавання біг теніс велосипед",
+                difficulty: "easy"
+            },
+            {
+                id: 110,
+                name: "Транспорт",
+                description: "Засоби пересування",
+                layout: "ua",
+                text: "машина автобус потяг літак велосипед мотоцикл",
+                difficulty: "easy"
             }
         ]
     },
