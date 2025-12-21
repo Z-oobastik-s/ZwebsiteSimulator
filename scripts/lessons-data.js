@@ -139,7 +139,7 @@ const LESSONS_DATA = {
                 name: "Животные дома",
                 description: "Наши питомцы",
                 layout: "ru",
-                text: "кот собака попугай хомяк рыбка кролик черепаха морская свинка",
+                text: "кот собака попугай хомяк рыбка кролик черепаха морская свинка кошки очень умные животные они любят играть и спать собаки верные друзья которые всегда рады хозяину попугаи могут говорить и повторять слова хомяки маленькие и пушистые зверьки рыбки плавают в аквариуме и радуют глаз кролики прыгают и едят морковку черепахи медленные но мудрые животные",
                 difficulty: "easy"
             },
             {
@@ -147,7 +147,7 @@ const LESSONS_DATA = {
                 name: "Фрукты и овощи",
                 description: "Полезная еда",
                 layout: "ru",
-                text: "яблоко банан апельсин помидор огурец морковь картофель капуста",
+                text: "яблоко банан апельсин помидор огурец морковь картофель капуста яблоки бывают красные зелёные и жёлтые бананы растут на пальмах и очень сладкие апельсины сочные и полезные для здоровья помидоры красные и круглые огурцы зелёные и хрустящие морковь оранжевая и содержит витамины картофель можно варить жарить и запекать капуста идёт в салаты и супы",
                 difficulty: "easy"
             },
             {
@@ -155,7 +155,7 @@ const LESSONS_DATA = {
                 name: "Цвета радуги",
                 description: "Яркие краски",
                 layout: "ru",
-                text: "красный оранжевый жёлтый зелёный голубой синий фиолетовый",
+                text: "красный оранжевый жёлтый зелёный голубой синий фиолетовый красный цвет как спелая вишня оранжевый как апельсин жёлтый как солнце зелёный как трава голубой как небо синий как море фиолетовый как слива цвета радуги всегда красивые и яркие они делают мир интереснее и веселее",
                 difficulty: "easy"
             },
             {
@@ -163,7 +163,7 @@ const LESSONS_DATA = {
                 name: "Времена года",
                 description: "Смена сезонов",
                 layout: "ru",
-                text: "весна лето осень зима солнце дождь снег листья",
+                text: "весна лето осень зима солнце дождь снег листья весна приносит тепло и цветы лето жаркое и солнечное осень красивая с жёлтыми листьями зима холодная со снегом и льдом солнце светит ярко дождь поливает землю снег покрывает всё белым листья падают с деревьев осенью",
                 difficulty: "easy"
             },
             {
@@ -171,7 +171,7 @@ const LESSONS_DATA = {
                 name: "Спорт и игры",
                 description: "Активный отдых",
                 layout: "ru",
-                text: "футбол баскетбол плавание бег теннис велосипед",
+                text: "футбол баскетбол плавание бег теннис велосипед футбол играют ногами и мячом баскетбол играют руками и корзиной плавание полезно для здоровья бег укрепляет ноги теннис игра с ракеткой велосипед езда на двух колёсах спорт делает нас сильными и здоровыми",
                 difficulty: "easy"
             },
             {
@@ -179,7 +179,7 @@ const LESSONS_DATA = {
                 name: "Музыкальные инструменты",
                 description: "Звуки музыки",
                 layout: "ru",
-                text: "гитара пианино скрипка барабан флейта саксофон",
+                text: "гитара пианино скрипка барабан флейта саксофон гитара имеет струны и играют на ней пальцами пианино большой инструмент с клавишами скрипка маленькая и играют смычком барабан бьют палочками флейта дуют в неё саксофон медный духовой инструмент музыка приносит радость и хорошее настроение",
                 difficulty: "easy"
             },
             {
@@ -187,7 +187,7 @@ const LESSONS_DATA = {
                 name: "Техника и гаджеты",
                 description: "Современные устройства",
                 layout: "ru",
-                text: "компьютер телефон планшет наушники клавиатура мышь",
+                text: "компьютер телефон планшет наушники клавиатура мышь компьютер помогает работать и играть телефон для звонков и сообщений планшет удобный для чтения наушники слушают музыку клавиатура для печати текста мышь управляет курсором техника делает жизнь проще и интереснее",
                 difficulty: "easy"
             },
             {
@@ -195,7 +195,7 @@ const LESSONS_DATA = {
                 name: "Транспорт",
                 description: "Средства передвижения",
                 layout: "ru",
-                text: "машина автобус поезд самолёт велосипед мотоцикл",
+                text: "машина автобус поезд самолёт велосипед мотоцикл машина ездит по дорогам автобус перевозит много людей поезд едет по рельсам самолёт летает в небе велосипед ездит на двух колёсах мотоцикл быстрый и шумный транспорт помогает быстро добраться куда нужно",
                 difficulty: "easy"
             },
             {
@@ -203,7 +203,7 @@ const LESSONS_DATA = {
                 name: "Школьные предметы",
                 description: "Учёба",
                 layout: "ru",
-                text: "математика русский язык история география биология химия физика",
+                text: "математика русский язык история география биология химия физика математика учит считать и решать задачи русский язык учит правильно говорить и писать история рассказывает о прошлом география о странах и городах биология о животных и растениях химия о веществах физика о законах природы",
                 difficulty: "easy"
             },
             {
@@ -211,7 +211,7 @@ const LESSONS_DATA = {
                 name: "Домашние дела",
                 description: "Повседневные задачи",
                 layout: "ru",
-                text: "уборка готовка стирка мытьё посуда пылесос",
+                text: "уборка готовка стирка мытьё посуда пылесос уборка делает дом чистым готовка создаёт вкусную еду стирка чистит одежду мытьё делает всё блестящим посуда должна быть чистой пылесос убирает пыль домашние дела важны для порядка в доме",
                 difficulty: "easy"
             },
             {
@@ -219,7 +219,7 @@ const LESSONS_DATA = {
                 name: "Animals at Home",
                 description: "Our pets",
                 layout: "en",
-                text: "cat dog parrot hamster fish rabbit turtle guinea pig",
+                text: "cat dog parrot hamster fish rabbit turtle guinea pig cats are smart animals they love to play and sleep dogs are loyal friends always happy to see you parrots can talk and repeat words hamsters are small and fluffy creatures fish swim in aquariums and look beautiful rabbits jump and eat carrots turtles are slow but wise animals",
                 difficulty: "easy"
             },
             {
@@ -227,7 +227,7 @@ const LESSONS_DATA = {
                 name: "Fruits and Vegetables",
                 description: "Healthy food",
                 layout: "en",
-                text: "apple banana orange tomato cucumber carrot potato cabbage",
+                text: "apple banana orange tomato cucumber carrot potato cabbage apples can be red green or yellow bananas grow on trees and are very sweet oranges are juicy and good for health tomatoes are red and round cucumbers are green and crispy carrots are orange and have vitamins potatoes can be boiled fried or baked cabbage goes in salads and soups",
                 difficulty: "easy"
             },
             {
@@ -235,7 +235,7 @@ const LESSONS_DATA = {
                 name: "Rainbow Colors",
                 description: "Bright colors",
                 layout: "en",
-                text: "red orange yellow green blue indigo violet",
+                text: "red orange yellow green blue indigo violet red is like a ripe cherry orange like an orange yellow like the sun green like grass blue like sky indigo like deep water violet like a plum rainbow colors are always beautiful and bright they make the world more interesting and fun",
                 difficulty: "easy"
             },
             {
@@ -243,7 +243,7 @@ const LESSONS_DATA = {
                 name: "Seasons",
                 description: "Changing weather",
                 layout: "en",
-                text: "spring summer autumn winter sun rain snow leaves",
+                text: "spring summer autumn winter sun rain snow leaves spring brings warmth and flowers summer is hot and sunny autumn is beautiful with yellow leaves winter is cold with snow and ice sun shines brightly rain waters the earth snow covers everything white leaves fall from trees in autumn",
                 difficulty: "easy"
             },
             {
@@ -251,7 +251,7 @@ const LESSONS_DATA = {
                 name: "Sports and Games",
                 description: "Active fun",
                 layout: "en",
-                text: "football basketball swimming running tennis bicycle",
+                text: "football basketball swimming running tennis bicycle football is played with feet and a ball basketball is played with hands and a basket swimming is good for health running strengthens legs tennis is played with a racket bicycle has two wheels sport makes us strong and healthy",
                 difficulty: "easy"
             },
             {
@@ -259,7 +259,7 @@ const LESSONS_DATA = {
                 name: "Фрукти та овочі",
                 description: "Корисна їжа",
                 layout: "ua",
-                text: "яблуко банан апельсин помідор огірок морква картопля капуста",
+                text: "яблуко банан апельсин помідор огірок морква картопля капуста яблука бувають червоні зелені та жовті банани ростуть на пальмах і дуже солодкі апельсини соковиті та корисні для здоров'я помідори червоні та круглі огірки зелені та хрусткі морква помаранчева та містить вітаміни картоплю можна варити смажити та запікати капуста йде в салати та супи",
                 difficulty: "easy"
             },
             {
@@ -267,7 +267,7 @@ const LESSONS_DATA = {
                 name: "Кольори веселки",
                 description: "Яскраві фарби",
                 layout: "ua",
-                text: "червоний помаранчевий жовтий зелений блакитний синій фіолетовий",
+                text: "червоний помаранчевий жовтий зелений блакитний синій фіолетовий червоний колір як стигла вишня помаранчевий як апельсин жовтий як сонце зелений як трава блакитний як небо синій як море фіолетовий як слива кольори веселки завжди красиві та яскраві вони роблять світ цікавішим та веселішим",
                 difficulty: "easy"
             },
             {
@@ -275,7 +275,7 @@ const LESSONS_DATA = {
                 name: "Пори року",
                 description: "Зміна сезонів",
                 layout: "ua",
-                text: "весна літо осінь зима сонце дощ сніг листя",
+                text: "весна літо осінь зима сонце дощ сніг листя весна приносить тепло та квіти літо спекотне та сонячне осінь красива з жовтим листям зима холодна зі снігом та льодом сонце світить яскраво дощ поливає землю сніг покриває все білим листя падає з дерев восени",
                 difficulty: "easy"
             },
             {
@@ -283,7 +283,7 @@ const LESSONS_DATA = {
                 name: "Спорт та ігри",
                 description: "Активний відпочинок",
                 layout: "ua",
-                text: "футбол баскетбол плавання біг теніс велосипед",
+                text: "футбол баскетбол плавання біг теніс велосипед футбол грають ногами та м'ячем баскетбол грають руками та кошиком плавання корисне для здоров'я біг зміцнює ноги теніс гра з ракеткою велосипед їзда на двох коліщатках спорт робить нас сильними та здоровими",
                 difficulty: "easy"
             },
             {
@@ -291,7 +291,7 @@ const LESSONS_DATA = {
                 name: "Транспорт",
                 description: "Засоби пересування",
                 layout: "ua",
-                text: "машина автобус потяг літак велосипед мотоцикл",
+                text: "машина автобус потяг літак велосипед мотоцикл машина їздить дорогами автобус перевозить багато людей потяг їде рейками літак літає в небі велосипед їздить на двох коліщатках мотоцикл швидкий та шумний транспорт допомагає швидко дістатися куди потрібно",
                 difficulty: "easy"
             }
         ]
