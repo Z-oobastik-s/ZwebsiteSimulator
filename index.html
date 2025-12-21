@@ -599,7 +599,7 @@
                 </button>
                 
                 <!-- Animations Toggle -->
-                <button id="animationsToggle" class="p-2 rounded-lg glass hover:bg-white/20 dark:hover:bg-black/20" title="Включить/выключить анимации">
+                <button id="animationsToggle" class="p-2 rounded-lg glass hover:bg-white/20 dark:hover:bg-black/20" data-i18n-title="toggleAnimations" title="Включить/выключить анимации">
                     <svg id="animationsIcon" class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" />
                     </svg>
@@ -613,55 +613,55 @@
         
         <!-- Home Screen -->
         <div id="homeScreen" class="fade-in">
-            <div class="hero-container text-center mb-8 py-8">
-                <h2 class="hero-title mb-3">
+            <div class="hero-container text-center mb-4 py-4">
+                <h2 class="hero-title mb-2 text-3xl">
                     <span class="hero-word-1">Mastering</span>
                     <span class="hero-word-2"> Keyboard</span>
                 </h2>
-                <p class="hero-subtitle text-lg font-medium text-gray-300 dark:text-gray-300 mb-2">
+                <p class="hero-subtitle text-sm font-medium text-gray-300 dark:text-gray-300 mb-1">
                     🚀 Быстро • 🎯 Точно • 💪 Эффективно
                 </p>
             </div>
             
-            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4 max-w-6xl mx-auto">
                 <!-- Lessons Mode -->
-                <div class="glass rounded-2xl p-8 hover:scale-105 transition-transform cursor-pointer" onclick="showLessons()">
-                    <div class="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mb-4 mx-auto">
-                        <svg class="w-8 h-8 text-primary" fill="currentColor" viewBox="0 0 20 20">
+                <div class="glass rounded-xl p-5 hover:scale-105 transition-transform cursor-pointer" onclick="showLessons()">
+                    <div class="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center mb-3 mx-auto">
+                        <svg class="w-6 h-6 text-primary" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z" />
                         </svg>
                     </div>
-                    <h3 class="text-2xl font-semibold mb-2 text-center" data-i18n="lessons">Уроки</h3>
-                    <p class="text-gray-600 dark:text-gray-400 text-center" data-i18n="lessonsDesc">Обучение с нуля до профи</p>
+                    <h3 class="text-xl font-semibold mb-1 text-center" data-i18n="lessons">Уроки</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 text-center" data-i18n="lessonsDesc">Обучение с нуля до профи</p>
                 </div>
                 
                 <!-- Free Mode -->
-                <div class="glass rounded-2xl p-8 hover:scale-105 transition-transform cursor-pointer" onclick="showFreeMode()">
-                    <div class="w-16 h-16 bg-success/20 rounded-full flex items-center justify-center mb-4 mx-auto">
-                        <svg class="w-8 h-8 text-success" fill="currentColor" viewBox="0 0 20 20">
+                <div class="glass rounded-xl p-5 hover:scale-105 transition-transform cursor-pointer" onclick="showFreeMode()">
+                    <div class="w-12 h-12 bg-success/20 rounded-full flex items-center justify-center mb-3 mx-auto">
+                        <svg class="w-6 h-6 text-success" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd" />
                         </svg>
                     </div>
-                    <h3 class="text-2xl font-semibold mb-2 text-center" data-i18n="freeMode">Свободная печать</h3>
-                    <p class="text-gray-600 dark:text-gray-400 text-center" data-i18n="freeModeDesc">Свой текст для тренировки</p>
+                    <h3 class="text-xl font-semibold mb-1 text-center" data-i18n="freeMode">Свободная печать</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 text-center" data-i18n="freeModeDesc">Свой текст для тренировки</p>
                 </div>
                 
                 <!-- Speed Test -->
-                <div class="glass rounded-2xl p-8 hover:scale-105 transition-transform cursor-pointer" onclick="showSpeedTest()">
-                    <div class="w-16 h-16 bg-warning/20 rounded-full flex items-center justify-center mb-4 mx-auto">
-                        <svg class="w-8 h-8 text-warning" fill="currentColor" viewBox="0 0 20 20">
+                <div class="glass rounded-xl p-5 hover:scale-105 transition-transform cursor-pointer" onclick="showSpeedTest()">
+                    <div class="w-12 h-12 bg-warning/20 rounded-full flex items-center justify-center mb-3 mx-auto">
+                        <svg class="w-6 h-6 text-warning" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
                         </svg>
                     </div>
-                    <h3 class="text-2xl font-semibold mb-2 text-center" data-i18n="speedTest">Тест скорости</h3>
-                    <p class="text-gray-600 dark:text-gray-400 text-center" data-i18n="speedTestDesc">60 секунд на максимум</p>
+                    <h3 class="text-xl font-semibold mb-1 text-center" data-i18n="speedTest">Тест скорости</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 text-center" data-i18n="speedTestDesc">60 секунд на максимум</p>
                 </div>
                 
                 <!-- Multiplayer Mode -->
-                <div class="glass rounded-2xl p-8 hover:scale-105 transition-transform cursor-pointer relative overflow-hidden" onclick="showMultiplayerMenu()">
-                    <div class="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full font-bold">NEW</div>
-                    <div class="w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center mb-4 mx-auto">
-                        <svg class="w-8 h-8 text-purple-500" fill="currentColor" viewBox="0 0 20 20">
+                <div class="glass rounded-xl p-5 hover:scale-105 transition-transform cursor-pointer relative overflow-hidden" onclick="showMultiplayerMenu()">
+                    <div class="absolute top-2 right-2 bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full font-bold">NEW</div>
+                    <div class="w-12 h-12 bg-purple-500/20 rounded-full flex items-center justify-center mb-3 mx-auto">
+                        <svg class="w-6 h-6 text-purple-500" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
                         </svg>
                     </div>
@@ -671,25 +671,25 @@
             </div>
             
             <!-- Stats Preview -->
-            <div class="mt-12 max-w-4xl mx-auto">
-                <h3 class="text-2xl font-semibold mb-4 text-center" data-i18n="yourProgress">Ваш прогресс</h3>
-                <div class="glass rounded-2xl p-6">
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="statsPreview">
+            <div class="mt-6 max-w-4xl mx-auto">
+                <h3 class="text-lg font-semibold mb-3 text-center" data-i18n="yourProgress">Ваш прогресс</h3>
+                <div class="glass rounded-xl p-4">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3" id="statsPreview">
                         <div class="text-center">
-                            <div class="text-3xl font-bold text-primary" id="bestSpeed">0</div>
-                            <div class="text-sm text-gray-600 dark:text-gray-400" data-i18n="bestSpeed">Лучший результат</div>
+                            <div class="text-2xl font-bold text-primary" id="bestSpeed">0</div>
+                            <div class="text-xs text-gray-600 dark:text-gray-400" data-i18n="bestSpeed">Лучший результат</div>
                         </div>
                         <div class="text-center">
-                            <div class="text-3xl font-bold text-success" id="avgAccuracy">0%</div>
-                            <div class="text-sm text-gray-600 dark:text-gray-400" data-i18n="avgAccuracy">Средняя точность</div>
+                            <div class="text-2xl font-bold text-success" id="avgAccuracy">0%</div>
+                            <div class="text-xs text-gray-600 dark:text-gray-400" data-i18n="avgAccuracy">Средняя точность</div>
                         </div>
                         <div class="text-center">
-                            <div class="text-3xl font-bold text-warning"><span id="completedLessons">0</span>/<span id="totalLessonsCount">26</span></div>
-                            <div class="text-sm text-gray-600 dark:text-gray-400" data-i18n="completedLessons">Пройдено уроков</div>
+                            <div class="text-2xl font-bold text-warning"><span id="completedLessons">0</span>/<span id="totalLessonsCount">26</span></div>
+                            <div class="text-xs text-gray-600 dark:text-gray-400" data-i18n="completedLessons">Пройдено уроков</div>
                         </div>
                         <div class="text-center">
-                            <div class="text-3xl font-bold text-purple-500" id="totalTime">0м</div>
-                            <div class="text-sm text-gray-600 dark:text-gray-400" data-i18n="totalTime">Общее время</div>
+                            <div class="text-2xl font-bold text-purple-500" id="totalTime">0м</div>
+                            <div class="text-xs text-gray-600 dark:text-gray-400" data-i18n="totalTime">Общее время</div>
                         </div>
                     </div>
                 </div>
@@ -1288,7 +1288,7 @@
                     </svg>
                     <span data-i18n="back">Назад</span>
                 </button>
-                <h2 class="text-3xl font-bold bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent">🛒 <span data-i18n="shop">Магазин уроков</span></h2>
+                <h2 class="text-3xl font-bold bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent">🛒 <span data-i18n="shopTitle">Магазин уроков</span></h2>
                 <div class="flex items-center space-x-2 px-4 py-2 rounded-lg glass bg-purple-600/30 border border-purple-500/50 shadow-lg">
                     <svg class="w-6 h-6 text-purple-300" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/>
@@ -1300,9 +1300,9 @@
             
             <!-- Language Filter -->
             <div class="mb-6">
-                <h3 class="text-lg font-semibold mb-3 text-center text-gray-300">Выберите язык урока:</h3>
+                <h3 class="text-lg font-semibold mb-3 text-center text-gray-300" data-i18n="selectLessonLanguage">Выберите язык урока:</h3>
                 <div class="flex flex-wrap gap-3 justify-center mb-4">
-                    <button onclick="selectShopLanguage('all')" class="shop-lang-btn px-6 py-3 rounded-xl glass hover:bg-purple-600/30 dark:hover:bg-purple-600/30 font-medium border-2 border-purple-500 text-base transition-all" data-lang="all">
+                    <button onclick="selectShopLanguage('all')" class="shop-lang-btn px-6 py-3 rounded-xl glass hover:bg-purple-600/30 dark:hover:bg-purple-600/30 font-medium border-2 border-purple-500 text-base transition-all" data-lang="all" data-i18n="allLanguages">
                         Все языки
                     </button>
                     <button onclick="selectShopLanguage('ru')" class="shop-lang-btn px-6 py-3 rounded-xl glass hover:bg-purple-600/30 dark:hover:bg-purple-600/30 font-medium border-2 border-transparent text-base transition-all" data-lang="ru">

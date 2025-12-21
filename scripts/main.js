@@ -198,7 +198,26 @@ const translations = {
         userDeleted: 'Пользователь удалён',
         deleteError: 'Ошибка удаления',
         loadError: 'Ошибка загрузки',
-        accessDenied: 'Доступ запрещён'
+        accessDenied: 'Доступ запрещён',
+        // Shop
+        shop: 'Магазин',
+        shopTitle: 'Магазин уроков',
+        allLanguages: 'Все языки',
+        allCategories: 'Все категории',
+        selectLessonLanguage: 'Выберите язык урока:',
+        reward: 'Награда',
+        rewardUpTo: 'Награда: до',
+        coinsAtAccuracy: 'монет (при точности ≥90%)',
+        purchased: 'Куплено',
+        buy: 'Купить',
+        notEnoughCoins: 'Недостаточно монет',
+        startLesson: 'Начать урок',
+        lessonPurchased: 'Урок успешно куплен!',
+        purchaseError: 'Ошибка покупки',
+        // Animations
+        toggleAnimations: 'Включить/выключить анимации',
+        animationsOn: 'Анимации включены',
+        animationsOff: 'Анимации выключены'
     },
     en: {
         welcome: 'Welcome to Zoobastiks',
@@ -312,7 +331,26 @@ const translations = {
         userDeleted: 'User deleted',
         deleteError: 'Delete error',
         loadError: 'Load error',
-        accessDenied: 'Access denied'
+        accessDenied: 'Access denied',
+        // Shop
+        shop: 'Shop',
+        shopTitle: 'Lesson Shop',
+        allLanguages: 'All Languages',
+        allCategories: 'All Categories',
+        selectLessonLanguage: 'Select lesson language:',
+        reward: 'Reward',
+        rewardUpTo: 'Reward: up to',
+        coinsAtAccuracy: 'coins (at accuracy ≥90%)',
+        purchased: 'Purchased',
+        buy: 'Buy',
+        notEnoughCoins: 'Not enough coins',
+        startLesson: 'Start Lesson',
+        lessonPurchased: 'Lesson purchased successfully!',
+        purchaseError: 'Purchase error',
+        // Animations
+        toggleAnimations: 'Toggle animations',
+        animationsOn: 'Animations enabled',
+        animationsOff: 'Animations disabled'
     }
 };
 
@@ -617,14 +655,28 @@ function toggleAnimations() {
     if (app.animationsEnabled) {
         createParticles();
     }
+    
+    // Показываем уведомление
+    const message = app.animationsEnabled 
+        ? t('animationsOn') 
+        : t('animationsOff');
+    showToast(message, 'info', '');
 }
 
 // Update all translations
 function updateTranslations() {
     document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
-        if (translations[app.lang][key]) {
+        if (translations[app.lang] && translations[app.lang][key]) {
             el.textContent = translations[app.lang][key];
+        }
+    });
+    
+    // Обновляем title атрибуты
+    document.querySelectorAll('[data-i18n-title]').forEach(el => {
+        const key = el.getAttribute('data-i18n-title');
+        if (translations[app.lang] && translations[app.lang][key]) {
+            el.setAttribute('title', translations[app.lang][key]);
         }
     });
 }
@@ -874,7 +926,7 @@ function showLessonList(levelData) {
                     <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/>
                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941a2.305 2.305 0 01-.567-.267C8.07 11.66 8 11.434 8 11c0-.114.07-.34.433-.582A2.305 2.305 0 019 10.151V8.151c-.22.071-.412.164-.567.267C8.07 8.66 8 8.886 8 9c0 .114.07.34.433.582.155.103.346.196.567.267v1.698a2.305 2.305 0 01-.567-.267C8.07 11.66 8 11.434 8 11c0-.114.07-.34.433-.582A2.305 2.305 0 019 10.151V8.151c.22.071.412.164.567.267C9.93 8.66 10 8.886 10 9c0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267v1.941a4.535 4.535 0 001.676-.662C11.398 9.765 12 8.99 12 8c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 009 5.092V3.151a2.305 2.305 0 01.567.267C9.93 3.66 10 3.886 10 4c0 .114-.07.34-.433.582A2.305 2.305 0 019 4.849v1.698z" clip-rule="evenodd"/>
                 </svg>
-                <span>Награда: до ${rewardCoins * 2} монет (при точности ≥90%)</span>
+                <span>${t('rewardUpTo')} ${rewardCoins * 2} ${t('coinsAtAccuracy')}</span>
             </div>
             ${statsHtml}
         `;
@@ -1414,9 +1466,9 @@ async function finishPractice() {
                     updateUserUI(updatedUser, updatedUser);
                     // Показываем уведомление о начислении монет
                     const message = isFirstTime 
-                        ? `+${coins} монет за урок!` 
-                        : `+${coins} монет за повторное прохождение`;
-                    showToast(message, 'success', 'Баланс');
+                        ? `+${coins} ${app.lang === 'ru' ? 'монет за урок!' : app.lang === 'en' ? 'coins for lesson!' : 'монет за урок!'}` 
+                        : `+${coins} ${app.lang === 'ru' ? 'монет за повторное прохождение' : app.lang === 'en' ? 'coins for replay' : 'монет за повторне проходження'}`;
+                    showToast(message, 'success', app.lang === 'ru' ? 'Баланс' : app.lang === 'en' ? 'Balance' : 'Баланс');
                 } else {
                     console.error('Failed to add coins:', result.error);
                 }
@@ -1450,6 +1502,11 @@ function showResults(speed, accuracy, time, errors) {
     // Показываем награду если это урок и точность >= 90%
     if (rewardEl && rewardAmountEl && app.currentLesson && (app.currentMode === 'lesson' || app.currentMode === 'practice')) {
         if (accuracy >= 90) {
+            // Проверяем, был ли урок уже пройден (такая же логика как в finishPractice)
+            const lessonKey = app.currentLesson.key || `lesson_${app.currentLesson.id}`;
+            const lessonStats = window.statsModule.getLessonStats(lessonKey);
+            const isFirstTime = !lessonStats || !lessonStats.completed;
+            
             // Определяем сложность
             let difficulty = app.currentLesson.difficulty;
             if (!difficulty || difficulty === 'easy') {
@@ -1468,14 +1525,21 @@ function showResults(speed, accuracy, time, errors) {
                 }
             }
             
+            // Вычисляем награду (такая же логика как в finishPractice)
             let coins = 10;
             if (difficulty === 'hard' || difficulty === 'advanced') coins = 20;
             else if (difficulty === 'medium') coins = 15;
             
-            if (accuracy >= 95) coins = Math.round(coins * 1.5);
-            if (accuracy === 100) coins = Math.round(coins * 2);
+            // Бонус за высокую точность (только при первом прохождении)
+            if (isFirstTime) {
+                if (accuracy >= 95) coins = Math.round(coins * 1.5);
+                if (accuracy === 100) coins = Math.round(coins * 2);
+            } else {
+                // При повторном прохождении - только 25% от базовой награды
+                coins = Math.max(1, Math.round(coins * 0.25));
+            }
             
-            rewardAmountEl.textContent = `+${coins} монет`;
+            rewardAmountEl.textContent = `+${coins} ${app.lang === 'ru' ? 'монет' : app.lang === 'en' ? 'coins' : 'монет'}`;
             rewardEl.classList.remove('hidden');
         } else {
             rewardEl.classList.add('hidden');
@@ -2472,7 +2536,7 @@ function showShop() {
     
     // Очищаем сетку уроков
     const grid = DOM.get('shopLessonsGrid');
-    if (grid) grid.innerHTML = '<div class="col-span-full text-center text-gray-400 py-8">Выберите язык урока</div>';
+    if (grid) grid.innerHTML = `<div class="col-span-full text-center text-gray-400 py-8">${t('selectLessonLanguage')}</div>`;
 }
 
 // Select shop language
@@ -2535,10 +2599,10 @@ function loadShopLessons() {
         categoryContainer.innerHTML = '';
         
         const difficultyCategories = [
-            { id: 'all', name: 'Все категории' },
-            { id: 'beginner', name: '🌱 Начинающий' },
-            { id: 'medium', name: '⚡ Средний' },
-            { id: 'advanced', name: '🔥 Продвинутый' }
+            { id: 'all', name: t('allCategories') },
+            { id: 'beginner', name: `🌱 ${app.lang === 'ru' ? 'Начинающий' : app.lang === 'en' ? 'Beginner' : 'Початківець'}` },
+            { id: 'medium', name: `⚡ ${app.lang === 'ru' ? 'Средний' : app.lang === 'en' ? 'Medium' : 'Середній'}` },
+            { id: 'advanced', name: `🔥 ${app.lang === 'ru' ? 'Продвинутый' : app.lang === 'en' ? 'Advanced' : 'Просунутий'}` }
         ];
         
         difficultyCategories.forEach(cat => {
@@ -2644,13 +2708,13 @@ async function purchaseLesson(lessonId) {
     const result = await window.authModule.purchaseLesson(user.uid, lessonId);
     
     if (result.success) {
-        showToast('Урок успешно куплен!', 'success', 'Покупка');
+        showToast(t('lessonPurchased'), 'success', t('shop'));
         // Обновляем UI
         const updatedUser = window.authModule.getCurrentUser();
         updateUserUI(updatedUser, updatedUser);
         loadShopLessons();
     } else {
-        showToast(result.error || 'Ошибка покупки', 'error', 'Ошибка');
+        showToast(result.error || t('purchaseError'), 'error', app.lang === 'ru' ? 'Ошибка' : app.lang === 'en' ? 'Error' : 'Помилка');
     }
 }
 
