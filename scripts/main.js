@@ -847,10 +847,10 @@ function showLessonList(levelData) {
             `;
         }
         
-        // Индикатор для shop уроков
+        // Индикатор для shop уроков - перемещаем вправо, чтобы не перекрывало название
         const shopBadge = lesson.isShopLesson ? `
-            <div class="absolute top-3 left-3">
-                <div class="bg-warning/20 text-warning px-2 py-1 rounded-full text-xs font-bold flex items-center space-x-1">
+            <div class="absolute top-3 right-3 z-10">
+                <div class="bg-purple-600/30 text-purple-300 px-2 py-1 rounded-full text-xs font-bold flex items-center space-x-1 border border-purple-500/50">
                     <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/>
                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941a2.305 2.305 0 01-.567-.267C8.07 11.66 8 11.434 8 11c0-.114.07-.34.433-.582A2.305 2.305 0 019 10.151V8.151c-.22.071-.412.164-.567.267C8.07 8.66 8 8.886 8 9c0 .114.07.34.433.582.155.103.346.196.567.267v1.698a2.305 2.305 0 01-.567-.267C8.07 11.66 8 11.434 8 11c0-.114.07-.34.433-.582A2.305 2.305 0 019 10.151V8.151c.22.071.412.164.567.267C9.93 8.66 10 8.886 10 9c0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267v1.941a4.535 4.535 0 001.676-.662C11.398 9.765 12 8.99 12 8c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 009 5.092V3.151a2.305 2.305 0 01.567.267C9.93 3.66 10 3.886 10 4c0 .114-.07.34-.433.582A2.305 2.305 0 019 4.849v1.698z" clip-rule="evenodd"/>
@@ -863,7 +863,7 @@ function showLessonList(levelData) {
         card.innerHTML = `
             ${completeBadge}
             ${shopBadge}
-            <h4 class="font-bold text-lg mb-2 text-gray-100">${escapeHtml(lesson.name)}</h4>
+            <h4 class="font-bold text-lg mb-2 text-gray-100 pr-20">${escapeHtml(lesson.name)}</h4>
             <p class="text-sm text-gray-400 mb-3">${escapeHtml(lesson.description)}</p>
             <div class="flex items-center justify-between mb-2">
                 <span class="px-3 py-1 rounded-lg bg-primary/20 text-primary text-xs font-semibold">${lesson.layout.toUpperCase()}</span>
@@ -1005,6 +1005,12 @@ function renderText() {
     // Batch update - один раз заменяем весь контент
     display.innerHTML = '';
     display.appendChild(fragment);
+    
+    // Автоскролл к текущему символу
+    const currentCharEl = display.querySelector('.char-current');
+    if (currentCharEl) {
+        currentCharEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }
     
     // Подсветить текущую клавишу на клавиатуре
     if (app.currentPosition < app.currentText.length) {
@@ -1360,6 +1366,11 @@ async function finishPractice() {
         
         // Начисляем монеты если точность >= 90% и это урок
         if (accuracy >= 90 && app.currentLesson && (app.currentMode === 'lesson' || app.currentMode === 'practice')) {
+            // Проверяем, был ли урок уже пройден
+            const lessonKey = app.currentLesson.key || `lesson_${app.currentLesson.id}`;
+            const lessonStats = window.statsModule.getLessonStats(lessonKey);
+            const isFirstTime = !lessonStats || !lessonStats.completed;
+            
             // Определяем сложность урока
             let difficulty = app.currentLesson.difficulty;
             
@@ -1387,9 +1398,14 @@ async function finishPractice() {
             if (difficulty === 'hard' || difficulty === 'advanced') coins = 20;
             else if (difficulty === 'medium') coins = 15;
             
-            // Бонус за высокую точность
-            if (accuracy >= 95) coins = Math.round(coins * 1.5);
-            if (accuracy === 100) coins = Math.round(coins * 2);
+            // Бонус за высокую точность (только при первом прохождении)
+            if (isFirstTime) {
+                if (accuracy >= 95) coins = Math.round(coins * 1.5);
+                if (accuracy === 100) coins = Math.round(coins * 2);
+            } else {
+                // При повторном прохождении - только 25% от базовой награды
+                coins = Math.max(1, Math.round(coins * 0.25));
+            }
             
             window.authModule.addCoins(user.uid, coins).then(result => {
                 if (result.success) {
@@ -1397,7 +1413,10 @@ async function finishPractice() {
                     const updatedUser = window.authModule.getCurrentUser();
                     updateUserUI(updatedUser, updatedUser);
                     // Показываем уведомление о начислении монет
-                    showToast(`+${coins} монет за урок!`, 'success', 'Баланс');
+                    const message = isFirstTime 
+                        ? `+${coins} монет за урок!` 
+                        : `+${coins} монет за повторное прохождение`;
+                    showToast(message, 'success', 'Баланс');
                 } else {
                     console.error('Failed to add coins:', result.error);
                 }
@@ -2411,6 +2430,7 @@ function returnToMultiplayerLobby() {
 
 // Shop functions
 let currentShopCategory = 'all';
+let currentShopLanguage = 'all';
 
 // Show shop screen
 function showShop() {
@@ -2430,6 +2450,53 @@ function showShop() {
         shopBalance.textContent = user.balance || 0;
     }
     
+    // Сбрасываем фильтры
+    currentShopLanguage = 'all';
+    currentShopCategory = 'all';
+    
+    // Обновляем UI кнопок языка
+    document.querySelectorAll('.shop-lang-btn').forEach(btn => {
+        const lang = btn.getAttribute('data-lang');
+        if (lang === 'all') {
+            btn.classList.add('border-purple-500', 'bg-purple-600/30');
+            btn.classList.remove('border-transparent');
+        } else {
+            btn.classList.remove('border-purple-500', 'bg-purple-600/30');
+            btn.classList.add('border-transparent');
+        }
+    });
+    
+    // Скрываем категории до выбора языка
+    const categoryTabs = DOM.get('shopCategoryTabs');
+    if (categoryTabs) categoryTabs.classList.add('hidden');
+    
+    // Очищаем сетку уроков
+    const grid = DOM.get('shopLessonsGrid');
+    if (grid) grid.innerHTML = '<div class="col-span-full text-center text-gray-400 py-8">Выберите язык урока</div>';
+}
+
+// Select shop language
+function selectShopLanguage(lang) {
+    currentShopLanguage = lang;
+    
+    // Обновляем активную кнопку языка
+    document.querySelectorAll('.shop-lang-btn').forEach(btn => {
+        const btnLang = btn.getAttribute('data-lang');
+        if (btnLang === lang) {
+            btn.classList.add('border-purple-500', 'bg-purple-600/30');
+            btn.classList.remove('border-transparent');
+        } else {
+            btn.classList.remove('border-purple-500', 'bg-purple-600/30');
+            btn.classList.add('border-transparent');
+        }
+    });
+    
+    // Показываем категории после выбора языка
+    const categoryTabs = DOM.get('shopCategoryTabs');
+    if (categoryTabs) categoryTabs.classList.remove('hidden');
+    
+    // Сбрасываем категорию и загружаем уроки
+    currentShopCategory = 'all';
     loadShopLessons();
 }
 
@@ -2441,24 +2508,48 @@ function loadShopLessons() {
     const user = window.authModule?.getCurrentUser();
     if (!user) return;
     
+    // Если язык не выбран, не показываем уроки
+    if (currentShopLanguage === 'all') {
+        grid.innerHTML = '<div class="col-span-full text-center text-gray-400 py-8">Выберите язык урока</div>';
+        return;
+    }
+    
     const purchasedLessons = user.purchasedLessons || [];
     const allLessons = window.shopModule.getAllShopLessons();
     
-    // Фильтруем по категории
-    let filteredLessons = allLessons;
+    // Фильтруем по языку
+    let filteredLessons = allLessons.filter(lesson => lesson.layout === currentShopLanguage);
+    
+    // Фильтруем по категории сложности
     if (currentShopCategory !== 'all') {
-        filteredLessons = allLessons.filter(lesson => lesson.category === currentShopCategory);
+        filteredLessons = filteredLessons.filter(lesson => {
+            let lessonDifficulty = lesson.difficulty;
+            if (!lessonDifficulty || lessonDifficulty === 'easy') lessonDifficulty = 'beginner';
+            else if (lessonDifficulty === 'hard') lessonDifficulty = 'advanced';
+            
+            return lessonDifficulty === currentShopCategory;
+        });
     }
     
-    // Создаём категории если их нет
-    const categoryContainer = document.querySelector('.shop-category-btn')?.parentElement;
-    if (categoryContainer && categoryContainer.children.length === 1) {
-        Object.values(window.shopModule.SHOP_LESSONS).forEach(category => {
+    // Создаём категории сложности
+    const categoryContainer = DOM.get('shopCategoryTabs');
+    if (categoryContainer) {
+        // Очищаем и добавляем категории сложности
+        categoryContainer.innerHTML = '';
+        
+        const difficultyCategories = [
+            { id: 'all', name: 'Все категории' },
+            { id: 'beginner', name: '🌱 Начинающий' },
+            { id: 'medium', name: '⚡ Средний' },
+            { id: 'advanced', name: '🔥 Продвинутый' }
+        ];
+        
+        difficultyCategories.forEach(cat => {
             const btn = document.createElement('button');
-            btn.className = 'shop-category-btn px-4 py-2 rounded-lg glass hover:bg-purple-600/30 dark:hover:bg-purple-600/30 font-medium border-2 border-transparent hover:border-purple-500 text-sm transition-all';
-            btn.setAttribute('data-category', category.category);
-            btn.textContent = category.name_ru;
-            btn.onclick = () => selectShopCategory(category.category);
+            btn.className = `shop-category-btn px-4 py-2 rounded-lg glass hover:bg-purple-600/30 dark:hover:bg-purple-600/30 font-medium border-2 ${cat.id === 'all' ? 'border-purple-500 bg-purple-600/30' : 'border-transparent'} text-sm transition-all`;
+            btn.setAttribute('data-category', cat.id);
+            btn.textContent = cat.name;
+            btn.onclick = () => selectShopCategory(cat.id);
             categoryContainer.appendChild(btn);
         });
     }

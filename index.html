@@ -774,7 +774,7 @@
                 
                 <!-- Text Display -->
                 <div class="glass rounded-2xl p-8 mb-6 max-h-[200px] overflow-y-auto">
-                    <div id="textDisplay" class="text-3xl mono leading-relaxed text-left select-none min-h-[120px] flex items-center flex-wrap">
+                    <div id="textDisplay" class="text-3xl mono leading-relaxed text-left select-none min-h-[120px] flex items-center whitespace-nowrap overflow-x-auto">
                         <!-- Text will be rendered here -->
                     </div>
                 </div>
@@ -1287,8 +1287,27 @@
                 </div>
             </div>
             
+            <!-- Language Filter -->
+            <div class="mb-6">
+                <h3 class="text-lg font-semibold mb-3 text-center text-gray-300">Выберите язык урока:</h3>
+                <div class="flex flex-wrap gap-3 justify-center mb-4">
+                    <button onclick="selectShopLanguage('all')" class="shop-lang-btn px-6 py-3 rounded-xl glass hover:bg-purple-600/30 dark:hover:bg-purple-600/30 font-medium border-2 border-purple-500 text-base transition-all" data-lang="all">
+                        Все языки
+                    </button>
+                    <button onclick="selectShopLanguage('ru')" class="shop-lang-btn px-6 py-3 rounded-xl glass hover:bg-purple-600/30 dark:hover:bg-purple-600/30 font-medium border-2 border-transparent text-base transition-all" data-lang="ru">
+                        🇷🇺 Русский
+                    </button>
+                    <button onclick="selectShopLanguage('en')" class="shop-lang-btn px-6 py-3 rounded-xl glass hover:bg-purple-600/30 dark:hover:bg-purple-600/30 font-medium border-2 border-transparent text-base transition-all" data-lang="en">
+                        🇬🇧 English
+                    </button>
+                    <button onclick="selectShopLanguage('ua')" class="shop-lang-btn px-6 py-3 rounded-xl glass hover:bg-purple-600/30 dark:hover:bg-purple-600/30 font-medium border-2 border-transparent text-base transition-all" data-lang="ua">
+                        🇺🇦 Українська
+                    </button>
+                </div>
+            </div>
+            
             <!-- Category Tabs -->
-            <div class="flex flex-wrap gap-2 mb-4 justify-center">
+            <div id="shopCategoryTabs" class="hidden flex flex-wrap gap-2 mb-4 justify-center">
                 <button onclick="selectShopCategory('all')" class="shop-category-btn px-4 py-2 rounded-lg glass hover:bg-purple-600/30 dark:hover:bg-purple-600/30 font-medium border-2 border-purple-500 text-sm transition-all" data-category="all">
                     <span data-i18n="allCategories">Все категории</span>
                 </button>
