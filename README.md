@@ -24,7 +24,7 @@ Zoobastiks, слепая печать, тренажёр печати, typing tut
 
 ## 🌐 Деплой
 
-Сайт размещён на GitHub Pages: https://zoobastik.github.io/ZwebsiteSimulator/
+Сайт размещён на GitHub Pages: https://z-oobastik-s.github.io/ZwebsiteSimulator/
 
 ## 📄 Лицензия
 
