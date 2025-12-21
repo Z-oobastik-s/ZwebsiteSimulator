@@ -395,9 +395,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 const profileBtn = DOM.get('userProfileBtn');
                 const loginBtn = DOM.get('loginBtn');
                 const adminBtn = DOM.get('adminBtn');
+                const balanceDisplay = DOM.get('balanceDisplay');
+                const shopBtn = DOM.get('shopBtn');
                 if (profileBtn) profileBtn.classList.add('hidden');
                 if (loginBtn) loginBtn.classList.remove('hidden');
                 if (adminBtn) adminBtn.classList.add('hidden');
+                if (balanceDisplay) balanceDisplay.classList.add('hidden');
+                if (shopBtn) shopBtn.classList.add('hidden');
             }
         });
     }
@@ -676,7 +680,7 @@ function hideAllScreens() {
     const screens = [
         'homeScreen', 'lessonsScreen', 'practiceScreen',
         'multiplayerMenuScreen', 'multiplayerWaitingScreen', 'multiplayerGameScreen',
-        'profileScreen', 'adminPanelScreen'
+        'profileScreen', 'adminPanelScreen', 'shopScreen'
     ];
     
     screens.forEach(id => {
@@ -709,12 +713,39 @@ function loadLessons() {
     const levels = ['beginner', 'medium', 'advanced'];
     const fragment = document.createDocumentFragment();
     
+    // Получаем купленные уроки
+    const user = window.authModule?.getCurrentUser();
+    const purchasedLessons = user?.purchasedLessons || [];
+    
     for (const level of levels) {
         const data = LESSONS_DATA[level];
         if (!data) continue;
         
         // Filter lessons by selected language
-        const lessonsForLang = data.lessons.filter(l => l.layout === selectedLessonLang);
+        let lessonsForLang = data.lessons.filter(l => l.layout === selectedLessonLang);
+        
+        // Добавляем купленные уроки из магазина
+        if (window.shopModule && purchasedLessons.length > 0) {
+            purchasedLessons.forEach(lessonId => {
+                const shopLesson = window.shopModule.getLessonById(lessonId);
+                if (shopLesson && shopLesson.layout === selectedLessonLang) {
+                    // Определяем уровень сложности
+                    let lessonLevel = 'beginner';
+                    if (shopLesson.difficulty === 'hard') lessonLevel = 'advanced';
+                    else if (shopLesson.difficulty === 'medium') lessonLevel = 'medium';
+                    
+                    // Добавляем только если это текущий уровень
+                    if (lessonLevel === level) {
+                        lessonsForLang.push({
+                            ...shopLesson,
+                            id: shopLesson.id,
+                            isShopLesson: true
+                        });
+                    }
+                }
+            });
+        }
+        
         if (lessonsForLang.length === 0) continue;
         
         const card = document.createElement('div');
@@ -760,7 +791,10 @@ function showLessonList(levelData) {
     const fragment = document.createDocumentFragment();
     
     levelData.lessons.forEach(lesson => {
-        const lessonKey = `lesson_${levelData.level}_${lesson.id}`;
+        // Для shop уроков используем другой ключ
+        const lessonKey = lesson.isShopLesson 
+            ? `shop_lesson_${lesson.id}` 
+            : `lesson_${levelData.level}_${lesson.id}`;
         const lessonStats = window.statsModule.getLessonStats(lessonKey);
         
         const card = document.createElement('div');
@@ -800,8 +834,22 @@ function showLessonList(levelData) {
             `;
         }
         
+        // Индикатор для shop уроков
+        const shopBadge = lesson.isShopLesson ? `
+            <div class="absolute top-3 left-3">
+                <div class="bg-warning/20 text-warning px-2 py-1 rounded-full text-xs font-bold flex items-center space-x-1">
+                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/>
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941a2.305 2.305 0 01-.567-.267C8.07 11.66 8 11.434 8 11c0-.114.07-.34.433-.582A2.305 2.305 0 019 10.151V8.151c-.22.071-.412.164-.567.267C8.07 8.66 8 8.886 8 9c0 .114.07.34.433.582.155.103.346.196.567.267v1.698a2.305 2.305 0 01-.567-.267C8.07 11.66 8 11.434 8 11c0-.114.07-.34.433-.582A2.305 2.305 0 019 10.151V8.151c.22.071.412.164.567.267C9.93 8.66 10 8.886 10 9c0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267v1.941a4.535 4.535 0 001.676-.662C11.398 9.765 12 8.99 12 8c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 009 5.092V3.151a2.305 2.305 0 01.567.267C9.93 3.66 10 3.886 10 4c0 .114-.07.34-.433.582A2.305 2.305 0 019 4.849v1.698z" clip-rule="evenodd"/>
+                    </svg>
+                    <span>Магазин</span>
+                </div>
+            </div>
+        ` : '';
+        
         card.innerHTML = `
             ${completeBadge}
+            ${shopBadge}
             <h4 class="font-bold text-lg mb-2 text-gray-100">${escapeHtml(lesson.name)}</h4>
             <p class="text-sm text-gray-400 mb-3">${escapeHtml(lesson.description)}</p>
             <div class="flex items-center justify-between">
@@ -1289,6 +1337,30 @@ async function finishPractice() {
         window.authModule.addUserSession(user.uid, sessionData).catch(err => {
             console.error('Failed to save session to profile:', err);
         });
+        
+        // Начисляем монеты если точность >= 90% и это урок
+        if (accuracy >= 90 && app.currentLesson && app.currentMode === 'practice') {
+            // Начисляем монеты в зависимости от сложности и длины урока
+            let coins = 10; // Базовое начисление
+            if (app.currentLesson.difficulty === 'hard') coins = 20;
+            else if (app.currentLesson.difficulty === 'medium') coins = 15;
+            
+            // Бонус за высокую точность
+            if (accuracy >= 95) coins = Math.round(coins * 1.5);
+            if (accuracy === 100) coins = Math.round(coins * 2);
+            
+            window.authModule.addCoins(user.uid, coins).then(result => {
+                if (result.success) {
+                    // Обновляем баланс в UI
+                    const updatedUser = window.authModule.getCurrentUser();
+                    updateUserUI(updatedUser, updatedUser);
+                    // Показываем уведомление о начислении монет
+                    showToast(`+${coins} монет за урок!`, 'success', 'Баланс');
+                }
+            }).catch(err => {
+                console.error('Failed to add coins:', err);
+            });
+        }
     }
     
     // Show results modal
@@ -1438,15 +1510,26 @@ function updateUserUI(user, profile) {
     const loginBtn = DOM.get('loginBtn');
     const userName = DOM.get('userName');
     const userAvatar = DOM.get('userAvatar');
+    const balanceDisplay = DOM.get('balanceDisplay');
+    const userBalance = DOM.get('userBalance');
+    const shopBtn = DOM.get('shopBtn');
     
     if (!profileBtn || !loginBtn || !userName || !userAvatar) return;
     
     profileBtn.classList.remove('hidden');
     loginBtn.classList.add('hidden');
+    if (balanceDisplay) balanceDisplay.classList.remove('hidden');
+    if (shopBtn) shopBtn.classList.remove('hidden');
     
     // user теперь объект из localStorage
     const displayUser = profile || user;
     userName.textContent = displayUser?.username || displayUser?.displayName || 'User';
+    
+    // Обновляем баланс
+    if (userBalance && displayUser) {
+        const balance = displayUser.balance || 0;
+        userBalance.textContent = balance;
+    }
     
     // Используем аватар из профиля или первый по умолчанию
     const avatarURL = displayUser?.photoURL || 
@@ -2241,5 +2324,192 @@ function returnToMultiplayerLobby() {
     app.currentMode = 'multiplayer-waiting';
     app.gameEnded = false;
     window.secondPlayerNotified = false;
+}
+
+// Shop functions
+let currentShopCategory = 'all';
+
+// Show shop screen
+function showShop() {
+    const user = window.authModule?.getCurrentUser();
+    if (!user) {
+        showLoginModal();
+        return;
+    }
+    
+    hideAllScreens();
+    const shopScreen = DOM.get('shopScreen');
+    if (shopScreen) shopScreen.classList.remove('hidden');
+    
+    // Обновляем баланс в магазине
+    const shopBalance = DOM.get('shopBalance');
+    if (shopBalance) {
+        shopBalance.textContent = user.balance || 0;
+    }
+    
+    loadShopLessons();
+}
+
+// Load shop lessons
+function loadShopLessons() {
+    const grid = DOM.get('shopLessonsGrid');
+    if (!grid || !window.shopModule) return;
+    
+    const user = window.authModule?.getCurrentUser();
+    if (!user) return;
+    
+    const purchasedLessons = user.purchasedLessons || [];
+    const allLessons = window.shopModule.getAllShopLessons();
+    
+    // Фильтруем по категории
+    let filteredLessons = allLessons;
+    if (currentShopCategory !== 'all') {
+        filteredLessons = allLessons.filter(lesson => lesson.category === currentShopCategory);
+    }
+    
+    // Создаём категории если их нет
+    const categoryContainer = document.querySelector('.shop-category-btn')?.parentElement;
+    if (categoryContainer && categoryContainer.children.length === 1) {
+        Object.values(window.shopModule.SHOP_LESSONS).forEach(category => {
+            const btn = document.createElement('button');
+            btn.className = 'shop-category-btn px-6 py-3 rounded-xl glass hover:bg-white/20 dark:hover:bg-black/20 font-medium border-2 border-transparent hover:border-primary';
+            btn.setAttribute('data-category', category.category);
+            btn.textContent = category.name_ru;
+            btn.onclick = () => selectShopCategory(category.category);
+            categoryContainer.appendChild(btn);
+        });
+    }
+    
+    // Очищаем и заполняем сетку
+    grid.innerHTML = '';
+    const fragment = document.createDocumentFragment();
+    
+    filteredLessons.forEach(lesson => {
+        const isPurchased = purchasedLessons.includes(lesson.id);
+        const card = document.createElement('div');
+        card.className = `glass rounded-2xl p-6 border-2 ${
+            isPurchased 
+                ? 'border-success/50 bg-gradient-to-br from-gray-800/70 to-gray-900/90' 
+                : 'border-gray-700/30 bg-gradient-to-br from-gray-800/50 to-gray-900/80'
+        }`;
+        
+        const difficultyColors = {
+            easy: 'text-success',
+            medium: 'text-warning',
+            hard: 'text-red-400'
+        };
+        
+        const difficultyNames = {
+            easy: 'Легкий',
+            medium: 'Средний',
+            hard: 'Продвинутый'
+        };
+        
+        card.innerHTML = `
+            <div class="flex justify-between items-start mb-4">
+                <div>
+                    <h3 class="text-xl font-bold mb-2">${escapeHtml(lesson.name)}</h3>
+                    <p class="text-sm text-gray-400 mb-2">${escapeHtml(lesson.description)}</p>
+                    <span class="text-xs ${difficultyColors[lesson.difficulty]} font-semibold">${difficultyNames[lesson.difficulty]}</span>
+                </div>
+                ${isPurchased ? `
+                    <div class="bg-success/20 text-success px-3 py-1 rounded-full text-xs font-bold">
+                        ✓ Куплено
+                    </div>
+                ` : `
+                    <div class="text-right">
+                        <div class="text-2xl font-bold text-warning">${lesson.price}</div>
+                        <div class="text-xs text-gray-400">монет</div>
+                    </div>
+                `}
+            </div>
+            <div class="bg-gray-800/50 rounded-lg p-3 mb-4 text-sm text-gray-300 italic">
+                "${escapeHtml(lesson.preview)}"
+            </div>
+            ${isPurchased ? `
+                <button onclick="startPurchasedLesson('${lesson.id}')" class="w-full bg-gradient-to-r from-success to-green-500 hover:from-green-500 hover:to-emerald-500 text-white font-semibold py-3 rounded-lg transition-all shadow-lg hover:shadow-xl">
+                    Начать урок
+                </button>
+            ` : `
+                <button onclick="purchaseLesson('${lesson.id}')" class="w-full bg-gradient-to-r from-warning to-yellow-500 hover:from-yellow-500 hover:to-orange-500 text-white font-semibold py-3 rounded-lg transition-all shadow-lg hover:shadow-xl ${(user.balance || 0) < lesson.price ? 'opacity-50 cursor-not-allowed' : ''}">
+                    ${(user.balance || 0) >= lesson.price ? 'Купить' : 'Недостаточно монет'}
+                </button>
+            `}
+        `;
+        
+        fragment.appendChild(card);
+    });
+    
+    grid.appendChild(fragment);
+}
+
+// Select shop category
+function selectShopCategory(category) {
+    currentShopCategory = category;
+    
+    // Обновляем активную кнопку
+    document.querySelectorAll('.shop-category-btn').forEach(btn => {
+        const btnCategory = btn.getAttribute('data-category');
+        if (btnCategory === category || (category === 'all' && btnCategory === 'all')) {
+            btn.classList.add('border-primary');
+            btn.classList.remove('border-transparent');
+        } else {
+            btn.classList.remove('border-primary');
+            btn.classList.add('border-transparent');
+        }
+    });
+    
+    loadShopLessons();
+}
+
+// Purchase lesson
+async function purchaseLesson(lessonId) {
+    const user = window.authModule?.getCurrentUser();
+    if (!user) {
+        showLoginModal();
+        return;
+    }
+    
+    const result = await window.authModule.purchaseLesson(user.uid, lessonId);
+    
+    if (result.success) {
+        showToast('Урок успешно куплен!', 'success', 'Покупка');
+        // Обновляем UI
+        const updatedUser = window.authModule.getCurrentUser();
+        updateUserUI(updatedUser, updatedUser);
+        loadShopLessons();
+    } else {
+        showToast(result.error || 'Ошибка покупки', 'error', 'Ошибка');
+    }
+}
+
+// Start purchased lesson
+function startPurchasedLesson(lessonId) {
+    if (!window.shopModule) return;
+    
+    const lesson = window.shopModule.getLessonById(lessonId);
+    if (!lesson) {
+        showToast('Урок не найден', 'error', 'Ошибка');
+        return;
+    }
+    
+    // Определяем уровень сложности
+    let level = 'beginner';
+    if (lesson.difficulty === 'hard') level = 'advanced';
+    else if (lesson.difficulty === 'medium') level = 'medium';
+    
+    // Создаём объект урока для системы
+    const lessonObj = {
+        id: lesson.id,
+        name: lesson.name,
+        description: lesson.description,
+        layout: lesson.layout,
+        text: lesson.text,
+        difficulty: lesson.difficulty,
+        key: `shop_lesson_${lesson.id}`,
+        isShopLesson: true
+    };
+    
+    startPractice(lesson.text, 'lesson', lessonObj);
 }
 

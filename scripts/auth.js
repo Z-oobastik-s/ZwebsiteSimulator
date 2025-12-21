@@ -136,6 +136,8 @@ export async function registerUser(username, password, email = '') {
             country: userInfo.country,
             city: userInfo.city,
             isAdmin: false,
+            balance: 0,
+            purchasedLessons: [],
             stats: {
                 totalSessions: 0,
                 totalTime: 0,
@@ -428,6 +430,104 @@ export function onAuthStateChange(callback) {
     };
 }
 
+// Add coins to user balance (начисление монет за урок)
+export async function addCoins(uid, amount) {
+    try {
+        const users = getAllUsersStorage();
+        const user = users[uid];
+        if (!user) {
+            return { success: false, error: 'User not found' };
+        }
+        
+        if (!user.balance) user.balance = 0;
+        user.balance += amount;
+        
+        users[uid] = user;
+        if (!saveAllUsersStorage(users)) {
+            return { success: false, error: 'Ошибка сохранения данных' };
+        }
+        
+        const currentUser = getCurrentUserFromStorage();
+        if (currentUser && currentUser.uid === uid) {
+            saveCurrentUserToStorage(user);
+        }
+        
+        return { success: true, balance: user.balance };
+    } catch (error) {
+        return { success: false, error: error.message };
+    }
+}
+
+// Purchase lesson (покупка урока)
+export async function purchaseLesson(uid, lessonId) {
+    try {
+        const users = getAllUsersStorage();
+        const user = users[uid];
+        if (!user) {
+            return { success: false, error: 'User not found' };
+        }
+        
+        if (!user.balance) user.balance = 0;
+        if (!user.purchasedLessons) user.purchasedLessons = [];
+        
+        // Проверяем что урок уже не куплен
+        if (user.purchasedLessons.includes(lessonId)) {
+            return { success: false, error: 'Урок уже куплен' };
+        }
+        
+        // Получаем цену урока из магазина
+        const shopLesson = window.shopModule?.getLessonById(lessonId);
+        if (!shopLesson) {
+            return { success: false, error: 'Урок не найден в магазине' };
+        }
+        
+        if (user.balance < shopLesson.price) {
+            return { success: false, error: 'Недостаточно монет' };
+        }
+        
+        // Списываем монеты и добавляем урок
+        user.balance -= shopLesson.price;
+        user.purchasedLessons.push(lessonId);
+        
+        users[uid] = user;
+        if (!saveAllUsersStorage(users)) {
+            return { success: false, error: 'Ошибка сохранения данных' };
+        }
+        
+        const currentUser = getCurrentUserFromStorage();
+        if (currentUser && currentUser.uid === uid) {
+            saveCurrentUserToStorage(user);
+        }
+        
+        return { success: true, balance: user.balance };
+    } catch (error) {
+        return { success: false, error: error.message };
+    }
+}
+
+// Get user balance
+export function getUserBalance(uid) {
+    try {
+        const users = getAllUsersStorage();
+        const user = users[uid];
+        return user ? (user.balance || 0) : 0;
+    } catch (error) {
+        return 0;
+    }
+}
+
+// Check if lesson is purchased
+export function isLessonPurchased(uid, lessonId) {
+    try {
+        const users = getAllUsersStorage();
+        const user = users[uid];
+        if (!user || !user.purchasedLessons) return false;
+        return user.purchasedLessons.includes(lessonId);
+    } catch (error) {
+        return false;
+    }
+}
+
 // Export for global access
 window.authModule = {
     registerUser,
@@ -442,5 +542,9 @@ window.authModule = {
     isAdmin,
     getAllUsers,
     deleteUser,
-    onAuthStateChange
+    onAuthStateChange,
+    addCoins,
+    purchaseLesson,
+    getUserBalance,
+    isLessonPurchased
 };
