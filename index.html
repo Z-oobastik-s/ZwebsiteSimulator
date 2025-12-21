@@ -300,6 +300,20 @@
             }
         }
         
+        @keyframes shimmer {
+            0% {
+                background-position: -200% 0;
+            }
+            100% {
+                background-position: 200% 0;
+            }
+        }
+        
+        .animate-gradient {
+            background-size: 200% 200%;
+            animation: gradientShift 3s ease infinite;
+        }
+        
         @keyframes gradientShift {
             0%, 100% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
@@ -1485,6 +1499,110 @@
             </div>
         </div>
     </div>
+    
+    <!-- Footer - Futuristic Contact Section -->
+    <footer class="relative mt-20 border-t border-purple-500/20 bg-gradient-to-b from-transparent via-purple-900/10 to-purple-900/30 backdrop-blur-xl">
+        <div class="container mx-auto px-4 py-12">
+            <div class="max-w-6xl mx-auto">
+                <!-- Main Footer Content -->
+                <div class="grid md:grid-cols-2 gap-8 mb-8">
+                    <!-- Left: Brand & Description -->
+                    <div class="space-y-4">
+                        <div class="flex items-center space-x-3 mb-4">
+                            <div class="relative">
+                                <div class="absolute inset-0 bg-purple-500/30 blur-xl rounded-full animate-pulse"></div>
+                                <div class="relative w-12 h-12 bg-gradient-to-br from-purple-500 to-cyan-500 rounded-full flex items-center justify-center">
+                                    <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm3.293 1.293a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 01-1.414-1.414L7.586 10 5.293 7.707a1 1 0 010-1.414zM11 12a1 1 0 100 2h3a1 1 0 100-2h-3z" />
+                                    </svg>
+                                </div>
+                            </div>
+                            <h2 class="text-2xl font-bold bg-gradient-to-r from-purple-400 via-cyan-400 to-purple-400 bg-clip-text text-transparent animate-gradient">
+                                Zooba<span class="text-cyan-400">stiks</span>
+                            </h2>
+                        </div>
+                        <p class="text-gray-400 text-sm leading-relaxed" data-i18n="footerDesc">
+                            Проект из эпохи нейросетей и квантовых вычислений. 
+                            Тренируйся печатать быстрее скорости мысли.
+                        </p>
+                    </div>
+                    
+                    <!-- Right: Contact Section -->
+                    <div class="space-y-6">
+                        <div class="relative">
+                            <!-- Glowing Background Effect -->
+                            <div class="absolute inset-0 bg-gradient-to-r from-purple-600/20 via-cyan-600/20 to-purple-600/20 rounded-2xl blur-2xl animate-pulse"></div>
+                            
+                            <!-- Contact Card -->
+                            <div class="relative glass border-2 border-purple-500/30 rounded-2xl p-6 hover:border-cyan-400/50 transition-all duration-300 group">
+                                <div class="flex items-start space-x-4">
+                                    <!-- Icon -->
+                                    <div class="relative flex-shrink-0">
+                                        <div class="absolute inset-0 bg-cyan-500/40 blur-lg rounded-full group-hover:bg-cyan-400/60 transition-all"></div>
+                                        <div class="relative w-14 h-14 bg-gradient-to-br from-cyan-500 to-purple-600 rounded-xl flex items-center justify-center transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                                            <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                                <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537 1.102-1.121 1.102-.578 0-1.04-.444-1.186-1.102l-1.005-4.62-2.34 2.34c-.293.293-.678.44-1.062.44-.385 0-.77-.147-1.062-.44l-2.34-2.34-1.005 4.62c-.146.658-.608 1.102-1.186 1.102-.584 0-.976-.444-1.121-1.102l-1.97-9.28c-.145-.658.146-1.317.73-1.317h3.894l1.005-4.62c.146-.658.608-1.102 1.186-1.102.584 0 .976.444 1.121 1.102l1.005 4.62h3.894c.584 0 .875.659.73 1.317z"/>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Contact Info -->
+                                    <div class="flex-1">
+                                        <div class="mb-2">
+                                            <span class="text-xs uppercase tracking-wider text-cyan-400/80 font-semibold" data-i18n="neuralLink">Нейросвязь</span>
+                                        </div>
+                                        <h3 class="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400 mb-2" data-i18n="establishConnection">
+                                            Установить связь
+                                        </h3>
+                                        <p class="text-gray-400 text-sm mb-4" data-i18n="contactDesc">
+                                            Подключись к нейросети разработчика через квантовый канал связи
+                                        </p>
+                                        <a 
+                                            href="https://t.me/Zoobastiks" 
+                                            target="_blank" 
+                                            rel="noopener noreferrer"
+                                            class="inline-flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-400 hover:to-purple-500 text-white font-semibold rounded-xl transition-all duration-300 shadow-lg hover:shadow-cyan-500/50 transform hover:scale-105 group/btn"
+                                        >
+                                            <svg class="w-5 h-5 group-hover:rotate-12 transition-transform" fill="currentColor" viewBox="0 0 24 24">
+                                                <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.559z"/>
+                                            </svg>
+                                            <span class="font-mono">@Zoobastiks</span>
+                                            <svg class="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                                            </svg>
+                                        </a>
+                                    </div>
+                                </div>
+                                
+                                <!-- Animated Border -->
+                                <div class="absolute inset-0 rounded-2xl border-2 border-transparent bg-gradient-to-r from-cyan-500/0 via-purple-500/50 to-cyan-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" style="background-size: 200% 100%; animation: shimmer 3s infinite;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Bottom: Copyright -->
+                <div class="pt-8 border-t border-purple-500/10">
+                    <div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+                        <p class="text-gray-500 text-sm text-center md:text-left" data-i18n="copyright">
+                            © 2025 Zoobastiks. Все права защищены. Проект из будущего.
+                        </p>
+                        <div class="flex items-center space-x-2 text-xs text-gray-500">
+                            <span class="animate-pulse">⚡</span>
+                            <span data-i18n="poweredBy">Работает на квантовых процессорах</span>
+                            <span class="animate-pulse">⚡</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Animated Background Particles -->
+        <div class="absolute inset-0 overflow-hidden pointer-events-none">
+            <div class="absolute top-1/4 left-1/4 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
+            <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s;"></div>
+        </div>
+    </footer>
     
     <!-- Scripts -->
     <script src="scripts/lessons-data.js"></script>

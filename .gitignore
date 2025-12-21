@@ -21,3 +21,10 @@ deploy-config.sh
 github-token.txt
 .env
 upload-to-github.bat
+
+# Scripts and serve files - НЕ коммитить!
+scripts/*.bat
+scripts/*.sh
+serve.bat
+serve.sh
+SEO_SETUP.md

@@ -222,7 +222,14 @@ const translations = {
         cancel: 'Отмена',
         characters: 'символов',
         tip: '💡 Совет:',
-        freeModeTip: 'Можно вставить текст из любого источника. Нажмите Ctrl+Enter для быстрого старта'
+        freeModeTip: 'Можно вставить текст из любого источника. Нажмите Ctrl+Enter для быстрого старта',
+        // Footer
+        footerDesc: 'Проект из эпохи нейросетей и квантовых вычислений. Тренируйся печатать быстрее скорости мысли.',
+        neuralLink: 'Нейросвязь',
+        establishConnection: 'Установить связь',
+        contactDesc: 'Подключись к нейросети разработчика через квантовый канал связи',
+        copyright: '© 2025 Zoobastiks. Все права защищены. Проект из будущего.',
+        poweredBy: 'Работает на квантовых процессорах'
     },
     en: {
         welcome: 'Welcome to Zoobastiks',
@@ -360,7 +367,14 @@ const translations = {
         cancel: 'Cancel',
         characters: 'characters',
         tip: '💡 Tip:',
-        freeModeTip: 'You can paste text from any source. Press Ctrl+Enter to start quickly'
+        freeModeTip: 'You can paste text from any source. Press Ctrl+Enter to start quickly',
+        // Footer
+        footerDesc: 'A project from the era of neural networks and quantum computing. Train to type faster than the speed of thought.',
+        neuralLink: 'Neural Link',
+        establishConnection: 'Establish Connection',
+        contactDesc: 'Connect to the developer\'s neural network through a quantum communication channel',
+        copyright: '© 2025 Zoobastiks. All rights reserved. Project from the future.',
+        poweredBy: 'Powered by quantum processors'
     }
 };
 
