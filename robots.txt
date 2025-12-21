@@ -2,7 +2,7 @@ User-agent: *
 Allow: /
 
 # Sitemap
-Sitemap: https://zoobastik.github.io/ZwebsiteSimulator/sitemap.xml
+Sitemap: https://z-oobastik-s.github.io/ZwebsiteSimulator/sitemap.xml
 
 # Disallow admin panel and other private areas
 Disallow: /admin
