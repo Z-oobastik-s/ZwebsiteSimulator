@@ -217,7 +217,12 @@ const translations = {
         // Animations
         toggleAnimations: 'Включить/выключить анимации',
         animationsOn: 'Анимации включены',
-        animationsOff: 'Анимации выключены'
+        animationsOff: 'Анимации выключены',
+        // Free Mode
+        cancel: 'Отмена',
+        characters: 'символов',
+        tip: '💡 Совет:',
+        freeModeTip: 'Можно вставить текст из любого источника. Нажмите Ctrl+Enter для быстрого старта'
     },
     en: {
         welcome: 'Welcome to Zoobastiks',
@@ -350,7 +355,12 @@ const translations = {
         // Animations
         toggleAnimations: 'Toggle animations',
         animationsOn: 'Animations enabled',
-        animationsOff: 'Animations disabled'
+        animationsOff: 'Animations disabled',
+        // Free Mode
+        cancel: 'Cancel',
+        characters: 'characters',
+        tip: '💡 Tip:',
+        freeModeTip: 'You can paste text from any source. Press Ctrl+Enter to start quickly'
     }
 };
 
@@ -698,11 +708,83 @@ function showLessons() {
     loadLessons();
 }
 
+// Show free mode modal
 function showFreeMode() {
-    const text = prompt(translations[app.lang].enterYourText);
-    if (text && text.trim()) {
-        startPractice(text, 'free');
+    const modal = DOM.get('freeModeModal');
+    const textInput = DOM.get('freeModeTextInput');
+    if (modal && textInput) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        textInput.value = '';
+        textInput.focus();
+        updateFreeModeCharCount();
+        
+        // Добавляем обработчик для подсчета символов
+        textInput.addEventListener('input', updateFreeModeCharCount);
+        
+        // Закрытие по клику вне модального окна
+        modal.onclick = (e) => {
+            if (e.target === modal) {
+                closeFreeModeModal();
+            }
+        };
+        
+        // Закрытие по Escape
+        const escapeHandler = (e) => {
+            if (e.key === 'Escape') {
+                closeFreeModeModal();
+                document.removeEventListener('keydown', escapeHandler);
+            }
+        };
+        document.addEventListener('keydown', escapeHandler);
     }
+}
+
+// Close free mode modal
+function closeFreeModeModal() {
+    const modal = DOM.get('freeModeModal');
+    const textInput = DOM.get('freeModeTextInput');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+    if (textInput) {
+        textInput.removeEventListener('input', updateFreeModeCharCount);
+    }
+}
+
+// Update character count in free mode modal
+function updateFreeModeCharCount() {
+    const textInput = DOM.get('freeModeTextInput');
+    const charCount = DOM.get('freeModeCharCount');
+    if (textInput && charCount) {
+        charCount.textContent = textInput.value.length;
+    }
+}
+
+// Start free mode practice
+function startFreeModePractice() {
+    const textInput = DOM.get('freeModeTextInput');
+    if (!textInput) return;
+    
+    const text = textInput.value.trim();
+    if (!text) {
+        showToast(t('enterYourText'), 'warning', '');
+        textInput.focus();
+        return;
+    }
+    
+    if (text.length < 10) {
+        const message = app.lang === 'ru' 
+            ? 'Текст должен содержать минимум 10 символов' 
+            : 'Text must contain at least 10 characters';
+        showToast(message, 'warning', '');
+        textInput.focus();
+        return;
+    }
+    
+    closeFreeModeModal();
+    startPractice(text, 'free');
 }
 
 function showSpeedTest() {

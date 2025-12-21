@@ -1111,6 +1111,48 @@
     <!-- Toast Container -->
     <div id="toastContainer" class="toast-container"></div>
     
+    <!-- Free Mode Text Input Modal -->
+    <div id="freeModeModal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden items-center justify-center z-50">
+        <div class="glass rounded-3xl p-8 max-w-3xl w-full mx-4 fade-in shadow-2xl border border-white/10 relative">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-3xl font-bold bg-gradient-to-r from-success to-green-400 bg-clip-text text-transparent" data-i18n="freeMode">Свободная печать</h3>
+                <button onclick="closeFreeModeModal()" class="text-gray-400 hover:text-white transition-all hover:scale-110 transform p-2 rounded-lg hover:bg-white/10">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="mb-6">
+                <label class="block text-sm font-semibold text-gray-300 mb-3" data-i18n="enterYourText">Введите свой текст для тренировки:</label>
+                <textarea 
+                    id="freeModeTextInput" 
+                    class="w-full bg-gray-800/50 border-2 border-gray-700/50 rounded-xl p-4 text-gray-100 placeholder-gray-500 focus:border-success/50 focus:outline-none focus:ring-2 focus:ring-success/20 transition-all resize-none min-h-[200px] text-lg leading-relaxed font-mono"
+                    placeholder="Введите или вставьте текст, который хотите напечатать..."
+                    autofocus
+                    onkeydown="if(event.key==='Enter' && event.ctrlKey) startFreeModePractice()"
+                ></textarea>
+                <div class="flex items-center justify-between mt-3">
+                    <div class="text-xs text-gray-400">
+                        <span id="freeModeCharCount">0</span> <span data-i18n="characters">символов</span>
+                    </div>
+                    <div class="text-xs text-gray-400">
+                        <span data-i18n="tip">💡 Совет:</span> <span data-i18n="freeModeTip">Можно вставить текст из любого источника. Нажмите Ctrl+Enter для быстрого старта</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex space-x-4">
+                <button onclick="closeFreeModeModal()" class="flex-1 glass hover:bg-white/20 dark:hover:bg-black/20 font-semibold py-3 rounded-xl transition-all">
+                    <span data-i18n="cancel">Отмена</span>
+                </button>
+                <button onclick="startFreeModePractice()" class="flex-1 bg-gradient-to-r from-success to-green-500 hover:from-green-500 hover:to-emerald-500 text-white font-semibold py-3 rounded-xl transition-all shadow-lg hover:shadow-xl">
+                    <span data-i18n="start">Начать</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    
     <!-- Results Modal -->
     <div id="resultsModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50">
         <div class="glass rounded-2xl p-8 max-w-md w-full mx-4 fade-in">
