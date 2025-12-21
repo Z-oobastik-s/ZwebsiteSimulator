@@ -439,6 +439,9 @@ document.addEventListener('DOMContentLoaded', () => {
     window.statsModule.updateDisplay();
     window.keyboardModule.render(app.currentLayout);
     
+    // Инициализируем изображение футера при загрузке
+    updateFooterBackground();
+    
     // Initialize auth state listener
     if (window.authModule) {
         window.authModule.onAuthStateChange(async (user) => {
@@ -528,6 +531,11 @@ function loadSettings() {
     if (savedTheme) {
         app.theme = savedTheme;
         document.documentElement.classList.toggle('dark', savedTheme === 'dark');
+        // Обновляем изображение футера при загрузке настроек
+        updateFooterBackground();
+    } else {
+        // Если тема не сохранена, используем текущую и обновляем футер
+        updateFooterBackground();
     }
     
     if (savedLang) {
@@ -579,6 +587,19 @@ function initializeUI() {
     document.addEventListener('keydown', handleKeyPress, { passive: false });
 }
 
+// Update footer background image based on theme
+function updateFooterBackground() {
+    const footer = document.getElementById('footer');
+    if (!footer) return;
+    
+    const isDark = app.theme === 'dark' || document.documentElement.classList.contains('dark');
+    const imagePath = isDark 
+        ? 'assets/images/contact_black.jpg' 
+        : 'assets/images/contact_white.jpg';
+    
+    footer.style.backgroundImage = `url('${imagePath}')`;
+}
+
 // Theme toggle
 function toggleTheme() {
     app.theme = app.theme === 'dark' ? 'light' : 'dark';
@@ -587,6 +608,9 @@ function toggleTheme() {
     
     // Меняем фон при переключении темы
     setRandomBackground();
+    
+    // Обновляем изображение футера
+    updateFooterBackground();
     
     // Update icon
     const icon = DOM.get('themeIcon');
@@ -706,12 +730,25 @@ function updateTranslations() {
 }
 
 // Navigation functions
+// Show/hide footer
+function toggleFooter(show) {
+    const footer = document.getElementById('footer') || document.querySelector('footer');
+    if (footer) {
+        if (show) {
+            footer.classList.remove('hidden');
+        } else {
+            footer.classList.add('hidden');
+        }
+    }
+}
+
 function showHome() {
     hideAllScreens();
     const homeScreen = DOM.get('homeScreen');
     if (homeScreen) homeScreen.classList.remove('hidden');
     app.currentMode = 'home';
     createParticles();
+    toggleFooter(true); // Показываем футер на главной странице
 }
 
 function showLessons() {
@@ -720,6 +757,7 @@ function showLessons() {
     if (lessonsScreen) lessonsScreen.classList.remove('hidden');
     app.currentMode = 'lessons';
     loadLessons();
+    toggleFooter(false); // Скрываем футер в разделе уроков
 }
 
 // Show free mode modal
@@ -1037,6 +1075,7 @@ function showLessonList(levelData) {
 
 // Start practice - ОПТИМИЗИРОВАНА
 function startPractice(text, mode, lesson = null) {
+    toggleFooter(false); // Скрываем футер при начале практики
     // КРИТИЧНО: Сразу сбрасываем паузу чтобы избежать блокировки ввода
     app.isPaused = false;
     
@@ -1936,6 +1975,7 @@ async function logoutUser() {
 
 // Show profile screen
 async function showProfile() {
+    toggleFooter(false); // Скрываем футер в профиле
     const user = window.authModule.getCurrentUser();
     if (!user) {
         showLoginModal();
@@ -2157,6 +2197,7 @@ async function selectAvatar(avatarIndex) {
 
 // Show admin panel
 async function showAdminPanel() {
+    toggleFooter(false); // Скрываем футер в админ-панели
     const user = window.authModule.getCurrentUser();
     if (!user) return;
     
@@ -2227,6 +2268,7 @@ async function deleteUserFromAdmin(uid) {
 
 // Show multiplayer menu
 function showMultiplayerMenu() {
+    toggleFooter(false); // Скрываем футер в мультиплеере
     hideAllScreens();
     document.getElementById('multiplayerMenuScreen').classList.remove('hidden');
     app.currentMode = 'multiplayer-menu';
@@ -2603,6 +2645,7 @@ function showShop() {
     hideAllScreens();
     const shopScreen = DOM.get('shopScreen');
     if (shopScreen) shopScreen.classList.remove('hidden');
+    toggleFooter(false); // Скрываем футер в магазине
     
     // Обновляем баланс в магазине
     const shopBalance = DOM.get('shopBalance');
