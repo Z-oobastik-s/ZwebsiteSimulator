@@ -117,7 +117,6 @@ export async function registerUser(username, password, email = '') {
             return { success: false, error: 'Этот логин уже занят' };
         }
         
-        const userInfo = await getUserInfo();
         const hashedPassword = await hashPassword(password);
         const uid = generateUserId();
         
@@ -132,9 +131,6 @@ export async function registerUser(username, password, email = '') {
             bio: '',
             createdAt: Date.now(),
             lastLogin: Date.now(),
-            ip: userInfo.ip,
-            country: userInfo.country,
-            city: userInfo.city,
             isAdmin: false,
             balance: 0,
             purchasedLessons: [],
@@ -180,11 +176,7 @@ export async function loginUser(username, password) {
             return { success: false, error: 'Неверный логин или пароль' };
         }
         
-        const userInfo = await getUserInfo();
         user.lastLogin = Date.now();
-        user.ip = userInfo.ip;
-        user.country = userInfo.country;
-        user.city = userInfo.city;
         
         users[user.uid] = user;
         if (!saveAllUsersStorage(users)) {

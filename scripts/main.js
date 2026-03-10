@@ -378,16 +378,122 @@ const translations = {
     }
 };
 
-// Speed test word lists
+// Speed test word lists (расширены для сильного разнообразия)
 const speedTestWords = {
-    ru: ['как', 'так', 'все', 'это', 'был', 'она', 'они', 'мой', 'его', 'что', 'год', 'дом', 'день', 'раз', 'рука', 'нога', 'мама', 'папа', 'вода', 'небо', 'земля', 'город', 'стол', 'окно', 'дверь', 'книга', 'лампа', 'стул', 'друг', 'жизнь', 'время', 'человек', 'дело', 'место', 'слово', 'сторона', 'вопрос'],
-    en: ['the', 'and', 'for', 'are', 'but', 'not', 'you', 'all', 'can', 'her', 'was', 'one', 'our', 'out', 'day', 'get', 'has', 'him', 'his', 'how', 'man', 'new', 'now', 'old', 'see', 'time', 'two', 'way', 'who', 'boy', 'did', 'its', 'let', 'put', 'say', 'she', 'too', 'use'],
-    ua: ['як', 'так', 'все', 'це', 'був', 'вона', 'вони', 'мій', 'його', 'що', 'рік', 'дім', 'день', 'раз', 'рука', 'нога', 'мама', 'тато', 'вода', 'небо', 'земля', 'місто', 'стіл', 'вікно', 'двері', 'книга', 'лампа', 'стілець', 'друг', 'життя', 'час', 'люди', 'справа', 'місце', 'слово', 'сторона', 'питання']
+    ru: [
+        'как', 'так', 'все', 'это', 'был', 'быть', 'может', 'нужно', 'она', 'они', 'мы', 'я', 'ты',
+        'мой', 'твой', 'его', 'ее', 'их', 'что', 'когда', 'где', 'почему', 'зачем', 'потому', 'если',
+        'год', 'день', 'ночь', 'утро', 'вечер', 'вчера', 'сегодня', 'завтра', 'сейчас', 'потом', 'раньше',
+        'дом', 'квартира', 'комната', 'окно', 'дверь', 'стена', 'пол', 'потолок', 'стол', 'стул', 'лампа',
+        'книга', 'тетрадь', 'ручка', 'карандаш', 'экран', 'клавиатура', 'мышь', 'телефон', 'наушники',
+        'рука', 'нога', 'голова', 'спина', 'глаз', 'ухо', 'сердце', 'мозг', 'мысль', 'чувство',
+        'мама', 'папа', 'друг', 'подруга', 'семья', 'ребенок', 'учитель', 'ученик', 'коллега', 'сосед',
+        'вода', 'воздух', 'огонь', 'земля', 'снег', 'дождь', 'ветер', 'солнце', 'небо', 'земля', 'мир',
+        'город', 'деревня', 'улица', 'парк', 'лес', 'река', 'море', 'озеро', 'гора', 'поле', 'дорога',
+        'жизнь', 'время', 'дело', 'работа', 'школа', 'игра', 'урок', 'проект', 'задача', 'цель',
+        'слово', 'язык', 'буква', 'звук', 'фраза', 'текст', 'строка', 'страница',
+        'быстро', 'медленно', 'тихо', 'громко', 'далеко', 'близко', 'рядом', 'вместе', 'один', 'два',
+        'новый', 'старый', 'маленький', 'большой', 'длинный', 'короткий', 'легкий', 'тяжелый', 'простой', 'сложный',
+        'правда', 'ложь', 'вопрос', 'ответ', 'пример', 'память', 'опыт', 'навык', 'скорость', 'точность'
+    ],
+    en: [
+        'the', 'and', 'for', 'are', 'but', 'not', 'you', 'we', 'they', 'he', 'she', 'it', 'all', 'can',
+        'will', 'would', 'could', 'should', 'must', 'may', 'might', 'have', 'has', 'had', 'was', 'were',
+        'one', 'two', 'three', 'time', 'day', 'night', 'morning', 'evening', 'today', 'yesterday', 'tomorrow',
+        'now', 'soon', 'later', 'early', 'late', 'again', 'always', 'never', 'sometimes',
+        'man', 'woman', 'child', 'friend', 'family', 'teacher', 'student', 'worker', 'player', 'user',
+        'hand', 'head', 'back', 'face', 'eye', 'ear', 'heart', 'mind', 'thought', 'feeling',
+        'new', 'old', 'good', 'bad', 'small', 'large', 'short', 'long', 'fast', 'slow', 'easy', 'hard',
+        'home', 'room', 'door', 'window', 'table', 'chair', 'screen', 'keyboard', 'mouse', 'phone',
+        'book', 'page', 'line', 'word', 'letter', 'text', 'code', 'error', 'result',
+        'life', 'world', 'work', 'game', 'lesson', 'project', 'task', 'goal', 'skill', 'speed', 'accuracy',
+        'water', 'air', 'fire', 'snow', 'rain', 'wind', 'sun', 'sky', 'river', 'mountain', 'city', 'street',
+        'walk', 'run', 'move', 'think', 'type', 'learn', 'play', 'start', 'finish', 'press', 'hold', 'release'
+    ],
+    ua: [
+        'як', 'так', 'все', 'це', 'був', 'бути', 'може', 'треба', 'вона', 'вони', 'ми', 'я', 'ти',
+        'мій', 'твій', 'його', 'її', 'їхній', 'що', 'коли', 'де', 'чому', 'навіщо', 'тому', 'якщо',
+        'рік', 'день', 'ніч', 'ранок', 'вечір', 'вчора', 'сьогодні', 'завтра', 'зараз', 'потім', 'раніше',
+        'дім', 'квартира', 'кімната', 'вікно', 'двері', 'стіна', 'підлога', 'стеля', 'стіл', 'стілець', 'лампа',
+        'книга', 'зошит', 'ручка', 'олівець', 'екран', 'клавіатура', 'миша', 'телефон', 'навушники',
+        'рука', 'нога', 'голова', 'спина', 'око', 'вухо', 'серце', 'мозок', 'думка', 'почуття',
+        'мама', 'тато', 'друг', 'подруга', 'родина', 'дитина', 'учитель', 'учень', 'колега', 'сусід',
+        'вода', 'повітря', 'вогонь', 'земля', 'сніг', 'дощ', 'вітер', 'сонце', 'небо', 'світ',
+        'місто', 'село', 'вулиця', 'парк', 'ліс', 'річка', 'море', 'озеро', 'гора', 'поле', 'дорога',
+        'життя', 'час', 'справа', 'робота', 'школа', 'гра', 'урок', 'проєкт', 'завдання', 'мета',
+        'слово', 'мова', 'літера', 'звук', 'фраза', 'текст', 'рядок', 'сторінка',
+        'швидко', 'повільно', 'тихо', 'голосно', 'далеко', 'близько', 'поруч', 'разом', 'один', 'два',
+        'новий', 'старий', 'маленький', 'великий', 'довгий', 'короткий', 'легкий', 'важкий', 'простий', 'складний',
+        'правда', 'брехня', 'питання', 'відповідь', 'приклад', 'пам\'ять', 'досвід', 'навичка', 'швидкість', 'точність',
+        'акція', 'продаж', 'покупка', 'замовлення', 'доставка', 'оплата', 'повернення', 'гарантія', 'сервіс', 'підтримка',
+        'пошта', 'телефон', 'месенджер', 'скайп', 'відео', 'аудіо', 'фото', 'текст', 'стиль', 'дизайн', 'верстка', 'розробка',
+        'програмування', 'фронтенд', 'бекенд', 'алгоритм', 'база даних', 'сервер', 'хост', 'домен', 'хостинг', 'ампелологія',
+        'амбіція', 'завдання', 'мета', 'слово', 'мова', 'літера', 'звук', 'фраза', 'текст', 'рядок', 'сторінка', 'анімізм'
+    ]
 };
+
+// Перемешивание массива (Fisher–Yates)
+function shuffleArray(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+}
 
 // Current selected lesson language
 let selectedLessonLang = 'ru';
 let currentLevelData = null; // Сохраняем данные текущего уровня
+
+// Расчёт награды за урок
+function calculateLessonRewardCoins(lesson, accuracy, isFirstTime) {
+    if (!lesson || accuracy < 90) return 0;
+    
+    // Определяем сложность
+    let difficulty = lesson.difficulty;
+    if (!difficulty || difficulty === 'easy') {
+        if (lesson.key) {
+            if (lesson.key.includes('advanced') || lesson.key.includes('hard')) {
+                difficulty = 'hard';
+            } else if (lesson.key.includes('medium')) {
+                difficulty = 'medium';
+            } else {
+                difficulty = 'easy';
+            }
+        } else if (currentLevelData) {
+            if (currentLevelData.level === 'advanced') difficulty = 'hard';
+            else if (currentLevelData.level === 'medium') difficulty = 'medium';
+            else difficulty = 'easy';
+        } else {
+            difficulty = 'easy';
+        }
+    }
+    
+    // Базовое начисление по сложности
+    let baseCoins = 10; // easy / beginner
+    if (difficulty === 'hard' || difficulty === 'advanced') baseCoins = 20;
+    else if (difficulty === 'medium') baseCoins = 15;
+    
+    // Множитель за точность
+    let multiplier = 1;
+    if (accuracy >= 98) {
+        multiplier = 1.5;
+    } else if (accuracy >= 95) {
+        multiplier = 1.2;
+    } else {
+        multiplier = 1.0;
+    }
+    
+    let coins = Math.round(baseCoins * multiplier);
+    
+    // Повторные прохождения получают меньше
+    if (!isFirstTime) {
+        coins = Math.max(1, Math.round(coins * 0.25));
+    }
+    
+    return coins;
+}
 
 // Background images setup
 function setRandomBackground() {
@@ -845,21 +951,31 @@ function showSpeedTest() {
     // Если слов нет для текущей раскладки, используем английские
     if (!words || words.length === 0) {
         console.warn(`No speed test words for layout: ${app.currentLayout}, using English`);
-        const fallbackWords = speedTestWords['en'];
-    const testText = [];
-        for (let i = 0; i < 100; i++) {
-            testText.push(fallbackWords[Math.floor(Math.random() * fallbackWords.length)]);
+        const fallbackWords = speedTestWords['en'] || [];
+        const pool = shuffleArray(fallbackWords);
+        const testWords = [];
+        while (testWords.length < 100 && pool.length > 0) {
+            testWords.push(pool.pop());
+            if (pool.length === 0 && testWords.length < 100) {
+                // Перемешиваем снова, если нужно добрать до 100 слов
+                pool.push(...shuffleArray(fallbackWords));
+            }
         }
-        startPractice(testText.join(' '), 'speedtest');
+        startPractice(testWords.join(' '), 'speedtest');
         return;
     }
     
-    const testText = [];
-    for (let i = 0; i < 100; i++) {
-        testText.push(words[Math.floor(Math.random() * words.length)]);
+    const testWords = [];
+    let pool = shuffleArray(words);
+    
+    while (testWords.length < 100) {
+        if (pool.length === 0) {
+            pool = shuffleArray(words);
+        }
+        testWords.push(pool.pop());
     }
     
-    startPractice(testText.join(' '), 'speedtest');
+    startPractice(testWords.join(' '), 'speedtest');
 }
 
 function hideAllScreens() {
@@ -1551,65 +1667,32 @@ async function finishPractice() {
             console.error('Failed to save session to profile:', err);
         });
         
-        // Начисляем монеты если точность >= 90% и это урок
-        if (accuracy >= 90 && app.currentLesson && (app.currentMode === 'lesson' || app.currentMode === 'practice')) {
+        // Начисляем монеты если это урок
+        if (app.currentLesson && (app.currentMode === 'lesson' || app.currentMode === 'practice')) {
             // Проверяем, был ли урок уже пройден
             const lessonKey = app.currentLesson.key || `lesson_${app.currentLesson.id}`;
             const lessonStats = window.statsModule.getLessonStats(lessonKey);
             const isFirstTime = !lessonStats || !lessonStats.completed;
+            const coins = calculateLessonRewardCoins(app.currentLesson, accuracy, isFirstTime);
             
-            // Определяем сложность урока
-            let difficulty = app.currentLesson.difficulty;
-            
-            // Если difficulty не указан, определяем по levelData или по ключу урока
-            if (!difficulty || difficulty === 'easy') {
-                // Проверяем ключ урока для определения уровня
-                if (app.currentLesson.key) {
-                    if (app.currentLesson.key.includes('advanced') || app.currentLesson.key.includes('hard')) {
-                        difficulty = 'hard';
-                    } else if (app.currentLesson.key.includes('medium')) {
-                        difficulty = 'medium';
+            if (coins > 0) {
+                window.authModule.addCoins(user.uid, coins).then(result => {
+                    if (result.success) {
+                        // Обновляем баланс в UI
+                        const updatedUser = window.authModule.getCurrentUser();
+                        updateUserUI(updatedUser, updatedUser);
+                        // Показываем уведомление о начислении монет
+                        const message = isFirstTime 
+                            ? `+${coins} ${app.lang === 'ru' ? 'монет за урок!' : app.lang === 'en' ? 'coins for lesson!' : 'монет за урок!'}` 
+                            : `+${coins} ${app.lang === 'ru' ? 'монет за повторное прохождение' : app.lang === 'en' ? 'coins for replay' : 'монет за повторне проходження'}`;
+                        showToast(message, 'success', app.lang === 'ru' ? 'Баланс' : app.lang === 'en' ? 'Balance' : 'Баланс');
                     } else {
-                        difficulty = 'easy';
+                        console.error('Failed to add coins:', result.error);
                     }
-                } else if (currentLevelData) {
-                    // Определяем по текущему уровню
-                    if (currentLevelData.level === 'advanced') difficulty = 'hard';
-                    else if (currentLevelData.level === 'medium') difficulty = 'medium';
-                    else difficulty = 'easy';
-                }
+                }).catch(err => {
+                    console.error('Failed to add coins:', err);
+                });
             }
-            
-            // Начисляем монеты в зависимости от сложности
-            let coins = 10; // Базовое начисление для easy/beginner
-            if (difficulty === 'hard' || difficulty === 'advanced') coins = 20;
-            else if (difficulty === 'medium') coins = 15;
-            
-            // Бонус за высокую точность (только при первом прохождении)
-            if (isFirstTime) {
-                if (accuracy >= 95) coins = Math.round(coins * 1.5);
-                if (accuracy === 100) coins = Math.round(coins * 2);
-            } else {
-                // При повторном прохождении - только 25% от базовой награды
-                coins = Math.max(1, Math.round(coins * 0.25));
-            }
-            
-            window.authModule.addCoins(user.uid, coins).then(result => {
-                if (result.success) {
-                    // Обновляем баланс в UI
-                    const updatedUser = window.authModule.getCurrentUser();
-                    updateUserUI(updatedUser, updatedUser);
-                    // Показываем уведомление о начислении монет
-                    const message = isFirstTime 
-                        ? `+${coins} ${app.lang === 'ru' ? 'монет за урок!' : app.lang === 'en' ? 'coins for lesson!' : 'монет за урок!'}` 
-                        : `+${coins} ${app.lang === 'ru' ? 'монет за повторное прохождение' : app.lang === 'en' ? 'coins for replay' : 'монет за повторне проходження'}`;
-                    showToast(message, 'success', app.lang === 'ru' ? 'Баланс' : app.lang === 'en' ? 'Balance' : 'Баланс');
-                } else {
-                    console.error('Failed to add coins:', result.error);
-                }
-            }).catch(err => {
-                console.error('Failed to add coins:', err);
-            });
         }
     }
     
@@ -1634,46 +1717,15 @@ function showResults(speed, accuracy, time, errors) {
     if (timeEl) timeEl.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
     if (errorsEl) errorsEl.textContent = errors;
     
-    // Показываем награду если это урок и точность >= 90%
+    // Показываем награду если это урок
     if (rewardEl && rewardAmountEl && app.currentLesson && (app.currentMode === 'lesson' || app.currentMode === 'practice')) {
-        if (accuracy >= 90) {
-            // Проверяем, был ли урок уже пройден (такая же логика как в finishPractice)
+        // Проверяем, был ли урок уже пройден (такая же логика как в finishPractice)
             const lessonKey = app.currentLesson.key || `lesson_${app.currentLesson.id}`;
             const lessonStats = window.statsModule.getLessonStats(lessonKey);
             const isFirstTime = !lessonStats || !lessonStats.completed;
-            
-            // Определяем сложность
-            let difficulty = app.currentLesson.difficulty;
-            if (!difficulty || difficulty === 'easy') {
-                if (app.currentLesson.key) {
-                    if (app.currentLesson.key.includes('advanced') || app.currentLesson.key.includes('hard')) {
-                        difficulty = 'hard';
-                    } else if (app.currentLesson.key.includes('medium')) {
-                        difficulty = 'medium';
-                    } else {
-                        difficulty = 'easy';
-                    }
-                } else if (currentLevelData) {
-                    if (currentLevelData.level === 'advanced') difficulty = 'hard';
-                    else if (currentLevelData.level === 'medium') difficulty = 'medium';
-                    else difficulty = 'easy';
-                }
-            }
-            
-            // Вычисляем награду (такая же логика как в finishPractice)
-            let coins = 10;
-            if (difficulty === 'hard' || difficulty === 'advanced') coins = 20;
-            else if (difficulty === 'medium') coins = 15;
-            
-            // Бонус за высокую точность (только при первом прохождении)
-            if (isFirstTime) {
-                if (accuracy >= 95) coins = Math.round(coins * 1.5);
-                if (accuracy === 100) coins = Math.round(coins * 2);
-            } else {
-                // При повторном прохождении - только 25% от базовой награды
-                coins = Math.max(1, Math.round(coins * 0.25));
-            }
-            
+        const coins = calculateLessonRewardCoins(app.currentLesson, accuracy, isFirstTime);
+        
+        if (coins > 0) {
             rewardAmountEl.textContent = `+${coins} ${app.lang === 'ru' ? 'монет' : app.lang === 'en' ? 'coins' : 'монет'}`;
             rewardEl.classList.remove('hidden');
         } else {
@@ -1774,13 +1826,28 @@ function showToast(message, type = 'info', title = '') {
     
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
-    toast.innerHTML = `
-        <div class="toast-icon">${icons[type] || icons.info}</div>
-        <div class="toast-content">
-            ${title ? `<div class="toast-title">${title}</div>` : ''}
-            <div class="toast-message">${message}</div>
-        </div>
-    `;
+
+    const iconEl = document.createElement('div');
+    iconEl.className = 'toast-icon';
+    iconEl.textContent = icons[type] || icons.info;
+
+    const contentEl = document.createElement('div');
+    contentEl.className = 'toast-content';
+
+    if (title) {
+        const titleEl = document.createElement('div');
+        titleEl.className = 'toast-title';
+        titleEl.textContent = title;
+        contentEl.appendChild(titleEl);
+    }
+
+    const messageEl = document.createElement('div');
+    messageEl.className = 'toast-message';
+    messageEl.textContent = message;
+    contentEl.appendChild(messageEl);
+
+    toast.appendChild(iconEl);
+    toast.appendChild(contentEl);
     
     container.appendChild(toast);
     
@@ -2229,20 +2296,53 @@ async function refreshUsersList() {
         
         const lastLogin = user.lastLogin ? new Date(user.lastLogin).toLocaleString() : 'Never';
         const stats = user.stats || {};
-        
-        row.innerHTML = `
-            <td class="p-3">${user.username || user.displayName || 'N/A'}</td>
-            <td class="p-3">${user.email || 'N/A'}</td>
-            <td class="p-3">${user.country || 'Unknown'}</td>
-            <td class="p-3 font-mono text-sm">${user.ip || 'N/A'}</td>
-            <td class="p-3 text-sm">${lastLogin}</td>
-            <td class="p-3">${stats.totalSessions || 0}</td>
-            <td class="p-3">
-                <button onclick="deleteUserFromAdmin('${user.id}')" class="px-3 py-1 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg text-sm">
-                    ${t('delete')}
-                </button>
-            </td>
-        `;
+
+        // Ячейка: никнейм
+        const usernameTd = document.createElement('td');
+        usernameTd.className = 'p-3';
+        usernameTd.textContent = user.username || user.displayName || 'N/A';
+
+        // Ячейка: email
+        const emailTd = document.createElement('td');
+        emailTd.className = 'p-3';
+        emailTd.textContent = user.email || 'N/A';
+
+        // Ячейка: страна
+        const countryTd = document.createElement('td');
+        countryTd.className = 'p-3';
+        countryTd.textContent = user.country || 'Unknown';
+
+        // Ячейка: IP
+        const ipTd = document.createElement('td');
+        ipTd.className = 'p-3 font-mono text-sm';
+        ipTd.textContent = user.ip || 'N/A';
+
+        // Ячейка: последний вход
+        const lastLoginTd = document.createElement('td');
+        lastLoginTd.className = 'p-3 text-sm';
+        lastLoginTd.textContent = lastLogin;
+
+        // Ячейка: число сессий
+        const sessionsTd = document.createElement('td');
+        sessionsTd.className = 'p-3';
+        sessionsTd.textContent = String(stats.totalSessions || 0);
+
+        // Ячейка: действия
+        const actionsTd = document.createElement('td');
+        actionsTd.className = 'p-3';
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'px-3 py-1 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg text-sm';
+        deleteBtn.textContent = t('delete');
+        deleteBtn.addEventListener('click', () => deleteUserFromAdmin(user.id));
+        actionsTd.appendChild(deleteBtn);
+
+        row.appendChild(usernameTd);
+        row.appendChild(emailTd);
+        row.appendChild(countryTd);
+        row.appendChild(ipTd);
+        row.appendChild(lastLoginTd);
+        row.appendChild(sessionsTd);
+        row.appendChild(actionsTd);
         
         tbody.appendChild(row);
     });
