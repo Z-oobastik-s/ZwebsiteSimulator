@@ -1647,7 +1647,6 @@ async function finishPractice() {
         ? Math.round((app.currentPosition / totalAttempts) * 100) 
         : 100;
     
-    // Save to statistics
     const sessionData = {
         speed,
         accuracy,
@@ -1657,51 +1656,48 @@ async function finishPractice() {
         layout: app.currentLayout,
         lessonKey: app.currentLesson?.key || null
     };
-    
+
+    // Сначала проверяем «первый проход» ДО сохранения сессии (иначе урок уже помечен пройденным и награда считается как за повтор)
+    let rewardCoins = 0;
+    let isFirstTimeCompletion = false;
+    if (app.currentLesson && (app.currentMode === 'lesson' || app.currentMode === 'practice')) {
+        const lessonKey = app.currentLesson.key || `lesson_${app.currentLesson.id}`;
+        const lessonStatsBefore = window.statsModule.getLessonStats(lessonKey);
+        isFirstTimeCompletion = !lessonStatsBefore || !lessonStatsBefore.completed;
+        rewardCoins = calculateLessonRewardCoins(app.currentLesson, accuracy, isFirstTimeCompletion);
+    }
+
     window.statsModule.addSession(sessionData);
-    
-    // Save to user profile if logged in (async, не блокируем UI)
+
     const user = window.authModule?.getCurrentUser();
     if (user && window.authModule) {
         window.authModule.addUserSession(user.uid, sessionData).catch(err => {
             console.error('Failed to save session to profile:', err);
         });
-        
-        // Начисляем монеты если это урок
-        if (app.currentLesson && (app.currentMode === 'lesson' || app.currentMode === 'practice')) {
-            // Проверяем, был ли урок уже пройден
-            const lessonKey = app.currentLesson.key || `lesson_${app.currentLesson.id}`;
-            const lessonStats = window.statsModule.getLessonStats(lessonKey);
-            const isFirstTime = !lessonStats || !lessonStats.completed;
-            const coins = calculateLessonRewardCoins(app.currentLesson, accuracy, isFirstTime);
-            
-            if (coins > 0) {
-                window.authModule.addCoins(user.uid, coins).then(result => {
-                    if (result.success) {
-                        // Обновляем баланс в UI
-                        const updatedUser = window.authModule.getCurrentUser();
-                        updateUserUI(updatedUser, updatedUser);
-                        // Показываем уведомление о начислении монет
-                        const message = isFirstTime 
-                            ? `+${coins} ${app.lang === 'ru' ? 'монет за урок!' : app.lang === 'en' ? 'coins for lesson!' : 'монет за урок!'}` 
-                            : `+${coins} ${app.lang === 'ru' ? 'монет за повторное прохождение' : app.lang === 'en' ? 'coins for replay' : 'монет за повторне проходження'}`;
-                        showToast(message, 'success', app.lang === 'ru' ? 'Баланс' : app.lang === 'en' ? 'Balance' : 'Баланс');
-                    } else {
-                        console.error('Failed to add coins:', result.error);
-                    }
-                }).catch(err => {
-                    console.error('Failed to add coins:', err);
-                });
-            }
+
+        if (rewardCoins > 0) {
+            window.authModule.addCoins(user.uid, rewardCoins).then(result => {
+                if (result.success) {
+                    const updatedUser = window.authModule.getCurrentUser();
+                    updateUserUI(updatedUser, updatedUser);
+                    const message = isFirstTimeCompletion
+                        ? `+${rewardCoins} ${app.lang === 'ru' ? 'монет за урок!' : app.lang === 'en' ? 'coins for lesson!' : 'монет за урок!'}`
+                        : `+${rewardCoins} ${app.lang === 'ru' ? 'монет за повторное прохождение' : app.lang === 'en' ? 'coins for replay' : 'монет за повторне проходження'}`;
+                    showToast(message, 'success', app.lang === 'ru' ? 'Баланс' : app.lang === 'en' ? 'Balance' : 'Баланс');
+                } else {
+                    console.error('Failed to add coins:', result.error);
+                }
+            }).catch(err => {
+                console.error('Failed to add coins:', err);
+            });
         }
     }
-    
-    // Show results modal
-    showResults(speed, accuracy, elapsed, app.errors);
+
+    showResults(speed, accuracy, elapsed, app.errors, rewardCoins);
 }
 
-// Show results modal - ОПТИМИЗИРОВАНА
-function showResults(speed, accuracy, time, errors) {
+// Show results modal - ОПТИМИЗИРОВАНА. rewardCoins — уже посчитанная награда из finishPractice (чтобы не пересчитывать после addSession).
+function showResults(speed, accuracy, time, errors, rewardCoins) {
     const speedEl = DOM.get('resultSpeed');
     const accuracyEl = DOM.get('resultAccuracy');
     const timeEl = DOM.get('resultTime');
@@ -1717,14 +1713,10 @@ function showResults(speed, accuracy, time, errors) {
     if (timeEl) timeEl.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
     if (errorsEl) errorsEl.textContent = errors;
     
-    // Показываем награду если это урок
-    if (rewardEl && rewardAmountEl && app.currentLesson && (app.currentMode === 'lesson' || app.currentMode === 'practice')) {
-        // Проверяем, был ли урок уже пройден (такая же логика как в finishPractice)
-            const lessonKey = app.currentLesson.key || `lesson_${app.currentLesson.id}`;
-            const lessonStats = window.statsModule.getLessonStats(lessonKey);
-            const isFirstTime = !lessonStats || !lessonStats.completed;
-        const coins = calculateLessonRewardCoins(app.currentLesson, accuracy, isFirstTime);
-        
+    if (rewardEl && rewardAmountEl) {
+        const coins = rewardCoins !== undefined ? rewardCoins : (app.currentLesson && (app.currentMode === 'lesson' || app.currentMode === 'practice')
+            ? (() => { const k = app.currentLesson.key || `lesson_${app.currentLesson.id}`; const s = window.statsModule.getLessonStats(k); return calculateLessonRewardCoins(app.currentLesson, accuracy, !s || !s.completed); })()
+            : 0);
         if (coins > 0) {
             rewardAmountEl.textContent = `+${coins} ${app.lang === 'ru' ? 'монет' : app.lang === 'en' ? 'coins' : 'монет'}`;
             rewardEl.classList.remove('hidden');
