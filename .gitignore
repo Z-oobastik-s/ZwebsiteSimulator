@@ -21,6 +21,7 @@ deploy-config.sh
 github-token.txt
 .env
 upload-to-github.bat
+.sync-mode
 
 # Scripts and serve files - НЕ коммитить!
 scripts/*.bat
