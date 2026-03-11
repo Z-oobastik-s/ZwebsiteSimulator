@@ -104,10 +104,10 @@
             background-attachment: fixed;
             background-repeat: no-repeat;
             position: relative;
-            transition: background-color 0.45s ease, background-image 0.5s ease-in-out;
+            transition: background-color 0.28s ease-out;
         }
         
-        /* Dark overlay for better readability — плавный переход при смене темы */
+        /* Оверлей — один плавный переход при смене темы */
         body::before {
             content: '';
             position: fixed;
@@ -118,16 +118,14 @@
             background: rgba(0, 0, 0, 0.75);
             z-index: -1;
             pointer-events: none;
-            transition: background 0.45s ease;
+            transition: background-color 0.28s ease-out;
         }
         
-        /* Тёмная тема — сильнее затемнение */
         html.dark body::before {
-            background: rgba(0, 0, 0, 0.75);
+            background-color: rgba(0, 0, 0, 0.75);
         }
-        /* Светлая тема — слабее затемнение */
         html:not(.dark) body::before {
-            background: rgba(0, 0, 0, 0.55);
+            background-color: rgba(0, 0, 0, 0.55);
         }
         
         html.dark body {
@@ -138,21 +136,12 @@
             background-color: #f9fafb;
         }
         
-        /* Плавная смена темы: при классе .theme-switching все поверхности переходят плавнее */
-        html.theme-switching body,
-        html.theme-switching body::before {
-            transition-duration: 0.5s;
-        }
-        html.theme-switching * {
-            transition-duration: 0.4s !important;
-        }
-        
         /* Glassmorphism */
         .glass {
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
-            transition: background 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+            transition: background-color 0.28s ease-out, border-color 0.28s ease-out;
         }
         
         .dark .glass {
@@ -161,13 +150,9 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
         
-        /* Smooth transitions (базовые — не замедляют hover) */
-        * {
-            transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
-        }
-        
+        /* Переход только у фона и оверлея — остальное меняется сразу, без тянучки */
         #themeIcon {
-            transition: transform 0.35s ease, opacity 0.35s ease;
+            transition: opacity 0.18s ease-out;
         }
         
         /* Disable animations when .no-animations class is present */
@@ -1589,4 +1574,5 @@
     
 </body>
 </html>
+
 

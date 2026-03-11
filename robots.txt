@@ -8,3 +8,4 @@ Sitemap: https://z-oobastik-s.github.io/ZwebsiteSimulator/sitemap.xml
 Disallow: /admin
 Disallow: /api/
 
+

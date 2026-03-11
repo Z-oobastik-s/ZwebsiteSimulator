@@ -15,3 +15,4 @@ export const firebaseConfig = {
     databaseURL: "https://zwebsitesimulator-default-rtdb.firebaseio.com"
 };
 
+
