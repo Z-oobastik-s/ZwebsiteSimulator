@@ -1011,4 +1011,3 @@ const LESSONS_DATA = {
         ]
     }
 };
-

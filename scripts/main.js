@@ -83,6 +83,7 @@ let audioClick = null;
 let audioError = null;
 let audioWelcome = null;
 let audioVictory = null;
+let audioThemeTransition = null;
 let welcomePlayed = false;
 
 const translations = {
@@ -590,12 +591,14 @@ function initializeAudio() {
         audioError = new Audio('assets/sounds/error.ogg');
         audioWelcome = new Audio('assets/sounds/welcome.ogg');
         audioVictory = new Audio('assets/sounds/victory.ogg');
+        audioThemeTransition = new Audio('assets/sounds/transition_theme.ogg');
         
         // Set volumes
         if (audioClick) audioClick.volume = 0.3;
         if (audioError) audioError.volume = 0.4;
         if (audioWelcome) audioWelcome.volume = 0.15; // Тихо, 15%
         if (audioVictory) audioVictory.volume = 0.15; // Тихо, 15%
+        if (audioThemeTransition) audioThemeTransition.volume = 0.25;
     } catch (e) {
         console.log('Audio files not available, using fallback');
     }
@@ -708,6 +711,11 @@ function updateFooterBackground() {
 
 // Theme toggle — короткий плавный переход фона и оверлея, остальное сразу
 function toggleTheme() {
+    if (app.soundEnabled && audioThemeTransition) {
+        audioThemeTransition.currentTime = 0;
+        audioThemeTransition.play().catch(() => {});
+    }
+    
     app.theme = app.theme === 'dark' ? 'light' : 'dark';
     document.documentElement.classList.toggle('dark', app.theme === 'dark');
     localStorage.setItem('theme', app.theme);
@@ -2974,5 +2982,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-
-
