@@ -1055,34 +1055,34 @@ function loadLessons() {
         if (lessonsForLang.length === 0) continue;
         
         const card = document.createElement('div');
-        card.className = 'bg-gradient-to-br from-gray-800/60 to-gray-900/80 dark:from-gray-800/80 dark:to-gray-900/90 rounded-2xl p-6 hover:scale-105 transition-all cursor-pointer border border-gray-700/30 shadow-xl hover:shadow-2xl hover:border-primary/50';
+        card.className = `difficulty-card difficulty-card--${level}`;
         card.onclick = () => showLessonList({ ...data, lessons: lessonsForLang });
         
         const levelName = app.lang === 'ru' ? data.name_ru : data.name_en;
-        
-        // Цвета для разных уровней
-        const levelColors = {
-            beginner: 'text-success',
-            medium: 'text-warning',
-            advanced: 'text-red-400'
-        };
-        
-        const levelIcons = {
-            beginner: '🌱',
-            medium: '⚡',
-            advanced: '🔥'
-        };
+        const levelIcons = { beginner: '🌱', medium: '⚡', advanced: '🔥' };
+        const levelNumbers = { beginner: '01', medium: '02', advanced: '03' };
+        const lessonsLabel = app.lang === 'ru' ? 'уроков' : app.lang === 'en' ? 'lessons' : 'уроків';
+        const badgeText = `${lessonsForLang.length} ${lessonsLabel.toUpperCase()}`;
         
         card.innerHTML = `
-            <div class="text-4xl mb-3">${levelIcons[level]}</div>
-            <h3 class="text-2xl font-bold mb-2 ${levelColors[level]}">${escapeHtml(levelName)}</h3>
-            <p class="text-gray-400">${lessonsForLang.length} ${app.lang === 'ru' ? 'уроков' : 'lessons'}</p>
+            <div class="difficulty-card__accent">
+                <span class="difficulty-card__number">${levelNumbers[level]}</span>
+            </div>
+            <div class="difficulty-card__inner">
+                <div class="difficulty-card__icon-wrap">
+                    <span class="difficulty-card__icon">${levelIcons[level]}</span>
+                </div>
+                <h3 class="difficulty-card__title">${escapeHtml(levelName)}</h3>
+                <span class="difficulty-card__badge">${badgeText}</span>
+            </div>
         `;
         
         fragment.appendChild(card);
     }
     
-    // Batch update
+    const titleEl = document.getElementById('lessonsScreenTitle');
+    if (titleEl) titleEl.textContent = t('chooseDifficulty').toUpperCase();
+    container.classList.add('difficulty-grid');
     container.innerHTML = '';
     container.appendChild(fragment);
 }
@@ -1093,96 +1093,76 @@ function showLessonList(levelData) {
     const container = DOM.get('lessonsList');
     if (!container) return;
     
+    const levelDisplayName = app.lang === 'en' ? levelData.name_en : levelData.name_ru;
+    const titleEl = document.getElementById('lessonsScreenTitle');
+    if (titleEl) titleEl.textContent = levelDisplayName.toUpperCase();
+    
+    container.classList.remove('difficulty-grid');
     // Используем DocumentFragment для batch updates
     const fragment = document.createDocumentFragment();
     
-    levelData.lessons.forEach(lesson => {
+    levelData.lessons.forEach((lesson, index) => {
         // Для shop уроков используем другой ключ
         const lessonKey = lesson.isShopLesson 
             ? `shop_lesson_${lesson.id}` 
             : `lesson_${levelData.level}_${lesson.id}`;
         const lessonStats = window.statsModule.getLessonStats(lessonKey);
         
-        const card = document.createElement('div');
-        
-        // Добавляем индикатор завершения
-        const completedClass = (lessonStats && lessonStats.completed) ? 'border-success/50 bg-gradient-to-br from-gray-800/70 to-gray-900/90' : 'border-gray-700/30 bg-gradient-to-br from-gray-800/50 to-gray-900/80';
-        
-        card.className = `${completedClass} rounded-xl p-5 hover:scale-102 transition-all cursor-pointer relative border shadow-lg hover:shadow-xl dark:from-gray-800/70 dark:to-gray-900/95`;
-        // Определяем difficulty на основе уровня
         let lessonDifficulty = lesson.difficulty;
         if (!lessonDifficulty || lessonDifficulty === 'easy') {
             if (levelData.level === 'advanced') lessonDifficulty = 'hard';
             else if (levelData.level === 'medium') lessonDifficulty = 'medium';
             else lessonDifficulty = 'easy';
         }
-        
-        // Вычисляем награду за урок
         let rewardCoins = 10;
         if (lessonDifficulty === 'hard' || lessonDifficulty === 'advanced') rewardCoins = 20;
         else if (lessonDifficulty === 'medium') rewardCoins = 15;
         
+        const difficultyClass = lessonDifficulty === 'hard' || lessonDifficulty === 'advanced' ? 'hard' : lessonDifficulty === 'medium' ? 'medium' : 'easy';
+        const card = document.createElement('div');
+        card.className = `lesson-card lesson-card--${difficultyClass}`;
         card.onclick = () => startPractice(lesson.text, 'lesson', { ...lesson, key: lessonKey, difficulty: lessonDifficulty, level: levelData.level });
         
-        let statsHtml = '';
-        let completeBadge = '';
-        
+        let topBadge = '';
         if (lessonStats && lessonStats.completed) {
-            const accuracy = lessonStats.accuracy || 0;
-            const accuracyColor = accuracy >= 95 ? 'text-success' : accuracy >= 85 ? 'text-warning' : 'text-red-500';
-            const accuracyBg = accuracy >= 95 ? 'bg-success/20' : accuracy >= 85 ? 'bg-warning/20' : 'bg-red-500/20';
-            
-            completeBadge = `
-                <div class="absolute top-3 right-3">
-                    <div class="bg-success/20 text-success px-2 py-1 rounded-full text-xs font-bold flex items-center space-x-1">
-                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                        </svg>
-                        <span>✓</span>
-                    </div>
-                </div>
-            `;
-            
-            statsHtml = `
-                <div class="mt-3 pt-3 border-t border-gray-700/40 flex justify-between items-center">
-                    <span class="text-xs text-gray-500 font-medium">Лучший результат:</span>
-                    <div class="${accuracyBg} ${accuracyColor} px-3 py-1 rounded-lg text-sm font-bold">
-                        ${accuracy}%
-                    </div>
-                </div>
-            `;
+            topBadge = `<div class="lesson-card__done"><svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>✓</div>`;
+        } else if (lesson.isShopLesson) {
+            topBadge = `<div class="lesson-card__shop">Магазин</div>`;
         }
         
-        // Индикатор для shop уроков - перемещаем вправо, чтобы не перекрывало название
-        const shopBadge = lesson.isShopLesson ? `
-            <div class="absolute top-3 right-3 z-10">
-                <div class="bg-purple-600/30 text-purple-300 px-2 py-1 rounded-full text-xs font-bold flex items-center space-x-1 border border-purple-500/50">
-                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/>
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941a2.305 2.305 0 01-.567-.267C8.07 11.66 8 11.434 8 11c0-.114.07-.34.433-.582A2.305 2.305 0 019 10.151V8.151c-.22.071-.412.164-.567.267C8.07 8.66 8 8.886 8 9c0 .114.07.34.433.582.155.103.346.196.567.267v1.698a2.305 2.305 0 01-.567-.267C8.07 11.66 8 11.434 8 11c0-.114.07-.34.433-.582A2.305 2.305 0 019 10.151V8.151c.22.071.412.164.567.267C9.93 8.66 10 8.886 10 9c0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267v1.941a4.535 4.535 0 001.676-.662C11.398 9.765 12 8.99 12 8c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 009 5.092V3.151a2.305 2.305 0 01.567.267C9.93 3.66 10 3.886 10 4c0 .114-.07.34-.433.582A2.305 2.305 0 019 4.849v1.698z" clip-rule="evenodd"/>
-                    </svg>
-                    <span>Магазин</span>
-                </div>
-            </div>
-        ` : '';
+        let statsBlock = '';
+        if (lessonStats && lessonStats.completed) {
+            const accuracy = lessonStats.accuracy || 0;
+            const accClass = accuracy >= 95 ? 'lesson-card__accuracy--high' : accuracy >= 85 ? 'lesson-card__accuracy--mid' : 'lesson-card__accuracy--low';
+            const bestLabel = app.lang === 'ru' ? 'Лучший результат' : app.lang === 'en' ? 'Best result' : 'Найкращий результат';
+            statsBlock = `<div class="lesson-card__stats"><span class="text-gray-500">${bestLabel}</span><span class="lesson-card__accuracy ${accClass}">${accuracy}%</span></div>`;
+        }
         
+        const difficultyLabel = lessonDifficulty === 'hard' || lessonDifficulty === 'advanced'
+            ? (app.lang === 'ru' ? 'сложно' : app.lang === 'ua' ? 'складно' : 'hard')
+            : lessonDifficulty === 'medium'
+                ? (app.lang === 'ru' ? 'средне' : app.lang === 'ua' ? 'середньо' : 'medium')
+                : (app.lang === 'ru' ? 'легко' : app.lang === 'ua' ? 'легко' : 'easy');
+        
+        const missionNum = String(index + 1).padStart(2, '0');
         card.innerHTML = `
-            ${completeBadge}
-            ${shopBadge}
-            <h4 class="font-bold text-lg mb-2 text-gray-100 pr-20">${escapeHtml(lesson.name)}</h4>
-            <p class="text-sm text-gray-400 mb-3">${escapeHtml(lesson.description)}</p>
-            <div class="flex items-center justify-between mb-2">
-                <span class="px-3 py-1 rounded-lg bg-primary/20 text-primary text-xs font-semibold">${lesson.layout.toUpperCase()}</span>
-                <span class="text-xs text-gray-500">${escapeHtml(lessonDifficulty)}</span>
+            ${topBadge}
+            <div class="lesson-card__accent">
+                <span class="lesson-card__mission-num">${missionNum}</span>
             </div>
-            <div class="flex items-center space-x-2 text-xs text-purple-300 bg-purple-600/20 px-2 py-1 rounded-lg">
-                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/>
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941a2.305 2.305 0 01-.567-.267C8.07 11.66 8 11.434 8 11c0-.114.07-.34.433-.582A2.305 2.305 0 019 10.151V8.151c-.22.071-.412.164-.567.267C8.07 8.66 8 8.886 8 9c0 .114.07.34.433.582.155.103.346.196.567.267v1.698a2.305 2.305 0 01-.567-.267C8.07 11.66 8 11.434 8 11c0-.114.07-.34.433-.582A2.305 2.305 0 019 10.151V8.151c.22.071.412.164.567.267C9.93 8.66 10 8.886 10 9c0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267v1.941a4.535 4.535 0 001.676-.662C11.398 9.765 12 8.99 12 8c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 009 5.092V3.151a2.305 2.305 0 01.567.267C9.93 3.66 10 3.886 10 4c0 .114-.07.34-.433.582A2.305 2.305 0 019 4.849v1.698z" clip-rule="evenodd"/>
-                </svg>
-                <span>${t('rewardUpTo')} ${rewardCoins * 2} ${t('coinsAtAccuracy')}</span>
+            <div class="lesson-card__body">
+                <h4 class="lesson-card__title">${escapeHtml(lesson.name)}</h4>
+                <p class="lesson-card__desc">${escapeHtml(lesson.description)}</p>
+                <div class="lesson-card__tags">
+                    <span class="lesson-card__tag lesson-card__tag--lang">${lesson.layout.toUpperCase()}</span>
+                    <span class="lesson-card__tag lesson-card__tag--${difficultyClass}">${difficultyLabel}</span>
+                </div>
+                <div class="lesson-card__reward">
+                    <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941a2.305 2.305 0 01-.567-.267C8.07 11.66 8 11.434 8 11c0-.114.07-.34.433-.582A2.305 2.305 0 019 10.151V8.151c-.22.071-.412.164-.567.267C8.07 8.66 8 8.886 8 9c0 .114.07.34.433.582.155.103.346.196.567.267v1.698a2.305 2.305 0 01-.567-.267C8.07 11.66 8 11.434 8 11c0-.114.07-.34.433-.582A2.305 2.305 0 019 10.151V8.151c.22.071.412.164.567.267C9.93 8.66 10 8.886 10 9c0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267v1.941a4.535 4.535 0 001.676-.662C11.398 9.765 12 8.99 12 8c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 009 5.092V3.151a2.305 2.305 0 01.567.267C9.93 3.66 10 3.886 10 4c0 .114-.07.34-.433.582A2.305 2.305 0 019 4.849v1.698z" clip-rule="evenodd"/></svg>
+                    <span>${t('rewardUpTo')} ${rewardCoins * 2} ${t('coinsAtAccuracy')}</span>
+                </div>
+                ${statsBlock}
             </div>
-            ${statsHtml}
         `;
         
         fragment.appendChild(card);
@@ -2982,3 +2962,4 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+
