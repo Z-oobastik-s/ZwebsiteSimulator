@@ -132,7 +132,7 @@ export async function registerUser(username, password, email = '') {
             createdAt: Date.now(),
             lastLogin: Date.now(),
             isAdmin: false,
-            balance: 0,
+            balance: 50,
             purchasedLessons: [],
             stats: {
                 totalSessions: 0,
@@ -540,4 +540,3 @@ window.authModule = {
     getUserBalance,
     isLessonPurchased
 };
-

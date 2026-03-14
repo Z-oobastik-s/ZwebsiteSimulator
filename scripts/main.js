@@ -2882,13 +2882,21 @@ function loadShopLessons() {
             `}
         `;
         
+        const backContent = `
+            <div class="shop-tip-icon">💡</div>
+            <div class="shop-tip-text">${escapeHtml(tip)}</div>
+            <div class="shop-card-back-actions mt-auto pt-3">
+                ${isPurchased ? `
+                    <button onclick="startPurchasedLesson('${lesson.id}')" class="shop-card-back-btn w-full bg-gradient-to-r from-success to-green-500 hover:from-green-500 hover:to-emerald-500 text-white font-semibold py-2 rounded-lg transition-all shadow-lg hover:shadow-xl text-sm">${t('startLesson')}</button>
+                ` : `
+                    <button onclick="purchaseLesson('${lesson.id}')" class="shop-card-back-btn w-full font-semibold py-2 rounded-lg transition-all shadow-lg text-sm ${hasCoins ? 'bg-gradient-to-r from-cyan-600 to-cyan-500 hover:from-cyan-500 hover:to-teal-500 text-white hover:shadow-xl' : 'bg-gray-600 text-gray-400 cursor-not-allowed'}" data-lesson-id="${lesson.id}" data-can-buy="${hasCoins}">${hasCoins ? t('buy') : t('notEnoughCoins')}</button>
+                `}
+            </div>
+        `;
         wrap.innerHTML = `
             <div class="shop-card-inner">
                 <div class="shop-card-front">${frontContent}</div>
-                <div class="shop-card-back">
-                    <div class="shop-tip-icon">💡</div>
-                    <div class="shop-tip-text">${escapeHtml(tip)}</div>
-                </div>
+                <div class="shop-card-back">${backContent}</div>
             </div>
         `;
         fragment.appendChild(wrap);
@@ -3005,4 +3013,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-
