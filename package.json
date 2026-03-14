@@ -1,0 +1,11 @@
+{
+  "name": "zwebsite-simulator",
+  "private": true,
+  "description": "Deploy script for Zoobastiks typing trainer",
+  "scripts": {
+    "deploy": "node deploy.js"
+  },
+  "devDependencies": {
+    "basic-ftp": "^5.0.5"
+  }
+}

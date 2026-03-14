@@ -863,15 +863,15 @@ function toggleAnimations() {
     app.animationsEnabled = !app.animationsEnabled;
     localStorage.setItem('animations', app.animationsEnabled);
     applyAnimationsSetting();
-
+    
     // Если анимации включили, создаём частицы
     if (app.animationsEnabled) {
         createParticles();
     }
-
+    
     // Показываем уведомление
-    const message = app.animationsEnabled
-        ? t('animationsOn')
+    const message = app.animationsEnabled 
+        ? t('animationsOn') 
         : t('animationsOff');
     showToast(message, 'info', '');
 }
@@ -1215,8 +1215,8 @@ function showLessonList(levelData) {
                 </div>
                 <div class="lesson-card__reward">
                     <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941a2.305 2.305 0 01-.567-.267C8.07 11.66 8 11.434 8 11c0-.114.07-.34.433-.582A2.305 2.305 0 019 10.151V8.151c-.22.071-.412.164-.567.267C8.07 8.66 8 8.886 8 9c0 .114.07.34.433.582.155.103.346.196.567.267v1.698a2.305 2.305 0 01-.567-.267C8.07 11.66 8 11.434 8 11c0-.114.07-.34.433-.582A2.305 2.305 0 019 10.151V8.151c.22.071.412.164.567.267C9.93 8.66 10 8.886 10 9c0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267v1.941a4.535 4.535 0 001.676-.662C11.398 9.765 12 8.99 12 8c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 009 5.092V3.151a2.305 2.305 0 01.567.267C9.93 3.66 10 3.886 10 4c0 .114-.07.34-.433.582A2.305 2.305 0 019 4.849v1.698z" clip-rule="evenodd"/></svg>
-                    <span>${t('rewardUpTo')} ${rewardCoins * 2} ${t('coinsAtAccuracy')}</span>
-                </div>
+                <span>${t('rewardUpTo')} ${rewardCoins * 2} ${t('coinsAtAccuracy')}</span>
+            </div>
                 ${statsBlock}
             </div>
         `;
@@ -1706,15 +1706,15 @@ async function finishPractice() {
         isFirstTimeCompletion = !lessonStatsBefore || !lessonStatsBefore.completed;
         rewardCoins = calculateLessonRewardCoins(app.currentLesson, accuracy, isFirstTimeCompletion);
     }
-
+    
     window.statsModule.addSession(sessionData);
-
+    
     const user = window.authModule?.getCurrentUser();
     if (user && window.authModule) {
         window.authModule.addUserSession(user.uid, sessionData).catch(err => {
             console.error('Failed to save session to profile:', err);
         });
-
+        
         if (rewardCoins > 0) {
             window.authModule.addCoins(user.uid, rewardCoins).then(result => {
                 if (result.success) {
@@ -1732,7 +1732,7 @@ async function finishPractice() {
             });
         }
     }
-
+    
     showResults(speed, accuracy, elapsed, app.errors, rewardCoins);
 }
 
@@ -2328,7 +2328,7 @@ async function refreshUsersList() {
         
         const lastLogin = user.lastLogin ? new Date(user.lastLogin).toLocaleString() : 'Never';
         const stats = user.stats || {};
-
+        
         // Ячейка: никнейм
         const usernameTd = document.createElement('td');
         usernameTd.className = 'p-3';
@@ -2994,7 +2994,7 @@ function animatePurchaseFly(lessonId) {
         clone.remove();
         const updatedUser = window.authModule?.getCurrentUser();
         if (updatedUser) updateUserUI(updatedUser, updatedUser);
-        loadShopLessons();
+    loadShopLessons();
     }, 650);
 }
 
@@ -3020,9 +3020,9 @@ async function purchaseLesson(lessonId) {
         if (document.getElementById('shopScreen') && !document.getElementById('shopScreen').classList.contains('hidden')) {
             animatePurchaseFly(lessonId);
         } else {
-            const updatedUser = window.authModule.getCurrentUser();
-            updateUserUI(updatedUser, updatedUser);
-            loadShopLessons();
+        const updatedUser = window.authModule.getCurrentUser();
+        updateUserUI(updatedUser, updatedUser);
+        loadShopLessons();
         }
     } else {
         if (result.error && (result.error === 'Недостаточно монет' || result.error.indexOf('монет') !== -1)) {
@@ -3069,4 +3069,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-
