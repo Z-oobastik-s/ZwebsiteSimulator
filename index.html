@@ -157,6 +157,16 @@
             border: 1px solid rgba(0, 0, 0, 0.08);
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
         }
+        /* Главная: карточки и блок прогресса прозрачнее, чтобы фон с эмодзи просвечивал */
+        html:not(.dark) #homeScreen .glass {
+            background: rgba(255, 255, 255, 0.72);
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        }
+        html:not(.dark) #homeScreen .glass:hover {
+            background: rgba(255, 255, 255, 0.85);
+        }
         html:not(.dark) header.glass {
             box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
         }
@@ -2127,3 +2137,4 @@
     
 </body>
 </html>
+
