@@ -966,26 +966,27 @@
                 <h1 class="text-2xl font-bold">Zooba<span class="text-primary">stiks</span></h1>
             </div>
             
-            <div class="flex items-center space-x-4">
-                <!-- Balance Display (only when logged in) -->
-                <div id="balanceDisplay" class="hidden flex items-center space-x-2 px-3 py-2 rounded-lg glass bg-purple-600/30 border border-purple-500/50 shadow-md">
-                    <svg class="w-5 h-5 text-purple-300" fill="currentColor" viewBox="0 0 20 20">
+            <div class="flex items-center gap-2 sm:gap-3">
+                <!-- Balance (only when logged in) -->
+                <div id="balanceDisplay" class="hidden header-action flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg glass border border-white/10 transition-colors" title="Баланс монет">
+                    <svg class="w-4 h-4 text-amber-400 shrink-0" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/>
                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941a2.305 2.305 0 01-.567-.267C8.07 11.66 8 11.434 8 11c0-.114.07-.34.433-.582A2.305 2.305 0 019 10.151V8.151c-.22.071-.412.164-.567.267C8.07 8.66 8 8.886 8 9c0 .114.07.34.433.582.155.103.346.196.567.267v1.698a2.305 2.305 0 01-.567-.267C8.07 11.66 8 11.434 8 11c0-.114.07-.34.433-.582A2.305 2.305 0 019 10.151V8.151c.22.071.412.164.567.267C9.93 8.66 10 8.886 10 9c0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267v1.941a4.535 4.535 0 001.676-.662C11.398 9.765 12 8.99 12 8c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 009 5.092V3.151a2.305 2.305 0 01.567.267C9.93 3.66 10 3.886 10 4c0 .114-.07.34-.433.582A2.305 2.305 0 019 4.849v1.698z" clip-rule="evenodd"/>
                     </svg>
-                    <span id="userBalance" class="font-bold text-purple-200">0</span>
+                    <span id="userBalance" class="text-sm font-bold text-amber-400 tabular-nums">0</span>
                 </div>
                 
-                <!-- Shop Button (only when logged in) -->
-                <button id="shopBtn" onclick="showShop()" class="hidden header-action px-2.5 py-1.5 rounded-lg glass border border-purple-500/40 hover:bg-purple-500/20 text-purple-200 text-sm font-medium transition-colors">
-                    <span data-i18n="shop">Магазин</span>
+                <!-- Shop (only when logged in) -->
+                <button id="shopBtn" onclick="showShop()" class="hidden header-action flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg glass border border-white/10 hover:bg-white/15 dark:hover:bg-black/20 transition-colors" title="Магазин уроков">
+                    <svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                    <span class="text-sm font-medium" data-i18n="shop">Магазин</span>
                 </button>
                 
-                <!-- User Profile Button -->
+                <!-- Profile (only when logged in) -->
                 <div id="userProfileBtn" class="hidden">
-                    <button onclick="showProfile()" class="header-action flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg glass border border-white/10 hover:bg-white/15 dark:hover:bg-black/20 transition-colors">
-                        <img id="userAvatar" src="" alt="Profile" class="w-6 h-6 rounded-full border border-primary shrink-0" style="display: none;">
-                        <span id="userName" class="text-sm font-medium max-w-[100px] truncate"></span>
+                    <button onclick="showProfile()" class="header-action flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg glass border border-white/10 hover:bg-white/15 dark:hover:bg-black/20 transition-colors" title="Профиль">
+                        <img id="userAvatar" src="" alt="" class="w-5 h-5 rounded-full border border-white/20 object-cover shrink-0" style="display: none;">
+                        <span id="userName" class="text-sm font-medium max-w-[90px] truncate"></span>
                     </button>
                 </div>
                 
@@ -1928,4 +1929,3 @@
     
 </body>
 </html>
-
