@@ -1886,6 +1886,14 @@ function renderLevelBlock() {
             xpText.textContent = info.totalXP;
         }
     }
+    var levelBlock = DOM.get('levelBlock');
+    if (levelBlock) {
+        var tip = app.lang === 'en'
+            ? 'Level ' + info.level + ' — ' + info.tierName + ' · ' + info.xpInLevel + '/' + info.xpToNext + ' XP to next'
+            : 'Уровень ' + info.level + ' — ' + info.tierName + ' · ' + info.xpInLevel + '/' + info.xpToNext + ' XP до следующего';
+        if (info.xpToNext <= 0) tip = app.lang === 'en' ? 'Level ' + info.level + ' — ' + info.tierName : 'Уровень ' + info.level + ' — ' + info.tierName;
+        levelBlock.setAttribute('title', tip);
+    }
 }
 
 function showLevelUpModal(level) {
@@ -1909,6 +1917,73 @@ function closeLevelUpModal() {
         modal.classList.remove('flex');
     }
     exitPractice();
+}
+
+function toggleLevelListModal() {
+    var modal = DOM.get('levelListModal');
+    if (!modal) return;
+    if (modal.classList.contains('hidden')) {
+        fillLevelListModal();
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        document.addEventListener('click', levelListModalOutsideClick);
+        document.addEventListener('keydown', levelListModalEscape);
+    } else {
+        closeLevelListModal();
+    }
+}
+
+function levelListModalOutsideClick(e) {
+    var modal = DOM.get('levelListModal');
+    var block = DOM.get('levelBlock');
+    if (!modal || !block) return;
+    if (modal.contains(e.target) || block.contains(e.target)) return;
+    closeLevelListModal();
+    document.removeEventListener('click', levelListModalOutsideClick);
+}
+
+function levelListModalEscape(e) {
+    if (e.key === 'Escape') {
+        closeLevelListModal();
+        document.removeEventListener('keydown', levelListModalEscape);
+    }
+}
+
+function closeLevelListModal() {
+    var modal = DOM.get('levelListModal');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+    document.removeEventListener('click', levelListModalOutsideClick);
+    document.removeEventListener('keydown', levelListModalEscape);
+}
+
+function fillLevelListModal() {
+    var listEl = DOM.get('levelListModalBody');
+    if (!listEl || !window.levelModule) return;
+    var current = window.levelModule.getLevelInfo(window.levelModule.getPlayerXP()).level;
+    var getTier = window.levelModule.getTierName;
+    var getXP = window.levelModule.getXPThreshold;
+    var lang = (typeof app !== 'undefined' && app.lang === 'en') ? 'en' : 'ru';
+    var title = lang === 'en' ? 'All levels' : 'Все уровни';
+    var html = '<h4 class="text-sm font-semibold text-gray-400 dark:text-gray-500 mb-3 px-1">' + title + '</h4><div class="space-y-1 max-h-[60vh] overflow-y-auto pr-1">';
+    for (var lvl = 1; lvl <= 50; lvl++) {
+        var tier = getTier(lvl);
+        var xpFrom = getXP(lvl);
+        var xpTo = getXP(lvl + 1);
+        var isCurrent = lvl === current;
+        var xpText = lvl === 1 ? '0 XP' : xpFrom + ' – ' + xpTo + ' XP';
+        var cls = isCurrent ? 'bg-amber-500/20 border-amber-500/40' : 'bg-white/5 border-white/10';
+        var numCls = isCurrent ? 'text-amber-400' : 'text-gray-300 dark:text-gray-400';
+        var tierCls = isCurrent ? 'text-amber-300' : 'text-gray-400 dark:text-gray-500';
+        html += '<div class="flex items-center justify-between rounded-lg border px-3 py-2 ' + cls + '">';
+        html += '<span class="font-bold tabular-nums ' + numCls + '">' + lvl + '</span>';
+        html += '<span class="text-sm ' + tierCls + '">' + tier + '</span>';
+        html += '<span class="text-xs text-gray-500 dark:text-gray-500 tabular-nums">' + xpText + '</span></div>';
+    }
+    html += '</div>';
+    listEl.innerHTML = html;
 }
 
 // Play sound
@@ -3251,4 +3326,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-

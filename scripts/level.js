@@ -88,6 +88,6 @@ window.levelModule = {
     getPlayerXP: getPlayerXP,
     addPlayerXP: addPlayerXP,
     calculateSessionXP: calculateSessionXP,
-    getTierName: getTierName
+    getTierName: getTierName,
+    getXPThreshold: getXPThreshold
 };
-

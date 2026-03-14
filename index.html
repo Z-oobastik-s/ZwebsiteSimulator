@@ -186,13 +186,6 @@
         html:not(.dark) .header-action:hover {
             background: rgba(0, 0, 0, 0.06);
         }
-        .header-level-strip {
-            box-shadow: 0 0 12px rgba(245, 158, 11, 0.15);
-        }
-        html:not(.dark) .header-level-strip {
-            background: rgba(245, 158, 11, 0.12);
-            border-color: rgba(245, 158, 11, 0.35);
-        }
         html:not(.dark) .hero-subtitle {
             color: #4b5563;
         }
@@ -1390,17 +1383,17 @@
                         <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" />
                     </svg>
                 </button>
-                <!-- Уровень — в самом начале справа (край шапки): Опыт → Прогресс бар → Имя ранга → бейдж -->
-                <div id="levelBlock" class="header-level-strip flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-amber-500/15 border border-amber-500/30 min-w-0 max-w-[200px] sm:max-w-[240px]" data-i18n-title="level" title="Уровень">
-                    <span class="text-[10px] sm:text-xs font-semibold tabular-nums text-amber-400/90 whitespace-nowrap shrink-0" id="levelXPText">0/102</span>
-                    <div class="flex-1 min-w-0 h-1.5 rounded-full bg-black/30 overflow-hidden">
-                        <div class="h-full rounded-full bg-gradient-to-r from-amber-500 to-amber-400 transition-all duration-500" id="levelProgressBar" style="width:0%"></div>
+                <!-- Уровень — в едином стиле с шапкой, клик = список уровней -->
+                <button type="button" id="levelBlock" onclick="toggleLevelListModal()" class="header-action flex items-center gap-2 px-2.5 py-1.5 rounded-lg glass border border-white/10 hover:bg-white/15 dark:hover:bg-black/20 transition-colors min-w-0 max-w-[200px] sm:max-w-[240px] text-left cursor-pointer" title="">
+                    <span class="text-[10px] sm:text-xs font-semibold tabular-nums text-gray-300 dark:text-gray-400 whitespace-nowrap shrink-0" id="levelXPText">0/102</span>
+                    <div class="flex-1 min-w-0 h-1.5 rounded-full bg-white/20 dark:bg-black/30 overflow-hidden">
+                        <div class="h-full rounded-full bg-amber-500/80 transition-all duration-500" id="levelProgressBar" style="width:0%"></div>
                     </div>
-                    <span class="text-xs font-bold text-amber-400/95 truncate shrink-0 max-w-[72px] sm:max-w-[90px]" id="levelTierName">Новичок</span>
-                    <div class="flex-shrink-0 w-7 h-7 rounded bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center border border-amber-400/50">
-                        <span class="text-sm font-black text-white tabular-nums" id="levelNumber">1</span>
+                    <span class="text-xs font-medium text-gray-200 dark:text-gray-300 truncate shrink-0 max-w-[72px] sm:max-w-[90px]" id="levelTierName">Новичок</span>
+                    <div class="flex-shrink-0 w-6 h-6 rounded-md bg-amber-500/30 border border-amber-500/40 flex items-center justify-center">
+                        <span class="text-xs font-bold text-amber-400 tabular-nums" id="levelNumber">1</span>
                     </div>
-                </div>
+                </button>
             </div>
         </div>
     </header>
@@ -1983,6 +1976,19 @@
         </div>
     </div>
     
+    <!-- Level list modal (click on level in header) -->
+    <div id="levelListModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden items-center justify-center z-[55]" onclick="if(event.target===this) closeLevelListModal()">
+        <div class="glass rounded-2xl p-4 max-w-sm w-full mx-4 max-h-[85vh] flex flex-col border border-white/10 shadow-xl" onclick="event.stopPropagation()">
+            <div class="flex justify-between items-center mb-2">
+                <h3 class="text-lg font-bold text-gray-100 dark:text-white" data-i18n="level">Уровень</h3>
+                <button type="button" onclick="closeLevelListModal()" class="p-1.5 rounded-lg hover:bg-white/10 dark:hover:bg-black/20 text-gray-400 hover:text-white transition-colors" aria-label="Закрыть">✕</button>
+            </div>
+            <div id="levelListModalBody" class="flex-1 min-h-0">
+                <!-- Filled by fillLevelListModal() -->
+            </div>
+        </div>
+    </div>
+    
     <!-- Login/Register Modal -->
     <div id="loginModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50">
         <div class="glass rounded-2xl p-8 max-w-md w-full mx-4 fade-in">
@@ -2330,4 +2336,3 @@
     
 </body>
 </html>
-
