@@ -3105,11 +3105,10 @@ function playTelegramSound() {
 
 function playMenuClickSound() {
     if (!app.soundEnabled) return;
-    const s = (Math.random() < 0.5 ? audioClickMenu0 : audioClickMenu1) || audioClickMenu0 || audioClickMenu1;
-    if (s) {
-        s.currentTime = 0;
-        s.play().catch(() => {});
-    }
+    var num = Math.random() < 0.5 ? '0' : '1';
+    var s = new Audio('assets/sounds/click_menu_' + num + '.ogg');
+    s.volume = 0.35;
+    s.play().catch(function () {});
 }
 
 const SITE_RATING_STORAGE_KEY = 'zoobastiks_site_rating';
@@ -3186,3 +3185,4 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+
