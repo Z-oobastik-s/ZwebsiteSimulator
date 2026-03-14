@@ -93,6 +93,7 @@ let audioOpenShop = null;
 let audioClickLanguage = null;
 let audioBuyShop = null;
 let audioOpenProfile = null;
+let audioOpenAchievement = null;
 let audioCompleteAdvanced = null;
 let audioOpenTelegram = null;
 let audioFeedback = null;
@@ -651,6 +652,7 @@ function initializeAudio() {
         audioClickLanguage = new Audio('assets/sounds/click_language.ogg');
         audioBuyShop = new Audio('assets/sounds/buy_shop_sound.ogg');
         audioOpenProfile = new Audio('assets/sounds/open_profile.ogg');
+        audioOpenAchievement = new Audio('assets/sounds/open_achievement.ogg');
         audioCompleteAdvanced = new Audio('assets/sounds/complete_advanced.ogg');
         audioOpenTelegram = new Audio('assets/sounds/open_telegram.ogg');
         audioFeedback = new Audio('assets/sounds/feetback.ogg');
@@ -671,6 +673,7 @@ function initializeAudio() {
         if (audioClickLanguage) audioClickLanguage.volume = 0.35;
         if (audioBuyShop) audioBuyShop.volume = 0.35;
         if (audioOpenProfile) audioOpenProfile.volume = 0.35;
+        if (audioOpenAchievement) audioOpenAchievement.volume = 0.35;
         if (audioCompleteAdvanced) audioCompleteAdvanced.volume = 0.35;
         if (audioOpenTelegram) audioOpenTelegram.volume = 0.35;
         if (audioFeedback) audioFeedback.volume = 0.35;
@@ -1928,6 +1931,10 @@ function toggleLevelListModal() {
         modal.classList.add('flex');
         document.addEventListener('click', levelListModalOutsideClick);
         document.addEventListener('keydown', levelListModalEscape);
+        if (app.soundEnabled && audioOpenAchievement) {
+            audioOpenAchievement.currentTime = 0;
+            audioOpenAchievement.play().catch(function() {});
+        }
     } else {
         closeLevelListModal();
     }
@@ -3326,3 +3333,4 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+
