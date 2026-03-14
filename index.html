@@ -81,6 +81,9 @@
     
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+    <!-- PWA -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0f172a">
     
     <!-- TailwindCSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -1492,21 +1495,21 @@
                 </button>
                 
                 <!-- Sound -->
-                <button id="soundToggle" class="header-action p-1.5 rounded-lg glass border border-transparent hover:bg-white/15 dark:hover:bg-black/20 transition-colors" title="Звук">
+                <button id="soundToggle" class="header-action p-1.5 rounded-lg glass border border-transparent hover:bg-white/15 dark:hover:bg-black/20 transition-colors" title="Звук" data-i18n-title="soundLabel" data-i18n-aria-label="soundLabel" aria-label="Звук вкл/выкл">
                     <svg id="soundIcon" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.929a1 1 0 011.414 0A9.972 9.972 0 0119 10a9.972 9.972 0 01-2.929 7.071 1 1 0 01-1.414-1.414A7.971 7.971 0 0017 10c0-2.21-.894-4.208-2.343-5.657a1 1 0 010-1.414zm-2.829 2.828a1 1 0 011.415 0A5.983 5.983 0 0115 10a5.984 5.984 0 01-1.757 4.243 1 1 0 01-1.415-1.415A3.984 3.984 0 0013 10a3.983 3.983 0 00-1.172-2.828 1 1 0 010-1.415z" clip-rule="evenodd" />
                     </svg>
                 </button>
                 
                 <!-- Theme -->
-                <button id="themeToggle" class="header-action p-1.5 rounded-lg glass border border-transparent hover:bg-white/15 dark:hover:bg-black/20 transition-colors" title="Тема">
+                <button id="themeToggle" class="header-action p-1.5 rounded-lg glass border border-transparent hover:bg-white/15 dark:hover:bg-black/20 transition-colors" title="Тема" data-i18n-title="themeLabel" data-i18n-aria-label="themeLabel" aria-label="Светлая/тёмная тема">
                     <svg id="themeIcon" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
                     </svg>
                 </button>
                 
                 <!-- Animations -->
-                <button id="animationsToggle" class="header-action p-1.5 rounded-lg glass border border-transparent hover:bg-white/15 dark:hover:bg-black/20 transition-colors" data-i18n-title="toggleAnimations" title="Анимации">
+                <button id="animationsToggle" class="header-action p-1.5 rounded-lg glass border border-transparent hover:bg-white/15 dark:hover:bg-black/20 transition-colors" data-i18n-title="toggleAnimations" data-i18n-aria-label="toggleAnimations" title="Анимации" aria-label="Включить или выключить анимации">
                     <svg id="animationsIcon" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" />
                     </svg>
@@ -2005,14 +2008,14 @@
     <div id="toastContainer" class="toast-container"></div>
     
     <!-- Onboarding (первый заход) — футуристичный HUD, стиль 2090 -->
-    <div id="onboardingOverlay" class="fixed inset-0 flex items-center justify-center bg-black/70 backdrop-blur-md hidden z-[9999]">
+    <div id="onboardingOverlay" class="fixed inset-0 flex items-center justify-center bg-black/70 backdrop-blur-md hidden z-[9999]" role="dialog" aria-modal="true" aria-labelledby="onboardingTitle">
         <div class="onboarding-card onboarding-glow rounded-2xl p-8 max-w-lg w-full mx-4 relative overflow-hidden">
             <button type="button" onclick="finishOnboarding()" class="absolute top-4 right-4 onboarding-skip transition-colors" data-i18n="skip">Пропустить</button>
             <div class="absolute top-4 left-4 onboarding-badge">Zoobastiks · 2090</div>
             <div id="onboardingSlide1" class="onboarding-slide active">
                 <div class="text-center pt-2 pb-2">
                     <div class="onboarding-icon-box inline-flex items-center justify-center w-20 h-20 rounded-xl bg-slate-900/60 mb-5 text-4xl">👋</div>
-                    <h3 class="onboarding-title text-2xl font-extrabold mb-3" data-i18n="onbTitle1">Добро пожаловать в Zoobastiks!</h3>
+                    <h3 id="onboardingTitle" class="onboarding-title text-2xl font-extrabold mb-3" data-i18n="onbTitle1">Добро пожаловать в Zoobastiks!</h3>
                     <p class="text-sm text-gray-300 leading-relaxed max-w-sm mx-auto" data-i18n="onbText1">Уроки, тест скорости и свободная печать - всё здесь. Короткий обзор за 3 шага.</p>
                 </div>
             </div>
@@ -2043,11 +2046,11 @@
     </div>
     
     <!-- Free Mode Text Input Modal -->
-    <div id="freeModeModal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden items-center justify-center z-50">
+    <div id="freeModeModal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden items-center justify-center z-50" role="dialog" aria-modal="true" aria-labelledby="freeModeModalTitle">
         <div class="glass rounded-3xl p-8 max-w-3xl w-full mx-4 fade-in shadow-2xl border border-white/10 relative">
             <div class="flex justify-between items-center mb-6">
-                <h3 class="text-3xl font-bold bg-gradient-to-r from-success to-green-400 bg-clip-text text-transparent" data-i18n="freeMode">Свободная печать</h3>
-                <button onclick="closeFreeModeModal()" class="text-gray-400 hover:text-white transition-all hover:scale-110 transform p-2 rounded-lg hover:bg-white/10">
+                <h3 id="freeModeModalTitle" class="text-3xl font-bold bg-gradient-to-r from-success to-green-400 bg-clip-text text-transparent" data-i18n="freeMode">Свободная печать</h3>
+                <button type="button" onclick="closeFreeModeModal()" class="text-gray-400 hover:text-white transition-all hover:scale-110 transform p-2 rounded-lg hover:bg-white/10" aria-label="Закрыть">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                     </svg>
@@ -2098,9 +2101,9 @@
     </div>
     
     <!-- Results Modal -->
-    <div id="resultsModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50">
+    <div id="resultsModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50" role="dialog" aria-modal="true" aria-labelledby="resultsModalTitle">
         <div class="glass rounded-2xl p-8 max-w-md w-full mx-4 fade-in">
-            <h3 class="text-3xl font-bold mb-6 text-center" data-i18n="results">Результаты</h3>
+            <h3 id="resultsModalTitle" class="text-3xl font-bold mb-6 text-center" data-i18n="results">Результаты</h3>
             
             <div class="space-y-4 mb-6">
                 <div class="flex justify-between items-center p-4 bg-white/10 dark:bg-black/20 rounded-lg">
@@ -2143,10 +2146,10 @@
     </div>
     
     <!-- Level Up Modal -->
-    <div id="levelUpModal" class="fixed inset-0 bg-black/60 backdrop-blur-md hidden items-center justify-center z-[60]">
+    <div id="levelUpModal" class="fixed inset-0 bg-black/60 backdrop-blur-md hidden items-center justify-center z-[60]" role="dialog" aria-modal="true" aria-labelledby="levelUpModalTitle">
         <div class="level-up-card glass rounded-3xl p-8 max-w-sm w-full mx-4 text-center border-2 border-amber-400/50 shadow-2xl shadow-amber-500/20 animate-scale-in">
             <div class="text-6xl mb-2">🎉</div>
-            <p class="text-amber-400 font-semibold uppercase tracking-widest text-sm mb-1" data-i18n="levelUp">Повышение уровня!</p>
+            <p id="levelUpModalTitle" class="text-amber-400 font-semibold uppercase tracking-widest text-sm mb-1" data-i18n="levelUp">Повышение уровня!</p>
             <p class="text-5xl md:text-6xl font-black text-white mb-4 drop-shadow-lg"><span id="levelUpNumber">1</span></p>
             <p class="text-gray-400 dark:text-gray-500 text-sm mb-6" data-i18n="levelUpCongrats">Продолжайте в том же духе!</p>
             <button onclick="closeLevelUpModal()" class="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-bold py-3 px-6 rounded-xl transition-all hover:scale-105 shadow-lg">
@@ -2156,11 +2159,11 @@
     </div>
     
     <!-- Level list modal (click on level in header) -->
-    <div id="levelListModal" class="fixed inset-0 bg-black/50 backdrop-blur-md hidden items-center justify-center z-[55]" onclick="if(event.target===this) closeLevelListModal()">
+    <div id="levelListModal" class="fixed inset-0 bg-black/50 backdrop-blur-md hidden items-center justify-center z-[55]" role="dialog" aria-modal="true" aria-labelledby="levelListModalTitle" onclick="if(event.target===this) closeLevelListModal()">
         <div class="level-list-modal-panel glass rounded-2xl overflow-hidden max-w-sm w-full mx-4 max-h-[85vh] flex flex-col border border-white/15 shadow-2xl shadow-amber-500/5" onclick="event.stopPropagation()">
             <div class="px-5 py-4 border-b border-white/10 bg-white/5">
                 <div class="flex justify-between items-center">
-                    <h3 class="text-xl font-bold bg-gradient-to-r from-amber-400 to-amber-600 bg-clip-text text-transparent" data-i18n="level">Уровень</h3>
+                    <h3 id="levelListModalTitle" class="text-xl font-bold bg-gradient-to-r from-amber-400 to-amber-600 bg-clip-text text-transparent" data-i18n="level">Уровень</h3>
                     <button type="button" onclick="closeLevelListModal()" class="p-2 rounded-xl hover:bg-white/15 dark:hover:bg-black/25 text-gray-400 hover:text-white transition-colors" aria-label="Закрыть">✕</button>
                 </div>
                 <p class="text-xs text-gray-500 dark:text-gray-500 mt-1" data-i18n="allLevels">Все уровни</p>
@@ -2172,7 +2175,7 @@
     </div>
     
     <!-- Login/Register Modal -->
-    <div id="loginModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50">
+    <div id="loginModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50" role="dialog" aria-modal="true" aria-labelledby="authModalTitle">
         <div class="glass rounded-2xl p-8 max-w-md w-full mx-4 fade-in">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="text-2xl font-bold" id="authModalTitle" data-i18n="login">Войти</h3>
@@ -2519,4 +2522,3 @@
     
 </body>
 </html>
-

@@ -115,6 +115,8 @@ const translations = {
         multiplayerDesc: 'Соревнуйся с друзьями!',
         siteLanguageLabel: 'Язык сайта',
         keyboardLayoutLabel: 'Раскладка',
+        soundLabel: 'Звук вкл/выкл',
+        themeLabel: 'Светлая/тёмная тема',
         yourProgress: 'Ваш прогресс',
         achievements: 'Достижения',
         rateSite: 'Оцените сайт',
@@ -294,6 +296,8 @@ const translations = {
         multiplayerDesc: 'Compete with friends!',
         siteLanguageLabel: 'Site language',
         keyboardLayoutLabel: 'Keyboard',
+        soundLabel: 'Sound on/off',
+        themeLabel: 'Light/dark theme',
         yourProgress: 'Your Progress',
         achievements: 'Achievements',
         rateSite: 'Rate site',
@@ -686,6 +690,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // Онбординг при первом заходе (с небольшой задержкой)
     setTimeout(showOnboardingIfFirstVisit, 700);
     
+    // PWA: регистрация Service Worker
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js').catch(function () {});
+    }
+    
     // Initialize auth state listener
     if (window.authModule) {
         window.authModule.onAuthStateChange(async (user) => {
@@ -1019,6 +1028,12 @@ function updateTranslations() {
         const key = el.getAttribute('data-i18n-title');
         if (translations[app.lang] && translations[app.lang][key]) {
             el.setAttribute('title', translations[app.lang][key]);
+        }
+    });
+    document.querySelectorAll('[data-i18n-aria-label]').forEach(el => {
+        const key = el.getAttribute('data-i18n-aria-label');
+        if (translations[app.lang] && translations[app.lang][key]) {
+            el.setAttribute('aria-label', translations[app.lang][key]);
         }
     });
 }
@@ -1952,6 +1967,7 @@ function showResults(speed, accuracy, time, errors, rewardCoins) {
     if (modal) {
         modal.classList.remove('hidden');
         modal.classList.add('flex');
+        focusFirstInModal(modal);
     }
 }
 
@@ -2011,6 +2027,7 @@ function showLevelUpModal(level) {
     if (modal) {
         modal.classList.remove('hidden');
         modal.classList.add('flex');
+        focusFirstInModal(modal);
     }
     if (app.soundEnabled && audioVictory) {
         audioVictory.currentTime = 0;
@@ -2043,6 +2060,7 @@ function toggleLevelListModal() {
         fillLevelListModal();
         modal.classList.remove('hidden');
         modal.classList.add('flex');
+        focusFirstInModal(modal);
         document.addEventListener('click', levelListModalOutsideClick);
         document.addEventListener('keydown', levelListModalEscape);
     } else {
@@ -2256,11 +2274,20 @@ function updateUserUI(user, profile) {
     }
 }
 
+// Доступность: фокус на первый фокусируемый элемент в модалке
+function focusFirstInModal(modal) {
+    if (!modal) return;
+    var focusable = modal.querySelector('button:not([disabled]), [href], input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])');
+    if (focusable) setTimeout(function () { focusable.focus(); }, 0);
+}
+
 // Show login modal
 function showLoginModal() {
-    document.getElementById('loginModal').classList.remove('hidden');
-    document.getElementById('loginModal').classList.add('flex');
+    var modal = document.getElementById('loginModal');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
     switchToLogin();
+    focusFirstInModal(modal);
 }
 
 // Close login modal
@@ -3442,4 +3469,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-
