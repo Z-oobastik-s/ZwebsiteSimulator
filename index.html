@@ -1322,19 +1322,8 @@
                 <h1 class="text-2xl font-bold">Zooba<span class="text-primary">stiks</span></h1>
             </div>
             
-            <!-- Справа: сначала уровень (опыт : имя), потом остальное -->
+            <!-- Справа: кнопки и элементы, уровень — в самом конце (край справа) -->
             <div class="flex items-center gap-2 sm:gap-3 shrink-0">
-                <!-- Уровень — в начале правой части, формат: опыт : имя -->
-                <div id="levelBlock" class="header-level-strip flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-amber-500/15 border border-amber-500/30 min-w-0 max-w-[200px] sm:max-w-[240px]" data-i18n-title="level" title="Уровень">
-                    <div class="flex-shrink-0 w-7 h-7 rounded bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center border border-amber-400/50">
-                        <span class="text-sm font-black text-white tabular-nums" id="levelNumber">1</span>
-                    </div>
-                    <span class="text-[10px] sm:text-xs font-semibold tabular-nums text-amber-400/90 whitespace-nowrap shrink-0" id="levelXPText">0/102</span>
-                    <div class="flex-1 min-w-0 h-1.5 rounded-full bg-black/30 overflow-hidden">
-                        <div class="h-full rounded-full bg-gradient-to-r from-amber-500 to-amber-400 transition-all duration-500" id="levelProgressBar" style="width:0%"></div>
-                    </div>
-                    <span class="text-xs font-bold text-amber-400/95 truncate shrink-0 max-w-[72px] sm:max-w-[90px]" id="levelTierName">Новичок</span>
-                </div>
                 <!-- Balance (only when logged in) -->
                 <div id="balanceDisplay" class="hidden header-action flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg glass border border-white/10 transition-colors" title="Баланс монет">
                     <svg class="w-4 h-4 text-amber-400 shrink-0" fill="currentColor" viewBox="0 0 20 20">
@@ -1401,6 +1390,17 @@
                         <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" />
                     </svg>
                 </button>
+                <!-- Уровень — в самом начале справа (край шапки): Опыт → Прогресс бар → Имя ранга → бейдж -->
+                <div id="levelBlock" class="header-level-strip flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-amber-500/15 border border-amber-500/30 min-w-0 max-w-[200px] sm:max-w-[240px]" data-i18n-title="level" title="Уровень">
+                    <span class="text-[10px] sm:text-xs font-semibold tabular-nums text-amber-400/90 whitespace-nowrap shrink-0" id="levelXPText">0/102</span>
+                    <div class="flex-1 min-w-0 h-1.5 rounded-full bg-black/30 overflow-hidden">
+                        <div class="h-full rounded-full bg-gradient-to-r from-amber-500 to-amber-400 transition-all duration-500" id="levelProgressBar" style="width:0%"></div>
+                    </div>
+                    <span class="text-xs font-bold text-amber-400/95 truncate shrink-0 max-w-[72px] sm:max-w-[90px]" id="levelTierName">Новичок</span>
+                    <div class="flex-shrink-0 w-7 h-7 rounded bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center border border-amber-400/50">
+                        <span class="text-sm font-black text-white tabular-nums" id="levelNumber">1</span>
+                    </div>
+                </div>
             </div>
         </div>
     </header>
@@ -2330,3 +2330,4 @@
     
 </body>
 </html>
+
