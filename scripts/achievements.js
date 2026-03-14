@@ -13,12 +13,11 @@ const ACHIEVEMENTS = [
     { id: 'lessons_25', icon: '🌟', titleRu: 'Звёздочка', titleEn: 'Star', titleUa: 'Зірочка', descRu: 'Пройдите 25 уроков', descEn: 'Complete 25 lessons', descUa: 'Пройдіть 25 уроків', condition: 'lessons', value: 25 },
     { id: 'lessons_50', icon: '🏆', titleRu: 'Полтинник', titleEn: 'Fifty', titleUa: 'П\'ятдесят', descRu: 'Пройдите 50 уроков', descEn: 'Complete 50 lessons', descUa: 'Пройдіть 50 уроків', condition: 'lessons', value: 50 },
     { id: 'speed_100', icon: '🐢', titleRu: 'Старт', titleEn: 'Start', titleUa: 'Старт', descRu: 'Достигните 100 зн/мин', descEn: 'Reach 100 CPM', descUa: 'Досягніть 100 зн/хв', condition: 'speed', value: 100 },
+    { id: 'speed_150', icon: '🌱', titleRu: 'Прогресс', titleEn: 'Progress', titleUa: 'Прогрес', descRu: 'Достигните 150 зн/мин', descEn: 'Reach 150 CPM', descUa: 'Досягніть 150 зн/хв', condition: 'speed', value: 150 },
     { id: 'speed_200', icon: '⚡', titleRu: 'Разгон', titleEn: 'Accelerate', titleUa: 'Розгін', descRu: 'Достигните 200 зн/мин', descEn: 'Reach 200 CPM', descUa: 'Досягніть 200 зн/хв', condition: 'speed', value: 200 },
-    { id: 'speed_300', icon: '🔥', titleRu: 'Огонь', titleEn: 'On fire', titleUa: 'Вогонь', descRu: 'Достигните 300 зн/мин', descEn: 'Reach 300 CPM', descUa: 'Досягніть 300 зн/хв', condition: 'speed', value: 300 },
-    { id: 'speed_500', icon: '🚀', titleRu: 'Ракета', titleEn: 'Rocket', titleUa: 'Ракета', descRu: 'Достигните 500 зн/мин (≈100 слов/мин)', descEn: 'Reach 500 CPM (~100 WPM)', descUa: 'Досягніть 500 зн/хв', condition: 'speed', value: 500 },
-    { id: 'speed_1000', icon: '💨', titleRu: 'Скоростник', titleEn: 'Speedster', titleUa: 'Швидкість', descRu: 'Достигните 1000 зн/мин (≈200 слов/мин)', descEn: 'Reach 1000 CPM (~200 WPM)', descUa: 'Досягніть 1000 зн/хв', condition: 'speed', value: 1000 },
-    { id: 'speed_1500', icon: '👑', titleRu: 'Король клавиатуры', titleEn: 'Keyboard king', titleUa: 'Король клавіатури', descRu: 'Достигните 1500 зн/мин (≈300 слов/мин)', descEn: 'Reach 1500 CPM (~300 WPM)', descUa: 'Досягніть 1500 зн/хв', condition: 'speed', value: 1500 },
-    { id: 'speed_2000', icon: '💎', titleRu: 'Легенда', titleEn: 'Legend', titleUa: 'Легенда', descRu: 'Достигните 2000 зн/мин', descEn: 'Reach 2000 CPM', descUa: 'Досягніть 2000 зн/хв', condition: 'speed', value: 2000 },
+    { id: 'speed_250', icon: '🔥', titleRu: 'Огонь', titleEn: 'On fire', titleUa: 'Вогонь', descRu: 'Достигните 250 зн/мин', descEn: 'Reach 250 CPM', descUa: 'Досягніть 250 зн/хв', condition: 'speed', value: 250 },
+    { id: 'speed_300', icon: '💨', titleRu: 'Быстрые пальцы', titleEn: 'Fast fingers', titleUa: 'Швидкі пальці', descRu: 'Достигните 300 зн/мин', descEn: 'Reach 300 CPM', descUa: 'Досягніть 300 зн/хв', condition: 'speed', value: 300 },
+    { id: 'speed_350', icon: '👑', titleRu: 'Король клавиатуры', titleEn: 'Keyboard king', titleUa: 'Король клавіатури', descRu: 'Достигните 350 зн/мин', descEn: 'Reach 350 CPM', descUa: 'Досягніть 350 зн/хв', condition: 'speed', value: 350 },
     { id: 'words_1000', icon: '📝', titleRu: 'Тысяча слов', titleEn: 'Thousand words', titleUa: 'Тисяча слів', descRu: 'Напечатайте 1000 слов', descEn: 'Type 1000 words', descUa: 'Надрукуйте 1000 слів', condition: 'words', value: 1000 },
     { id: 'words_5000', icon: '📄', titleRu: 'Писатель', titleEn: 'Writer', titleUa: 'Письменник', descRu: 'Напечатайте 5000 слов', descEn: 'Type 5000 words', descUa: 'Надрукуйте 5000 слів', condition: 'words', value: 5000 },
     { id: 'words_10000', icon: '📖', titleRu: 'Книжник', titleEn: 'Bookworm', titleUa: 'Книжник', descRu: 'Напечатайте 10000 слов', descEn: 'Type 10000 words', descUa: 'Надрукуйте 10000 слів', condition: 'words', value: 10000 },
@@ -105,6 +104,24 @@ function checkAndUnlock() {
     return newlyUnlocked;
 }
 
+/** За одну сессию показываем тост только за высший новый порог по скорости и по точности (остальные — все). */
+function pickToastsForSession(newlyUnlocked) {
+    if (!newlyUnlocked.length) return [];
+    const bySpeed = newlyUnlocked.filter(function (a) { return a.condition === 'speed'; });
+    const byAccuracy = newlyUnlocked.filter(function (a) { return a.condition === 'accuracy'; });
+    const rest = newlyUnlocked.filter(function (a) { return a.condition !== 'speed' && a.condition !== 'accuracy'; });
+    var out = rest.slice();
+    if (bySpeed.length) {
+        bySpeed.sort(function (a, b) { return (b.value - a.value); });
+        out.push(bySpeed[0]);
+    }
+    if (byAccuracy.length) {
+        byAccuracy.sort(function (a, b) { return (b.value - a.value); });
+        out.push(byAccuracy[0]);
+    }
+    return out;
+}
+
 function showAchievementToast(ach) {
     const lang = getLang();
     const title = lang === 'en' ? ach.titleEn : (lang === 'ua' ? ach.titleUa : ach.titleRu);
@@ -123,14 +140,15 @@ function render(container) {
     const selectedId = getSelectedId();
     const lang = getLang();
     el.innerHTML = '';
-    ACHIEVEMENTS.forEach(function (ach) {
+    ACHIEVEMENTS.forEach(function (ach, index) {
         const isUnlocked = unlocked.indexOf(ach.id) !== -1;
         const isSelected = selectedId === ach.id;
         const title = lang === 'en' ? ach.titleEn : (lang === 'ua' ? ach.titleUa : ach.titleRu);
         const desc = lang === 'en' ? ach.descEn : (lang === 'ua' ? ach.descUa : ach.descRu);
-        const tip = isUnlocked ? title + ' — ' + desc : desc;
+        const tip = isUnlocked ? title + ' — ' + desc + ' (+50 🪙)' : desc;
+        const animIndex = index % 12;
         const div = document.createElement('div');
-        div.className = 'achievement-icon-wrap' + (isUnlocked ? ' achievement-unlocked' : ' achievement-locked') + (isSelected ? ' achievement-selected' : '');
+        div.className = 'achievement-icon-wrap' + (isUnlocked ? ' achievement-unlocked ach-hover-' + animIndex : ' achievement-locked') + (isSelected ? ' achievement-selected' : '');
         div.title = tip;
         div.setAttribute('data-achievement-id', ach.id);
         div.setAttribute('data-tooltip', tip);
@@ -157,9 +175,33 @@ function render(container) {
     });
 }
 
+const COINS_PER_ACHIEVEMENT = 50;
+
+function grantCoinsForAchievements(newlyUnlocked) {
+    if (!newlyUnlocked.length) return;
+    var user = window.authModule && window.authModule.getCurrentUser && window.authModule.getCurrentUser();
+    if (!user || !user.uid) return;
+    var total = COINS_PER_ACHIEVEMENT * newlyUnlocked.length;
+    window.authModule.addCoins(user.uid, total).then(function (result) {
+        if (result.success) {
+            if (typeof updateUserUI === 'function') {
+                var u = window.authModule.getCurrentUser();
+                if (u) updateUserUI(u, u);
+            }
+            var n = newlyUnlocked.length;
+            var msg = (typeof app !== 'undefined' && app.lang === 'en')
+                ? '+' + total + ' coins for ' + n + ' achievement(s)!'
+                : '+' + total + ' монет за достижения!';
+            if (typeof showToast === 'function') showToast(msg, 'success', '🪙');
+        }
+    }).catch(function () {});
+}
+
 function checkAndNotify() {
     const newly = checkAndUnlock();
-    newly.forEach(function (ach) {
+    grantCoinsForAchievements(newly);
+    const toShow = pickToastsForSession(newly);
+    toShow.forEach(function (ach) {
         showAchievementToast(ach);
     });
     var block = document.getElementById('achievementsBlock');

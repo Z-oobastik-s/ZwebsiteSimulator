@@ -853,6 +853,31 @@
             border-color: rgba(0, 188, 212, 0.4);
             color: #1f2937;
         }
+        /* Разные анимации при наведении на полученное достижение */
+        @keyframes ach-bounce { 0%, 100% { transform: scale(1); } 30% { transform: scale(1.25); } 50% { transform: scale(0.95); } 70% { transform: scale(1.1); } }
+        @keyframes ach-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes ach-wiggle { 0%, 100% { transform: rotate(-5deg); } 50% { transform: rotate(5deg); } }
+        @keyframes ach-pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.2); opacity: 0.9; } }
+        @keyframes ach-shake { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-4px); } 40% { transform: translateX(4px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(4px); } }
+        @keyframes ach-flip { from { transform: rotateY(0deg); } to { transform: rotateY(360deg); } }
+        @keyframes ach-swing { 0%, 100% { transform: rotate(0deg); } 25% { transform: rotate(15deg); } 75% { transform: rotate(-15deg); } }
+        @keyframes ach-tada { 0%, 100% { transform: scale(1); } 10%, 30% { transform: scale(1.1) rotate(-3deg); } 20%, 40% { transform: scale(1.1) rotate(3deg); } 50% { transform: scale(1.05) rotate(0deg); } }
+        @keyframes ach-heart { 0%, 100% { transform: scale(1); } 14%, 28% { transform: scale(1.15); } 42%, 56% { transform: scale(1); } 70%, 84% { transform: scale(1.1); } }
+        @keyframes ach-glow { 0%, 100% { filter: drop-shadow(0 0 8px rgba(0,229,255,0.5)); } 50% { filter: drop-shadow(0 0 20px rgba(0,229,255,0.9)); } }
+        @keyframes ach-rubber { 0%, 100% { transform: scaleX(1); } 30% { transform: scaleX(1.25); } 50% { transform: scaleX(0.9); } 70% { transform: scaleX(1.1); } }
+        @keyframes ach-jello { 0%, 100% { transform: skew(0deg); } 30% { transform: skew(-8deg); } 50% { transform: skew(8deg); } 70% { transform: skew(-4deg); } }
+        .achievement-unlocked.ach-hover-0:hover { animation: ach-bounce 0.55s ease; }
+        .achievement-unlocked.ach-hover-1:hover { animation: ach-spin 0.6s ease; }
+        .achievement-unlocked.ach-hover-2:hover { animation: ach-wiggle 0.4s ease-in-out 2; }
+        .achievement-unlocked.ach-hover-3:hover { animation: ach-pulse 0.6s ease; }
+        .achievement-unlocked.ach-hover-4:hover { animation: ach-shake 0.5s ease; }
+        .achievement-unlocked.ach-hover-5:hover { animation: ach-flip 0.7s ease; }
+        .achievement-unlocked.ach-hover-6:hover { animation: ach-swing 0.5s ease-in-out 2; }
+        .achievement-unlocked.ach-hover-7:hover { animation: ach-tada 0.6s ease; }
+        .achievement-unlocked.ach-hover-8:hover { animation: ach-heart 0.8s ease; }
+        .achievement-unlocked.ach-hover-9:hover { animation: ach-glow 0.7s ease 2; }
+        .achievement-unlocked.ach-hover-10:hover { animation: ach-rubber 0.5s ease; }
+        .achievement-unlocked.ach-hover-11:hover { animation: ach-jello 0.5s ease; }
         
         /* Custom animations */
         @keyframes fadeIn {
@@ -2230,4 +2255,3 @@
     
 </body>
 </html>
-
