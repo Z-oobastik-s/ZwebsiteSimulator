@@ -1926,15 +1926,20 @@ function toggleLevelListModal() {
     var modal = DOM.get('levelListModal');
     if (!modal) return;
     if (modal.classList.contains('hidden')) {
+        // Звук сразу по клику (как playMenuClickSound — через новый Audio для надёжного воспроизведения)
+        if (app.soundEnabled) {
+            try {
+                var snd = audioOpenAchievement ? audioOpenAchievement.cloneNode() : new Audio('assets/sounds/open_achievement.ogg');
+                snd.volume = 0.35;
+                snd.currentTime = 0;
+                snd.play().catch(function() {});
+            } catch (e) {}
+        }
         fillLevelListModal();
         modal.classList.remove('hidden');
         modal.classList.add('flex');
         document.addEventListener('click', levelListModalOutsideClick);
         document.addEventListener('keydown', levelListModalEscape);
-        if (app.soundEnabled && audioOpenAchievement) {
-            audioOpenAchievement.currentTime = 0;
-            audioOpenAchievement.play().catch(function() {});
-        }
     } else {
         closeLevelListModal();
     }
@@ -3333,4 +3338,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-
