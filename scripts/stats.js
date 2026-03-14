@@ -26,7 +26,8 @@ class Statistics {
             completedLessons: 0,
             bestSpeed: 0,
             averageAccuracy: 0,
-            totalSessions: 0
+            totalSessions: 0,
+            totalCharsTyped: 0
         };
     }
     
@@ -53,7 +54,10 @@ class Statistics {
         this.data.sessions.push(session);
         this.data.totalSessions++;
         this.data.totalTime += session.time;
-        
+        // Chars in this session: speed (CPM) * (time in sec / 60)
+        const charsThisSession = Math.round((session.speed || 0) * (session.time || 0) / 60);
+        this.data.totalCharsTyped = (this.data.totalCharsTyped || 0) + charsThisSession;
+
         if (session.mode === 'lesson') {
             this.data.completedLessons++;
             
@@ -171,6 +175,14 @@ class Statistics {
         }, null);
     }
     
+    getUniqueLessonsCount() {
+        return this.data.lessonStats ? Object.keys(this.data.lessonStats).length : 0;
+    }
+
+    getTotalWords() {
+        return Math.floor((this.data.totalCharsTyped || 0) / 5);
+    }
+
     reset() {
         if (confirm('Вы уверены, что хотите сбросить всю статистику?')) {
             this.data = {
@@ -179,7 +191,8 @@ class Statistics {
                 completedLessons: 0,
                 bestSpeed: 0,
                 averageAccuracy: 0,
-                totalSessions: 0
+                totalSessions: 0,
+                totalCharsTyped: 0
             };
             this.save();
             this.updateDisplay();
@@ -192,3 +205,4 @@ const stats = new Statistics();
 
 // Export
 window.statsModule = stats;
+

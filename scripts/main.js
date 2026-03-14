@@ -107,6 +107,7 @@ const translations = {
         siteLanguageLabel: 'Язык сайта',
         keyboardLayoutLabel: 'Раскладка',
         yourProgress: 'Ваш прогресс',
+        achievements: 'Достижения',
         bestSpeed: 'Лучший результат',
         avgAccuracy: 'Средняя точность',
         completedLessons: 'Пройдено уроков',
@@ -261,6 +262,7 @@ const translations = {
         siteLanguageLabel: 'Site language',
         keyboardLayoutLabel: 'Keyboard',
         yourProgress: 'Your Progress',
+        achievements: 'Achievements',
         bestSpeed: 'Best Speed',
         avgAccuracy: 'Average Accuracy',
         completedLessons: 'Completed Lessons',
@@ -568,6 +570,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeUI();
     updateTranslations();
     window.statsModule.updateDisplay();
+    if (window.achievementsModule) window.achievementsModule.render('achievementsBlock');
     window.keyboardModule.render(app.currentLayout);
     
     // Инициализируем изображение футера при загрузке
@@ -915,6 +918,7 @@ function showHome() {
     createParticles();
     toggleFooter(true); // Показываем футер на главной странице
     if (window.statsModule) window.statsModule.updateDisplay();
+    if (window.achievementsModule) window.achievementsModule.render('achievementsBlock');
 }
 
 function showLessons() {
@@ -1708,7 +1712,8 @@ async function finishPractice() {
     }
     
     window.statsModule.addSession(sessionData);
-    
+    if (window.achievementsModule) window.achievementsModule.checkAndNotify();
+
     const user = window.authModule?.getCurrentUser();
     if (user && window.authModule) {
         window.authModule.addUserSession(user.uid, sessionData).catch(err => {
@@ -3069,3 +3074,4 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+
