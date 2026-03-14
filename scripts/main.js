@@ -84,6 +84,8 @@ let audioError = null;
 let audioWelcome = null;
 let audioVictory = null;
 let audioThemeTransition = null;
+let audioDeniedMoney = null;
+let audioSwipeAnimation = null;
 let welcomePlayed = false;
 
 const translations = {
@@ -610,6 +612,8 @@ function initializeAudio() {
         audioWelcome = new Audio('assets/sounds/welcome.ogg');
         audioVictory = new Audio('assets/sounds/victory.ogg');
         audioThemeTransition = new Audio('assets/sounds/transition_theme.ogg');
+        audioDeniedMoney = new Audio('assets/sounds/denied_money.ogg');
+        audioSwipeAnimation = new Audio('assets/sounds/swipe_animation.ogg');
         
         // Set volumes
         if (audioClick) audioClick.volume = 0.3;
@@ -617,6 +621,8 @@ function initializeAudio() {
         if (audioWelcome) audioWelcome.volume = 0.15; // Тихо, 15%
         if (audioVictory) audioVictory.volume = 0.15; // Тихо, 15%
         if (audioThemeTransition) audioThemeTransition.volume = 0.25;
+        if (audioDeniedMoney) audioDeniedMoney.volume = 0.4;
+        if (audioSwipeAnimation) audioSwipeAnimation.volume = 0.35;
     } catch (e) {
         console.log('Audio files not available, using fallback');
     }
@@ -823,18 +829,22 @@ function applyAnimationsSetting() {
 
 // Animations toggle
 function toggleAnimations() {
+    if (app.soundEnabled && audioSwipeAnimation) {
+        audioSwipeAnimation.currentTime = 0;
+        audioSwipeAnimation.play().catch(() => {});
+    }
     app.animationsEnabled = !app.animationsEnabled;
     localStorage.setItem('animations', app.animationsEnabled);
     applyAnimationsSetting();
-    
+
     // Если анимации включили, создаём частицы
     if (app.animationsEnabled) {
         createParticles();
     }
-    
+
     // Показываем уведомление
-    const message = app.animationsEnabled 
-        ? t('animationsOn') 
+    const message = app.animationsEnabled
+        ? t('animationsOn')
         : t('animationsOff');
     showToast(message, 'info', '');
 }
@@ -2968,6 +2978,10 @@ async function purchaseLesson(lessonId) {
     
     const lesson = window.shopModule?.getLessonById(lessonId);
     if (lesson && (user.balance || 0) < lesson.price) {
+        if (app.soundEnabled && audioDeniedMoney) {
+            audioDeniedMoney.currentTime = 0;
+            audioDeniedMoney.play().catch(() => {});
+        }
         showToast(t('tipInsufficientCoins'), 'info', t('tip'));
         return;
     }
@@ -3017,4 +3031,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-

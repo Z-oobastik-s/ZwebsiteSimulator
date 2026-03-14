@@ -157,15 +157,16 @@
             border: 1px solid rgba(0, 0, 0, 0.08);
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
         }
-        /* Главная: карточки и блок прогресса прозрачнее, чтобы фон с эмодзи просвечивал */
+        /* Главная: карточки и блок прогресса сильно прозрачнее — фон с эмодзи хорошо просвечивает */
         html:not(.dark) #homeScreen .glass {
-            background: rgba(255, 255, 255, 0.72);
-            backdrop-filter: blur(14px);
-            border: 1px solid rgba(0, 0, 0, 0.1);
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+            background: rgba(255, 255, 255, 0.38);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(0, 0, 0, 0.12);
+            box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
         }
         html:not(.dark) #homeScreen .glass:hover {
-            background: rgba(255, 255, 255, 0.85);
+            background: rgba(255, 255, 255, 0.58);
         }
         html:not(.dark) header.glass {
             box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
@@ -2137,4 +2138,3 @@
     
 </body>
 </html>
-
