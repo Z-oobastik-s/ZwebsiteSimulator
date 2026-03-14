@@ -198,6 +198,7 @@ const translations = {
         levelRank: 'Ранг',
         levelUpCongrats: 'Продолжайте в том же духе!',
         continue: 'Продолжить',
+        allLevels: 'Все уровни',
         registerSuccess: 'Регистрация успешна',
         logoutSuccess: 'Выход выполнен',
         loginError: 'Ошибка входа',
@@ -362,6 +363,7 @@ const translations = {
         levelRank: 'Rank',
         levelUpCongrats: 'Keep up the great work!',
         continue: 'Continue',
+        allLevels: 'All levels',
         loginError: 'Login error',
         registerError: 'Registration error',
         fillAllFields: 'Please fill all fields',
@@ -1978,21 +1980,20 @@ function fillLevelListModal() {
     var getTier = window.levelModule.getTierName;
     var getXP = window.levelModule.getXPThreshold;
     var lang = (typeof app !== 'undefined' && app.lang === 'en') ? 'en' : 'ru';
-    var title = lang === 'en' ? 'All levels' : 'Все уровни';
-    var html = '<h4 class="text-sm font-semibold text-gray-400 dark:text-gray-500 mb-3 px-1">' + title + '</h4><div class="space-y-1 max-h-[60vh] overflow-y-auto pr-1">';
+    var html = '<div class="level-list-scroll space-y-1.5 max-h-[60vh] pr-1">';
     for (var lvl = 1; lvl <= 50; lvl++) {
         var tier = getTier(lvl);
         var xpFrom = getXP(lvl);
         var xpTo = getXP(lvl + 1);
         var isCurrent = lvl === current;
         var xpText = lvl === 1 ? '0 XP' : xpFrom + ' – ' + xpTo + ' XP';
-        var cls = isCurrent ? 'bg-amber-500/20 border-amber-500/40' : 'bg-white/5 border-white/10';
+        var cls = isCurrent ? 'bg-amber-500/25 border-amber-500/50 shadow-sm shadow-amber-500/10' : 'bg-white/5 border-white/10 hover:bg-white/8';
         var numCls = isCurrent ? 'text-amber-400' : 'text-gray-300 dark:text-gray-400';
-        var tierCls = isCurrent ? 'text-amber-300' : 'text-gray-400 dark:text-gray-500';
-        html += '<div class="flex items-center justify-between rounded-lg border px-3 py-2 ' + cls + '">';
-        html += '<span class="font-bold tabular-nums ' + numCls + '">' + lvl + '</span>';
-        html += '<span class="text-sm ' + tierCls + '">' + tier + '</span>';
-        html += '<span class="text-xs text-gray-500 dark:text-gray-500 tabular-nums">' + xpText + '</span></div>';
+        var tierCls = isCurrent ? 'text-amber-200' : 'text-gray-400 dark:text-gray-500';
+        html += '<div class="flex items-center justify-between rounded-xl border px-3 py-2.5 transition-colors ' + cls + '">';
+        html += '<span class="font-bold tabular-nums w-8 ' + numCls + '">' + lvl + '</span>';
+        html += '<span class="text-sm flex-1 truncate mx-2 ' + tierCls + '">' + tier + '</span>';
+        html += '<span class="text-xs text-gray-500 dark:text-gray-500 tabular-nums shrink-0">' + xpText + '</span></div>';
     }
     html += '</div>';
     listEl.innerHTML = html;
@@ -3338,3 +3339,4 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+

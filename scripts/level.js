@@ -33,14 +33,37 @@ function getLevelInfo(totalXP) {
     };
 }
 
-var TIER_NAMES_RU = ['Новичок', 'Ученик', 'Практик', 'Знаток', 'Мастер', 'Эксперт', 'Виртуоз', 'Легенда', 'Титан', 'Бог клавиатуры'];
-var TIER_NAMES_EN = ['Rookie', 'Apprentice', 'Practitioner', 'Expert', 'Master', 'Virtuoso', 'Legend', 'Titan', 'Champion', 'Keyboard God'];
+// Уникальное название ранга для каждого уровня (1–50), без повторений
+var TIER_NAMES_RU = [
+    'Новичок', 'Юный печатник', 'Начинающий', 'Первые шаги', 'Уверенный старт',
+    'Ученик', 'Грамотей', 'Успевающий', 'Старательный', 'Отличник',
+    'Практик', 'Настойчивый', 'Трудяга', 'Опытный', 'Быстрые пальцы',
+    'Знаток', 'Грамотей-про', 'Следопыт', 'Точный удар', 'Скоростник',
+    'Мастер', 'Виртуоз клавиш', 'Меткий', 'Неудержимый', 'Чемпион ряда',
+    'Эксперт', 'Ас набора', 'Молния', 'Безошибочный', 'Эталон',
+    'Виртуоз', 'Снайпер букв', 'Турбо-печатник', 'Живые пальцы', 'Гроссмейстер',
+    'Легенда', 'Титан клавиатуры', 'Небожитель', 'Метр набора', 'Абсолют',
+    'Титан', 'Повелитель клавиш', 'Король скорости', 'Идеал', 'Великий',
+    'Бог клавиатуры', 'Создатель текста', 'Маг клавиш', 'Звезда набора', 'Вершина'
+];
+var TIER_NAMES_EN = [
+    'Rookie', 'Young Typer', 'Beginner', 'First Steps', 'Confident Start',
+    'Apprentice', 'Literate', 'Ace Student', 'Diligent', 'Honor Roll',
+    'Practitioner', 'Persistent', 'Hard Worker', 'Experienced', 'Quick Fingers',
+    'Expert', 'Pro Literate', 'Trailblazer', 'Precise Strike', 'Speedster',
+    'Master', 'Key Virtuoso', 'Sharp', 'Unstoppable', 'Row Champion',
+    'Ace', 'Typing Ace', 'Lightning', 'Flawless', 'Benchmark',
+    'Virtuoso', 'Letter Sniper', 'Turbo Typer', 'Live Fingers', 'Grandmaster',
+    'Legend', 'Keyboard Titan', 'Immortal', 'Typing Master', 'Absolute',
+    'Titan', 'Key Lord', 'Speed King', 'Ideal', 'The Great',
+    'Keyboard God', 'Text Creator', 'Key Mage', 'Typing Star', 'The Peak'
+];
 
 function getTierName(level) {
-    var tierIndex = Math.min(Math.floor((level - 1) / 5), TIER_NAMES_RU.length - 1);
+    var index = Math.max(0, Math.min(level - 1, TIER_NAMES_RU.length - 1));
     var lang = (typeof app !== 'undefined' && app.lang === 'en') ? 'en' : 'ru';
     var names = lang === 'en' ? TIER_NAMES_EN : TIER_NAMES_RU;
-    return names[Math.min(tierIndex, names.length - 1)] || names[names.length - 1];
+    return names[index] || names[names.length - 1];
 }
 
 function getPlayerXP() {
@@ -91,3 +114,4 @@ window.levelModule = {
     getTierName: getTierName,
     getXPThreshold: getXPThreshold
 };
+
