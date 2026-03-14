@@ -94,6 +94,7 @@ let audioBuyShop = null;
 let audioOpenProfile = null;
 let audioCompleteAdvanced = null;
 let audioOpenTelegram = null;
+let audioFeedback = null;
 let welcomePlayed = false;
 
 const translations = {
@@ -112,6 +113,8 @@ const translations = {
         keyboardLayoutLabel: 'Раскладка',
         yourProgress: 'Ваш прогресс',
         achievements: 'Достижения',
+        rateSite: 'Оцените сайт',
+        thanksForRating: 'Спасибо за оценку!',
         bestSpeed: 'Лучший результат',
         avgAccuracy: 'Средняя точность',
         completedLessons: 'Пройдено уроков',
@@ -267,6 +270,8 @@ const translations = {
         keyboardLayoutLabel: 'Keyboard',
         yourProgress: 'Your Progress',
         achievements: 'Achievements',
+        rateSite: 'Rate site',
+        thanksForRating: 'Thanks for your rating!',
         bestSpeed: 'Best Speed',
         avgAccuracy: 'Average Accuracy',
         completedLessons: 'Completed Lessons',
@@ -576,6 +581,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.statsModule.updateDisplay();
     if (window.achievementsModule) window.achievementsModule.render('achievementsBlock');
     window.keyboardModule.render(app.currentLayout);
+    initSiteRating();
     
     // Инициализируем изображение футера при загрузке
     updateFooterBackground();
@@ -633,6 +639,7 @@ function initializeAudio() {
         audioOpenProfile = new Audio('assets/sounds/open_profile.ogg');
         audioCompleteAdvanced = new Audio('assets/sounds/complete_advanced.ogg');
         audioOpenTelegram = new Audio('assets/sounds/open_telegram.ogg');
+        audioFeedback = new Audio('assets/sounds/feetback.ogg');
         
         // Set volumes
         if (audioClick) audioClick.volume = 0.3;
@@ -650,6 +657,7 @@ function initializeAudio() {
         if (audioOpenProfile) audioOpenProfile.volume = 0.35;
         if (audioCompleteAdvanced) audioCompleteAdvanced.volume = 0.35;
         if (audioOpenTelegram) audioOpenTelegram.volume = 0.35;
+        if (audioFeedback) audioFeedback.volume = 0.35;
     } catch (e) {
         console.log('Audio files not available, using fallback');
     }
@@ -3085,6 +3093,51 @@ function playTelegramSound() {
     audioOpenTelegram.play().catch(() => {});
 }
 
+const SITE_RATING_STORAGE_KEY = 'zoobastiks_site_rating';
+
+function initSiteRating() {
+    const wrap = document.getElementById('siteRatingStars');
+    if (!wrap) return;
+    const stars = wrap.querySelectorAll('.site-star');
+    const container = wrap.closest('.site-rating-wrap');
+    if (!container || !stars.length) return;
+
+    function updateStars(value) {
+        const v = parseInt(value, 10) || 0;
+        container.setAttribute('data-rating', v);
+        stars.forEach((star, i) => {
+            if (i < v) star.classList.add('active');
+            else star.classList.remove('active');
+        });
+    }
+
+    const saved = parseInt(localStorage.getItem(SITE_RATING_STORAGE_KEY), 10);
+    if (saved >= 1 && saved <= 5) updateStars(saved);
+
+    stars.forEach((star) => {
+        const rating = parseInt(star.getAttribute('data-rating'), 10);
+        star.addEventListener('mouseenter', function () {
+            stars.forEach((s, i) => {
+                if (i < rating) s.classList.add('hover');
+                else s.classList.remove('hover');
+            });
+        });
+        star.addEventListener('mouseleave', function () {
+            stars.forEach((s) => s.classList.remove('hover'));
+        });
+        star.addEventListener('click', function () {
+            localStorage.setItem(SITE_RATING_STORAGE_KEY, String(rating));
+            updateStars(rating);
+            if (app.soundEnabled && audioFeedback) {
+                audioFeedback.currentTime = 0;
+                audioFeedback.play().catch(() => {});
+            }
+            const msg = app.lang === 'en' ? t('thanksForRating') : t('thanksForRating');
+            showToast(msg, 'success', '⭐');
+        });
+    });
+}
+
 // Start purchased lesson
 function startPurchasedLesson(lessonId) {
     if (!window.shopModule) return;
@@ -3114,3 +3167,4 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+
