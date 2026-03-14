@@ -192,3 +192,4 @@ const stats = new Statistics();
 
 // Export
 window.statsModule = stats;
+

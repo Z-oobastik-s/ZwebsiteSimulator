@@ -19,9 +19,12 @@ node_modules/
 github-token.txt
 .env
 
-# Scripts and serve files - НЕ коммитить!
+# Local / dev only - not for GitHub
+upload-to-github.bat
+.sync-mode
 scripts/*.bat
 scripts/*.sh
 serve.bat
 serve.sh
 SEO_SETUP.md
+
