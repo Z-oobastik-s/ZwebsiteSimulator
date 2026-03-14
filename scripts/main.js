@@ -1881,13 +1881,11 @@ function renderLevelBlock() {
     if (progressBar) progressBar.style.width = info.progressPct + '%';
     if (xpText) {
         if (info.xpToNext > 0) {
-            xpText.textContent = info.xpInLevel + ' / ' + info.xpToNext + ' XP';
+            xpText.textContent = info.xpInLevel + '/' + info.xpToNext;
         } else {
-            xpText.textContent = info.totalXP + ' XP';
+            xpText.textContent = info.totalXP;
         }
     }
-    var headerLevelNum = DOM.get('headerLevelNum');
-    if (headerLevelNum) headerLevelNum.textContent = info.level;
 }
 
 function showLevelUpModal(level) {
@@ -3253,3 +3251,4 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+
