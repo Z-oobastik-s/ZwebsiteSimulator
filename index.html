@@ -990,36 +990,98 @@
             animation: scaleIn 0.45s ease-out;
         }
         
-        /* Onboarding — игровой туториал при первом заходе */
+        /* Onboarding — футуристичный HUD-стиль, 2090 */
         .onboarding-card {
-            background: linear-gradient(145deg, rgba(15, 23, 42, 0.97) 0%, rgba(30, 41, 59, 0.95) 100%);
-            border: 1px solid rgba(245, 158, 11, 0.3);
-            box-shadow: 0 0 40px rgba(245, 158, 11, 0.15), 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            background: linear-gradient(160deg, rgba(6, 12, 24, 0.98) 0%, rgba(15, 23, 42, 0.98) 50%, rgba(22, 35, 58, 0.96) 100%);
+            border: 1px solid rgba(0, 188, 212, 0.25);
+            box-shadow: 
+                inset 0 0 60px rgba(0, 188, 212, 0.03),
+                0 0 0 1px rgba(245, 158, 11, 0.15),
+                0 0 50px rgba(0, 188, 212, 0.12),
+                0 25px 60px -15px rgba(0, 0, 0, 0.6);
+            position: relative;
+        }
+        .onboarding-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            padding: 1px;
+            background: linear-gradient(135deg, transparent 40%, rgba(0, 188, 212, 0.2) 50%, transparent 60%);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
         }
         .onboarding-slide {
             display: none;
-            animation: onboardingSlideIn 0.4s ease-out;
+            animation: onboardingSlideIn 0.35s ease-out;
         }
         .onboarding-slide.active {
             display: block;
         }
         @keyframes onboardingSlideIn {
-            from { opacity: 0; transform: translateX(24px) scale(0.98); }
-            to { opacity: 1; transform: translateX(0) scale(1); }
-        }
-        @keyframes onboardingPulse {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
-            50% { box-shadow: 0 0 0 12px rgba(245, 158, 11, 0); }
-        }
-        .onboarding-dot {
-            transition: transform 0.2s, background 0.2s;
-        }
-        .onboarding-dot.active {
-            transform: scale(1.25);
-            background: rgba(245, 158, 11, 0.9);
+            from { opacity: 0; transform: translateX(16px); }
+            to { opacity: 1; transform: translateX(0); }
         }
         .onboarding-glow {
-            animation: onboardingPulse 2s ease-in-out infinite;
+            animation: onboardingBorderGlow 6s ease-in-out infinite;
+        }
+        @keyframes onboardingBorderGlow {
+            0%, 100% { box-shadow: inset 0 0 60px rgba(0, 188, 212, 0.03), 0 0 0 1px rgba(245, 158, 11, 0.12), 0 0 50px rgba(0, 188, 212, 0.1), 0 25px 60px -15px rgba(0, 0, 0, 0.6); }
+            50% { box-shadow: inset 0 0 60px rgba(0, 188, 212, 0.05), 0 0 0 1px rgba(245, 158, 11, 0.2), 0 0 55px rgba(0, 188, 212, 0.15), 0 25px 60px -15px rgba(0, 0, 0, 0.6); }
+        }
+        .onboarding-icon-box {
+            border: 1px solid rgba(0, 188, 212, 0.35);
+            box-shadow: inset 0 0 24px rgba(0, 188, 212, 0.08), 0 0 20px rgba(0, 188, 212, 0.1);
+        }
+        .onboarding-title {
+            background: linear-gradient(135deg, #00E5FF 0%, #00BCD4 40%, #B388FF 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 0.02em;
+        }
+        .onboarding-dot {
+            width: 28px;
+            height: 4px;
+            border-radius: 2px;
+            background: rgba(255, 255, 255, 0.12);
+            transition: background 0.25s, box-shadow 0.25s;
+        }
+        .onboarding-dot.active {
+            background: linear-gradient(90deg, rgba(0, 188, 212, 0.9), rgba(245, 158, 11, 0.9));
+            box-shadow: 0 0 12px rgba(0, 188, 212, 0.4);
+        }
+        .onboarding-btn-next {
+            border: 1px solid rgba(0, 188, 212, 0.4);
+            box-shadow: 0 0 20px rgba(0, 188, 212, 0.15);
+        }
+        .onboarding-btn-next:hover {
+            box-shadow: 0 0 28px rgba(0, 188, 212, 0.25);
+        }
+        .onboarding-btn-go {
+            border: 1px solid rgba(76, 175, 80, 0.4);
+            box-shadow: 0 0 20px rgba(76, 175, 80, 0.12);
+        }
+        .onboarding-btn-go:hover {
+            box-shadow: 0 0 28px rgba(76, 175, 80, 0.22);
+        }
+        .onboarding-skip {
+            font-size: 10px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.4);
+        }
+        .onboarding-skip:hover {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        .onboarding-badge {
+            font-size: 9px;
+            letter-spacing: 0.2em;
+            color: rgba(0, 188, 212, 0.7);
+            margin-bottom: 4px;
         }
         
         @keyframes floatUp {
@@ -1942,39 +2004,40 @@
     <!-- Toast Container -->
     <div id="toastContainer" class="toast-container"></div>
     
-    <!-- Onboarding (первый заход) — компактный игровой туториал -->
-    <div id="onboardingOverlay" class="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm hidden z-[9999]">
-        <div class="onboarding-card onboarding-glow rounded-2xl p-6 max-w-md w-full mx-4 relative overflow-hidden">
-            <button type="button" onclick="finishOnboarding()" class="absolute top-3 right-3 text-xs text-gray-500 hover:text-gray-300 transition-colors" data-i18n="skip">Пропустить</button>
+    <!-- Onboarding (первый заход) — футуристичный HUD, стиль 2090 -->
+    <div id="onboardingOverlay" class="fixed inset-0 flex items-center justify-center bg-black/70 backdrop-blur-md hidden z-[9999]">
+        <div class="onboarding-card onboarding-glow rounded-2xl p-8 max-w-lg w-full mx-4 relative overflow-hidden">
+            <button type="button" onclick="finishOnboarding()" class="absolute top-4 right-4 onboarding-skip transition-colors" data-i18n="skip">Пропустить</button>
+            <div class="absolute top-4 left-4 onboarding-badge">Zoobastiks · 2090</div>
             <div id="onboardingSlide1" class="onboarding-slide active">
-                <div class="text-center mb-5">
-                    <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-amber-500/20 border border-amber-500/40 mb-4 text-3xl">👋</div>
-                    <h3 class="text-xl font-bold text-white mb-2" data-i18n="onbTitle1">Добро пожаловать в Zoobastiks!</h3>
-                    <p class="text-sm text-gray-400 leading-relaxed" data-i18n="onbText1">Уроки, тест скорости и свободная печать — всё здесь. Короткий обзор за 3 шага.</p>
+                <div class="text-center pt-2 pb-2">
+                    <div class="onboarding-icon-box inline-flex items-center justify-center w-20 h-20 rounded-xl bg-slate-900/60 mb-5 text-4xl">👋</div>
+                    <h3 class="onboarding-title text-2xl font-extrabold mb-3" data-i18n="onbTitle1">Добро пожаловать в Zoobastiks!</h3>
+                    <p class="text-sm text-gray-300 leading-relaxed max-w-sm mx-auto" data-i18n="onbText1">Уроки, тест скорости и свободная печать - всё здесь. Короткий обзор за 3 шага.</p>
                 </div>
             </div>
             <div id="onboardingSlide2" class="onboarding-slide">
-                <div class="text-center mb-5">
-                    <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-cyan-500/20 border border-cyan-500/40 mb-4 text-3xl">🎮</div>
-                    <h3 class="text-xl font-bold text-white mb-2" data-i18n="onbTitle2">Уроки и режимы</h3>
-                    <p class="text-sm text-gray-400 leading-relaxed" data-i18n="onbText2">Карточки на главной: пошаговые уроки, свой текст по темам, тест на 60 секунд. Выбери и начни.</p>
+                <div class="text-center pt-2 pb-2">
+                    <div class="onboarding-icon-box inline-flex items-center justify-center w-20 h-20 rounded-xl bg-slate-900/60 mb-5 text-4xl">🎮</div>
+                    <h3 class="onboarding-title text-2xl font-extrabold mb-3" data-i18n="onbTitle2">Уроки и режимы</h3>
+                    <p class="text-sm text-gray-300 leading-relaxed max-w-sm mx-auto" data-i18n="onbText2">Карточки на главной: пошаговые уроки, свой текст по темам, тест на 60 секунд. Выбери и начни.</p>
                 </div>
             </div>
             <div id="onboardingSlide3" class="onboarding-slide">
-                <div class="text-center mb-5">
-                    <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-amber-500/20 border border-amber-500/40 mb-4 text-3xl">⭐</div>
-                    <h3 class="text-xl font-bold text-white mb-2" data-i18n="onbTitle3">Уровень и прогресс</h3>
-                    <p class="text-sm text-gray-400 leading-relaxed" data-i18n="onbText3">В шапке справа — твой уровень и XP. Занимайся чаще, получай опыт и открывай новые ранги. Удачи!</p>
+                <div class="text-center pt-2 pb-2">
+                    <div class="onboarding-icon-box inline-flex items-center justify-center w-20 h-20 rounded-xl bg-slate-900/60 mb-5 text-4xl">⭐</div>
+                    <h3 class="onboarding-title text-2xl font-extrabold mb-3" data-i18n="onbTitle3">Уровень и прогресс</h3>
+                    <p class="text-sm text-gray-300 leading-relaxed max-w-sm mx-auto" data-i18n="onbText3">В шапке справа - твой уровень и XP. Занимайся чаще, получай опыт и открывай новые ранги. Удачи!</p>
                 </div>
             </div>
-            <div class="flex justify-center gap-2 mb-5">
-                <span id="onbDot1" class="onboarding-dot active w-2 h-2 rounded-full bg-amber-500/60"></span>
-                <span id="onbDot2" class="onboarding-dot w-2 h-2 rounded-full bg-white/30"></span>
-                <span id="onbDot3" class="onboarding-dot w-2 h-2 rounded-full bg-white/30"></span>
+            <div class="flex justify-center gap-2 mb-6">
+                <span id="onbDot1" class="onboarding-dot active"></span>
+                <span id="onbDot2" class="onboarding-dot"></span>
+                <span id="onbDot3" class="onboarding-dot"></span>
             </div>
-            <div class="flex gap-3">
-                <button type="button" id="onbNextBtn" onclick="nextOnboardingStep()" class="flex-1 py-3 rounded-xl font-semibold bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-white transition-all shadow-lg hover:shadow-amber-500/30" data-i18n="next">Далее</button>
-                <button type="button" id="onbGoBtn" onclick="finishOnboarding()" class="flex-1 py-3 rounded-xl font-semibold bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-white transition-all shadow-lg hidden" data-i18n="onbLetsGo">Погнали!</button>
+            <div class="flex gap-4">
+                <button type="button" id="onbNextBtn" onclick="nextOnboardingStep()" class="onboarding-btn-next flex-1 py-3.5 rounded-xl font-bold bg-slate-800/80 hover:bg-slate-700/80 text-cyan-200 transition-all border" data-i18n="next">Далее</button>
+                <button type="button" id="onbGoBtn" onclick="finishOnboarding()" class="onboarding-btn-go flex-1 py-3.5 rounded-xl font-bold bg-emerald-900/60 hover:bg-emerald-800/70 text-emerald-200 transition-all border hidden" data-i18n="onbLetsGo">Погнали!</button>
             </div>
         </div>
     </div>
@@ -2456,3 +2519,4 @@
     
 </body>
 </html>
+

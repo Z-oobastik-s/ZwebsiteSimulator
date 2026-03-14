@@ -637,10 +637,7 @@ function goToOnboardingStep(step) {
         var slide = DOM.get('onboardingSlide' + i);
         var dot = DOM.get('onbDot' + i);
         if (slide) slide.classList.toggle('active', i === step);
-        if (dot) {
-            dot.classList.toggle('active', i === step);
-            dot.style.background = i === step ? 'rgba(245, 158, 11, 0.9)' : 'rgba(255,255,255,0.3)';
-        }
+        if (dot) dot.classList.toggle('active', i === step);
     }
     var nextBtn = DOM.get('onbNextBtn');
     var goBtn = DOM.get('onbGoBtn');
@@ -3445,3 +3442,4 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+
