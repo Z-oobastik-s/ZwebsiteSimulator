@@ -977,63 +977,58 @@
                 </div>
                 
                 <!-- Shop Button (only when logged in) -->
-                <button id="shopBtn" onclick="showShop()" class="hidden px-4 py-2 rounded-lg glass bg-gradient-to-r from-purple-600/30 to-pink-600/30 border border-purple-500/50 hover:from-purple-500/40 hover:to-pink-500/40 font-medium text-purple-200 transition-all shadow-md hover:shadow-lg">
+                <button id="shopBtn" onclick="showShop()" class="hidden header-action px-2.5 py-1.5 rounded-lg glass border border-purple-500/40 hover:bg-purple-500/20 text-purple-200 text-sm font-medium transition-colors">
                     <span data-i18n="shop">Магазин</span>
                 </button>
                 
                 <!-- User Profile Button -->
                 <div id="userProfileBtn" class="hidden">
-                    <button onclick="showProfile()" class="flex items-center space-x-2 px-3 py-2 rounded-lg glass hover:bg-white/20 dark:hover:bg-black/20">
-                        <img id="userAvatar" src="" alt="Profile" class="w-8 h-8 rounded-full border-2 border-primary" style="display: none;">
-                        <span id="userName" class="font-medium"></span>
+                    <button onclick="showProfile()" class="header-action flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg glass border border-white/10 hover:bg-white/15 dark:hover:bg-black/20 transition-colors">
+                        <img id="userAvatar" src="" alt="Profile" class="w-6 h-6 rounded-full border border-primary shrink-0" style="display: none;">
+                        <span id="userName" class="text-sm font-medium max-w-[100px] truncate"></span>
                     </button>
                 </div>
                 
-                <!-- Login/Register Button -->
-                <button id="loginBtn" onclick="showLoginModal()" class="px-4 py-2 rounded-lg glass hover:bg-white/20 dark:hover:bg-black/20 font-medium">
-                    <span data-i18n="login">Войти</span>
+                <!-- Login -->
+                <button id="loginBtn" onclick="showLoginModal()" class="header-action flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg glass border border-white/10 hover:bg-white/15 dark:hover:bg-black/20 transition-colors" title="Войти в аккаунт">
+                    <svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                    <span class="text-sm font-medium" data-i18n="login">Войти</span>
                 </button>
                 
                 <!-- Admin Panel Button -->
-                <button id="adminBtn" onclick="showAdminPanel()" class="hidden px-4 py-2 rounded-lg bg-red-500/20 hover:bg-red-500/30 text-red-400 font-medium">
+                <button id="adminBtn" onclick="showAdminPanel()" class="hidden header-action px-2.5 py-1.5 rounded-lg bg-red-500/20 hover:bg-red-500/30 text-red-400 text-sm font-medium border border-red-500/30">
                     <span data-i18n="admin">Админ</span>
                 </button>
                 
-                <!-- Site language: interface RU/EN -->
-                <button id="langToggle" type="button" class="header-btn header-btn--lang flex items-center gap-2 px-3 py-2 rounded-xl glass border-l-4 border-primary/80 hover:bg-primary/10 dark:hover:bg-primary/10 transition-colors" data-i18n-title="siteLanguageLabel" title="Язык сайта">
-                    <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/20 text-primary shrink-0">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18m8.129-8.129A18.022 18.022 0 0118.588 9"/></svg>
-                    </span>
-                    <span class="hidden sm:block text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide" data-i18n="siteLanguageLabel">Язык сайта</span>
-                    <span id="currentLang" class="font-bold text-primary tabular-nums min-w-[2rem]">RU</span>
+                <!-- Site language: RU/EN -->
+                <button id="langToggle" type="button" class="header-action flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg glass border-l-2 border-primary/70 hover:bg-primary/10 transition-colors" data-i18n-title="siteLanguageLabel" title="Язык сайта">
+                    <svg class="w-4 h-4 text-primary shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18m8.129-8.129A18.022 18.022 0 0118.588 9"/></svg>
+                    <span id="currentLang" class="text-sm font-bold text-primary tabular-nums">RU</span>
                 </button>
                 
                 <!-- Keyboard layout: РУС / ENG / УКР -->
-                <button id="layoutToggle" type="button" class="header-btn header-btn--layout flex items-center gap-2 px-3 py-2 rounded-xl glass border-l-4 border-amber-500/80 hover:bg-amber-500/10 dark:hover:bg-amber-500/10 transition-colors" data-i18n-title="keyboardLayoutLabel" title="Раскладка">
-                    <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 shrink-0">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h10"/></svg>
-                    </span>
-                    <span class="hidden sm:block text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide" data-i18n="keyboardLayoutLabel">Раскладка</span>
-                    <span id="currentLayout" class="font-bold text-amber-400 tabular-nums min-w-[2.5rem]">РУС</span>
+                <button id="layoutToggle" type="button" class="header-action flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg glass border-l-2 border-amber-500/70 hover:bg-amber-500/10 transition-colors" data-i18n-title="keyboardLayoutLabel" title="Раскладка">
+                    <svg class="w-4 h-4 text-amber-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h10"/></svg>
+                    <span id="currentLayout" class="text-sm font-bold text-amber-400 tabular-nums">РУС</span>
                 </button>
                 
-                <!-- Sound Toggle -->
-                <button id="soundToggle" class="p-2 rounded-lg glass hover:bg-white/20 dark:hover:bg-black/20">
-                    <svg id="soundIcon" class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                <!-- Sound -->
+                <button id="soundToggle" class="header-action p-1.5 rounded-lg glass border border-transparent hover:bg-white/15 dark:hover:bg-black/20 transition-colors" title="Звук">
+                    <svg id="soundIcon" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.929a1 1 0 011.414 0A9.972 9.972 0 0119 10a9.972 9.972 0 01-2.929 7.071 1 1 0 01-1.414-1.414A7.971 7.971 0 0017 10c0-2.21-.894-4.208-2.343-5.657a1 1 0 010-1.414zm-2.829 2.828a1 1 0 011.415 0A5.983 5.983 0 0115 10a5.984 5.984 0 01-1.757 4.243 1 1 0 01-1.415-1.415A3.984 3.984 0 0013 10a3.983 3.983 0 00-1.172-2.828 1 1 0 010-1.415z" clip-rule="evenodd" />
                     </svg>
                 </button>
                 
-                <!-- Theme Toggle -->
-                <button id="themeToggle" class="p-2 rounded-lg glass hover:bg-white/20 dark:hover:bg-black/20">
-                    <svg id="themeIcon" class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                <!-- Theme -->
+                <button id="themeToggle" class="header-action p-1.5 rounded-lg glass border border-transparent hover:bg-white/15 dark:hover:bg-black/20 transition-colors" title="Тема">
+                    <svg id="themeIcon" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
                     </svg>
                 </button>
                 
-                <!-- Animations Toggle -->
-                <button id="animationsToggle" class="p-2 rounded-lg glass hover:bg-white/20 dark:hover:bg-black/20" data-i18n-title="toggleAnimations" title="Включить/выключить анимации">
-                    <svg id="animationsIcon" class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                <!-- Animations -->
+                <button id="animationsToggle" class="header-action p-1.5 rounded-lg glass border border-transparent hover:bg-white/15 dark:hover:bg-black/20 transition-colors" data-i18n-title="toggleAnimations" title="Анимации">
+                    <svg id="animationsIcon" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" />
                     </svg>
                 </button>
@@ -1933,3 +1928,4 @@
     
 </body>
 </html>
+
