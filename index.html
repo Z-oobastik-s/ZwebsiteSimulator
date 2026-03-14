@@ -1943,7 +1943,7 @@
     <div id="toastContainer" class="toast-container"></div>
     
     <!-- Onboarding (первый заход) — компактный игровой туториал -->
-    <div id="onboardingOverlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-[100]">
+    <div id="onboardingOverlay" class="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm hidden z-[9999]">
         <div class="onboarding-card onboarding-glow rounded-2xl p-6 max-w-md w-full mx-4 relative overflow-hidden">
             <button type="button" onclick="finishOnboarding()" class="absolute top-3 right-3 text-xs text-gray-500 hover:text-gray-300 transition-colors" data-i18n="skip">Пропустить</button>
             <div id="onboardingSlide1" class="onboarding-slide active">
@@ -2456,4 +2456,3 @@
     
 </body>
 </html>
-

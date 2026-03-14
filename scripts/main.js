@@ -622,10 +622,11 @@ function showOnboardingIfFirstVisit() {
     try {
         if (localStorage.getItem(ONBOARDING_STORAGE_KEY)) return;
     } catch (e) { return; }
-    var overlay = DOM.get('onboardingOverlay');
+    var overlay = document.getElementById('onboardingOverlay');
     if (!overlay) return;
     overlay.classList.remove('hidden');
-    overlay.classList.add('flex');
+    overlay.style.display = 'flex';
+    overlay.style.visibility = 'visible';
     onboardingStep = 1;
     goToOnboardingStep(1);
 }
@@ -656,10 +657,11 @@ function finishOnboarding() {
     try {
         localStorage.setItem(ONBOARDING_STORAGE_KEY, '1');
     } catch (e) {}
-    var overlay = DOM.get('onboardingOverlay');
+    var overlay = document.getElementById('onboardingOverlay');
     if (overlay) {
         overlay.classList.add('hidden');
-        overlay.classList.remove('flex');
+        overlay.style.display = '';
+        overlay.style.visibility = '';
     }
 }
 
@@ -3443,4 +3445,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-
