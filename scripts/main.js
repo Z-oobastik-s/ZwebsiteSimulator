@@ -26,7 +26,8 @@ const app = {
     statsUpdatePending: false,
     lastStatsUpdate: 0,
     cachedDOM: {},
-    animationFrameId: null
+    animationFrameId: null,
+    pendingLevelUp: null
 };
 
 // DOM Cache - кэшируем часто используемые элементы
@@ -191,6 +192,11 @@ const translations = {
         totalSessions: 'Всего сессий',
         totalErrors: 'Всего ошибок',
         loginSuccess: 'Вход выполнен успешно',
+        level: 'Уровень',
+        levelUp: 'Повышение уровня!',
+        levelRank: 'Ранг',
+        levelUpCongrats: 'Продолжайте в том же духе!',
+        continue: 'Продолжить',
         registerSuccess: 'Регистрация успешна',
         logoutSuccess: 'Выход выполнен',
         loginError: 'Ошибка входа',
@@ -350,6 +356,11 @@ const translations = {
         loginSuccess: 'Login successful',
         registerSuccess: 'Registration successful',
         logoutSuccess: 'Logout successful',
+        level: 'Level',
+        levelUp: 'Level Up!',
+        levelRank: 'Rank',
+        levelUpCongrats: 'Keep up the great work!',
+        continue: 'Continue',
         loginError: 'Login error',
         registerError: 'Registration error',
         fillAllFields: 'Please fill all fields',
@@ -582,6 +593,7 @@ document.addEventListener('DOMContentLoaded', () => {
     updateTranslations();
     window.statsModule.updateDisplay();
     if (window.achievementsModule) window.achievementsModule.render('achievementsBlock');
+    if (window.levelModule) renderLevelBlock();
     window.keyboardModule.render(app.currentLayout);
     initSiteRating();
     
@@ -945,6 +957,7 @@ function showHome() {
     toggleFooter(true); // Показываем футер на главной странице
     if (window.statsModule) window.statsModule.updateDisplay();
     if (window.achievementsModule) window.achievementsModule.render('achievementsBlock');
+    if (window.levelModule) renderLevelBlock();
 }
 
 function showLessons() {
@@ -1741,6 +1754,11 @@ async function finishPractice() {
     }
     
     window.statsModule.addSession(sessionData);
+    if (window.levelModule) {
+        var xp = window.levelModule.calculateSessionXP(sessionData);
+        var xpResult = window.levelModule.addPlayerXP(xp);
+        if (xpResult.leveledUp) app.pendingLevelUp = xpResult.newLevel;
+    }
     var newlyAchievements = window.achievementsModule ? window.achievementsModule.checkAndNotify() : [];
     if (newlyAchievements && newlyAchievements.length > 0 && app.soundEnabled && audioCompleteAdvanced) {
         audioCompleteAdvanced.currentTime = 0;
@@ -1836,13 +1854,63 @@ function closeResults() {
         modal.classList.add('hidden');
         modal.classList.remove('flex');
     }
-    exitPractice();
+    if (app.pendingLevelUp) {
+        showLevelUpModal(app.pendingLevelUp);
+        app.pendingLevelUp = null;
+    } else {
+        exitPractice();
+    }
 }
 
 // Repeat practice
 function repeatPractice() {
     closeResults();
     restartPractice();
+}
+
+// Level block and level-up modal
+function renderLevelBlock() {
+    if (!window.levelModule) return;
+    var info = window.levelModule.getLevelInfo(window.levelModule.getPlayerXP());
+    var levelNum = DOM.get('levelNumber');
+    var tierName = DOM.get('levelTierName');
+    var progressBar = DOM.get('levelProgressBar');
+    var xpText = DOM.get('levelXPText');
+    if (levelNum) levelNum.textContent = info.level;
+    if (tierName) tierName.textContent = info.tierName;
+    if (progressBar) progressBar.style.width = info.progressPct + '%';
+    if (xpText) {
+        if (info.xpToNext > 0) {
+            xpText.textContent = info.xpInLevel + ' / ' + info.xpToNext + ' XP';
+        } else {
+            xpText.textContent = info.totalXP + ' XP';
+        }
+    }
+    var headerLevelNum = DOM.get('headerLevelNum');
+    if (headerLevelNum) headerLevelNum.textContent = info.level;
+}
+
+function showLevelUpModal(level) {
+    var modal = DOM.get('levelUpModal');
+    var numEl = DOM.get('levelUpNumber');
+    if (numEl) numEl.textContent = level;
+    if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+    if (app.soundEnabled && audioVictory) {
+        audioVictory.currentTime = 0;
+        audioVictory.play().catch(function() {});
+    }
+}
+
+function closeLevelUpModal() {
+    var modal = DOM.get('levelUpModal');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+    exitPractice();
 }
 
 // Play sound
@@ -3185,4 +3253,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-
