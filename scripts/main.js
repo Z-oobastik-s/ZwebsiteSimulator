@@ -90,6 +90,10 @@ let audioOnSound = null;
 let audioOffSound = null;
 let audioOpenShop = null;
 let audioClickLanguage = null;
+let audioBuyShop = null;
+let audioOpenProfile = null;
+let audioCompleteAdvanced = null;
+let audioOpenTelegram = null;
 let welcomePlayed = false;
 
 const translations = {
@@ -625,6 +629,10 @@ function initializeAudio() {
         audioOffSound = new Audio('assets/sounds/Off_sound.ogg');
         audioOpenShop = new Audio('assets/sounds/open_shop.ogg');
         audioClickLanguage = new Audio('assets/sounds/click_language.ogg');
+        audioBuyShop = new Audio('assets/sounds/buy_shop_sound.ogg');
+        audioOpenProfile = new Audio('assets/sounds/open_profile.ogg');
+        audioCompleteAdvanced = new Audio('assets/sounds/complete_advanced.ogg');
+        audioOpenTelegram = new Audio('assets/sounds/open_telegram.ogg');
         
         // Set volumes
         if (audioClick) audioClick.volume = 0.3;
@@ -638,6 +646,10 @@ function initializeAudio() {
         if (audioOffSound) audioOffSound.volume = 0.4;
         if (audioOpenShop) audioOpenShop.volume = 0.35;
         if (audioClickLanguage) audioClickLanguage.volume = 0.35;
+        if (audioBuyShop) audioBuyShop.volume = 0.35;
+        if (audioOpenProfile) audioOpenProfile.volume = 0.35;
+        if (audioCompleteAdvanced) audioCompleteAdvanced.volume = 0.35;
+        if (audioOpenTelegram) audioOpenTelegram.volume = 0.35;
     } catch (e) {
         console.log('Audio files not available, using fallback');
     }
@@ -1713,6 +1725,10 @@ async function finishPractice() {
     
     window.statsModule.addSession(sessionData);
     var newlyAchievements = window.achievementsModule ? window.achievementsModule.checkAndNotify() : [];
+    if (newlyAchievements && newlyAchievements.length > 0 && app.soundEnabled && audioCompleteAdvanced) {
+        audioCompleteAdvanced.currentTime = 0;
+        audioCompleteAdvanced.play().catch(() => {});
+    }
 
     const user = window.authModule?.getCurrentUser();
     if (user && window.authModule) {
@@ -2096,7 +2112,10 @@ async function showProfile() {
         showLoginModal();
         return;
     }
-    
+    if (app.soundEnabled && audioOpenProfile) {
+        audioOpenProfile.currentTime = 0;
+        audioOpenProfile.play().catch(() => {});
+    }
     hideAllScreens();
     const profileScreen = DOM.get('profileScreen');
     if (profileScreen) profileScreen.classList.remove('hidden');
@@ -3032,6 +3051,10 @@ async function purchaseLesson(lessonId) {
     const result = await window.authModule.purchaseLesson(user.uid, lessonId);
     
     if (result.success) {
+        if (app.soundEnabled && audioBuyShop) {
+            audioBuyShop.currentTime = 0;
+            audioBuyShop.play().catch(() => {});
+        }
         showToast(t('lessonPurchased'), 'success', t('shop'));
         if (document.getElementById('shopScreen') && !document.getElementById('shopScreen').classList.contains('hidden')) {
             animatePurchaseFly(lessonId);
@@ -3054,6 +3077,12 @@ function playDeniedMoneySound() {
     s.volume = 0.4;
     s.currentTime = 0;
     s.play().catch(() => {});
+}
+
+function playTelegramSound() {
+    if (!app.soundEnabled || !audioOpenTelegram) return;
+    audioOpenTelegram.currentTime = 0;
+    audioOpenTelegram.play().catch(() => {});
 }
 
 // Start purchased lesson
@@ -3085,4 +3114,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-
