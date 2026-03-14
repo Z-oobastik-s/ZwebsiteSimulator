@@ -990,6 +990,38 @@
             animation: scaleIn 0.45s ease-out;
         }
         
+        /* Onboarding — игровой туториал при первом заходе */
+        .onboarding-card {
+            background: linear-gradient(145deg, rgba(15, 23, 42, 0.97) 0%, rgba(30, 41, 59, 0.95) 100%);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            box-shadow: 0 0 40px rgba(245, 158, 11, 0.15), 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+        .onboarding-slide {
+            display: none;
+            animation: onboardingSlideIn 0.4s ease-out;
+        }
+        .onboarding-slide.active {
+            display: block;
+        }
+        @keyframes onboardingSlideIn {
+            from { opacity: 0; transform: translateX(24px) scale(0.98); }
+            to { opacity: 1; transform: translateX(0) scale(1); }
+        }
+        @keyframes onboardingPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+            50% { box-shadow: 0 0 0 12px rgba(245, 158, 11, 0); }
+        }
+        .onboarding-dot {
+            transition: transform 0.2s, background 0.2s;
+        }
+        .onboarding-dot.active {
+            transform: scale(1.25);
+            background: rgba(245, 158, 11, 0.9);
+        }
+        .onboarding-glow {
+            animation: onboardingPulse 2s ease-in-out infinite;
+        }
+        
         @keyframes floatUp {
             0%, 100% { transform: translateY(0px); }
             50% { transform: translateY(-20px); }
@@ -1910,6 +1942,43 @@
     <!-- Toast Container -->
     <div id="toastContainer" class="toast-container"></div>
     
+    <!-- Onboarding (первый заход) — компактный игровой туториал -->
+    <div id="onboardingOverlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-[100]">
+        <div class="onboarding-card onboarding-glow rounded-2xl p-6 max-w-md w-full mx-4 relative overflow-hidden">
+            <button type="button" onclick="finishOnboarding()" class="absolute top-3 right-3 text-xs text-gray-500 hover:text-gray-300 transition-colors" data-i18n="skip">Пропустить</button>
+            <div id="onboardingSlide1" class="onboarding-slide active">
+                <div class="text-center mb-5">
+                    <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-amber-500/20 border border-amber-500/40 mb-4 text-3xl">👋</div>
+                    <h3 class="text-xl font-bold text-white mb-2" data-i18n="onbTitle1">Добро пожаловать в Zoobastiks!</h3>
+                    <p class="text-sm text-gray-400 leading-relaxed" data-i18n="onbText1">Уроки, тест скорости и свободная печать — всё здесь. Короткий обзор за 3 шага.</p>
+                </div>
+            </div>
+            <div id="onboardingSlide2" class="onboarding-slide">
+                <div class="text-center mb-5">
+                    <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-cyan-500/20 border border-cyan-500/40 mb-4 text-3xl">🎮</div>
+                    <h3 class="text-xl font-bold text-white mb-2" data-i18n="onbTitle2">Уроки и режимы</h3>
+                    <p class="text-sm text-gray-400 leading-relaxed" data-i18n="onbText2">Карточки на главной: пошаговые уроки, свой текст по темам, тест на 60 секунд. Выбери и начни.</p>
+                </div>
+            </div>
+            <div id="onboardingSlide3" class="onboarding-slide">
+                <div class="text-center mb-5">
+                    <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-amber-500/20 border border-amber-500/40 mb-4 text-3xl">⭐</div>
+                    <h3 class="text-xl font-bold text-white mb-2" data-i18n="onbTitle3">Уровень и прогресс</h3>
+                    <p class="text-sm text-gray-400 leading-relaxed" data-i18n="onbText3">В шапке справа — твой уровень и XP. Занимайся чаще, получай опыт и открывай новые ранги. Удачи!</p>
+                </div>
+            </div>
+            <div class="flex justify-center gap-2 mb-5">
+                <span id="onbDot1" class="onboarding-dot active w-2 h-2 rounded-full bg-amber-500/60"></span>
+                <span id="onbDot2" class="onboarding-dot w-2 h-2 rounded-full bg-white/30"></span>
+                <span id="onbDot3" class="onboarding-dot w-2 h-2 rounded-full bg-white/30"></span>
+            </div>
+            <div class="flex gap-3">
+                <button type="button" id="onbNextBtn" onclick="nextOnboardingStep()" class="flex-1 py-3 rounded-xl font-semibold bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-white transition-all shadow-lg hover:shadow-amber-500/30" data-i18n="next">Далее</button>
+                <button type="button" id="onbGoBtn" onclick="finishOnboarding()" class="flex-1 py-3 rounded-xl font-semibold bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-white transition-all shadow-lg hidden" data-i18n="onbLetsGo">Погнали!</button>
+            </div>
+        </div>
+    </div>
+    
     <!-- Free Mode Text Input Modal -->
     <div id="freeModeModal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden items-center justify-center z-50">
         <div class="glass rounded-3xl p-8 max-w-3xl w-full mx-4 fade-in shadow-2xl border border-white/10 relative">
@@ -2387,3 +2456,4 @@
     
 </body>
 </html>
+

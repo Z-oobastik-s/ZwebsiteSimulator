@@ -199,6 +199,15 @@ const translations = {
         levelUpCongrats: 'Продолжайте в том же духе!',
         continue: 'Продолжить',
         allLevels: 'Все уровни',
+        skip: 'Пропустить',
+        next: 'Далее',
+        onbTitle1: 'Добро пожаловать в Zoobastiks!',
+        onbText1: 'Уроки, тест скорости и свободная печать - всё здесь. Короткий обзор за 3 шага.',
+        onbTitle2: 'Уроки и режимы',
+        onbText2: 'Карточки на главной: пошаговые уроки, свой текст по темам, тест на 60 секунд. Выбери и начни.',
+        onbTitle3: 'Уровень и прогресс',
+        onbText3: 'В шапке справа - твой уровень и XP. Занимайся чаще, получай опыт и открывай новые ранги. Удачи!',
+        onbLetsGo: 'Погнали!',
         registerSuccess: 'Регистрация успешна',
         logoutSuccess: 'Выход выполнен',
         loginError: 'Ошибка входа',
@@ -371,6 +380,15 @@ const translations = {
         levelUpCongrats: 'Keep up the great work!',
         continue: 'Continue',
         allLevels: 'All levels',
+        skip: 'Skip',
+        next: 'Next',
+        onbTitle1: 'Welcome to Zoobastiks!',
+        onbText1: 'Lessons, speed test and free typing - all in one place. A quick 3-step overview.',
+        onbTitle2: 'Lessons and modes',
+        onbText2: 'Cards on the home screen: step-by-step lessons, themed texts, 60-second test. Pick one and start.',
+        onbTitle3: 'Level and progress',
+        onbText3: 'In the top right - your level and XP. Practice more, earn experience and unlock new ranks. Good luck!',
+        onbLetsGo: "Let's go!",
         loginError: 'Login error',
         registerError: 'Registration error',
         fillAllFields: 'Please fill all fields',
@@ -596,6 +614,55 @@ function createParticles() {
     }
 }
 
+// Onboarding (первый заход)
+const ONBOARDING_STORAGE_KEY = 'zoobastiks_onboarding_seen';
+var onboardingStep = 1;
+
+function showOnboardingIfFirstVisit() {
+    try {
+        if (localStorage.getItem(ONBOARDING_STORAGE_KEY)) return;
+    } catch (e) { return; }
+    var overlay = DOM.get('onboardingOverlay');
+    if (!overlay) return;
+    overlay.classList.remove('hidden');
+    overlay.classList.add('flex');
+    onboardingStep = 1;
+    goToOnboardingStep(1);
+}
+
+function goToOnboardingStep(step) {
+    onboardingStep = step;
+    for (var i = 1; i <= 3; i++) {
+        var slide = DOM.get('onboardingSlide' + i);
+        var dot = DOM.get('onbDot' + i);
+        if (slide) slide.classList.toggle('active', i === step);
+        if (dot) {
+            dot.classList.toggle('active', i === step);
+            dot.style.background = i === step ? 'rgba(245, 158, 11, 0.9)' : 'rgba(255,255,255,0.3)';
+        }
+    }
+    var nextBtn = DOM.get('onbNextBtn');
+    var goBtn = DOM.get('onbGoBtn');
+    if (nextBtn) nextBtn.classList.toggle('hidden', step === 3);
+    if (goBtn) goBtn.classList.toggle('hidden', step !== 3);
+}
+
+function nextOnboardingStep() {
+    if (onboardingStep < 3) goToOnboardingStep(onboardingStep + 1);
+    else finishOnboarding();
+}
+
+function finishOnboarding() {
+    try {
+        localStorage.setItem(ONBOARDING_STORAGE_KEY, '1');
+    } catch (e) {}
+    var overlay = DOM.get('onboardingOverlay');
+    if (overlay) {
+        overlay.classList.add('hidden');
+        overlay.classList.remove('flex');
+    }
+}
+
 // Initialize app
 document.addEventListener('DOMContentLoaded', () => {
     // Гарантируем что при загрузке страницы паузы нет
@@ -616,6 +683,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Инициализируем изображение футера при загрузке
     updateFooterBackground();
+    
+    // Онбординг при первом заходе (с небольшой задержкой)
+    setTimeout(showOnboardingIfFirstVisit, 700);
     
     // Initialize auth state listener
     if (window.authModule) {
@@ -3373,3 +3443,4 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+
