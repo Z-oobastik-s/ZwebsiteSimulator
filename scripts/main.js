@@ -95,6 +95,8 @@ let audioOpenProfile = null;
 let audioCompleteAdvanced = null;
 let audioOpenTelegram = null;
 let audioFeedback = null;
+let audioClickMenu0 = null;
+let audioClickMenu1 = null;
 let welcomePlayed = false;
 
 const translations = {
@@ -640,6 +642,8 @@ function initializeAudio() {
         audioCompleteAdvanced = new Audio('assets/sounds/complete_advanced.ogg');
         audioOpenTelegram = new Audio('assets/sounds/open_telegram.ogg');
         audioFeedback = new Audio('assets/sounds/feetback.ogg');
+        audioClickMenu0 = new Audio('assets/sounds/click_menu_0.ogg');
+        audioClickMenu1 = new Audio('assets/sounds/click_menu_1.ogg');
         
         // Set volumes
         if (audioClick) audioClick.volume = 0.3;
@@ -658,6 +662,8 @@ function initializeAudio() {
         if (audioCompleteAdvanced) audioCompleteAdvanced.volume = 0.35;
         if (audioOpenTelegram) audioOpenTelegram.volume = 0.35;
         if (audioFeedback) audioFeedback.volume = 0.35;
+        if (audioClickMenu0) audioClickMenu0.volume = 0.35;
+        if (audioClickMenu1) audioClickMenu1.volume = 0.35;
     } catch (e) {
         console.log('Audio files not available, using fallback');
     }
@@ -942,6 +948,7 @@ function showHome() {
 }
 
 function showLessons() {
+    playMenuClickSound();
     hideAllScreens();
     const lessonsScreen = DOM.get('lessonsScreen');
     if (lessonsScreen) lessonsScreen.classList.remove('hidden');
@@ -952,6 +959,7 @@ function showLessons() {
 
 // Show free mode modal
 function showFreeMode() {
+    playMenuClickSound();
     const modal = DOM.get('freeModeModal');
     const textInput = DOM.get('freeModeTextInput');
     if (modal && textInput) {
@@ -1030,6 +1038,7 @@ function startFreeModePractice() {
 }
 
 function showSpeedTest() {
+    playMenuClickSound();
     const words = speedTestWords[app.currentLayout];
     
     // Если слов нет для текущей раскладки, используем английские
@@ -2443,6 +2452,7 @@ async function deleteUserFromAdmin(uid) {
 
 // Show multiplayer menu
 function showMultiplayerMenu() {
+    playMenuClickSound();
     toggleFooter(false); // Скрываем футер в мультиплеере
     hideAllScreens();
     document.getElementById('multiplayerMenuScreen').classList.remove('hidden');
@@ -3093,6 +3103,15 @@ function playTelegramSound() {
     audioOpenTelegram.play().catch(() => {});
 }
 
+function playMenuClickSound() {
+    if (!app.soundEnabled) return;
+    const s = (Math.random() < 0.5 ? audioClickMenu0 : audioClickMenu1) || audioClickMenu0 || audioClickMenu1;
+    if (s) {
+        s.currentTime = 0;
+        s.play().catch(() => {});
+    }
+}
+
 const SITE_RATING_STORAGE_KEY = 'zoobastiks_site_rating';
 
 function initSiteRating() {
@@ -3167,4 +3186,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-
