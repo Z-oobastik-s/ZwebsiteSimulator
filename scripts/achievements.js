@@ -177,35 +177,16 @@ function render(container) {
 
 const COINS_PER_ACHIEVEMENT = 50;
 
-function grantCoinsForAchievements(newlyUnlocked) {
-    if (!newlyUnlocked.length) return;
-    var user = window.authModule && window.authModule.getCurrentUser && window.authModule.getCurrentUser();
-    if (!user || !user.uid) return;
-    var total = COINS_PER_ACHIEVEMENT * newlyUnlocked.length;
-    window.authModule.addCoins(user.uid, total).then(function (result) {
-        if (result.success) {
-            if (typeof updateUserUI === 'function') {
-                var u = window.authModule.getCurrentUser();
-                if (u) updateUserUI(u, u);
-            }
-            var n = newlyUnlocked.length;
-            var msg = (typeof app !== 'undefined' && app.lang === 'en')
-                ? '+' + total + ' coins for ' + n + ' achievement(s)!'
-                : '+' + total + ' монет за достижения!';
-            if (typeof showToast === 'function') showToast(msg, 'success', '🪙');
-        }
-    }).catch(function () {});
-}
-
+/** Возвращает массив только что разблокированных достижений (для начисления монет в main.js). */
 function checkAndNotify() {
     const newly = checkAndUnlock();
-    grantCoinsForAchievements(newly);
     const toShow = pickToastsForSession(newly);
     toShow.forEach(function (ach) {
         showAchievementToast(ach);
     });
     var block = document.getElementById('achievementsBlock');
     if (block) render('achievementsBlock');
+    return newly;
 }
 
 // Export
@@ -214,5 +195,7 @@ window.achievementsModule = {
     checkAndUnlock: checkAndUnlock,
     loadUnlocked: loadUnlocked,
     render: render,
-    getAchievements: function () { return ACHIEVEMENTS; }
+    getAchievements: function () { return ACHIEVEMENTS; },
+    COINS_PER_ACHIEVEMENT: COINS_PER_ACHIEVEMENT
 };
+

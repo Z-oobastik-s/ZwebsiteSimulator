@@ -1712,7 +1712,7 @@ async function finishPractice() {
     }
     
     window.statsModule.addSession(sessionData);
-    if (window.achievementsModule) window.achievementsModule.checkAndNotify();
+    var newlyAchievements = window.achievementsModule ? window.achievementsModule.checkAndNotify() : [];
 
     const user = window.authModule?.getCurrentUser();
     if (user && window.authModule) {
@@ -1735,6 +1735,17 @@ async function finishPractice() {
             }).catch(err => {
                 console.error('Failed to add coins:', err);
             });
+        }
+        if (newlyAchievements && newlyAchievements.length > 0 && window.achievementsModule && window.achievementsModule.COINS_PER_ACHIEVEMENT) {
+            var totalCoins = window.achievementsModule.COINS_PER_ACHIEVEMENT * newlyAchievements.length;
+            window.authModule.addCoins(user.uid, totalCoins).then(function (result) {
+                if (result.success) {
+                    var updatedUser = window.authModule.getCurrentUser();
+                    if (updatedUser) updateUserUI(updatedUser, updatedUser);
+                    var msg = app.lang === 'en' ? '+' + totalCoins + ' coins for achievements!' : '+' + totalCoins + ' монет за достижения!';
+                    showToast(msg, 'success', '🪙');
+                }
+            }).catch(function (err) { console.error('Achievement coins:', err); });
         }
     }
     
@@ -3074,3 +3085,4 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+
