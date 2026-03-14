@@ -257,6 +257,13 @@ const translations = {
         characters: 'символов',
         tip: '💡 Совет:',
         freeModeTip: 'Можно вставить текст из любого источника. Нажмите Ctrl+Enter для быстрого старта',
+        textByTheme: 'Текст по теме:',
+        loadRandomText: 'Случайный текст',
+        themeMotivation: 'Мотивация',
+        themeQuotes: 'Цитаты',
+        themeFacts: 'Факты',
+        themeHumor: 'Юмор',
+        themeProverbs: 'Пословицы',
         // Footer
         footerDesc: 'Проект из эпохи нейросетей и квантовых вычислений. Тренируйся печатать быстрее скорости мысли.',
         neuralLink: 'Нейросвязь',
@@ -420,6 +427,13 @@ const translations = {
         characters: 'characters',
         tip: '💡 Tip:',
         freeModeTip: 'You can paste text from any source. Press Ctrl+Enter to start quickly',
+        textByTheme: 'Text by theme:',
+        loadRandomText: 'Random text',
+        themeMotivation: 'Motivation',
+        themeQuotes: 'Quotes',
+        themeFacts: 'Facts',
+        themeHumor: 'Humor',
+        themeProverbs: 'Proverbs',
         // Footer
         footerDesc: 'A project from the era of neural networks and quantum computing. Train to type faster than the speed of thought.',
         neuralLink: 'Neural Link',
@@ -1027,6 +1041,26 @@ function updateFreeModeCharCount() {
     const charCount = DOM.get('freeModeCharCount');
     if (textInput && charCount) {
         charCount.textContent = textInput.value.length;
+    }
+}
+
+// Load a random text from the selected theme into free mode textarea
+function loadThemedText() {
+    var themes = window.THEMED_TEXTS;
+    if (!themes) return;
+    var lang = (app.lang === 'en') ? 'en' : 'ru';
+    var data = themes[lang];
+    if (!data) return;
+    var select = DOM.get('freeModeThemeSelect');
+    var themeId = select ? select.value : 'motivation';
+    var theme = data[themeId];
+    if (!theme || !theme.texts || theme.texts.length === 0) return;
+    var text = theme.texts[Math.floor(Math.random() * theme.texts.length)];
+    var textInput = DOM.get('freeModeTextInput');
+    if (textInput) {
+        textInput.value = text;
+        updateFreeModeCharCount();
+        textInput.focus();
     }
 }
 
@@ -3339,4 +3373,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-

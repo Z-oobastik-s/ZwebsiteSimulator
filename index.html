@@ -1922,12 +1922,25 @@
                 </button>
             </div>
             
+            <div class="mb-4">
+                <label class="block text-sm font-semibold text-gray-300 mb-2" data-i18n="textByTheme">Текст по теме:</label>
+                <div class="flex flex-wrap gap-2 mb-2">
+                    <select id="freeModeThemeSelect" class="flex-1 min-w-[140px] bg-gray-800/50 border border-gray-600 rounded-lg px-3 py-2 text-gray-100 text-sm focus:border-success/50 focus:outline-none focus:ring-1 focus:ring-success/30">
+                        <option value="motivation" data-i18n="themeMotivation">Мотивация</option>
+                        <option value="quotes" data-i18n="themeQuotes">Цитаты</option>
+                        <option value="facts" data-i18n="themeFacts">Факты</option>
+                        <option value="humor" data-i18n="themeHumor">Юмор</option>
+                        <option value="proverbs" data-i18n="themeProverbs">Пословицы</option>
+                    </select>
+                    <button type="button" onclick="loadThemedText()" class="px-4 py-2 rounded-lg bg-success/20 hover:bg-success/30 border border-success/40 text-success font-medium text-sm transition-colors whitespace-nowrap" data-i18n="loadRandomText">Случайный текст</button>
+                </div>
+            </div>
             <div class="mb-6">
                 <label class="block text-sm font-semibold text-gray-300 mb-3" data-i18n="enterYourText">Введите свой текст для тренировки:</label>
                 <textarea 
                     id="freeModeTextInput" 
                     class="w-full bg-gray-800/50 border-2 border-gray-700/50 rounded-xl p-4 text-gray-100 placeholder-gray-500 focus:border-success/50 focus:outline-none focus:ring-2 focus:ring-success/20 transition-all resize-none min-h-[200px] text-lg leading-relaxed font-mono"
-                    placeholder="Введите или вставьте текст, который хотите напечатать..."
+                    placeholder="Введите или вставьте текст, либо нажмите «Случайный текст» выше..."
                     autofocus
                     onkeydown="if(event.key==='Enter' && event.ctrlKey) startFreeModePractice()"
                 ></textarea>
@@ -2362,6 +2375,7 @@
     <!-- Scripts -->
     <script src="scripts/api-config.js"></script>
     <script src="scripts/lessons-data.js"></script>
+    <script src="scripts/themed-texts.js"></script>
     <script src="scripts/shop-data.js"></script>
     <script src="scripts/keyboard.js"></script>
     <script src="scripts/stats.js"></script>
@@ -2373,4 +2387,3 @@
     
 </body>
 </html>
-
