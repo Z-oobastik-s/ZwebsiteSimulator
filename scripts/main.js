@@ -86,6 +86,10 @@ let audioVictory = null;
 let audioThemeTransition = null;
 let audioDeniedMoney = null;
 let audioSwipeAnimation = null;
+let audioOnSound = null;
+let audioOffSound = null;
+let audioOpenShop = null;
+let audioClickLanguage = null;
 let welcomePlayed = false;
 
 const translations = {
@@ -614,6 +618,10 @@ function initializeAudio() {
         audioThemeTransition = new Audio('assets/sounds/transition_theme.ogg');
         audioDeniedMoney = new Audio('assets/sounds/denied_money.ogg');
         audioSwipeAnimation = new Audio('assets/sounds/swipe_animation.ogg');
+        audioOnSound = new Audio('assets/sounds/On_sound.ogg');
+        audioOffSound = new Audio('assets/sounds/Off_sound.ogg');
+        audioOpenShop = new Audio('assets/sounds/open_shop.ogg');
+        audioClickLanguage = new Audio('assets/sounds/click_language.ogg');
         
         // Set volumes
         if (audioClick) audioClick.volume = 0.3;
@@ -623,6 +631,10 @@ function initializeAudio() {
         if (audioThemeTransition) audioThemeTransition.volume = 0.25;
         if (audioDeniedMoney) audioDeniedMoney.volume = 0.4;
         if (audioSwipeAnimation) audioSwipeAnimation.volume = 0.35;
+        if (audioOnSound) audioOnSound.volume = 0.4;
+        if (audioOffSound) audioOffSound.volume = 0.4;
+        if (audioOpenShop) audioOpenShop.volume = 0.35;
+        if (audioClickLanguage) audioClickLanguage.volume = 0.35;
     } catch (e) {
         console.log('Audio files not available, using fallback');
     }
@@ -759,6 +771,10 @@ function toggleTheme() {
 
 // Language toggle - ОПТИМИЗИРОВАНА
 function toggleLanguage() {
+    if (app.soundEnabled && audioClickLanguage) {
+        audioClickLanguage.currentTime = 0;
+        audioClickLanguage.play().catch(() => {});
+    }
     app.lang = app.lang === 'ru' ? 'en' : 'ru';
     localStorage.setItem('lang', app.lang);
     const langEl = DOM.get('currentLang');
@@ -768,6 +784,10 @@ function toggleLanguage() {
 
 // Layout toggle
 function toggleLayout() {
+    if (app.soundEnabled && audioClickLanguage) {
+        audioClickLanguage.currentTime = 0;
+        audioClickLanguage.play().catch(() => {});
+    }
     // Циклическое переключение: ru -> en -> ua -> ru
     const layouts = ['ru', 'en', 'ua'];
     const currentIndex = layouts.indexOf(app.currentLayout);
@@ -792,7 +812,14 @@ function toggleLayout() {
 function toggleSound() {
     app.soundEnabled = !app.soundEnabled;
     localStorage.setItem('sound', app.soundEnabled);
-    
+    // Звук вкл/выкл — проигрываем до смены состояния (On_sound при включении, Off_sound при выключении)
+    if (app.soundEnabled && audioOnSound) {
+        audioOnSound.currentTime = 0;
+        audioOnSound.play().catch(() => {});
+    } else if (!app.soundEnabled && audioOffSound) {
+        audioOffSound.currentTime = 0;
+        audioOffSound.play().catch(() => {});
+    }
     const icon = DOM.get('soundIcon');
     if (icon) {
         if (app.soundEnabled) {
@@ -2746,7 +2773,10 @@ function showShop() {
         showLoginModal();
         return;
     }
-    
+    if (app.soundEnabled && audioOpenShop) {
+        audioOpenShop.currentTime = 0;
+        audioOpenShop.play().catch(() => {});
+    }
     hideAllScreens();
     const shopScreen = DOM.get('shopScreen');
     if (shopScreen) shopScreen.classList.remove('hidden');
@@ -2978,10 +3008,7 @@ async function purchaseLesson(lessonId) {
     
     const lesson = window.shopModule?.getLessonById(lessonId);
     if (lesson && (user.balance || 0) < lesson.price) {
-        if (app.soundEnabled && audioDeniedMoney) {
-            audioDeniedMoney.currentTime = 0;
-            audioDeniedMoney.play().catch(() => {});
-        }
+        playDeniedMoneySound();
         showToast(t('tipInsufficientCoins'), 'info', t('tip'));
         return;
     }
@@ -2998,8 +3025,19 @@ async function purchaseLesson(lessonId) {
             loadShopLessons();
         }
     } else {
+        if (result.error && (result.error === 'Недостаточно монет' || result.error.indexOf('монет') !== -1)) {
+            playDeniedMoneySound();
+        }
         showToast(result.error || t('purchaseError'), 'error', app.lang === 'ru' ? 'Ошибка' : app.lang === 'en' ? 'Error' : 'Помилка');
     }
+}
+
+function playDeniedMoneySound() {
+    if (!app.soundEnabled || !audioDeniedMoney) return;
+    const s = audioDeniedMoney.cloneNode();
+    s.volume = 0.4;
+    s.currentTime = 0;
+    s.play().catch(() => {});
 }
 
 // Start purchased lesson
@@ -3031,3 +3069,4 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+
