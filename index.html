@@ -125,7 +125,7 @@
             background-color: rgba(0, 0, 0, 0.75);
         }
         html:not(.dark) body::before {
-            background-color: rgba(255, 255, 255, 0.88);
+            background-color: rgba(0, 0, 0, 0.35);
         }
         
         html.dark body {
@@ -186,7 +186,7 @@
             position: absolute;
             inset: 0;
             z-index: 1;
-            background: linear-gradient(to bottom, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.85) 100%);
+            background: linear-gradient(to bottom, rgba(0,0,0,0.25) 0%, transparent 60%);
             pointer-events: none;
         }
         html:not(.dark) #footer .relative.z-10 {
@@ -1256,8 +1256,8 @@
                             <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
                         </svg>
                     </div>
-                    <h3 class="text-2xl font-semibold mb-2 text-center text-purple-400" data-i18n="multiplayer">Мультиплеер</h3>
-                    <p class="text-gray-600 dark:text-gray-400 text-center" data-i18n="multiplayerDesc">Соревнуйся с друзьями!</p>
+                    <h3 class="text-xl font-semibold mb-1 text-center" data-i18n="multiplayer">Мультиплеер</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 text-center" data-i18n="multiplayerDesc">Соревнуйся с друзьями!</p>
                 </div>
             </div>
             
@@ -1271,19 +1271,19 @@
                             <span class="text-xs text-gray-500 dark:text-gray-400 truncate" data-i18n="bestSpeed">Лучший результат</span>
                         </div>
                         <div class="flex items-center gap-2 md:flex-col md:gap-0.5 md:text-center" title="Средняя точность по всем сессиям">
-                            <span class="text-green-400 text-lg font-bold tabular-nums shrink-0" id="avgAccuracy">0%</span>
+                            <span class="text-primary text-lg font-bold tabular-nums shrink-0" id="avgAccuracy">0%</span>
                             <span class="text-xs text-gray-500 dark:text-gray-400 truncate" data-i18n="avgAccuracy">Средняя точность</span>
                         </div>
                         <div class="flex items-center gap-2 md:flex-col md:gap-0.5 md:text-center" title="Пройдено уникальных уроков из общего числа (все раскладки: RU, EN, UA)">
-                            <span class="text-amber-400 text-lg font-bold tabular-nums shrink-0"><span id="completedLessons">0</span>/<span id="totalLessonsCount">0</span></span>
+                            <span class="text-primary text-lg font-bold tabular-nums shrink-0"><span id="completedLessons">0</span>/<span id="totalLessonsCount">0</span></span>
                             <span class="text-xs text-gray-500 dark:text-gray-400 truncate" data-i18n="completedLessons">Пройдено уроков</span>
                         </div>
                         <div class="flex items-center gap-2 md:flex-col md:gap-0.5 md:text-center" title="Общее время тренировок">
-                            <span class="text-purple-400 text-lg font-bold tabular-nums shrink-0" id="totalTime">0м</span>
+                            <span class="text-primary text-lg font-bold tabular-nums shrink-0" id="totalTime">0м</span>
                             <span class="text-xs text-gray-500 dark:text-gray-400 truncate" data-i18n="totalTime">Общее время</span>
                         </div>
                         <div class="flex items-center gap-2 md:flex-col md:gap-0.5 md:text-center col-span-2 sm:col-span-1" title="Количество завершённых тренировок">
-                            <span class="text-cyan-400 text-lg font-bold tabular-nums shrink-0" id="totalSessions">0</span>
+                            <span class="text-primary text-lg font-bold tabular-nums shrink-0" id="totalSessions">0</span>
                             <span class="text-xs text-gray-500 dark:text-gray-400 truncate" data-i18n="totalSessions">Всего сессий</span>
                         </div>
                     </div>
@@ -2084,4 +2084,3 @@
     
 </body>
 </html>
-
