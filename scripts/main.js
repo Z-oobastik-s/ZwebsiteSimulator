@@ -218,6 +218,12 @@ const translations = {
         startLesson: 'Начать урок',
         lessonPurchased: 'Урок успешно куплен!',
         purchaseError: 'Ошибка покупки',
+        tipInsufficientCoins: 'Пройди уроки с точностью 90%+ — получай монеты!',
+        shopTipEarn: 'Чем выше точность в уроках — тем больше монет в награду.',
+        shopTipFocus: 'Меньше ошибок = больше награда. Целься в 90%+ точности!',
+        shopTipDaily: 'Регулярные тренировки повышают скорость и приносят монеты.',
+        shopTipFlip: 'Наведи на карточку — увидишь совет на обороте.',
+        shopTipLevel: 'Сложнее урок — выше награда за прохождение.',
         // Animations
         toggleAnimations: 'Включить/выключить анимации',
         animationsOn: 'Анимации включены',
@@ -366,6 +372,12 @@ const translations = {
         startLesson: 'Start Lesson',
         lessonPurchased: 'Lesson purchased successfully!',
         purchaseError: 'Purchase error',
+        tipInsufficientCoins: 'Complete lessons with 90%+ accuracy to earn coins!',
+        shopTipEarn: 'Higher accuracy in lessons means more coins as reward.',
+        shopTipFocus: 'Fewer errors = more reward. Aim for 90%+ accuracy!',
+        shopTipDaily: 'Regular practice boosts speed and earns coins.',
+        shopTipFlip: 'Hover over the card to see a tip on the back.',
+        shopTipLevel: 'Harder lesson = bigger reward for completing it.',
         // Animations
         toggleAnimations: 'Toggle animations',
         animationsOn: 'Animations enabled',
@@ -2786,7 +2798,13 @@ function selectShopLanguage(lang) {
     loadShopLessons();
 }
 
-// Load shop lessons
+// Случайный совет для оборота карточки магазина
+function getRandomShopTip() {
+    const keys = ['shopTipEarn', 'shopTipFocus', 'shopTipDaily', 'shopTipFlip', 'shopTipLevel'];
+    return t(keys[Math.floor(Math.random() * keys.length)]);
+}
+
+// Load shop lessons (flip-карточки + советы на обороте)
 function loadShopLessons() {
     const grid = DOM.get('shopLessonsGrid');
     if (!grid || !window.shopModule) return;
@@ -2797,39 +2815,31 @@ function loadShopLessons() {
     const purchasedLessons = user.purchasedLessons || [];
     const allLessons = window.shopModule.getAllShopLessons();
     
-    // Фильтруем по языку (если выбран конкретный язык)
     let filteredLessons = allLessons;
     if (currentShopLanguage !== 'all') {
         filteredLessons = allLessons.filter(lesson => lesson.layout === currentShopLanguage);
     }
-    
-    // Фильтруем по категории сложности
     if (currentShopCategory !== 'all') {
         filteredLessons = filteredLessons.filter(lesson => {
             let lessonDifficulty = lesson.difficulty;
             if (!lessonDifficulty || lessonDifficulty === 'easy') lessonDifficulty = 'beginner';
             else if (lessonDifficulty === 'hard') lessonDifficulty = 'advanced';
-            
             return lessonDifficulty === currentShopCategory;
         });
     }
     
-    // Создаём категории сложности
     const categoryContainer = DOM.get('shopCategoryTabs');
     if (categoryContainer) {
-        // Очищаем и добавляем категории сложности
         categoryContainer.innerHTML = '';
-        
         const difficultyCategories = [
             { id: 'all', name: t('allCategories') },
             { id: 'beginner', name: `🌱 ${app.lang === 'ru' ? 'Начинающий' : app.lang === 'en' ? 'Beginner' : 'Початківець'}` },
             { id: 'medium', name: `⚡ ${app.lang === 'ru' ? 'Средний' : app.lang === 'en' ? 'Medium' : 'Середній'}` },
             { id: 'advanced', name: `🔥 ${app.lang === 'ru' ? 'Продвинутый' : app.lang === 'en' ? 'Advanced' : 'Просунутий'}` }
         ];
-        
         difficultyCategories.forEach(cat => {
             const btn = document.createElement('button');
-            btn.className = `shop-category-btn px-4 py-2 rounded-lg glass hover:bg-purple-600/30 dark:hover:bg-purple-600/30 font-medium border-2 ${cat.id === 'all' ? 'border-purple-500 bg-purple-600/30' : 'border-transparent'} text-sm transition-all`;
+            btn.className = `shop-category-btn px-3 py-1.5 rounded-lg glass border-2 hover:border-cyan-500/50 text-sm font-medium transition-all ${cat.id === currentShopCategory ? 'border-cyan-500 bg-cyan-500/20 text-cyan-300' : 'border-transparent'}`;
             btn.setAttribute('data-category', cat.id);
             btn.textContent = cat.name;
             btn.onclick = () => selectShopCategory(cat.id);
@@ -2837,32 +2847,21 @@ function loadShopLessons() {
         });
     }
     
-    // Очищаем и заполняем сетку
     grid.innerHTML = '';
     const fragment = document.createDocumentFragment();
+    const difficultyColors = { easy: 'text-success', medium: 'text-warning', hard: 'text-red-400' };
+    const difficultyNames = { easy: 'Легкий', medium: 'Средний', hard: 'Продвинутый' };
     
     filteredLessons.forEach(lesson => {
         const isPurchased = purchasedLessons.includes(lesson.id);
-        const card = document.createElement('div');
-        card.className = `glass rounded-xl p-4 border-2 ${
-            isPurchased 
-                ? 'border-success/50 bg-gradient-to-br from-gray-800/70 to-gray-900/90' 
-                : 'border-purple-500/40 bg-gradient-to-br from-gray-800/50 to-gray-900/80 hover:border-purple-500/60'
-        } transition-all hover:scale-[1.02]`;
+        const hasCoins = (user.balance || 0) >= lesson.price;
+        const tip = getRandomShopTip();
         
-        const difficultyColors = {
-            easy: 'text-success',
-            medium: 'text-warning',
-            hard: 'text-red-400'
-        };
+        const wrap = document.createElement('div');
+        wrap.className = 'shop-card-wrap';
+        wrap.setAttribute('data-lesson-id', lesson.id);
         
-        const difficultyNames = {
-            easy: 'Легкий',
-            medium: 'Средний',
-            hard: 'Продвинутый'
-        };
-        
-        card.innerHTML = `
+        const frontContent = `
             <div class="flex justify-between items-start mb-2">
                 <div class="flex-1 min-w-0 pr-2">
                     <h3 class="text-base font-bold mb-1 text-gray-100 line-clamp-1">${escapeHtml(lesson.name)}</h3>
@@ -2870,31 +2869,29 @@ function loadShopLessons() {
                     <span class="text-xs ${difficultyColors[lesson.difficulty]} font-semibold">${difficultyNames[lesson.difficulty]}</span>
                 </div>
                 ${isPurchased ? `
-                    <div class="bg-success/20 text-success px-2 py-1 rounded-full text-xs font-bold whitespace-nowrap">
-                        ✓
-                    </div>
+                    <div class="shop-card-owned bg-success/20 text-success px-2 py-1 rounded-full text-xs font-bold whitespace-nowrap">✓</div>
                 ` : `
-                    <div class="text-right flex-shrink-0">
-                        <div class="text-lg font-bold text-purple-400">${lesson.price}</div>
-                        <div class="text-xs text-gray-400">монет</div>
-                    </div>
+                    <div class="shop-card-price text-right flex-shrink-0">${lesson.price} <span class="text-xs text-gray-400">монет</span></div>
                 `}
             </div>
-            <div class="bg-gray-800/50 rounded-lg p-2 mb-2 text-xs text-gray-300 italic line-clamp-2">
-                "${escapeHtml(lesson.preview)}"
-            </div>
+            <div class="bg-gray-800/50 rounded-lg p-2 mb-2 text-xs text-gray-300 italic line-clamp-2">"${escapeHtml(lesson.preview)}"</div>
             ${isPurchased ? `
-                <button onclick="startPurchasedLesson('${lesson.id}')" class="w-full bg-gradient-to-r from-success to-green-500 hover:from-green-500 hover:to-emerald-500 text-white font-semibold py-2 rounded-lg transition-all shadow-lg hover:shadow-xl text-sm">
-                    Начать урок
-                </button>
+                <button onclick="startPurchasedLesson('${lesson.id}')" class="w-full mt-auto bg-gradient-to-r from-success to-green-500 hover:from-green-500 hover:to-emerald-500 text-white font-semibold py-2 rounded-lg transition-all shadow-lg hover:shadow-xl text-sm">${t('startLesson')}</button>
             ` : `
-                <button onclick="purchaseLesson('${lesson.id}')" class="w-full bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-pink-500 text-white font-semibold py-2 rounded-lg transition-all shadow-lg hover:shadow-xl text-sm ${(user.balance || 0) < lesson.price ? 'opacity-50 cursor-not-allowed' : ''}">
-                    ${(user.balance || 0) >= lesson.price ? 'Купить' : 'Недостаточно монет'}
-                </button>
+                <button onclick="purchaseLesson('${lesson.id}')" class="shop-purchase-btn w-full mt-auto font-semibold py-2 rounded-lg transition-all shadow-lg text-sm ${hasCoins ? 'bg-gradient-to-r from-cyan-600 to-cyan-500 hover:from-cyan-500 hover:to-teal-500 text-white hover:shadow-xl' : 'bg-gray-600 text-gray-400 cursor-not-allowed'}" data-lesson-id="${lesson.id}" data-can-buy="${hasCoins}">${hasCoins ? t('buy') : t('notEnoughCoins')}</button>
             `}
         `;
         
-        fragment.appendChild(card);
+        wrap.innerHTML = `
+            <div class="shop-card-inner">
+                <div class="shop-card-front">${frontContent}</div>
+                <div class="shop-card-back">
+                    <div class="shop-tip-icon">💡</div>
+                    <div class="shop-tip-text">${escapeHtml(tip)}</div>
+                </div>
+            </div>
+        `;
+        fragment.appendChild(wrap);
     });
     
     grid.appendChild(fragment);
@@ -2903,20 +2900,50 @@ function loadShopLessons() {
 // Select shop category
 function selectShopCategory(category) {
     currentShopCategory = category;
+    loadShopLessons();
+}
+
+// Анимация полёта карточки к блоку баланса при покупке
+function animatePurchaseFly(lessonId) {
+    const wrap = document.querySelector(`.shop-card-wrap[data-lesson-id="${lessonId}"]`);
+    const targetEl = document.getElementById('shopFlyTarget') || document.getElementById('shopBalanceWrap');
+    if (!wrap || !targetEl) return;
     
-    // Обновляем активную кнопку
-    document.querySelectorAll('.shop-category-btn').forEach(btn => {
-        const btnCategory = btn.getAttribute('data-category');
-        if (btnCategory === category || (category === 'all' && btnCategory === 'all')) {
-            btn.classList.add('border-purple-500', 'bg-purple-600/30');
-            btn.classList.remove('border-transparent');
-        } else {
-            btn.classList.remove('border-purple-500', 'bg-purple-600/30');
-            btn.classList.add('border-transparent');
-        }
+    const rect = wrap.getBoundingClientRect();
+    const clone = wrap.cloneNode(true);
+    const inner = clone.querySelector('.shop-card-inner');
+    if (inner) inner.style.transform = 'rotateY(0deg)';
+    clone.classList.add('shop-card-fly');
+    clone.style.position = 'fixed';
+    clone.style.left = rect.left + 'px';
+    clone.style.top = rect.top + 'px';
+    clone.style.width = rect.width + 'px';
+    clone.style.height = rect.height + 'px';
+    clone.style.margin = '0';
+    clone.style.pointerEvents = 'none';
+    clone.style.zIndex = '9999';
+    document.body.appendChild(clone);
+    
+    const targetRect = targetEl.getBoundingClientRect();
+    const endLeft = targetRect.left + targetRect.width / 2 - rect.width / 2;
+    const endTop = targetRect.top + targetRect.height / 2 - rect.height / 2;
+    
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            clone.classList.add('shop-fly-anim');
+            clone.style.left = endLeft + 'px';
+            clone.style.top = endTop + 'px';
+            clone.style.transform = 'scale(0.2)';
+            clone.style.opacity = '0';
+        });
     });
     
-    loadShopLessons();
+    setTimeout(() => {
+        clone.remove();
+        const updatedUser = window.authModule?.getCurrentUser();
+        if (updatedUser) updateUserUI(updatedUser, updatedUser);
+        loadShopLessons();
+    }, 650);
 }
 
 // Purchase lesson
@@ -2927,14 +2954,23 @@ async function purchaseLesson(lessonId) {
         return;
     }
     
+    const lesson = window.shopModule?.getLessonById(lessonId);
+    if (lesson && (user.balance || 0) < lesson.price) {
+        showToast(t('tipInsufficientCoins'), 'info', t('tip'));
+        return;
+    }
+    
     const result = await window.authModule.purchaseLesson(user.uid, lessonId);
     
     if (result.success) {
         showToast(t('lessonPurchased'), 'success', t('shop'));
-        // Обновляем UI
-        const updatedUser = window.authModule.getCurrentUser();
-        updateUserUI(updatedUser, updatedUser);
-        loadShopLessons();
+        if (document.getElementById('shopScreen') && !document.getElementById('shopScreen').classList.contains('hidden')) {
+            animatePurchaseFly(lessonId);
+        } else {
+            const updatedUser = window.authModule.getCurrentUser();
+            updateUserUI(updatedUser, updatedUser);
+            loadShopLessons();
+        }
     } else {
         showToast(result.error || t('purchaseError'), 'error', app.lang === 'ru' ? 'Ошибка' : app.lang === 'en' ? 'Error' : 'Помилка');
     }
@@ -2969,3 +3005,4 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+
