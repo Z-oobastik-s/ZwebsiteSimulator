@@ -2752,25 +2752,22 @@ function showShop() {
     currentShopLanguage = 'all';
     currentShopCategory = 'all';
     
-    // Обновляем UI кнопок языка
+    // Подсветка кнопки «Все языки» по умолчанию
     document.querySelectorAll('.shop-lang-btn').forEach(btn => {
         const lang = btn.getAttribute('data-lang');
         if (lang === 'all') {
-            btn.classList.add('border-purple-500', 'bg-purple-600/30');
+            btn.classList.add('border-cyan-500', 'bg-cyan-500/20');
             btn.classList.remove('border-transparent');
         } else {
-            btn.classList.remove('border-purple-500', 'bg-purple-600/30');
+            btn.classList.remove('border-cyan-500', 'bg-cyan-500/20');
             btn.classList.add('border-transparent');
         }
     });
     
-    // Скрываем категории до выбора языка
+    // Сразу показываем категории и загружаем все уроки (все языки, все категории)
     const categoryTabs = DOM.get('shopCategoryTabs');
-    if (categoryTabs) categoryTabs.classList.add('hidden');
-    
-    // Очищаем сетку уроков
-    const grid = DOM.get('shopLessonsGrid');
-    if (grid) grid.innerHTML = `<div class="col-span-full text-center text-gray-400 py-8">${t('selectLessonLanguage')}</div>`;
+    if (categoryTabs) categoryTabs.classList.remove('hidden');
+    loadShopLessons();
 }
 
 // Select shop language
@@ -2781,10 +2778,10 @@ function selectShopLanguage(lang) {
     document.querySelectorAll('.shop-lang-btn').forEach(btn => {
         const btnLang = btn.getAttribute('data-lang');
         if (btnLang === lang) {
-            btn.classList.add('border-purple-500', 'bg-purple-600/30');
+            btn.classList.add('border-cyan-500', 'bg-cyan-500/20');
             btn.classList.remove('border-transparent');
         } else {
-            btn.classList.remove('border-purple-500', 'bg-purple-600/30');
+            btn.classList.remove('border-cyan-500', 'bg-cyan-500/20');
             btn.classList.add('border-transparent');
         }
     });
@@ -3013,3 +3010,4 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+
