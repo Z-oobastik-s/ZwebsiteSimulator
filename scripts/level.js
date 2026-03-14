@@ -90,4 +90,3 @@ window.levelModule = {
     calculateSessionXP: calculateSessionXP,
     getTierName: getTierName
 };
-

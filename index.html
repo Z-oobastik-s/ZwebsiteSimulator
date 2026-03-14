@@ -1314,28 +1314,27 @@
     <!-- Header -->
     <header class="glass fixed top-0 left-0 right-0 z-50 shadow-lg">
         <div class="container mx-auto px-4 py-3 flex items-center justify-between gap-3">
-            <!-- Логотип + уровень слева -->
-            <div class="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
-                <div class="flex items-center space-x-2 shrink-0">
-                    <svg class="w-8 h-8 text-primary" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm3.293 1.293a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 01-1.414-1.414L7.586 10 5.293 7.707a1 1 0 010-1.414zM11 12a1 1 0 100 2h3a1 1 0 100-2h-3z" />
-                    </svg>
-                    <h1 class="text-2xl font-bold">Zooba<span class="text-primary">stiks</span></h1>
-                </div>
-                <!-- Уровень — компактная полоска в шапке слева -->
-                <div id="levelBlock" class="header-level-strip flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-amber-500/15 border border-amber-500/30 min-w-0 max-w-[200px] sm:max-w-[260px]" data-i18n-title="level" title="Уровень">
+            <!-- Логотип слева -->
+            <div class="flex items-center space-x-2 shrink-0">
+                <svg class="w-8 h-8 text-primary" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm3.293 1.293a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 01-1.414-1.414L7.586 10 5.293 7.707a1 1 0 010-1.414zM11 12a1 1 0 100 2h3a1 1 0 100-2h-3z" />
+                </svg>
+                <h1 class="text-2xl font-bold">Zooba<span class="text-primary">stiks</span></h1>
+            </div>
+            
+            <!-- Справа: сначала уровень (опыт : имя), потом остальное -->
+            <div class="flex items-center gap-2 sm:gap-3 shrink-0">
+                <!-- Уровень — в начале правой части, формат: опыт : имя -->
+                <div id="levelBlock" class="header-level-strip flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-amber-500/15 border border-amber-500/30 min-w-0 max-w-[200px] sm:max-w-[240px]" data-i18n-title="level" title="Уровень">
                     <div class="flex-shrink-0 w-7 h-7 rounded bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center border border-amber-400/50">
                         <span class="text-sm font-black text-white tabular-nums" id="levelNumber">1</span>
                     </div>
-                    <span class="text-xs font-bold text-amber-400/95 truncate shrink-0 max-w-[72px] sm:max-w-[90px]" id="levelTierName">Новичок</span>
+                    <span class="text-[10px] sm:text-xs font-semibold tabular-nums text-amber-400/90 whitespace-nowrap shrink-0" id="levelXPText">0/102</span>
                     <div class="flex-1 min-w-0 h-1.5 rounded-full bg-black/30 overflow-hidden">
                         <div class="h-full rounded-full bg-gradient-to-r from-amber-500 to-amber-400 transition-all duration-500" id="levelProgressBar" style="width:0%"></div>
                     </div>
-                    <span class="text-[10px] sm:text-xs font-semibold tabular-nums text-amber-400/90 whitespace-nowrap shrink-0" id="levelXPText">0/102</span>
+                    <span class="text-xs font-bold text-amber-400/95 truncate shrink-0 max-w-[72px] sm:max-w-[90px]" id="levelTierName">Новичок</span>
                 </div>
-            </div>
-            
-            <div class="flex items-center gap-2 sm:gap-3 shrink-0">
                 <!-- Balance (only when logged in) -->
                 <div id="balanceDisplay" class="hidden header-action flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg glass border border-white/10 transition-colors" title="Баланс монет">
                     <svg class="w-4 h-4 text-amber-400 shrink-0" fill="currentColor" viewBox="0 0 20 20">
@@ -2331,4 +2330,3 @@
     
 </body>
 </html>
-
