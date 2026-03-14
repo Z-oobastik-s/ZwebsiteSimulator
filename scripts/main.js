@@ -98,11 +98,14 @@ const translations = {
         speedTestDesc: '60 секунд на максимум',
         multiplayer: 'Мультиплеер',
         multiplayerDesc: 'Соревнуйся с друзьями!',
+        siteLanguageLabel: 'Язык сайта',
+        keyboardLayoutLabel: 'Раскладка',
         yourProgress: 'Ваш прогресс',
         bestSpeed: 'Лучший результат',
         avgAccuracy: 'Средняя точность',
         completedLessons: 'Пройдено уроков',
         totalTime: 'Общее время',
+        progressLessonsHint: 'все языки',
         back: 'Назад',
         chooseDifficulty: 'Выберите уровень сложности',
         exit: 'Выйти',
@@ -243,11 +246,14 @@ const translations = {
         speedTestDesc: '60 seconds challenge',
         multiplayer: 'Multiplayer',
         multiplayerDesc: 'Compete with friends!',
+        siteLanguageLabel: 'Site language',
+        keyboardLayoutLabel: 'Keyboard',
         yourProgress: 'Your Progress',
         bestSpeed: 'Best Speed',
         avgAccuracy: 'Average Accuracy',
         completedLessons: 'Completed Lessons',
         totalTime: 'Total Time',
+        progressLessonsHint: 'all languages',
         back: 'Back',
         chooseDifficulty: 'Choose Difficulty Level',
         exit: 'Exit',
@@ -859,6 +865,7 @@ function showHome() {
     app.currentMode = 'home';
     createParticles();
     toggleFooter(true); // Показываем футер на главной странице
+    if (window.statsModule) window.statsModule.updateDisplay();
 }
 
 function showLessons() {
@@ -2962,4 +2969,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-

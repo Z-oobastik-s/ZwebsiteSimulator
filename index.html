@@ -999,14 +999,22 @@
                     <span data-i18n="admin">Админ</span>
                 </button>
                 
-                <!-- Language Toggle -->
-                <button id="langToggle" class="px-3 py-1 rounded-lg glass hover:bg-white/20 dark:hover:bg-black/20 font-medium">
-                    <span id="currentLang">RU</span>
+                <!-- Site language: interface RU/EN -->
+                <button id="langToggle" type="button" class="header-btn header-btn--lang flex items-center gap-2 px-3 py-2 rounded-xl glass border-l-4 border-primary/80 hover:bg-primary/10 dark:hover:bg-primary/10 transition-colors" data-i18n-title="siteLanguageLabel" title="Язык сайта">
+                    <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/20 text-primary shrink-0">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18m8.129-8.129A18.022 18.022 0 0118.588 9"/></svg>
+                    </span>
+                    <span class="hidden sm:block text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide" data-i18n="siteLanguageLabel">Язык сайта</span>
+                    <span id="currentLang" class="font-bold text-primary tabular-nums min-w-[2rem]">RU</span>
                 </button>
                 
-                <!-- Layout Toggle -->
-                <button id="layoutToggle" class="px-3 py-1 rounded-lg glass hover:bg-white/20 dark:hover:bg-black/20 font-medium">
-                    <span id="currentLayout">РУС</span>
+                <!-- Keyboard layout: РУС / ENG / УКР -->
+                <button id="layoutToggle" type="button" class="header-btn header-btn--layout flex items-center gap-2 px-3 py-2 rounded-xl glass border-l-4 border-amber-500/80 hover:bg-amber-500/10 dark:hover:bg-amber-500/10 transition-colors" data-i18n-title="keyboardLayoutLabel" title="Раскладка">
+                    <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 shrink-0">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h10"/></svg>
+                    </span>
+                    <span class="hidden sm:block text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide" data-i18n="keyboardLayoutLabel">Раскладка</span>
+                    <span id="currentLayout" class="font-bold text-amber-400 tabular-nums min-w-[2.5rem]">РУС</span>
                 </button>
                 
                 <!-- Sound Toggle -->
@@ -1102,27 +1110,35 @@
                 </div>
             </div>
             
-            <!-- Stats Preview -->
-            <div class="mt-6 max-w-4xl mx-auto">
-                <h3 class="text-lg font-semibold mb-3 text-center" data-i18n="yourProgress">Ваш прогресс</h3>
-                <div class="glass rounded-xl p-4">
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3" id="statsPreview">
-                        <div class="text-center">
-                            <div class="text-2xl font-bold text-primary" id="bestSpeed">0</div>
-                            <div class="text-xs text-gray-600 dark:text-gray-400" data-i18n="bestSpeed">Лучший результат</div>
+            <!-- Stats Preview — компактно, информативно, без скролла -->
+            <div class="mt-5 max-w-4xl mx-auto">
+                <h3 class="text-sm font-semibold mb-2 text-center text-gray-500 dark:text-gray-400 uppercase tracking-wider" data-i18n="yourProgress">Ваш прогресс</h3>
+                <div class="glass rounded-xl px-4 py-3">
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 md:gap-4 items-center" id="statsPreview">
+                        <div class="flex items-center gap-2 md:flex-col md:gap-0.5 md:text-center" title="Максимальная скорость в знаках в минуту">
+                            <span class="flex items-baseline justify-center gap-1"><span class="text-primary text-lg font-bold tabular-nums" id="bestSpeed">0</span><span class="text-xs text-gray-500 dark:text-gray-400" data-i18n="cpm">зн/мин</span></span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400 truncate" data-i18n="bestSpeed">Лучший результат</span>
                         </div>
-                        <div class="text-center">
-                            <div class="text-2xl font-bold text-success" id="avgAccuracy">0%</div>
-                            <div class="text-xs text-gray-600 dark:text-gray-400" data-i18n="avgAccuracy">Средняя точность</div>
+                        <div class="flex items-center gap-2 md:flex-col md:gap-0.5 md:text-center" title="Средняя точность по всем сессиям">
+                            <span class="text-green-400 text-lg font-bold tabular-nums shrink-0" id="avgAccuracy">0%</span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400 truncate" data-i18n="avgAccuracy">Средняя точность</span>
                         </div>
-                        <div class="text-center">
-                            <div class="text-2xl font-bold text-warning"><span id="completedLessons">0</span>/<span id="totalLessonsCount">26</span></div>
-                            <div class="text-xs text-gray-600 dark:text-gray-400" data-i18n="completedLessons">Пройдено уроков</div>
+                        <div class="flex items-center gap-2 md:flex-col md:gap-0.5 md:text-center" title="Пройдено уникальных уроков из общего числа (все раскладки: RU, EN, UA)">
+                            <span class="text-amber-400 text-lg font-bold tabular-nums shrink-0"><span id="completedLessons">0</span>/<span id="totalLessonsCount">0</span></span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400 truncate" data-i18n="completedLessons">Пройдено уроков</span>
                         </div>
-                        <div class="text-center">
-                            <div class="text-2xl font-bold text-purple-500" id="totalTime">0м</div>
-                            <div class="text-xs text-gray-600 dark:text-gray-400" data-i18n="totalTime">Общее время</div>
+                        <div class="flex items-center gap-2 md:flex-col md:gap-0.5 md:text-center" title="Общее время тренировок">
+                            <span class="text-purple-400 text-lg font-bold tabular-nums shrink-0" id="totalTime">0м</span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400 truncate" data-i18n="totalTime">Общее время</span>
                         </div>
+                        <div class="flex items-center gap-2 md:flex-col md:gap-0.5 md:text-center col-span-2 sm:col-span-1" title="Количество завершённых тренировок">
+                            <span class="text-cyan-400 text-lg font-bold tabular-nums shrink-0" id="totalSessions">0</span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400 truncate" data-i18n="totalSessions">Всего сессий</span>
+                        </div>
+                    </div>
+                    <div class="mt-2 flex items-center gap-2">
+                        <div class="flex-1 h-1 rounded-full bg-white/10 overflow-hidden" title="Прогресс по урокам"><div class="h-full rounded-full bg-amber-500/70 transition-all duration-500" id="progressLessonsBar" style="width:0%"></div></div>
+                        <span class="text-[10px] text-gray-500 dark:text-gray-500 whitespace-nowrap" data-i18n="progressLessonsHint">все языки</span>
                     </div>
                 </div>
             </div>
@@ -1917,4 +1933,3 @@
     
 </body>
 </html>
-

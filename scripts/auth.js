@@ -540,4 +540,3 @@ window.authModule = {
     getUserBalance,
     isLessonPurchased
 };
-

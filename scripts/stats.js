@@ -99,6 +99,15 @@ class Statistics {
         return this.data.lessonStats[lessonKey] || null;
     }
     
+    /** Суммарное число уроков по всем уровням и всем языкам (RU, EN, UA) */
+    getTotalLessonsCount() {
+        if (typeof LESSONS_DATA === 'undefined') return 0;
+        return ['beginner', 'medium', 'advanced'].reduce(
+            (sum, level) => sum + (LESSONS_DATA[level] && LESSONS_DATA[level].lessons ? LESSONS_DATA[level].lessons.length : 0),
+            0
+        );
+    }
+    
     updateDisplay() {
         // Update stats preview on home screen - ОПТИМИЗИРОВАНА с кэшированием
         const bestSpeedEl = document.getElementById('bestSpeed');
@@ -106,8 +115,9 @@ class Statistics {
         const completedLessonsEl = document.getElementById('completedLessons');
         const totalLessonsCountEl = document.getElementById('totalLessonsCount');
         const totalTimeEl = document.getElementById('totalTime');
+        const totalSessionsEl = document.getElementById('totalSessions');
+        const progressLessonsBar = document.getElementById('progressLessonsBar');
         
-        // Batch updates - обновляем только если значение изменилось
         if (bestSpeedEl && bestSpeedEl.textContent !== String(this.data.bestSpeed)) {
             bestSpeedEl.textContent = this.data.bestSpeed;
         }
@@ -117,15 +127,19 @@ class Statistics {
             avgAccuracyEl.textContent = accuracyText;
         }
         
-        if (completedLessonsEl) {
-            const uniqueLessons = this.data.lessonStats ? Object.keys(this.data.lessonStats).length : 0;
-            if (completedLessonsEl.textContent !== String(uniqueLessons)) {
-                completedLessonsEl.textContent = uniqueLessons;
-            }
+        const uniqueLessons = this.data.lessonStats ? Object.keys(this.data.lessonStats).length : 0;
+        if (completedLessonsEl && completedLessonsEl.textContent !== String(uniqueLessons)) {
+            completedLessonsEl.textContent = uniqueLessons;
         }
         
-        if (totalLessonsCountEl && totalLessonsCountEl.textContent !== '46') {
-            totalLessonsCountEl.textContent = '46';
+        const totalLessons = this.getTotalLessonsCount();
+        if (totalLessonsCountEl && totalLessonsCountEl.textContent !== String(totalLessons)) {
+            totalLessonsCountEl.textContent = totalLessons;
+        }
+        
+        if (progressLessonsBar) {
+            const pct = totalLessons > 0 ? Math.min(100, Math.round((uniqueLessons / totalLessons) * 100)) : 0;
+            progressLessonsBar.style.width = pct + '%';
         }
         
         if (totalTimeEl) {
@@ -135,6 +149,10 @@ class Statistics {
             if (totalTimeEl.textContent !== timeText) {
                 totalTimeEl.textContent = timeText;
             }
+        }
+        
+        if (totalSessionsEl && totalSessionsEl.textContent !== String(this.data.totalSessions)) {
+            totalSessionsEl.textContent = this.data.totalSessions;
         }
     }
     
@@ -174,4 +192,3 @@ const stats = new Statistics();
 
 // Export
 window.statsModule = stats;
-
