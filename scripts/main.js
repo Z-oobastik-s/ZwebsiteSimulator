@@ -2209,6 +2209,7 @@ function finishLevelUpTitr() {
 }
 
 function showLevelUpSequence(level) {
+    if (level == null) level = (window.levelModule && window.levelModule.getLevelInfo(window.levelModule.getPlayerXP()).level) + 1;
     app.levelUpTitrLevel = level;
     var titr = DOM.get('levelUpTitr');
     var numEl = DOM.get('levelUpTitrNumber');
@@ -3695,4 +3696,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-
