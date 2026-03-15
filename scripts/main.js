@@ -2963,6 +2963,10 @@ async function handleLogin() {
     if (result.success) {
         closeLoginModal();
         showToast(t('loginSuccess'), 'success');
+        if (result.user) {
+            currentUserProfile = result.user;
+            updateUserUI(result.user, result.user);
+        }
     } else {
         if (errorEl) {
             errorEl.textContent = result.error || t('loginError');
@@ -3012,6 +3016,10 @@ async function handleRegister() {
     if (result.success) {
         closeLoginModal();
         showToast(t('registerSuccess'), 'success');
+        if (result.user) {
+            currentUserProfile = result.user;
+            updateUserUI(result.user, result.user);
+        }
     } else {
         if (errorEl) {
             errorEl.textContent = result.error || t('registerError');
@@ -4118,3 +4126,4 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+

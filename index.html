@@ -2991,12 +2991,12 @@
     <script src="scripts/stats.js" defer></script>
     <script src="scripts/achievements.js" defer></script>
     <script src="scripts/level.js" defer></script>
+    <script type="module" src="scripts/auth.js"></script>
     <script src="scripts/main.js" defer></script>
-    <!-- Модули мультиплеера, статистики и авторизации — после первого отображения (idle/1s), чтобы не блокировать LCP -->
     <script>
         (function(){
             function loadDeferredModules() {
-                ['scripts/multiplayer.js','scripts/visitor-stats.js','scripts/auth.js'].forEach(function(src){
+                ['scripts/multiplayer.js','scripts/visitor-stats.js'].forEach(function(src){
                     var s=document.createElement('script'); s.type='module'; s.src=src; document.body.appendChild(s);
                 });
             }
@@ -3006,3 +3006,4 @@
     </script>
 </body>
 </html>
+
