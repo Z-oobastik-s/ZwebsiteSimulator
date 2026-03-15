@@ -88,16 +88,15 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0f172a">
     
-    <!-- Preload критичных ресурсов для быстрого отображения -->
-    <link rel="preload" as="image" href="assets/images/money.png">
-    
-    <!-- TailwindCSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Google Fonts -->
+    <!-- Preload LCP-ресурса: фон по умолчанию (тёмная тема) -->
+    <link rel="preload" as="image" href="assets/images/background_black.jpg" fetchpriority="high">
+    <!-- Preconnect для быстрого подключения к CDN/шрифтам -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Шрифты: асинхронная загрузка без блокировки отрисовки (display=swap) -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Roboto+Mono:wght@400;500&display=swap" as="style">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet"></noscript>
     
     <style>
         * {
@@ -184,6 +183,8 @@
             #footer { padding-bottom: env(safe-area-inset-bottom); }
             #footer .footer-content { padding-bottom: max(0.75rem, env(safe-area-inset-bottom)); padding-left: 0.75rem; padding-right: 0.75rem; }
             main { padding-bottom: 200px; }
+            /* Резерв места под футер — меньше CLS */
+            #footer { min-height: 140px; }
         }
         @media (max-width: 480px) {
             #keyboardContainer .w-10 { width: 1.5rem !important; min-width: 1.5rem !important; }
@@ -251,15 +252,43 @@
         /* ========== Светлая тема: контраст и читаемость ========== */
         /* Общая обводка и тёмный текст на светлом фоне — чтобы не сливалось */
         html:not(.dark) body { color: #111827; }
+        /* Шапка: XP, уровень, иконки — тёмный текст */
+        html:not(.dark) header .text-gray-200,
+        html:not(.dark) header .text-gray-300,
+        html:not(.dark) header .text-gray-400 {
+            color: #1f2937 !important;
+            text-shadow: 0 0 1px rgba(255,255,255,0.6), 0 1px 1px rgba(0,0,0,0.05);
+        }
+        html:not(.dark) header .text-primary { color: #0e7490 !important; }
+        html:not(.dark) [class*="text-cyan-200"] { color: #0e7490 !important; text-shadow: 0 0 1px rgba(255,255,255,0.5), 0 1px 1px rgba(0,0,0,0.05); }
+        /* Герой: заголовок и подзаголовок */
+        html:not(.dark) .hero-word-1,
+        html:not(.dark) .hero-word-2 {
+            color: #0c4a6e !important;
+            text-shadow: 0 0 1px rgba(255,255,255,0.9), 0 0 2px rgba(255,255,255,0.5), 0 1px 2px rgba(0,0,0,0.1);
+        }
         html:not(.dark) .hero-subtitle {
             color: #1f2937;
             text-shadow: 0 0 1px rgba(255,255,255,0.8), 0 1px 1px rgba(0,0,0,0.06);
         }
+        /* Карточки главной: описания под «Уроки», «Свободная печать» и т.д. */
+        html:not(.dark) #homeScreen .glass .text-gray-600 {
+            color: #374151 !important;
+            text-shadow: 0 0 1px rgba(255,255,255,0.6), 0 1px 1px rgba(0,0,0,0.05);
+        }
+        html:not(.dark) #homeScreen .glass h3 { color: #111827 !important; text-shadow: 0 0 1px rgba(255,255,255,0.5), 0 1px 1px rgba(0,0,0,0.04); }
+        /* Блок статистики: цифры и подписи */
+        html:not(.dark) #statsPreview .text-primary { color: #0c4a6e !important; text-shadow: 0 0 1px rgba(255,255,255,0.5), 0 1px 1px rgba(0,0,0,0.06); }
         html:not(.dark) #statsPreview .text-gray-500,
         html:not(.dark) [data-i18n].text-gray-500 {
             color: #374151;
             text-shadow: 0 0 1px rgba(255,255,255,0.6), 0 1px 1px rgba(0,0,0,0.05);
         }
+        html:not(.dark) #homeScreen h3.text-gray-500 { color: #374151 !important; text-shadow: 0 0 1px rgba(255,255,255,0.6), 0 1px 1px rgba(0,0,0,0.05); }
+        /* Достижения и «Оцените сайт» */
+        html:not(.dark) .site-rating-wrap .text-gray-500 { color: #374151 !important; text-shadow: 0 0 1px rgba(255,255,255,0.5), 0 1px 1px rgba(0,0,0,0.05); }
+        html:not(.dark) #achievementsBlock,
+        html:not(.dark) #achievementsBlock * { color: #374151; text-shadow: 0 0 1px rgba(255,255,255,0.5), 0 1px 1px rgba(0,0,0,0.04); }
         html:not(.dark) .glass {
             background: rgba(255, 255, 255, 0.97);
             backdrop-filter: blur(12px);
@@ -290,10 +319,16 @@
         }
         html:not(.dark) #footer .text-gray-300,
         html:not(.dark) #footer .text-gray-400 {
-            color: #1f2937;
+            color: #1f2937 !important;
+            text-shadow: 0 0 1px rgba(255,255,255,0.6), 0 1px 1px rgba(0,0,0,0.06);
         }
         html:not(.dark) #footer [class*="text-cyan"] {
-            color: #0891b2;
+            color: #0e7490 !important;
+            text-shadow: 0 0 1px rgba(255,255,255,0.5), 0 1px 1px rgba(0,0,0,0.05);
+        }
+        html:not(.dark) #footer [class*="text-emerald"] {
+            color: #047857 !important;
+            text-shadow: 0 0 1px rgba(255,255,255,0.5), 0 1px 1px rgba(0,0,0,0.05);
         }
         html:not(.dark) #footer::before {
             content: '';
@@ -1252,12 +1287,14 @@
         .hero-word-1 {
             display: inline-block;
             animation: slideInFromLeft 0.8s ease-out;
+            will-change: transform;
         }
         
         .hero-word-2 {
             display: inline-block;
             animation: slideInFromRight 0.8s ease-out 0.3s backwards;
             color: var(--primary);
+            will-change: transform;
         }
         
         .hero-subtitle {
@@ -1786,22 +1823,6 @@
             #mobilePcBanner { display: none !important; }
         }
     </style>
-    
-    <script>
-        // Theme configuration for TailwindCSS
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#00BCD4',
-                        success: '#8BC34A',
-                        warning: '#FFC107',
-                    }
-                }
-            }
-        }
-    </script>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen" tabindex="-1">
     <div id="rootScroll" class="min-h-screen">
@@ -1820,7 +1841,7 @@
             <div class="flex items-center gap-1.5 sm:gap-3 shrink-0 flex-wrap justify-end">
                 <!-- Balance (only when logged in) -->
                 <div id="balanceDisplay" class="hidden header-action flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg glass border border-white/10 transition-colors" title="Баланс монет">
-                    <img src="assets/images/money.png" alt="" class="w-5 h-5 shrink-0 object-contain" width="20" height="20" decoding="async">
+                    <img src="assets/images/money.png" alt="" class="w-5 h-5 shrink-0 object-contain" width="20" height="20" decoding="async" fetchpriority="low">
                     <span id="userBalance" class="text-sm font-bold text-amber-400 tabular-nums">0</span>
                 </div>
                 
@@ -1891,7 +1912,7 @@
                 <!-- Портал: О проекте / Отзывы (выпадающее меню) -->
                 <div class="relative" id="sitePortalWrap">
                     <button type="button" id="sitePortalBtn" class="header-action p-1 rounded-lg glass border border-cyan-500/30 hover:bg-cyan-500/10 transition-colors flex items-center justify-center" title="О проекте и отзывы" aria-haspopup="true" aria-expanded="false" aria-label="О проекте и отзывы">
-                        <img src="assets/images/info_about%20.png" alt="" class="w-6 h-6 object-contain" width="24" height="24">
+                        <img src="assets/images/info_about%20.png" alt="" class="w-6 h-6 object-contain" width="24" height="24" loading="lazy" decoding="async">
                     </button>
                     <div id="sitePortalDropdown" class="absolute right-0 top-full mt-1.5 py-1 min-w-[160px] rounded-xl glass border border-cyan-500/30 bg-gray-900/95 shadow-xl shadow-black/30 hidden z-[100]">
                         <button type="button" onclick="window.portalTo && portalTo('about.html'); document.getElementById('sitePortalDropdown').classList.add('hidden');" class="w-full text-left px-4 py-2.5 text-sm text-cyan-300 hover:bg-cyan-500/20 hover:text-white transition-colors flex items-center gap-2" data-i18n="aboutProject">О проекте</button>
@@ -2789,7 +2810,7 @@
                     <span class="opacity-80">[</span> <span data-i18n="shopTitle">Магазин уроков</span> <span class="opacity-80">]</span>
                 </h2>
                 <div id="shopBalanceWrap" class="shop-balance-badge flex items-center gap-2 px-4 py-2 rounded-lg border border-amber-500/50 bg-amber-500/10">
-                    <img src="assets/images/money.png" alt="" class="w-6 h-6 object-contain shrink-0" width="24" height="24" decoding="async">
+                    <img src="assets/images/money.png" alt="" class="w-6 h-6 object-contain shrink-0" width="24" height="24" decoding="async" loading="lazy">
                     <span id="shopBalance" class="font-bold text-amber-400 tabular-nums text-lg">0</span>
                 </div>
             </div>
@@ -2945,6 +2966,11 @@
             else showMobileBanner();
         })();
     </script>
+    <!-- Tailwind: в конце body, чтобы не блокировать FCP/LCP (config до скрипта) -->
+    <script>
+        (function(){var t=window.tailwind||{};t.config={darkMode:'class',theme:{extend:{colors:{primary:'#00BCD4',success:'#8BC34A',warning:'#FFC107'}}}};window.tailwind=t;})();
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="scripts/portal-transition.js"></script>
     <script src="scripts/api-config.js" defer></script>
     <script src="scripts/lessons-data.js" defer></script>
@@ -2954,11 +2980,18 @@
     <script src="scripts/stats.js" defer></script>
     <script src="scripts/achievements.js" defer></script>
     <script src="scripts/level.js" defer></script>
-    <script type="module" src="scripts/multiplayer.js"></script>
-    <script type="module" src="scripts/visitor-stats.js"></script>
-    <script type="module" src="scripts/auth.js"></script>
     <script src="scripts/main.js" defer></script>
-    
+    <!-- Модули мультиплеера, статистики и авторизации — после первого отображения (idle/1s), чтобы не блокировать LCP -->
+    <script>
+        (function(){
+            function loadDeferredModules() {
+                ['scripts/multiplayer.js','scripts/visitor-stats.js','scripts/auth.js'].forEach(function(src){
+                    var s=document.createElement('script'); s.type='module'; s.src=src; document.body.appendChild(s);
+                });
+            }
+            if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function(){ requestIdleCallback ? requestIdleCallback(loadDeferredModules, { timeout: 1500 }) : setTimeout(loadDeferredModules, 500); });
+            else (requestIdleCallback ? requestIdleCallback(loadDeferredModules, { timeout: 1500 }) : setTimeout(loadDeferredModules, 500));
+        })();
+    </script>
 </body>
 </html>
-
