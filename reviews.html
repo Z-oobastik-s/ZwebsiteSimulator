@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ru" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Отзывы о Zoobastiks — тренажёр слепой печати</title>
+    <meta name="description" content="Отзывы пользователей о тренажёре слепой печати Zoobastiks.">
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #00BCD4; --purple: #8B5CF6; }
+        body { font-family: 'Inter', sans-serif; }
+        .font-display { font-family: 'Orbitron', sans-serif; }
+        .gaming-bg { background: linear-gradient(180deg, #030712 0%, #0f172a 30%, #0c1222 60%, #020617 100%); min-height: 100vh; }
+        .review-card { background: linear-gradient(145deg, rgba(15,23,42,0.95) 0%, rgba(6,10,22,0.98) 100%); border: 1px solid rgba(0,229,255,0.2); box-shadow: 0 0 40px rgba(0,229,255,0.06), inset 0 1px 0 rgba(255,255,255,0.05); }
+        .portal-btn { background: linear-gradient(135deg, rgba(0,229,255,0.2) 0%, rgba(139,92,246,0.2) 100%); border: 1px solid rgba(0,229,255,0.4); transition: all 0.3s; }
+        .portal-btn:hover { box-shadow: 0 0 30px rgba(0,229,255,0.3); transform: scale(1.02); }
+        .scanlines::before { content: ''; position: fixed; inset: 0; background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px); pointer-events: none; z-index: 1; }
+        .page-enter { animation: pageEnter 1s ease-out forwards; }
+        @keyframes pageEnter { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
+        .star { color: #fbbf24; }
+    </style>
+</head>
+<body class="gaming-bg text-gray-100 scanlines overflow-x-hidden">
+    <div class="page-enter relative z-0">
+        <header class="sticky top-0 z-50 border-b border-white/10 bg-black/40 backdrop-blur-xl">
+            <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+                <button type="button" onclick="window.portalTo && portalTo('index.html')" class="text-xl font-display font-bold text-white hover:text-cyan-400 transition-colors bg-transparent border-0 cursor-pointer">Zooba<span class="text-cyan-400">stiks</span></button>
+                <button type="button" onclick="window.portalTo && portalTo('index.html')" class="portal-btn px-5 py-2.5 rounded-lg font-display font-semibold text-cyan-300 hover:text-white hover:border-cyan-400">
+                    ← На главную
+                </button>
+            </div>
+        </header>
+
+        <section class="pt-12 pb-8 px-4 text-center">
+            <h1 class="font-display text-4xl md:text-5xl font-bold text-white mb-2">Отзывы</h1>
+            <p class="text-cyan-300/90 text-lg">Что говорят те, кто уже тренируется</p>
+        </section>
+
+        <section class="container mx-auto px-4 pb-20 max-w-4xl space-y-6">
+            <article class="review-card rounded-2xl p-6">
+                <div class="flex gap-1 mb-3 star" aria-hidden="true">
+                    <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+                </div>
+                <p class="text-gray-300 leading-relaxed mb-4">За две недели заметно выросла скорость. Уроки по шагам — то что нужно, не перегружает. Мультиплеер с другом добавил азарта.</p>
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-500/30 to-purple-500/30 border border-white/20 flex items-center justify-center text-lg">А</div>
+                    <div>
+                        <span class="font-semibold text-white">Алексей</span>
+                        <span class="text-gray-500 text-sm block">Школьник, 14 лет</span>
+                    </div>
+                </div>
+            </article>
+            <article class="review-card rounded-2xl p-6">
+                <div class="flex gap-1 mb-3 star"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+                <p class="text-gray-300 leading-relaxed mb-4">Искала тренажёр для ребёнка — здесь и русский, и английский, и украинский. Удобно, что можно без регистрации начать, а потом сохранить прогресс.</p>
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-amber-500/30 to-orange-500/30 border border-white/20 flex items-center justify-center text-lg">М</div>
+                    <div>
+                        <span class="font-semibold text-white">Марина</span>
+                        <span class="text-gray-500 text-sm block">Мама двоих детей</span>
+                    </div>
+                </div>
+            </article>
+            <article class="review-card rounded-2xl p-6">
+                <div class="flex gap-1 mb-3 star"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+                <p class="text-gray-300 leading-relaxed mb-4">Тест на 60 секунд — отличная проверка. Достижения и монеты мотивируют проходить уроки до конца. Рекомендую одногруппникам.</p>
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500/30 to-teal-500/30 border border-white/20 flex items-center justify-center text-lg">Д</div>
+                    <div>
+                        <span class="font-semibold text-white">Дмитрий</span>
+                        <span class="text-gray-500 text-sm block">Студент</span>
+                    </div>
+                </div>
+            </article>
+            <article class="review-card rounded-2xl p-6">
+                <div class="flex gap-1 mb-3 star"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+                <p class="text-gray-300 leading-relaxed mb-4">Понравился дизайн и что не мешает реклама. Печатаю в свободном режиме свои тексты — удобно готовиться к экзаменам.</p>
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-rose-500/30 to-pink-500/30 border border-white/20 flex items-center justify-center text-lg">К</div>
+                    <div>
+                        <span class="font-semibold text-white">Катя</span>
+                        <span class="text-gray-500 text-sm block">Ученица 10 класса</span>
+                    </div>
+                </div>
+            </article>
+            <article class="review-card rounded-2xl p-6">
+                <div class="flex gap-1 mb-3 star"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+                <p class="text-gray-300 leading-relaxed mb-4">Использую на планшете с клавиатурой — всё работает. Уровни и ранги дают ощущение прогресса. Спасибо разработчикам!</p>
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-violet-500/30 to-purple-500/30 border border-white/20 flex items-center justify-center text-lg">И</div>
+                    <div>
+                        <span class="font-semibold text-white">Игорь</span>
+                        <span class="text-gray-500 text-sm block">Фрилансер</span>
+                    </div>
+                </div>
+            </article>
+        </section>
+    </div>
+    <script src="scripts/portal-transition.js"></script>
+</body>
+</html>
