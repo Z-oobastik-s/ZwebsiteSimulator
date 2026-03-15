@@ -2,8 +2,8 @@
 <html lang="ru" class="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>О проекте Zoobastiks — тренажёр слепой печати</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>О проекте Zoobastiks - тренажёр слепой печати</title>
     <meta name="description" content="О проекте Zoobastiks: кто мы, зачем тренажёр слепой печати, миссия, возможности и контакты.">
     <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -39,6 +39,13 @@
         .stagger-4 { animation-delay: 0.2s; }
         .stagger-5 { animation-delay: 0.25s; }
         .stagger-6 { animation-delay: 0.3s; }
+        @media (max-width: 768px) {
+            .header-bar .container { padding-left: 0.75rem; padding-right: 0.75rem; }
+            .section-card { padding: 1rem !important; }
+            .section-card h2 { font-size: 1.25rem; }
+            .link-tg { min-height: 44px; padding: 0.75rem 1rem; display: inline-flex; align-items: center; justify-content: center; }
+        }
+        header.header-bar { padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right); padding-top: max(0.75rem, env(safe-area-inset-top)); }
     </style>
 </head>
 <body class="text-gray-100 scanlines overflow-x-hidden">
@@ -47,7 +54,7 @@
 
     <div class="page-enter">
         <header class="sticky top-0 z-50 header-bar">
-            <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="container mx-auto px-4 sm:px-4 py-3 flex items-center justify-between">
                 <button type="button" onclick="window.portalTo && portalTo('index.html')" class="text-xl font-display font-bold text-white hover:text-cyan-400 transition-colors bg-transparent border-0 cursor-pointer">Zooba<span class="text-cyan-400">stiks</span></button>
                 <button type="button" onclick="window.portalTo && portalTo('index.html')" class="portal-btn px-5 py-2.5 rounded-lg font-display font-semibold text-cyan-300 hover:text-white hover:border-cyan-400">
                     ← На главную
@@ -61,50 +68,49 @@
             <p class="text-cyan-200/95 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">Мы делаем тренажёр слепой печати, которым сами хотели бы пользоваться. Бесплатно, без рекламы и с душой.</p>
         </section>
 
-        <section class="container mx-auto px-4 pb-24 max-w-3xl space-y-8">
+        <section class="container mx-auto px-3 sm:px-4 pb-24 max-w-3xl space-y-6 sm:space-y-8">
             <article class="section-card rounded-2xl pl-6 pr-6 py-6 md:p-8 stagger-1">
                 <h2 class="font-display text-2xl md:text-3xl font-bold text-cyan-300 mb-4">Кто мы</h2>
-                <p class="text-gray-200 leading-relaxed mb-4">Zoobastiks — это не корпорация и не стартап с инвесторами. Мы небольшая команда энтузиастов, которая верит: научиться печатать быстро и без ошибок должно быть доступно каждому. Школьнику, студенту, родителю, удалёнщику — всем, кто проводит за клавиатурой хотя бы полчаса в день.</p>
+                <p class="text-gray-200 leading-relaxed mb-4">Zoobastiks - это не корпорация и не стартап с инвесторами. Мы небольшая команда энтузиастов, которая верит: научиться печатать быстро и без ошибок должно быть доступно каждому. Школьнику, студенту, родителю, удалёнщику - всем, кто проводит за клавиатурой хотя бы полчаса в день.</p>
                 <p class="text-gray-300 leading-relaxed">Мы сами прошли через скучные тренажёры и рекламу на каждом шагу. Поэтому сделали свой: с уроками по шагам, тестом скорости, мультиплеером с друзьями и системой достижений. Всё то, чего не хватало нам, когда мы учились печатать.</p>
             </article>
 
             <article class="section-card rounded-2xl pl-6 pr-6 py-6 md:p-8 stagger-2">
                 <h2 class="font-display text-2xl md:text-3xl font-bold text-cyan-300 mb-4">Зачем мы это делаем</h2>
-                <p class="text-gray-200 leading-relaxed mb-4">Слепая печать — не суперспособность. Это навык, который экономит часы каждый месяц и снимает лишнюю нагрузку с глаз и спины. Но многие откладывают обучение, потому что не знают, с чего начать, или бросают на полпути из-за скуки.</p>
-                <p class="text-gray-300 leading-relaxed mb-4">Наша цель — чтобы вы не просто «прошли уроки», а реально набрали скорость и получали от процесса кайф. Поэтому в Zoobastiks есть уровни, монеты, соревнования и мультиплеер: учиться в игре проще, чем зубрить одному.</p>
-                <p class="text-gray-300 leading-relaxed">Мы делаем проект для людей: для школьников и учителей, для родителей и детей, для тех, кто работает из дома или готовится к экзаменам. Если вы здесь — вы уже наш человек.</p>
+                <p class="text-gray-200 leading-relaxed mb-4">Слепая печать - не суперспособность. Это навык, который экономит часы каждый месяц и снимает лишнюю нагрузку с глаз и спины. Но многие откладывают обучение, потому что не знают, с чего начать, или бросают на полпути из-за скуки.</p>
+                <p class="text-gray-300 leading-relaxed mb-4">Наша цель - чтобы вы не просто «прошли уроки», а реально набрали скорость и получали от процесса кайф. Поэтому в Zoobastiks есть уровни, монеты, соревнования и мультиплеер: учиться в игре проще, чем зубрить одному.</p>
+                <p class="text-gray-300 leading-relaxed">Мы делаем проект для людей: для школьников и учителей, для родителей и детей, для тех, кто работает из дома или готовится к экзаменам. Если вы здесь - вы уже наш человек.</p>
             </article>
 
             <article class="section-card rounded-2xl pl-6 pr-6 py-6 md:p-8 stagger-3">
                 <h2 class="font-display text-2xl md:text-3xl font-bold text-cyan-300 mb-4">Что внутри</h2>
                 <ul class="space-y-3 text-gray-200 leading-relaxed">
-                    <li><span class="text-cyan-400 font-semibold">Уроки</span> — от базовых рядов до сложных комбинаций, по шагам, без перегруза. Можно начать с нуля и дойти до уверенной скорости.</li>
-                    <li><span class="text-cyan-400 font-semibold">Тест скорости</span> — за минуту проверить, сколько знаков в минуту вы набираете. Честно и наглядно.</li>
-                    <li><span class="text-cyan-400 font-semibold">Свободная печать</span> — вставьте свой текст и тренируйтесь на нём. Удобно готовиться к экзаменам или просто печатать то, что нужно.</li>
-                    <li><span class="text-cyan-400 font-semibold">Мультиплеер</span> — соревнуйтесь с другом в реальном времени. Кто быстрее набрал текст — тот и выиграл.</li>
-                    <li><span class="text-cyan-400 font-semibold">Достижения и монеты</span> — за прохождение уроков и тестов получаете монеты, открываете аватарки и фоны. Обучение превращается в игру.</li>
-                    <li><span class="text-cyan-400 font-semibold">Три языка</span> — русская, английская и украинская раскладки. Один тренажёр на все случаи.</li>
+                    <li><span class="text-cyan-400 font-semibold">Уроки</span> - от базовых рядов до сложных комбинаций, по шагам, без перегруза. Можно начать с нуля и дойти до уверенной скорости.</li>
+                    <li><span class="text-cyan-400 font-semibold">Тест скорости</span> - за минуту проверить, сколько знаков в минуту вы набираете. Честно и наглядно.</li>
+                    <li><span class="text-cyan-400 font-semibold">Свободная печать</span> - вставьте свой текст и тренируйтесь на нём. Удобно готовиться к экзаменам или просто печатать то, что нужно.</li>
+                    <li><span class="text-cyan-400 font-semibold">Мультиплеер</span> - соревнуйтесь с другом в реальном времени. Кто быстрее набрал текст - тот и выиграл.</li>
+                    <li><span class="text-cyan-400 font-semibold">Достижения и монеты</span> - за прохождение уроков и тестов получаете монеты, открываете аватарки и фоны. Обучение превращается в игру.</li>
+                    <li><span class="text-cyan-400 font-semibold">Три языка</span> - русская, английская и украинская раскладки. Один тренажёр на все случаи.</li>
                 </ul>
             </article>
 
             <article class="section-card rounded-2xl pl-6 pr-6 py-6 md:p-8 stagger-4">
                 <h2 class="font-display text-2xl md:text-3xl font-bold text-cyan-300 mb-4">Как мы делаем</h2>
                 <p class="text-gray-200 leading-relaxed mb-4">Zoobastiks полностью бесплатный. Ни подписок, ни премиум-блокировок, ни рекламы. Мы не продаём ваши данные и не заставляем смотреть баннеры. Всё, что есть на сайте, доступно сразу.</p>
-                <p class="text-gray-300 leading-relaxed">Можно заниматься без регистрации — просто заходите и печатайте. А если захотите сохранить прогресс, уровни и достижения — создайте аккаунт. Мы продолжаем развивать проект: добавляем новые уроки, режимы и улучшения. И делаем это так, чтобы вам было приятно возвращаться.</p>
+                <p class="text-gray-300 leading-relaxed">Можно заниматься без регистрации - просто заходите и печатайте. А если захотите сохранить прогресс, уровни и достижения - создайте аккаунт. Мы продолжаем развивать проект: добавляем новые уроки, режимы и улучшения. И делаем это так, чтобы вам было приятно возвращаться.</p>
             </article>
 
             <article class="section-card rounded-2xl pl-6 pr-6 py-6 md:p-8 stagger-5">
                 <h2 class="font-display text-2xl md:text-3xl font-bold text-cyan-300 mb-4">Напишите нам</h2>
-                <p class="text-gray-200 leading-relaxed mb-5">Есть идеи, вопросы или хотите подключить школу или класс? Нам важна обратная связь. Пишите в Telegram — ответим по возможности быстро.</p>
+                <p class="text-gray-200 leading-relaxed mb-5">Есть идеи, вопросы или хотите подключить школу или класс? Нам важна обратная связь. Пишите в Telegram - ответим по возможности быстро.</p>
                 <a href="https://t.me/Zoobastiks" target="_blank" rel="noopener noreferrer" class="link-tg inline-flex items-center gap-2 px-5 py-3 rounded-xl font-display font-semibold">
                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.559z"/></svg>
                     Telegram: @Zoobastiks
                 </a>
-                <p class="text-gray-500 text-sm mt-4">Подписывайтесь на канал — там анонсы обновлений и новости проекта.</p>
+                <p class="text-gray-500 text-sm mt-4">Подписывайтесь на канал - там анонсы обновлений и новости проекта.</p>
             </article>
         </section>
     </div>
     <script src="scripts/portal-transition.js"></script>
 </body>
 </html>
-

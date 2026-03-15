@@ -2,7 +2,7 @@
 <html lang="ru" class="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Отзывы о Zoobastiks — тренажёр слепой печати</title>
     <meta name="description" content="Отзывы пользователей о тренажёре слепой печати Zoobastiks.">
     <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
@@ -50,6 +50,14 @@
         }
         @keyframes reviewToastIn { from { opacity: 0; transform: translateX(-50%) translateY(12px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
         @keyframes reviewToastOut { from { opacity: 1; transform: translateX(-50%) translateY(0); } to { opacity: 0; transform: translateX(-50%) translateY(-8px); } }
+        @media (max-width: 768px) {
+            .header-bar .container { padding-left: 0.75rem; padding-right: 0.75rem; }
+            .review-card { padding: 0.75rem !important; }
+            .btn-review { min-height: 44px; }
+            #reviewFormModal .form-panel { margin: 0.75rem; max-height: 90vh; overflow-y: auto; }
+            .review-toast { margin-left: 0.75rem; margin-right: 0.75rem; width: calc(100% - 1.5rem); max-width: none; bottom: max(1rem, env(safe-area-inset-bottom)); }
+        }
+        header.header-bar { padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right); padding-top: max(0.75rem, env(safe-area-inset-top)); }
     </style>
 </head>
 <body class="text-gray-100 scanlines overflow-x-hidden">
@@ -72,7 +80,7 @@
             <p class="text-cyan-300/90 text-sm">что пишут те кто уже занимается</p>
         </section>
 
-        <section class="container mx-auto px-4 pb-8 flex flex-col items-center">
+        <section class="container mx-auto px-3 sm:px-4 pb-8 flex flex-col items-center">
             <div id="reviewsList" class="w-full max-w-2xl mx-auto space-y-3">
                 <article class="review-card rounded-lg pl-4 pr-3 pt-3 pb-3 flex gap-3">
                     <img src="assets/images/profile photo/profile_3.jpg" alt="" class="review-avatar" width="36" height="36">
@@ -323,4 +331,3 @@
     </script>
 </body>
 </html>
-
