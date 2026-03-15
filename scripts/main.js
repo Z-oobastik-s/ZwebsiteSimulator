@@ -132,6 +132,8 @@ let audioThemeTransition = null;
 let audioDeniedMoney = null;
 var bgMusicAudio = null;
 var bgMusicTrackIndex = 0;
+var bgMusicPausedAt = 0;
+var bgMusicPausedTrackIndex = 0;
 var BG_MUSIC_TRACKS = ['assets/sounds/violin.mp3', 'assets/sounds/violin_1.mp3'];
 var BG_MUSIC_VOLUME = 0.06;
 let audioSwipeAnimation = null;
@@ -1047,19 +1049,31 @@ function initializeAudio() {
     }
 }
 
-// Play welcome sound once
+// Play welcome sound once (на время воспроизведения приглушаем фоновую музыку)
 function playWelcomeSound() {
     if (!welcomePlayed && app.soundEnabled && audioWelcome && app.currentMode === 'home') {
-        // Try to play
-        const playPromise = audioWelcome.play();
+        var bgWasPlaying = bgMusicAudio && !bgMusicAudio.paused;
+        if (bgWasPlaying) stopBgMusic();
+        var onWelcomeEnd = function() {
+            audioWelcome.removeEventListener('ended', onWelcomeEnd);
+            if (app.bgMusicEnabled && bgWasPlaying) startBgMusic();
+        };
+        audioWelcome.addEventListener('ended', onWelcomeEnd);
+        var playPromise = audioWelcome.play();
         if (playPromise !== undefined) {
-            playPromise.then(() => {
+            playPromise.then(function() {
                 welcomePlayed = true;
-            }).catch(error => {
-                // Autoplay blocked - play on first interaction
-                const playOnInteraction = () => {
+            }).catch(function() {
+                audioWelcome.removeEventListener('ended', onWelcomeEnd);
+                if (bgWasPlaying && app.bgMusicEnabled) startBgMusic();
+                var playOnInteraction = function() {
                     if (!welcomePlayed && audioWelcome && app.currentMode === 'home') {
-                        audioWelcome.play().catch(() => {});
+                        var bgPlaying = bgMusicAudio && !bgMusicAudio.paused;
+                        if (bgPlaying) stopBgMusic();
+                        audioWelcome.addEventListener('ended', function() {
+                            if (app.bgMusicEnabled && bgPlaying) startBgMusic();
+                        });
+                        audioWelcome.play().catch(function() {});
                         welcomePlayed = true;
                     }
                     document.removeEventListener('click', playOnInteraction);
@@ -1273,7 +1287,12 @@ function toggleLayout() {
 function startBgMusic() {
     if (!app.bgMusicEnabled || !BG_MUSIC_TRACKS.length) return;
     if (bgMusicAudio) {
+        var trackIndex = bgMusicPausedTrackIndex;
+        var seekTo = bgMusicPausedAt;
+        bgMusicAudio.src = BG_MUSIC_TRACKS[trackIndex];
+        bgMusicTrackIndex = trackIndex;
         bgMusicAudio.volume = BG_MUSIC_VOLUME;
+        bgMusicAudio.currentTime = seekTo;
         bgMusicAudio.play().catch(function() {});
         return;
     }
@@ -1282,16 +1301,24 @@ function startBgMusic() {
     bgMusicAudio.addEventListener('ended', function() {
         if (!app.bgMusicEnabled) return;
         bgMusicTrackIndex = (bgMusicTrackIndex + 1) % BG_MUSIC_TRACKS.length;
+        bgMusicPausedTrackIndex = bgMusicTrackIndex;
+        bgMusicPausedAt = 0;
         bgMusicAudio.src = BG_MUSIC_TRACKS[bgMusicTrackIndex];
         bgMusicAudio.play().catch(function() {});
     });
     bgMusicTrackIndex = 0;
+    bgMusicPausedTrackIndex = 0;
+    bgMusicPausedAt = 0;
     bgMusicAudio.src = BG_MUSIC_TRACKS[0];
     bgMusicAudio.play().catch(function() {});
 }
 
 function stopBgMusic() {
-    if (bgMusicAudio) bgMusicAudio.pause();
+    if (bgMusicAudio) {
+        bgMusicPausedAt = bgMusicAudio.currentTime;
+        bgMusicPausedTrackIndex = bgMusicTrackIndex;
+        bgMusicAudio.pause();
+    }
 }
 
 function updateBgMusicIcon() {
@@ -3971,4 +3998,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-
