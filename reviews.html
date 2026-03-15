@@ -12,18 +12,23 @@
         :root { --primary: #00BCD4; --purple: #8B5CF6; }
         body { font-family: 'Inter', sans-serif; }
         .font-display { font-family: 'Orbitron', sans-serif; }
-        .gaming-bg { background: linear-gradient(180deg, #030712 0%, #0f172a 30%, #0c1222 60%, #020617 100%); min-height: 100vh; }
-        .review-card { background: linear-gradient(145deg, rgba(15,23,42,0.95) 0%, rgba(6,10,22,0.98) 100%); border: 1px solid rgba(0,229,255,0.2); box-shadow: 0 0 40px rgba(0,229,255,0.06), inset 0 1px 0 rgba(255,255,255,0.05); }
+        .gaming-bg { min-height: 100vh; position: relative; }
+        .gaming-bg::before { content: ''; position: fixed; inset: 0; background: url('assets/images/reviews.jpg') center/cover no-repeat; z-index: -2; }
+        .gaming-bg::after { content: ''; position: fixed; inset: 0; background: linear-gradient(180deg, rgba(3,7,18,0.82) 0%, rgba(15,23,42,0.86) 35%, rgba(6,10,22,0.9) 100%); z-index: -1; }
+        .review-card { background: linear-gradient(145deg, rgba(15,23,42,0.88) 0%, rgba(6,10,22,0.94) 100%); border: 1px solid rgba(0,229,255,0.22); box-shadow: 0 8px 32px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.04); backdrop-filter: blur(14px); }
+        .review-card:hover { border-color: rgba(0,229,255,0.35); box-shadow: 0 12px 40px rgba(0,0,0,0.4), 0 0 24px rgba(0,229,255,0.06); }
         .portal-btn { background: linear-gradient(135deg, rgba(0,229,255,0.2) 0%, rgba(139,92,246,0.2) 100%); border: 1px solid rgba(0,229,255,0.4); transition: all 0.3s; }
         .portal-btn:hover { box-shadow: 0 0 30px rgba(0,229,255,0.3); transform: scale(1.02); }
-        .scanlines::before { content: ''; position: fixed; inset: 0; background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px); pointer-events: none; z-index: 1; }
-        .page-enter { animation: pageEnter 0.35s ease-out forwards; }
+        .scanlines::before { content: ''; position: fixed; inset: 0; background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.02) 2px, rgba(0,0,0,0.02) 4px); pointer-events: none; z-index: 0; }
+        .page-enter { animation: pageEnter 0.35s ease-out forwards; position: relative; z-index: 1; }
         @keyframes pageEnter { from { opacity: 0; } to { opacity: 1; } }
         .star { color: #fbbf24; }
+        .review-text { line-height: 1.65; }
+        .review-meta { color: rgba(148, 163, 184, 0.95); }
     </style>
 </head>
 <body class="gaming-bg text-gray-100 scanlines overflow-x-hidden">
-    <div class="page-enter relative z-0">
+    <div class="page-enter">
         <header class="sticky top-0 z-50 border-b border-white/10 bg-black/40 backdrop-blur-xl">
             <div class="container mx-auto px-4 py-4 flex items-center justify-between">
                 <button type="button" onclick="window.portalTo && portalTo('index.html')" class="text-xl font-display font-bold text-white hover:text-cyan-400 transition-colors bg-transparent border-0 cursor-pointer">Zooba<span class="text-cyan-400">stiks</span></button>
@@ -33,66 +38,74 @@
             </div>
         </header>
 
-        <section class="pt-12 pb-8 px-4 text-center">
+        <section class="pt-12 pb-10 px-4 text-center">
             <h1 class="font-display text-4xl md:text-5xl font-bold text-white mb-2">Отзывы</h1>
-            <p class="text-cyan-300/90 text-lg">Что говорят те, кто уже тренируется</p>
+            <p class="text-cyan-300/90 text-lg">Что пишут те кто уже занимается</p>
         </section>
 
-        <section class="container mx-auto px-4 pb-20 max-w-4xl space-y-6">
-            <article class="review-card rounded-2xl p-6">
-                <div class="flex gap-1 mb-3 star" aria-hidden="true">
-                    <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
-                </div>
-                <p class="text-gray-300 leading-relaxed mb-4">За две недели заметно выросла скорость. Уроки по шагам — то что нужно, не перегружает. Мультиплеер с другом добавил азарта.</p>
+        <section class="container mx-auto px-4 pb-24 max-w-2xl space-y-5">
+            <article class="review-card rounded-2xl p-5 md:p-6">
+                <p class="review-text text-gray-200 mb-4">за две недели реально быстрее печатать стал)) уроки по шагам норм не грузит и с другом гоняли кто быстрее прикольно</p>
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-500/30 to-purple-500/30 border border-white/20 flex items-center justify-center text-lg">А</div>
+                    <div class="w-11 h-11 rounded-full bg-gradient-to-br from-cyan-500/35 to-purple-500/35 border border-white/25 flex items-center justify-center text-lg font-semibold text-white">А</div>
                     <div>
                         <span class="font-semibold text-white">Алексей</span>
-                        <span class="text-gray-500 text-sm block">Школьник, 14 лет</span>
+                        <span class="review-meta text-sm block">школьник 14 лет</span>
                     </div>
                 </div>
             </article>
-            <article class="review-card rounded-2xl p-6">
-                <div class="flex gap-1 mb-3 star"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
-                <p class="text-gray-300 leading-relaxed mb-4">Искала тренажёр для ребёнка — здесь и русский, и английский, и украинский. Удобно, что можно без регистрации начать, а потом сохранить прогресс.</p>
+
+            <article class="review-card rounded-2xl p-5 md:p-6">
+                <p class="review-text text-gray-200 mb-4">наконец то нашла что то адекватное для сына тут и русский и английский есть без регистрации попробовали а потом зашли и всё сохранилось удобно очень</p>
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-amber-500/30 to-orange-500/30 border border-white/20 flex items-center justify-center text-lg">М</div>
+                    <div class="w-11 h-11 rounded-full bg-gradient-to-br from-amber-500/35 to-orange-500/35 border border-white/25 flex items-center justify-center text-lg font-semibold text-white">М</div>
                     <div>
                         <span class="font-semibold text-white">Марина</span>
-                        <span class="text-gray-500 text-sm block">Мама двоих детей</span>
+                        <span class="review-meta text-sm block">мама двоих детей</span>
                     </div>
                 </div>
             </article>
-            <article class="review-card rounded-2xl p-6">
-                <div class="flex gap-1 mb-3 star"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
-                <p class="text-gray-300 leading-relaxed mb-4">Тест на 60 секунд — отличная проверка. Достижения и монеты мотивируют проходить уроки до конца. Рекомендую одногруппникам.</p>
+
+            <article class="review-card rounded-2xl p-5 md:p-6">
+                <p class="review-text text-gray-200 mb-4">тест на минуту зашёл достижения и монеты мотивируют реально прохожу уроки до конца уже одногруппникам скинул</p>
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500/30 to-teal-500/30 border border-white/20 flex items-center justify-center text-lg">Д</div>
+                    <div class="w-11 h-11 rounded-full bg-gradient-to-br from-emerald-500/35 to-teal-500/35 border border-white/25 flex items-center justify-center text-lg font-semibold text-white">Д</div>
                     <div>
                         <span class="font-semibold text-white">Дмитрий</span>
-                        <span class="text-gray-500 text-sm block">Студент</span>
+                        <span class="review-meta text-sm block">студент</span>
                     </div>
                 </div>
             </article>
-            <article class="review-card rounded-2xl p-6">
-                <div class="flex gap-1 mb-3 star"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
-                <p class="text-gray-300 leading-relaxed mb-4">Понравился дизайн и что не мешает реклама. Печатаю в свободном режиме свои тексты — удобно готовиться к экзаменам.</p>
+
+            <article class="review-card rounded-2xl p-5 md:p-6">
+                <p class="review-text text-gray-200 mb-4">мне понравился дизайн и что рекламы нет) печатаю свои тексты готовлюсь к экзаменам в свободном режиме норм</p>
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-rose-500/30 to-pink-500/30 border border-white/20 flex items-center justify-center text-lg">К</div>
+                    <div class="w-11 h-11 rounded-full bg-gradient-to-br from-rose-500/35 to-pink-500/35 border border-white/25 flex items-center justify-center text-lg font-semibold text-white">К</div>
                     <div>
                         <span class="font-semibold text-white">Катя</span>
-                        <span class="text-gray-500 text-sm block">Ученица 10 класса</span>
+                        <span class="review-meta text-sm block">ученица 10 класса</span>
                     </div>
                 </div>
             </article>
-            <article class="review-card rounded-2xl p-6">
-                <div class="flex gap-1 mb-3 star"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
-                <p class="text-gray-300 leading-relaxed mb-4">Использую на планшете с клавиатурой — всё работает. Уровни и ранги дают ощущение прогресса. Спасибо разработчикам!</p>
+
+            <article class="review-card rounded-2xl p-5 md:p-6">
+                <p class="review-text text-gray-200 mb-4">юзаю на планшете с клавой всё ок уровни прокачиваешь как в игре сын занимается сам без напоминаний уже спасибо</p>
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-violet-500/30 to-purple-500/30 border border-white/20 flex items-center justify-center text-lg">И</div>
+                    <div class="w-11 h-11 rounded-full bg-gradient-to-br from-violet-500/35 to-purple-500/35 border border-white/25 flex items-center justify-center text-lg font-semibold text-white">И</div>
                     <div>
                         <span class="font-semibold text-white">Игорь</span>
-                        <span class="text-gray-500 text-sm block">Фрилансер</span>
+                        <span class="review-meta text-sm block">папа фрилансер</span>
+                    </div>
+                </div>
+            </article>
+
+            <article class="review-card rounded-2xl p-5 md:p-6">
+                <p class="review-text text-gray-200 mb-4">по началу думала ерунда какая то а потом видно что прогресс есть дочка сама садится заниматься я сама попробовала тоже понравилось</p>
+                <div class="flex items-center gap-3">
+                    <div class="w-11 h-11 rounded-full bg-gradient-to-br from-sky-500/35 to-indigo-500/35 border border-white/25 flex items-center justify-center text-lg font-semibold text-white">О</div>
+                    <div>
+                        <span class="font-semibold text-white">Ольга</span>
+                        <span class="review-meta text-sm block">мама</span>
                     </div>
                 </div>
             </article>
@@ -101,3 +114,4 @@
     <script src="scripts/portal-transition.js"></script>
 </body>
 </html>
+
