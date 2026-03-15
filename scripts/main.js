@@ -178,6 +178,7 @@ const translations = {
         completedLessons: 'Пройдено уроков',
         totalTime: 'Общее время',
         progressLessonsHint: 'все языки',
+        mobilePcHint: 'Для лучшего взаимодействия рекомендуем зайти с компьютера.',
         back: 'Назад',
         chooseDifficulty: 'Выберите уровень сложности',
         exit: 'Выйти',
@@ -377,6 +378,7 @@ const translations = {
         completedLessons: 'Completed Lessons',
         totalTime: 'Total Time',
         progressLessonsHint: 'all languages',
+        mobilePcHint: 'For a better experience we recommend using a computer.',
         back: 'Back',
         chooseDifficulty: 'Choose Difficulty Level',
         exit: 'Exit',
@@ -4044,3 +4046,4 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+

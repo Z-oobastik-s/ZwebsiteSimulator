@@ -174,6 +174,16 @@
             #backgroundSelectorModal .avatar-modal-panel,
             #avatarSelectorModal .avatar-modal-panel { max-height: 85vh; padding: 0.75rem; }
             #typingScreen .max-w-4xl { padding-left: 0.5rem; padding-right: 0.5rem; }
+            #homeScreen .max-w-4xl { padding-bottom: 1.5rem; }
+            #homeScreen .mt-5.max-w-4xl { padding-left: 0.5rem; padding-right: 0.5rem; }
+            #statsPreview .text-gray-500 { white-space: normal; overflow: visible; text-overflow: unset; }
+            #statsPreview .truncate { white-space: normal; overflow: visible; text-overflow: unset; }
+            #statsPreview > div { min-width: 0; }
+            #achievementsBlock { padding-left: 0.5rem; padding-right: 0.5rem; gap: 0.5rem; }
+            .site-rating-wrap { margin-bottom: 0.5rem; }
+            #footer { padding-bottom: env(safe-area-inset-bottom); }
+            #footer .footer-content { padding-bottom: max(0.75rem, env(safe-area-inset-bottom)); padding-left: 0.75rem; padding-right: 0.75rem; }
+            main { padding-bottom: 200px; }
         }
         @media (max-width: 480px) {
             #keyboardContainer .w-10 { width: 1.5rem !important; min-width: 1.5rem !important; }
@@ -1716,6 +1726,37 @@
             0%, 100% { opacity: 0.5; }
             50% { opacity: 1; }
         }
+        /* Мобильный баннер: рекомендуем ПК (липкий, под шапкой) */
+        #mobilePcBanner {
+            display: none;
+            position: sticky;
+            top: 3.5rem;
+            z-index: 45;
+            background: linear-gradient(135deg, rgba(6,12,28,0.98) 0%, rgba(15,23,42,0.97) 100%);
+            border-bottom: 1px solid rgba(0,229,255,0.3);
+            padding: 0.5rem 0.75rem 0.5rem 1rem;
+            align-items: center;
+            gap: 0.75rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        #mobilePcBanner.show { display: flex; }
+        #mobilePcBanner .banner-close {
+            flex-shrink: 0;
+            width: 36px;
+            height: 36px;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            color: #94a3b8;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            transition: color 0.2s, background 0.2s;
+        }
+        #mobilePcBanner .banner-close:hover { color: #e2e8f0; background: rgba(255,255,255,0.1); }
+        @media (min-width: 769px) {
+            #mobilePcBanner { display: none !important; }
+        }
     </style>
     
     <script>
@@ -1847,6 +1888,14 @@
             </div>
         </div>
     </header>
+
+    <!-- Мобильный баннер: рекомендуем зайти с ПК -->
+    <div id="mobilePcBanner" class="hidden" role="region" aria-label="Подсказка для мобильных">
+        <p class="text-sm text-cyan-200/95 flex-1 min-w-0" data-i18n="mobilePcHint">Для лучшего взаимодействия рекомендуем зайти с компьютера.</p>
+        <button type="button" class="banner-close flex" onclick="document.getElementById('mobilePcBanner').classList.remove('show'); try { localStorage.setItem('zoob_mobile_banner_closed', '1'); } catch(e) {}" aria-label="Закрыть">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+    </div>
     
     <!-- Main Content -->
     <main class="container mx-auto px-4 pt-24 pb-20">
@@ -2839,10 +2888,10 @@
                 </div>
                 
                 <!-- Bottom: Copyright + searchable phrases (zoobastiks, клавиатура онлайн, для школьников) -->
-                <div class="flex flex-col sm:flex-row justify-between items-center gap-1 text-xs text-gray-300">
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-2 text-xs text-gray-300 text-center sm:text-left">
                     <p data-i18n="copyright">© 2025 Zoobastiks. Все права защищены.</p>
                     <p class="sr-only" aria-hidden="true">Клавиатура онлайн Zoobastiks. Zoobastik, Zoob, Зубастик, Зубастикс, Z-тренажер — тренажёр слепой печати для школьников и детей. Тренажер печати онлайн.</p>
-                    <div class="flex items-center space-x-1 text-gray-400">
+                    <div class="flex items-center justify-center sm:justify-end space-x-1 text-gray-400 flex-shrink-0">
                         <span class="animate-pulse">⚡</span>
                         <span data-i18n="poweredBy">Квантовые процессоры</span>
                         <span class="animate-pulse">⚡</span>
@@ -2854,6 +2903,20 @@
     </div><!-- #rootScroll -->
     
     <!-- Scripts (defer = загрузка параллельно, выполнение по порядку после разбора HTML) -->
+    <script>
+        (function() {
+            function showMobileBanner() {
+                var w = window.innerWidth || document.documentElement.clientWidth;
+                if (w < 769) {
+                    try { if (localStorage.getItem('zoob_mobile_banner_closed') === '1') return; } catch(e) {}
+                    var el = document.getElementById('mobilePcBanner');
+                    if (el) el.classList.add('show');
+                }
+            }
+            if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', showMobileBanner);
+            else showMobileBanner();
+        })();
+    </script>
     <script src="scripts/portal-transition.js"></script>
     <script src="scripts/api-config.js" defer></script>
     <script src="scripts/lessons-data.js" defer></script>
@@ -2870,3 +2933,4 @@
     
 </body>
 </html>
+
