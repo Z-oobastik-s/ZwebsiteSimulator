@@ -554,4 +554,3 @@ window.shopModule = {
     getLessonById,
     getLessonsByCategory
 };
-

@@ -1429,6 +1429,18 @@
         #avatarSelectorModal .avatar-card--locked img {
             filter: grayscale(0.7) blur(1px);
         }
+        #avatarSelectorModal .avatar-lock-overlay {
+            padding: 4px;
+        }
+        #avatarSelectorModal .avatar-lock-text {
+            font-size: 0.65rem;
+            line-height: 1.2;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+            text-align: center;
+        }
         /* Без скролла: сетка 5×4 помещается в модалку */
         #avatarSelectorModal #avatarGrid {
             max-width: 360px;
@@ -2549,6 +2561,13 @@
                     <div class="text-xs text-gray-400 mt-1" data-i18n="totalErrors">Всего ошибок</div>
                 </div>
             </div>
+            
+            <!-- Фоны (покупка / выбор) -->
+            <p class="profile-section-title mb-3 mt-6" data-i18n="backgrounds">Фоны</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mb-3" data-i18n="backgroundsTip">Выберите фон для главного экрана. Новые фоны открываются за монеты.</p>
+            <div id="profileBackgroundsGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                <!-- заполняется из JS -->
+            </div>
         </div>
     </div>
     
@@ -2723,4 +2742,3 @@
     
 </body>
 </html>
-
