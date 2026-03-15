@@ -169,3 +169,4 @@ window.keyboardModule = {
     highlight: highlightKey,
     highlightStatic: highlightKeyStatic
 };
+

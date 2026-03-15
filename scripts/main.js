@@ -122,6 +122,39 @@ function rafTimer(callback) {
     };
 }
 
+var pwaDeferredPrompt = null;
+window.addEventListener('beforeinstallprompt', function (e) {
+  e.preventDefault();
+  pwaDeferredPrompt = e;
+});
+
+function initPwaInstallBanner() {
+  var banner = document.getElementById('pwaInstallBanner');
+  var btn = document.getElementById('pwaInstallBtn');
+  var dismiss = document.getElementById('pwaInstallDismiss');
+  if (!banner || !btn) return;
+  var isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  var dismissed = false;
+  try { dismissed = localStorage.getItem('zoob_pwa_banner_dismissed') === '1'; } catch (e) {}
+  if (isStandalone || !pwaDeferredPrompt || dismissed) return;
+  banner.classList.remove('hidden');
+  banner.classList.add('flex');
+  btn.onclick = function () {
+    if (!pwaDeferredPrompt) return;
+    pwaDeferredPrompt.prompt();
+    pwaDeferredPrompt.userChoice.then(function (choice) {
+      if (choice.outcome === 'accepted') banner.classList.add('hidden');
+      pwaDeferredPrompt = null;
+    });
+  };
+  if (dismiss) {
+    dismiss.onclick = function () {
+      banner.classList.add('hidden');
+      try { localStorage.setItem('zoob_pwa_banner_dismissed', '1'); } catch (e) {}
+    };
+  }
+}
+
 // Translations
 // Audio elements
 let audioClick = null;
@@ -956,12 +989,25 @@ function finishOnboarding() {
     setRandomBackground();
 }
 
+// Отложенная установка фона (после первого кадра), чтобы LCP был контент, а не большое изображение
+function scheduleBackgroundAfterFirstPaint() {
+    function run() {
+        setRandomBackground();
+        updateFooterBackground();
+    }
+    if (typeof requestIdleCallback !== 'undefined') {
+        requestIdleCallback(run, { timeout: 400 });
+    } else {
+        requestAnimationFrame(function() { requestAnimationFrame(run); });
+    }
+}
+
 // Initialize app
 document.addEventListener('DOMContentLoaded', function() {
     app.isPaused = false;
     
     loadSettings();
-    setRandomBackground();
+    scheduleBackgroundAfterFirstPaint();
     applyAnimationsSetting();
     initializeUI();
     updateTranslations();
@@ -970,7 +1016,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (window.levelModule) renderLevelBlock();
     if (window.keyboardModule) window.keyboardModule.render(app.currentLayout);
     initSiteRating();
-    updateFooterBackground();
+    // Футер/фон уже запланированы в scheduleBackgroundAfterFirstPaint
     
     // Неблокирующая инициализация: аудио и частицы после первого кадра
     setTimeout(function() {
@@ -980,11 +1026,11 @@ document.addEventListener('DOMContentLoaded', function() {
     
     setTimeout(showOnboardingIfFirstVisit, 700);
     
-    // PWA: регистрация Service Worker
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('sw.js').catch(function () {});
     }
-    
+    initPwaInstallBanner();
+
     // Initialize auth state listener
     if (window.authModule) {
         window.authModule.onAuthStateChange(async (user) => {
@@ -1116,11 +1162,7 @@ function loadSettings() {
     if (savedTheme) {
         app.theme = savedTheme;
         document.documentElement.classList.toggle('dark', savedTheme === 'dark');
-        // Обновляем изображение футера при загрузке настроек
-        updateFooterBackground();
-    } else {
-        // Если тема не сохранена, используем текущую и обновляем футер
-        updateFooterBackground();
+        // Футер и фон тела задаются в scheduleBackgroundAfterFirstPaint (после первого кадра, для LCP)
     }
     
     if (savedLang) app.lang = savedLang;
@@ -4076,3 +4118,4 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+

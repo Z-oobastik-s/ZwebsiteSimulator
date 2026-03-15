@@ -87,10 +87,7 @@
     <!-- PWA -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0f172a">
-    
-    <!-- Preload LCP-ресурса: фон по умолчанию (тёмная тема) -->
-    <link rel="preload" as="image" href="assets/images/background_black.jpg" fetchpriority="high">
-    <!-- Preconnect для быстрого подключения к CDN/шрифтам -->
+    <!-- Preconnect для быстрого подключения к CDN/шрифтам (фон тела подгружается после первого кадра, чтобы LCP был контент, а не картинка) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <!-- Шрифты: асинхронная загрузка без блокировки отрисовки (display=swap) -->
@@ -1938,7 +1935,13 @@
         </div>
     </header>
 
-    <!-- Мобильный баннер: рекомендуем зайти с ПК -->
+    <div id="pwaInstallBanner" class="hidden sticky top-14 z-30 px-4 py-2 bg-primary/20 border-b border-primary/30 flex items-center justify-between gap-3" role="region" aria-label="Установка приложения">
+        <p class="text-sm text-gray-100 flex-1 min-w-0">Установи Zoobastiks на устройство</p>
+        <div class="flex items-center gap-2 shrink-0">
+            <button type="button" id="pwaInstallBtn" class="px-3 py-1.5 rounded-lg bg-primary text-gray-900 font-semibold text-sm hover:bg-cyan-400 transition-colors">Установить</button>
+            <button type="button" id="pwaInstallDismiss" class="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-colors" aria-label="Закрыть"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+        </div>
+    </div>
     <div id="mobilePcBanner" class="hidden" role="region" aria-label="Подсказка для мобильных">
         <p class="text-sm text-cyan-200/95 flex-1 min-w-0" data-i18n="mobilePcHint">Для лучшего взаимодействия рекомендуем зайти с компьютера.</p>
         <button type="button" class="banner-close flex" onclick="document.getElementById('mobilePcBanner').classList.remove('show'); try { localStorage.setItem('zoob_mobile_banner_closed', '1'); } catch(e) {}" aria-label="Закрыть">
@@ -2966,7 +2969,6 @@
             else showMobileBanner();
         })();
     </script>
-    <!-- Tailwind: в конце body, чтобы не блокировать FCP/LCP (config до скрипта) -->
     <script>
         (function(){var t=window.tailwind||{};t.config={darkMode:'class',theme:{extend:{colors:{primary:'#00BCD4',success:'#8BC34A',warning:'#FFC107'}}}};window.tailwind=t;})();
     </script>
@@ -2995,3 +2997,4 @@
     </script>
 </body>
 </html>
+
