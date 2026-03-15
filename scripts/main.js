@@ -156,6 +156,7 @@ const translations = {
     ru: {
         welcome: 'Добро пожаловать в игру',
         subtitle: 'Научитесь печатать быстро и без ошибок',
+        heroSubtitle: '🚀 Быстро • 🎯 Точно • 💪 Эффективно',
         lessons: 'Уроки',
         lessonsDesc: 'Обучение с нуля до профи',
         freeMode: 'Свободная печать',
@@ -351,6 +352,7 @@ const translations = {
     en: {
         welcome: 'Welcome to Zoobastiks',
         subtitle: 'Learn to type fast and accurately',
+        heroSubtitle: '🚀 Fast • 🎯 Accurate • 💪 Efficient',
         lessons: 'Lessons',
         lessonsDesc: 'From beginner to pro',
         freeMode: 'Free Typing',
@@ -4014,4 +4016,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-

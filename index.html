@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+      (function(){var L=localStorage.getItem('lang');if(L==='en'||L==='uk'){document.documentElement.setAttribute('data-lang',L);document.documentElement.setAttribute('lang',L);}})();
+    </script>
     
     <!-- Primary Meta Tags -->
     <title>Клавиатура онлайн Zoobastiks — тренажёр слепой печати для школьников и всех</title>
@@ -111,27 +114,37 @@
             --warning: #FFC107;
         }
         
-        /* Убираем полосу прокрутки справа (скролл по колёсику/тачу остаётся) */
+        /* Убираем полосу прокрутки везде (Chrome, Opera и др.; скролл по колёсику остаётся) */
         html {
             overflow-x: hidden;
-            scrollbar-width: none;
-            -ms-overflow-style: none;
+            scrollbar-width: none !important;
+            -ms-overflow-style: none !important;
         }
-        html::-webkit-scrollbar {
+        html::-webkit-scrollbar,
+        body::-webkit-scrollbar,
+        body *::-webkit-scrollbar {
             display: none !important;
-            width: 0;
-            height: 0;
+            width: 0 !important;
+            height: 0 !important;
+            background: transparent !important;
         }
+        html::-webkit-scrollbar-track,
+        body::-webkit-scrollbar-track { background: transparent !important; }
         body {
+            overflow: hidden;
             overflow-x: hidden;
-            scrollbar-width: none;
-            -ms-overflow-style: none;
+            scrollbar-width: none !important;
+            -ms-overflow-style: none !important;
         }
-        body::-webkit-scrollbar {
-            display: none !important;
-            width: 0;
-            height: 0;
+        /* В Chrome скроллбар иногда рисуется у viewport — переносим прокрутку в обёртку */
+        #rootScroll {
+            overflow-x: hidden;
+            overflow-y: auto;
+            scrollbar-width: none !important;
+            -ms-overflow-style: none !important;
+            min-height: 100vh;
         }
+        #rootScroll::-webkit-scrollbar { display: none !important; width: 0 !important; height: 0 !important; }
         
         /* Background image with overlay */
         body {
@@ -1681,7 +1694,7 @@
     </script>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen" tabindex="-1">
-    
+    <div id="rootScroll" class="min-h-screen">
     <!-- Header -->
     <header class="glass fixed top-0 left-0 right-0 z-50 shadow-lg">
         <div class="container mx-auto px-4 py-3 flex items-center justify-between gap-3">
@@ -1801,7 +1814,7 @@
                     <span class="hero-word-1">Mastering</span>
                     <span class="hero-word-2"> Keyboard</span>
                 </h2>
-                <p class="hero-subtitle text-sm font-medium text-gray-300 dark:text-gray-300 mb-1">
+                <p class="hero-subtitle text-sm font-medium text-gray-300 dark:text-gray-300 mb-1" id="heroSubtitle" data-i18n="heroSubtitle">
                     🚀 Быстро • 🎯 Точно • 💪 Эффективно
                 </p>
             </div>
@@ -2787,6 +2800,7 @@
             </div>
         </div>
     </footer>
+    </div><!-- #rootScroll -->
     
     <!-- Scripts (defer = загрузка параллельно, выполнение по порядку после разбора HTML) -->
     <script src="scripts/api-config.js" defer></script>
@@ -2804,4 +2818,3 @@
     
 </body>
 </html>
-
