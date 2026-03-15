@@ -3821,11 +3821,13 @@ async function purchaseLesson(lessonId) {
 }
 
 function playDeniedMoneySound() {
-    if (!app.soundEnabled || !audioDeniedMoney) return;
-    const s = audioDeniedMoney.cloneNode();
-    s.volume = 0.4;
-    s.currentTime = 0;
-    s.play().catch(() => {});
+    if (!app.soundEnabled) return;
+    try {
+        var s = audioDeniedMoney ? audioDeniedMoney.cloneNode() : new Audio('assets/sounds/denied_money.ogg');
+        s.volume = 0.4;
+        s.currentTime = 0;
+        s.play().catch(function() {});
+    } catch (e) {}
 }
 
 function playTelegramSound() {
@@ -3916,3 +3918,4 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+
