@@ -30,6 +30,46 @@ const app = {
     pendingLevelUp: null
 };
 
+// Streak (серия дней подряд с тренировкой)
+const STREAK_KEY = 'zoobastiks_streak';
+function streakDateStr(d) {
+    d = d || new Date();
+    return d.toISOString().slice(0, 10);
+}
+function getStreak() {
+    try {
+        var raw = localStorage.getItem(STREAK_KEY);
+        if (!raw) return 0;
+        var data = JSON.parse(raw);
+        var last = data.lastDate;
+        var count = data.count || 0;
+        var today = streakDateStr();
+        var yesterday = streakDateStr(new Date(Date.now() - 86400000));
+        if (last === today) return count;
+        if (last === yesterday) return count;
+        return 0;
+    } catch (_) { return 0; }
+}
+function updateStreak() {
+    var today = streakDateStr();
+    var yesterday = streakDateStr(new Date(Date.now() - 86400000));
+    var data;
+    try {
+        var raw = localStorage.getItem(STREAK_KEY);
+        data = raw ? JSON.parse(raw) : { lastDate: '', count: 0 };
+    } catch (_) {
+        data = { lastDate: '', count: 0 };
+    }
+    if (data.lastDate === today) return;
+    if (data.lastDate === yesterday) {
+        data.count = (data.count || 0) + 1;
+    } else {
+        data.count = 1;
+    }
+    data.lastDate = today;
+    localStorage.setItem(STREAK_KEY, JSON.stringify(data));
+}
+
 // DOM Cache - кэшируем часто используемые элементы
 const DOM = {
     get: function(id) {
@@ -281,7 +321,12 @@ const translations = {
         establishConnection: 'Установить связь',
         contactDesc: 'Подключись к нейросети разработчика через квантовый канал связи',
         copyright: '© 2025 Zoobastiks. Все права защищены. Проект из будущего.',
-        poweredBy: 'Работает на квантовых процессорах'
+        poweredBy: 'Работает на квантовых процессорах',
+        copyResult: 'Скопировать результат',
+        resultCopied: 'Результат скопирован в буфер',
+        hotkeysHint: 'Esc — закрыть · Enter или R — повторить',
+        streakDays: 'дней подряд',
+        streakHint: 'Серия дней с тренировкой'
     },
     en: {
         welcome: 'Welcome to Zoobastiks',
@@ -462,7 +507,12 @@ const translations = {
         establishConnection: 'Establish Connection',
         contactDesc: 'Connect to the developer\'s neural network through a quantum communication channel',
         copyright: '© 2025 Zoobastiks. All rights reserved. Project from the future.',
-        poweredBy: 'Powered by quantum processors'
+        poweredBy: 'Powered by quantum processors',
+        copyResult: 'Copy result',
+        resultCopied: 'Result copied to clipboard',
+        hotkeysHint: 'Esc — close · Enter or R — repeat',
+        streakDays: 'day streak',
+        streakHint: 'Consecutive days with practice'
     }
 };
 
@@ -868,6 +918,43 @@ function initializeUI() {
     
     // Keyboard input - используем passive для лучшей производительности
     document.addEventListener('keydown', handleKeyPress, { passive: false });
+    // Global hotkeys: Esc — close modal, Enter/R — repeat when results open
+    document.addEventListener('keydown', handleGlobalHotkeys);
+}
+
+function isInputFocused() {
+    const el = document.activeElement;
+    return el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT' || el.isContentEditable);
+}
+
+function isModalVisible(id) {
+    const el = document.getElementById(id);
+    return el && !el.classList.contains('hidden') && el.classList.contains('flex');
+}
+
+function closeTopModal() {
+    if (isModalVisible('onboardingOverlay')) { finishOnboarding(); return; }
+    if (isModalVisible('levelUpModal')) { closeLevelUpModal(); return; }
+    if (isModalVisible('levelListModal')) { closeLevelListModal(); return; }
+    if (isModalVisible('resultsModal')) { closeResults(); return; }
+    if (isModalVisible('freeModeModal')) { closeFreeModeModal(); return; }
+    if (isModalVisible('loginModal')) { closeLoginModal(); return; }
+}
+
+function handleGlobalHotkeys(e) {
+    if (e.key === 'Escape') {
+        closeTopModal();
+        return;
+    }
+    if (isInputFocused()) return;
+    if (e.key === 'Enter') {
+        if (isModalVisible('resultsModal')) { e.preventDefault(); repeatPractice(); return; }
+        if (isModalVisible('levelUpModal')) { e.preventDefault(); closeLevelUpModal(); return; }
+    }
+    if (e.key === 'r' || e.key === 'R') {
+        if (e.ctrlKey || e.metaKey) return;
+        if (isModalVisible('resultsModal')) { e.preventDefault(); repeatPractice(); return; }
+    }
 }
 
 // Update footer background image based on theme
@@ -1036,6 +1123,8 @@ function updateTranslations() {
             el.setAttribute('aria-label', translations[app.lang][key]);
         }
     });
+    updateResultsModalHotkeysHint();
+    if (window.levelModule) renderLevelBlock();
 }
 
 // Navigation functions
@@ -1073,15 +1162,26 @@ function showLessons() {
     toggleFooter(false); // Скрываем футер в разделе уроков
 }
 
+const FREE_MODE_THEME_KEY = 'zoobastiks_free_mode_theme';
+
 // Show free mode modal
 function showFreeMode() {
     playMenuClickSound();
     const modal = DOM.get('freeModeModal');
     const textInput = DOM.get('freeModeTextInput');
+    const themeSelect = DOM.get('freeModeThemeSelect');
     if (modal && textInput) {
         modal.classList.remove('hidden');
         modal.classList.add('flex');
         textInput.value = '';
+        if (themeSelect) {
+            var saved = localStorage.getItem(FREE_MODE_THEME_KEY);
+            if (saved && [].slice.call(themeSelect.options).some(function (o) { return o.value === saved; })) {
+                themeSelect.value = saved;
+            }
+            themeSelect.removeEventListener('change', saveFreeModeTheme);
+            themeSelect.addEventListener('change', saveFreeModeTheme);
+        }
         textInput.focus();
         updateFreeModeCharCount();
         
@@ -1126,6 +1226,11 @@ function updateFreeModeCharCount() {
     if (textInput && charCount) {
         charCount.textContent = textInput.value.length;
     }
+}
+
+function saveFreeModeTheme() {
+    var select = DOM.get('freeModeThemeSelect');
+    if (select) localStorage.setItem(FREE_MODE_THEME_KEY, select.value);
 }
 
 // Load a random text from the selected theme into free mode textarea
@@ -1877,6 +1982,7 @@ async function finishPractice() {
     }
     
     window.statsModule.addSession(sessionData);
+    updateStreak();
     if (window.levelModule) {
         var xp = window.levelModule.calculateSessionXP(sessionData);
         var xpResult = window.levelModule.addPlayerXP(xp);
@@ -1926,8 +2032,12 @@ async function finishPractice() {
     showResults(speed, accuracy, elapsed, app.errors, rewardCoins);
 }
 
+// Last result data for copy to clipboard
+let lastResultData = { speed: 0, accuracy: 0, time: 0, errors: 0 };
+
 // Show results modal - ОПТИМИЗИРОВАНА. rewardCoins — уже посчитанная награда из finishPractice (чтобы не пересчитывать после addSession).
 function showResults(speed, accuracy, time, errors, rewardCoins) {
+    lastResultData = { speed, accuracy, time: Math.round(time), errors };
     const speedEl = DOM.get('resultSpeed');
     const accuracyEl = DOM.get('resultAccuracy');
     const timeEl = DOM.get('resultTime');
@@ -1968,6 +2078,33 @@ function showResults(speed, accuracy, time, errors, rewardCoins) {
         modal.classList.remove('hidden');
         modal.classList.add('flex');
         focusFirstInModal(modal);
+    }
+    updateResultsModalHotkeysHint();
+}
+
+function updateResultsModalHotkeysHint() {
+    const el = document.getElementById('resultsHotkeysHint');
+    if (el && translations[app.lang].hotkeysHint) el.textContent = translations[app.lang].hotkeysHint;
+}
+
+// Copy result to clipboard (for sharing)
+function copyResultsToClipboard() {
+    const d = lastResultData;
+    const mins = Math.floor(d.time / 60);
+    const secs = Math.floor(d.time % 60);
+    const timeStr = `${mins}:${secs.toString().padStart(2, '0')}`;
+    const site = 'Zoobastiks';
+    const text = app.lang === 'en'
+        ? `${site} — ${d.speed} cpm, ${d.accuracy}% accuracy, ${timeStr}, ${d.errors} errors`
+        : `Zoobastiks — ${d.speed} зн/мин, точность ${d.accuracy}%, время ${timeStr}, ошибок ${d.errors}`;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function () {
+            showToast(t('resultCopied'), 'success', '');
+        }).catch(function () {
+            showToast('Copy failed', 'warning', '');
+        });
+    } else {
+        showToast('Clipboard not available', 'warning', '');
     }
 }
 
@@ -2017,6 +2154,17 @@ function renderLevelBlock() {
             : 'Уровень ' + info.level + ' — ' + info.tierName + ' · ' + info.xpInLevel + '/' + info.xpToNext + ' XP до следующего';
         if (info.xpToNext <= 0) tip = app.lang === 'en' ? 'Level ' + info.level + ' — ' + info.tierName : 'Уровень ' + info.level + ' — ' + info.tierName;
         levelBlock.setAttribute('title', tip);
+    }
+    var streakEl = DOM.get('streakBadge');
+    if (streakEl) {
+        var streak = getStreak();
+        if (streak > 0) {
+            streakEl.textContent = '\uD83D\uDD25 ' + streak;
+            streakEl.title = (translations[app.lang].streakHint || 'Серия дней с тренировкой') + ': ' + streak + ' ' + (translations[app.lang].streakDays || 'дней подряд');
+            streakEl.classList.remove('hidden');
+        } else {
+            streakEl.classList.add('hidden');
+        }
     }
 }
 
@@ -3469,3 +3617,4 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+

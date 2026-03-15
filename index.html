@@ -1525,6 +1525,7 @@
                         <span class="text-xs font-bold text-amber-400 tabular-nums" id="levelNumber">1</span>
                     </div>
                 </button>
+                <span id="streakBadge" class="hidden header-action px-2 py-1 rounded-lg glass border border-orange-500/30 bg-orange-500/10 text-orange-400 text-xs font-semibold tabular-nums" title="">🔥 0</span>
             </div>
         </div>
     </header>
@@ -2134,13 +2135,20 @@
                 </div>
             </div>
             
-            <div class="flex space-x-4">
-                <button onclick="repeatPractice()" class="flex-1 bg-primary hover:bg-primary/80 text-white font-semibold py-3 rounded-lg">
-                    <span data-i18n="repeat">Повторить</span>
+            <div class="flex flex-col gap-3">
+                <button type="button" onclick="copyResultsToClipboard()" class="w-full glass hover:bg-white/20 dark:hover:bg-black/20 font-medium py-2.5 rounded-lg flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                    <span data-i18n="copyResult">Скопировать результат</span>
                 </button>
-                <button onclick="closeResults()" class="flex-1 glass hover:bg-white/20 dark:hover:bg-black/20 font-semibold py-3 rounded-lg">
-                    <span data-i18n="close">Закрыть</span>
-                </button>
+                <div class="flex space-x-4">
+                    <button onclick="repeatPractice()" class="flex-1 bg-primary hover:bg-primary/80 text-white font-semibold py-3 rounded-lg">
+                        <span data-i18n="repeat">Повторить</span>
+                    </button>
+                    <button onclick="closeResults()" class="flex-1 glass hover:bg-white/20 dark:hover:bg-black/20 font-semibold py-3 rounded-lg">
+                        <span data-i18n="close">Закрыть</span>
+                    </button>
+                </div>
+                <p id="resultsHotkeysHint" class="text-xs text-gray-500 dark:text-gray-400 text-center">Esc — закрыть · Enter или R — повторить</p>
             </div>
         </div>
     </div>
@@ -2522,3 +2530,4 @@
     
 </body>
 </html>
+
