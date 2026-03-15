@@ -343,6 +343,9 @@ const translations = {
         copyright: '© 2025 Zoobastiks. Все права защищены. Проект из будущего.',
         poweredBy: 'Работает на квантовых процессорах',
         statsVisits: 'Посещений:',
+        aboutProject: 'О проекте',
+        reviewsLink: 'Отзывы',
+        allReviews: 'Все отзывы',
         copyResult: 'Скопировать результат',
         resultCopied: 'Результат скопирован в буфер',
         hotkeysHint: 'Esc — закрыть · Enter или R — повторить',
@@ -539,6 +542,9 @@ const translations = {
         copyright: '© 2025 Zoobastiks. All rights reserved. Project from the future.',
         poweredBy: 'Powered by quantum processors',
         statsVisits: 'Visits:',
+        aboutProject: 'About',
+        reviewsLink: 'Reviews',
+        allReviews: 'All reviews',
         copyResult: 'Copy result',
         resultCopied: 'Result copied to clipboard',
         hotkeysHint: 'Esc — close · Enter or R — repeat',
@@ -4016,3 +4022,4 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+

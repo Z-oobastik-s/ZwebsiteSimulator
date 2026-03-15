@@ -1928,6 +1928,40 @@
                     </div>
                 </div>
             </div>
+            
+            <!-- Блок отзывов (игровой стиль) -->
+            <div class="mt-8 max-w-4xl mx-auto">
+                <h3 class="text-sm font-semibold mb-3 text-center text-gray-500 dark:text-gray-400 uppercase tracking-wider" data-i18n="reviewsLink">Отзывы</h3>
+                <div class="grid md:grid-cols-3 gap-4">
+                    <article class="glass rounded-xl p-4 border border-cyan-500/20 hover:border-cyan-500/40 transition-colors">
+                        <div class="flex gap-1 mb-2 text-amber-400" aria-hidden="true"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+                        <p class="text-sm text-gray-300 dark:text-gray-400 line-clamp-3 mb-3">За две недели заметно выросла скорость. Уроки по шагам — то что нужно.</p>
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 rounded-full bg-cyan-500/20 border border-cyan-400/30 flex items-center justify-center text-xs font-bold text-cyan-300">А</div>
+                            <span class="text-sm font-medium text-white">Алексей</span>
+                        </div>
+                    </article>
+                    <article class="glass rounded-xl p-4 border border-cyan-500/20 hover:border-cyan-500/40 transition-colors">
+                        <div class="flex gap-1 mb-2 text-amber-400"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+                        <p class="text-sm text-gray-300 dark:text-gray-400 line-clamp-3 mb-3">Искала тренажёр для ребёнка — здесь и русский, и английский. Удобно и без рекламы.</p>
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 rounded-full bg-amber-500/20 border border-amber-400/30 flex items-center justify-center text-xs font-bold text-amber-300">М</div>
+                            <span class="text-sm font-medium text-white">Марина</span>
+                        </div>
+                    </article>
+                    <article class="glass rounded-xl p-4 border border-cyan-500/20 hover:border-cyan-500/40 transition-colors">
+                        <div class="flex gap-1 mb-2 text-amber-400"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+                        <p class="text-sm text-gray-300 dark:text-gray-400 line-clamp-3 mb-3">Тест на 60 секунд и достижения мотивируют. Рекомендую одногруппникам.</p>
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 rounded-full bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center text-xs font-bold text-emerald-300">Д</div>
+                            <span class="text-sm font-medium text-white">Дмитрий</span>
+                        </div>
+                    </article>
+                </div>
+                <div class="mt-4 text-center">
+                    <button type="button" onclick="window.portalTo && portalTo('reviews.html')" class="px-5 py-2.5 rounded-xl bg-cyan-500/20 border border-cyan-400/40 text-cyan-300 hover:bg-cyan-500/30 hover:border-cyan-400/60 transition-all font-medium text-sm" data-i18n="allReviews">Все отзывы</button>
+                </div>
+            </div>
         </div>
         
         <!-- Lessons Selection Screen -->
@@ -2787,6 +2821,11 @@
                     </span>
                 </div>
                 
+                <!-- О проекте / Отзывы -->
+                <div class="flex flex-wrap items-center justify-center gap-x-6 gap-y-1 py-2 text-xs">
+                    <button type="button" onclick="window.portalTo && portalTo('about.html')" class="text-cyan-400 hover:text-cyan-300 underline underline-offset-2 transition-colors" data-i18n="aboutProject">О проекте</button>
+                    <a href="reviews.html" class="text-cyan-400 hover:text-cyan-300 underline underline-offset-2 transition-colors" onclick="event.preventDefault(); window.portalTo && portalTo('reviews.html');" data-i18n="reviewsLink">Отзывы</a>
+                </div>
                 <!-- Bottom: Copyright + searchable phrases (zoobastiks, клавиатура онлайн, для школьников) -->
                 <div class="flex flex-col sm:flex-row justify-between items-center gap-1 text-xs text-gray-300">
                     <p data-i18n="copyright">© 2025 Zoobastiks. Все права защищены.</p>
@@ -2803,6 +2842,7 @@
     </div><!-- #rootScroll -->
     
     <!-- Scripts (defer = загрузка параллельно, выполнение по порядку после разбора HTML) -->
+    <script src="scripts/portal-transition.js"></script>
     <script src="scripts/api-config.js" defer></script>
     <script src="scripts/lessons-data.js" defer></script>
     <script src="scripts/themed-texts.js" defer></script>
@@ -2818,3 +2858,4 @@
     
 </body>
 </html>
+
