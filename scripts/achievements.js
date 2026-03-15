@@ -145,7 +145,7 @@ function render(container) {
         const isSelected = selectedId === ach.id;
         const title = lang === 'en' ? ach.titleEn : (lang === 'ua' ? ach.titleUa : ach.titleRu);
         const desc = lang === 'en' ? ach.descEn : (lang === 'ua' ? ach.descUa : ach.descRu);
-        const tip = isUnlocked ? title + ' — ' + desc + ' (+50 🪙)' : desc;
+        const tip = isUnlocked ? title + ' — ' + desc + ' (+50 монет)' : desc;
         const animIndex = index % 12;
         const div = document.createElement('div');
         div.className = 'achievement-icon-wrap' + (isUnlocked ? ' achievement-unlocked ach-hover-' + animIndex : ' achievement-locked') + (isSelected ? ' achievement-selected' : '');
@@ -198,3 +198,4 @@ window.achievementsModule = {
     getAchievements: function () { return ACHIEVEMENTS; },
     COINS_PER_ACHIEVEMENT: COINS_PER_ACHIEVEMENT
 };
+

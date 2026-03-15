@@ -3,6 +3,9 @@
  * Typing trainer with lessons, free mode, and speed test
  */
 
+// Иконка валюты — картинка монеты (money.png)
+var COIN_ICON_IMG = '<img src="assets/images/money.png" alt="" class="coin-icon-img inline-block flex-shrink-0" width="20" height="20" style="vertical-align: middle;">';
+
 // Global state
 const app = {
     currentMode: 'home', // home, lessons, practice
@@ -235,6 +238,7 @@ const translations = {
         statistics: 'Статистика',
         backgrounds: 'Фоны',
         backgroundsTip: 'Выберите фон для главного экрана. Новые фоны открываются за монеты.',
+        chooseBackground: 'Выбрать фон',
         totalSessions: 'Всего сессий',
         totalErrors: 'Всего ошибок',
         loginSuccess: 'Вход выполнен успешно',
@@ -428,6 +432,7 @@ const translations = {
         statistics: 'Statistics',
         backgrounds: 'Backgrounds',
         backgroundsTip: 'Choose a background for the main screen. New backgrounds unlock for coins.',
+        chooseBackground: 'Choose background',
         totalSessions: 'Total Sessions',
         totalErrors: 'Total Errors',
         loginSuccess: 'Login successful',
@@ -699,7 +704,7 @@ function setSelectedBackgroundId(theme, id) {
 }
 
 function applyBackgroundToPage() {
-    var isDark = document.documentElement.classList.contains('dark');
+    var isDark = (typeof app !== 'undefined' && app.theme === 'dark') || document.documentElement.classList.contains('dark');
     var theme = isDark ? 'dark' : 'light';
     var selectedId = getSelectedBackgroundId(theme);
     var unlocked = getUnlockedBackgroundIds();
@@ -710,8 +715,13 @@ function applyBackgroundToPage() {
     if (!bg) {
         var available = BACKGROUNDS.filter(function(b) { return b.theme === theme && unlocked.indexOf(b.id) >= 0; });
         bg = available.length ? available[Math.floor(Math.random() * available.length)] : BACKGROUNDS.find(function(b) { return b.theme === theme; });
+        if (bg && !selectedId) setSelectedBackgroundId(theme, bg.id);
     }
-    if (bg) document.body.style.backgroundImage = "url('" + bg.path + "')";
+    if (bg) {
+        document.body.style.backgroundImage = "url('" + bg.path + "')";
+        var preview = document.getElementById('profileCurrentBgPreview');
+        if (preview) preview.style.backgroundImage = "url('" + bg.path + "')";
+    }
 }
 
 // Background images setup (использует выбранный или случайный из открытых)
@@ -719,8 +729,36 @@ function setRandomBackground() {
     applyBackgroundToPage();
 }
 
-function renderProfileBackgroundsGrid() {
-    var grid = document.getElementById('profileBackgroundsGrid');
+function updateProfileBgPreview() {
+    var preview = document.getElementById('profileCurrentBgPreview');
+    if (!preview) return;
+    var isDark = document.documentElement.classList.contains('dark');
+    var theme = isDark ? 'dark' : 'light';
+    var id = getSelectedBackgroundId(theme);
+    var bg = id ? BACKGROUNDS.find(function(b) { return b.id === id; }) : BACKGROUNDS.find(function(b) { return b.theme === theme; });
+    if (bg) preview.style.backgroundImage = "url('" + bg.path + "')";
+}
+
+function openBackgroundSelectorModal() {
+    var modal = document.getElementById('backgroundSelectorModal');
+    if (!modal) return;
+    renderBackgroundSelectorGrid();
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    modal.onclick = function(e) { if (e.target === modal) closeBackgroundSelectorModal(); };
+}
+
+function closeBackgroundSelectorModal() {
+    var modal = document.getElementById('backgroundSelectorModal');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        modal.onclick = null;
+    }
+}
+
+function renderBackgroundSelectorGrid() {
+    var grid = document.getElementById('backgroundSelectorGrid');
     if (!grid) return;
     var isDark = document.documentElement.classList.contains('dark');
     var theme = isDark ? 'dark' : 'light';
@@ -732,29 +770,28 @@ function renderProfileBackgroundsGrid() {
         var unlocked_ = unlocked.indexOf(bg.id) >= 0;
         var selected = (theme === 'dark' ? selectedDark : selectedLight) === bg.id;
         var card = document.createElement('div');
-        card.className = 'profile-stat-tile rounded-xl overflow-hidden relative cursor-pointer transition-all duration-200 ' +
+        card.className = 'profile-stat-tile rounded-xl overflow-hidden relative cursor-pointer transition-all duration-200 aspect-[4/3] min-h-0 ' +
             (selected ? 'ring-2 ring-cyan-500 ring-offset-2 ring-offset-gray-900 dark:ring-offset-black' : '');
-        card.style.minHeight = '80px';
         var thumb = document.createElement('div');
-        thumb.className = 'w-full h-20 bg-cover bg-center';
+        thumb.className = 'w-full h-full min-h-[100px] bg-cover bg-center';
         thumb.style.backgroundImage = "url('" + bg.path + "')";
         card.appendChild(thumb);
         var label = document.createElement('div');
-        label.className = 'absolute bottom-0 left-0 right-0 py-1 px-2 text-xs font-medium truncate ' +
+        label.className = 'absolute bottom-0 left-0 right-0 py-1.5 px-2 text-xs font-medium truncate ' +
             (bg.theme === 'dark' ? 'text-white bg-black/60' : 'text-gray-900 bg-white/70');
         label.textContent = bg.name;
         card.appendChild(label);
         if (!unlocked_) {
             var lock = document.createElement('div');
             lock.className = 'absolute inset-0 flex flex-col items-center justify-center bg-black/60';
-            lock.innerHTML = '<span class="text-2xl mb-1">🔒</span><span class="text-xs text-amber-400 font-semibold">' + (bg.cost ? (bg.cost + ' 🪙') : '') + '</span>';
+            lock.innerHTML = '<span class="text-2xl mb-1">🔒</span><span class="text-xs text-amber-400 font-semibold flex items-center justify-center gap-1">' + (bg.cost ? (bg.cost + ' ' + COIN_ICON_IMG) : '') + '</span>';
             card.appendChild(lock);
             card.onclick = function() { buyProfileBackground(bg.id); };
         } else {
             if (selected) {
                 var check = document.createElement('div');
                 check.className = 'absolute top-1 right-1 bg-cyan-500 rounded-full p-1';
-                check.innerHTML = '<svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>';
+                check.innerHTML = '<svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>';
                 card.appendChild(check);
             }
             card.onclick = function() { selectProfileBackground(bg.id); };
@@ -770,7 +807,8 @@ function selectProfileBackground(backgroundId) {
     if (unlocked.indexOf(backgroundId) < 0) return;
     setSelectedBackgroundId(bg.theme, backgroundId);
     applyBackgroundToPage();
-    renderProfileBackgroundsGrid();
+    renderBackgroundSelectorGrid();
+    updateProfileBgPreview();
     showToast((typeof t('profileSaved') !== 'undefined' ? t('profileSaved') : 'Сохранено') + ' — ' + bg.name, 'success');
 }
 
@@ -795,8 +833,9 @@ function buyProfileBackground(backgroundId) {
             setUnlockedBackgroundIds(unlocked);
             if (currentUserProfile) currentUserProfile.balance = newBalance;
             var balanceEl = DOM.get('profileBalance');
-            if (balanceEl) balanceEl.innerHTML = newBalance + ' <span class="opacity-80">🪙</span>';
-            renderProfileBackgroundsGrid();
+            if (balanceEl) balanceEl.innerHTML = newBalance + ' ' + COIN_ICON_IMG;
+            renderBackgroundSelectorGrid();
+            updateProfileBgPreview();
             showToast(bg.name + ' — ' + (app.lang === 'en' ? 'Unlocked!' : 'Открыто!'), 'success');
         } else {
             showToast(result && result.error ? result.error : 'Ошибка', 'error');
@@ -2798,7 +2837,7 @@ async function showProfile() {
     // user уже полный объект из localStorage
     currentUserProfile = user;
     loadProfileData(user);
-    renderProfileBackgroundsGrid();
+    updateProfileBgPreview();
 }
 
 // Load profile data into UI - ОПТИМИЗИРОВАНА
@@ -2861,7 +2900,7 @@ function loadProfileData(profile) {
     var xpLabelEl = DOM.get('profileXPLabel');
     if (tierEl) tierEl.textContent = levelInfo.tierName || '—';
     if (levelEl) levelEl.textContent = levelInfo.level || 1;
-    if (balanceEl) balanceEl.innerHTML = (profile.balance != null ? profile.balance : 0) + ' <span class="opacity-80">🪙</span>';
+    if (balanceEl) balanceEl.innerHTML = (profile.balance != null ? profile.balance : 0) + ' ' + COIN_ICON_IMG;
     if (xpBarEl) xpBarEl.style.width = (levelInfo.progressPct != null ? levelInfo.progressPct : 0) + '%';
     if (xpLabelEl) xpLabelEl.textContent = (levelInfo.xpInLevel != null ? levelInfo.xpInLevel : 0) + ' / ' + (levelInfo.xpToNext != null ? levelInfo.xpToNext : 300) + ' XP';
 }
@@ -3865,3 +3904,4 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+

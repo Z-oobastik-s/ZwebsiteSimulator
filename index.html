@@ -1463,6 +1463,8 @@
             animation: profileFadeIn 0.5s ease-out;
             position: relative;
             z-index: 1;
+            max-height: 100vh;
+            overflow-y: auto;
         }
         
         /* Profile 2090 — HUD / игровой стиль */
@@ -1558,6 +1560,7 @@
             background: rgba(251, 191, 36, 0.08);
             box-shadow: 0 0 12px rgba(251, 191, 36, 0.1);
         }
+        .coin-icon-img { vertical-align: middle; object-fit: contain; }
         html:not(.dark) .profile-hero-panel { background: linear-gradient(145deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.98) 100%); border-color: rgba(0, 188, 212, 0.3); }
         html:not(.dark) .profile-stat-tile { background: rgba(255,255,255,0.7); border-color: rgba(0,0,0,0.08); }
         html:not(.dark) .profile-stat-tile:hover { border-color: rgba(0, 188, 212, 0.4); }
@@ -1669,10 +1672,7 @@
             <div class="flex items-center gap-2 sm:gap-3 shrink-0">
                 <!-- Balance (only when logged in) -->
                 <div id="balanceDisplay" class="hidden header-action flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg glass border border-white/10 transition-colors" title="Баланс монет">
-                    <svg class="w-4 h-4 text-amber-400 shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/>
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941a2.305 2.305 0 01-.567-.267C8.07 11.66 8 11.434 8 11c0-.114.07-.34.433-.582A2.305 2.305 0 019 10.151V8.151c-.22.071-.412.164-.567.267C8.07 8.66 8 8.886 8 9c0 .114.07.34.433.582.155.103.346.196.567.267v1.698a2.305 2.305 0 01-.567-.267C8.07 11.66 8 11.434 8 11c0-.114.07-.34.433-.582A2.305 2.305 0 019 10.151V8.151c.22.071.412.164.567.267C9.93 8.66 10 8.886 10 9c0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267v1.941a4.535 4.535 0 001.676-.662C11.398 9.765 12 8.99 12 8c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 009 5.092V3.151a2.305 2.305 0 01.567.267C9.93 3.66 10 3.886 10 4c0 .114-.07.34-.433.582A2.305 2.305 0 019 4.849v1.698z" clip-rule="evenodd"/>
-                    </svg>
+                    <img src="assets/images/money.png" alt="" class="w-5 h-5 shrink-0 object-contain" width="20" height="20">
                     <span id="userBalance" class="text-sm font-bold text-amber-400 tabular-nums">0</span>
                 </div>
                 
@@ -2562,10 +2562,27 @@
                 </div>
             </div>
             
-            <!-- Фоны (покупка / выбор) -->
-            <p class="profile-section-title mb-3 mt-6" data-i18n="backgrounds">Фоны</p>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mb-3" data-i18n="backgroundsTip">Выберите фон для главного экрана. Новые фоны открываются за монеты.</p>
-            <div id="profileBackgroundsGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+            <!-- Фоны: компактный блок + кнопка открытия модалки -->
+            <div class="mt-5 flex flex-wrap items-center gap-3">
+                <p class="profile-section-title mb-0" data-i18n="backgrounds">Фоны</p>
+                <div id="profileCurrentBgPreview" class="w-20 h-12 rounded-lg bg-cover bg-center border border-white/20 shrink-0" style="background-image: url('assets/images/background_black.jpg');"></div>
+                <button type="button" onclick="openBackgroundSelectorModal()" class="profile-quick-btn glass px-4 py-2 rounded-lg text-sm text-cyan-400 border-cyan-500/40">
+                    <span data-i18n="chooseBackground">Выбрать фон</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Background Selector Modal — выбор фона (без скролла на странице профиля) -->
+    <div id="backgroundSelectorModal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4 z-[9999]" style="position: fixed !important;">
+        <div class="avatar-modal-panel rounded-2xl p-6 w-full max-w-3xl max-h-[90vh] flex flex-col relative z-[10000]">
+            <div class="flex justify-between items-center mb-4 shrink-0">
+                <h3 class="avatar-modal-title text-lg font-bold text-cyan-400 uppercase" data-i18n="chooseBackground">Выбрать фон</h3>
+                <button type="button" onclick="closeBackgroundSelectorModal()" class="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-all">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div id="backgroundSelectorGrid" class="overflow-y-auto flex-1 min-h-0 grid gap-3 pr-1" style="grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));">
                 <!-- заполняется из JS -->
             </div>
         </div>
@@ -2599,7 +2616,7 @@
                     <span class="opacity-80">[</span> <span data-i18n="shopTitle">Магазин уроков</span> <span class="opacity-80">]</span>
                 </h2>
                 <div id="shopBalanceWrap" class="shop-balance-badge flex items-center gap-2 px-4 py-2 rounded-lg border border-amber-500/50 bg-amber-500/10">
-                    <svg class="w-5 h-5 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941a2.305 2.305 0 01-.567-.267C8.07 11.66 8 11.434 8 11c0-.114.07-.34.433-.582A2.305 2.305 0 019 10.151V8.151c-.22.071-.412.164-.567.267C8.07 8.66 8 8.886 8 9c0 .114.07.34.433.582.155.103.346.196.567.267v1.698a2.305 2.305 0 01-.567-.267C8.07 11.66 8 11.434 8 11c0-.114.07-.34.433-.582A2.305 2.305 0 019 10.151V8.151c.22.071.412.164.567.267C9.93 8.66 10 8.886 10 9c0 .114-.07.34-.433.582A2.305 2.305 0 01-.567.267v1.941a4.535 4.535 0 001.676-.662C11.398 9.765 12 8.99 12 8c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 009 5.092V3.151a2.305 2.305 0 01.567.267C9.93 3.66 10 3.886 10 4c0 .114-.07.34-.433.582A2.305 2.305 0 019 4.849v1.698z" clip-rule="evenodd"/></svg>
+                    <img src="assets/images/money.png" alt="" class="w-6 h-6 object-contain shrink-0" width="24" height="24">
                     <span id="shopBalance" class="font-bold text-amber-400 tabular-nums text-lg">0</span>
                 </div>
             </div>
@@ -2742,3 +2759,4 @@
     
 </body>
 </html>
+
