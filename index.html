@@ -111,6 +111,19 @@
             --warning: #FFC107;
         }
         
+        /* Убираем полосу прокрутки справа на главной (скролл по колёсику/тачу остаётся) */
+        html {
+            overflow-x: hidden;
+        }
+        body {
+            overflow-x: hidden;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        body::-webkit-scrollbar {
+            display: none;
+        }
+        
         /* Background image with overlay */
         body {
             background-size: cover;
@@ -1185,12 +1198,12 @@
             overflow: hidden;
         }
         
-        /* Toast notifications */
+        /* Toast notifications — поверх модальных окон (выбор фона, аватара и т.д.) */
         .toast-container {
             position: fixed;
             top: 80px;
             right: 20px;
-            z-index: 9999;
+            z-index: 10002;
             display: flex;
             flex-direction: column;
             gap: 10px;
@@ -2762,4 +2775,3 @@
     
 </body>
 </html>
-

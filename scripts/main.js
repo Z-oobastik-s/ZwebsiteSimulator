@@ -833,6 +833,7 @@ function buyProfileBackground(backgroundId) {
     }
     var balance = (user.balance != null ? user.balance : 0) || (window.authModule && window.authModule.getUserBalance ? window.authModule.getUserBalance(user.uid) : 0);
     if (balance < bg.cost) {
+        if (typeof playDeniedMoneySound === 'function') playDeniedMoneySound();
         showToast(typeof t('notEnoughCoins') === 'string' ? t('notEnoughCoins') : 'Недостаточно монет', 'error');
         return;
     }
@@ -3915,4 +3916,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-
