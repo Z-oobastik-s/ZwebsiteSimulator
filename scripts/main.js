@@ -2744,15 +2744,16 @@ function showAvatarSelector() {
     
     avatarGrid.innerHTML = '';
     
-    var avatars = (window.authModule && window.authModule.AVAILABLE_AVATARS) ? window.authModule.AVAILABLE_AVATARS.slice() : [];
-    var unlockLevels = (window.authModule && window.authModule.AVATAR_UNLOCK_LEVELS) ? window.authModule.AVATAR_UNLOCK_LEVELS.slice() : [];
-    // Подстраховка: если загрузился старый кэш с 6 аватарами — добиваем пути 7–20 и уровни
-    if (avatars.length >= 6 && avatars.length < 20) {
-        var levels7090 = [12, 12, 15, 15, 18, 18, 21, 21, 24, 24, 27, 27, 30, 30];
-        for (var i = avatars.length; i < 20; i++) {
-            avatars.push('assets/images/profile photo/profile_' + (i + 1) + '.jpg');
-            unlockLevels[i] = levels7090[i - 6] != null ? levels7090[i - 6] : 30;
-        }
+    // Всегда 20 аватаров: из auth или собираем сами (на случай кэша)
+    var base = 'assets/images/profile photo/profile_';
+    var avatars = [];
+    var unlockLevels = [0, 0, 0, 5, 5, 10, 12, 12, 15, 15, 18, 18, 21, 21, 24, 24, 27, 27, 30, 30];
+    var fromAuth = (window.authModule && window.authModule.AVAILABLE_AVATARS) ? window.authModule.AVAILABLE_AVATARS : [];
+    for (var i = 0; i < 20; i++) {
+        avatars.push(fromAuth[i] || (i === 0 ? base + '1.png' : base + (i + 1) + '.jpg'));
+    }
+    if (window.authModule && window.authModule.AVATAR_UNLOCK_LEVELS && window.authModule.AVATAR_UNLOCK_LEVELS.length >= 20) {
+        unlockLevels = window.authModule.AVATAR_UNLOCK_LEVELS.slice(0, 20);
     }
     var currentAvatarIndex = currentUserProfile?.avatarIndex ?? 0;
     var currentLevel = window.levelModule ? window.levelModule.getLevelInfo(window.levelModule.getPlayerXP()).level : 1;
@@ -3708,3 +3709,4 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+

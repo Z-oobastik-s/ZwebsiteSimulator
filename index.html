@@ -1429,9 +1429,10 @@
         #avatarSelectorModal .avatar-card--locked img {
             filter: grayscale(0.7) blur(1px);
         }
-        #avatarSelectorModal .avatar-scroll {
-            max-height: min(70vh, 420px);
-            overflow-y: auto;
+        /* Без скролла: сетка 5×4 помещается в модалку */
+        #avatarSelectorModal #avatarGrid {
+            max-width: 360px;
+            margin: 0 auto;
         }
         
         /* Profile animations */
@@ -2560,10 +2561,8 @@
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
-            <div class="avatar-scroll pr-1" id="avatarScrollWrap">
-                <div id="avatarGrid" class="w-full">
-                    <!-- Avatars will be populated here -->
-                </div>
+            <div id="avatarGrid" class="w-full">
+                <!-- Avatars will be populated here -->
             </div>
         </div>
     </div>
@@ -2724,3 +2723,4 @@
     
 </body>
 </html>
+
