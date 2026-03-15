@@ -34,6 +34,11 @@
         .title-glow { text-shadow: 0 0 25px rgba(0,229,255,0.5), 0 0 50px rgba(139,92,246,0.25); }
         .header-bar { border-bottom: 1px solid rgba(0,229,255,0.25); background: rgba(0,0,0,0.5); backdrop-filter: blur(16px); }
         .review-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(0,229,255,0.4); flex-shrink: 0; }
+        .modal-overlay { background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); }
+        .form-panel { background: linear-gradient(160deg, rgba(8,18,38,0.96) 0%, rgba(4,12,28,0.98) 100%); border: 1px solid rgba(0,229,255,0.35); box-shadow: 0 0 40px rgba(0,229,255,0.12); }
+        .form-input { background: rgba(0,0,0,0.4); border: 1px solid rgba(0,229,255,0.3); color: #e2e8f0; }
+        .form-input::placeholder { color: rgba(148,163,184,0.7); }
+        .form-input:focus { outline: none; border-color: rgba(0,229,255,0.6); box-shadow: 0 0 0 2px rgba(0,229,255,0.15); }
     </style>
 </head>
 <body class="text-gray-100 scanlines overflow-x-hidden">
@@ -57,12 +62,7 @@
         </section>
 
         <section class="container mx-auto px-4 pb-8 flex flex-col items-center">
-            <a href="https://t.me/Zoobastiks" target="_blank" rel="noopener noreferrer" class="btn-review inline-flex items-center gap-2 px-5 py-2.5 rounded-lg font-display font-semibold text-sm mb-5">
-                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.559z"/></svg>
-                Оставить отзыв
-            </a>
-
-            <div class="w-full max-w-2xl mx-auto space-y-3">
+            <div id="reviewsList" class="w-full max-w-2xl mx-auto space-y-3">
                 <article class="review-card rounded-lg pl-4 pr-3 pt-3 pb-3 flex gap-3">
                     <img src="assets/images/profile photo/profile_3.jpg" alt="" class="review-avatar" width="36" height="36">
                     <div class="min-w-0 flex-1">
@@ -162,8 +162,147 @@
                     </div>
                 </article>
             </div>
+
+            <div id="userReviewsContainer" class="w-full max-w-2xl mx-auto space-y-3 mt-3"></div>
+
+            <button type="button" id="openReviewFormBtn" class="btn-review inline-flex items-center gap-2 px-5 py-2.5 rounded-lg font-display font-semibold text-sm mt-8 cursor-pointer border-0">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
+                Оставить отзыв
+            </button>
         </section>
     </div>
+
+    <div id="reviewFormModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4 modal-overlay" role="dialog" aria-modal="true" aria-labelledby="reviewFormTitle">
+        <div class="form-panel rounded-xl p-6 w-full max-w-md relative" onclick="event.stopPropagation()">
+            <h2 id="reviewFormTitle" class="font-display text-lg font-bold text-cyan-300 mb-4">Написать отзыв</h2>
+            <form id="reviewForm" class="space-y-4">
+                <div>
+                    <label for="reviewAuthorName" class="block text-sm font-medium text-gray-300 mb-1">Ваше имя</label>
+                    <input type="text" id="reviewAuthorName" name="name" required maxlength="50" placeholder="Как к вам обращаться" class="form-input w-full px-3 py-2.5 rounded-lg text-sm">
+                </div>
+                <div>
+                    <label for="reviewText" class="block text-sm font-medium text-gray-300 mb-1">Текст отзыва</label>
+                    <textarea id="reviewText" name="text" required maxlength="1000" rows="4" placeholder="Расскажите, что понравилось или что можно улучшить" class="form-input w-full px-3 py-2.5 rounded-lg text-sm resize-y min-h-[100px]"></textarea>
+                    <p class="text-xs text-gray-500 mt-1">до 1000 символов</p>
+                </div>
+                <div class="flex gap-3 pt-2">
+                    <button type="submit" class="flex-1 px-4 py-2.5 rounded-lg font-display font-semibold text-sm bg-cyan-500/30 border border-cyan-400/50 text-cyan-300 hover:bg-cyan-500/40 hover:text-white transition-colors">Отправить</button>
+                    <button type="button" id="closeReviewFormBtn" class="px-4 py-2.5 rounded-lg font-display text-sm text-gray-400 hover:text-white border border-gray-500/50 hover:border-gray-400 transition-colors">Отмена</button>
+                </div>
+            </form>
+            <button type="button" id="reviewFormCloseX" class="absolute top-3 right-3 w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-colors" aria-label="Закрыть">&times;</button>
+        </div>
+    </div>
+
     <script src="scripts/portal-transition.js"></script>
+    <script>
+(function() {
+    var STORAGE_KEY = 'zoobastiks_reviews';
+    var AVATARS = [
+        'assets/images/profile photo/profile_1.png',
+        'assets/images/profile photo/profile_2.jpg',
+        'assets/images/profile photo/profile_3.jpg',
+        'assets/images/profile photo/profile_4.jpg',
+        'assets/images/profile photo/profile_5.jpg',
+        'assets/images/profile photo/profile_6.jpg',
+        'assets/images/profile photo/profile_7.jpg',
+        'assets/images/profile photo/profile_8.jpg',
+        'assets/images/profile photo/profile_9.jpg',
+        'assets/images/profile photo/profile_10.jpg',
+        'assets/images/profile photo/profile_11.jpg',
+        'assets/images/profile photo/profile_12.jpg',
+        'assets/images/profile photo/profile_13.jpg',
+        'assets/images/profile photo/profile_14.jpg',
+        'assets/images/profile photo/profile_15.jpg',
+        'assets/images/profile photo/profile_16.jpg',
+        'assets/images/profile photo/profile_17.jpg',
+        'assets/images/profile photo/profile_18.jpg',
+        'assets/images/profile photo/profile_19.jpg',
+        'assets/images/profile photo/profile_20.jpg'
+    ];
+
+    function loadUserReviews() {
+        try {
+            var raw = localStorage.getItem(STORAGE_KEY);
+            var list = raw ? JSON.parse(raw) : [];
+            return Array.isArray(list) ? list : [];
+        } catch (e) { return []; }
+    }
+
+    function saveUserReviews(list) {
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); } catch (e) {}
+    }
+
+    function renderUserReviews() {
+        var container = document.getElementById('userReviewsContainer');
+        if (!container) return;
+        var list = loadUserReviews();
+        container.innerHTML = '';
+        list.forEach(function(r) {
+            var article = document.createElement('article');
+            article.className = 'review-card rounded-lg pl-4 pr-3 pt-3 pb-3 flex gap-3';
+            article.innerHTML =
+                '<img src="' + (r.avatar || AVATARS[0]) + '" alt="" class="review-avatar" width="36" height="36">' +
+                '<div class="min-w-0 flex-1">' +
+                '<div class="font-semibold text-cyan-300 text-sm mb-1.5">' + escapeHtml(r.name || '') + '</div>' +
+                '<p class="text-gray-200 text-sm leading-snug">' + escapeHtml(r.text || '') + '</p>' +
+                '</div>';
+            container.appendChild(article);
+        });
+    }
+
+    function escapeHtml(s) {
+        var div = document.createElement('div');
+        div.textContent = s;
+        return div.innerHTML;
+    }
+
+    var modal = document.getElementById('reviewFormModal');
+    var form = document.getElementById('reviewForm');
+    var openBtn = document.getElementById('openReviewFormBtn');
+    var closeBtn = document.getElementById('closeReviewFormBtn');
+    var closeX = document.getElementById('reviewFormCloseX');
+
+    function openModal() {
+        if (modal) {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.getElementById('reviewAuthorName').value = '';
+            document.getElementById('reviewText').value = '';
+        }
+    }
+    function closeModal() {
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+    }
+
+    if (openBtn) openBtn.addEventListener('click', openModal);
+    if (closeBtn) closeBtn.addEventListener('click', closeModal);
+    if (closeX) closeX.addEventListener('click', closeModal);
+    if (modal) modal.addEventListener('click', function(e) { if (e.target === modal) closeModal(); });
+
+    if (form) form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        var nameEl = document.getElementById('reviewAuthorName');
+        var textEl = document.getElementById('reviewText');
+        var name = (nameEl && nameEl.value || '').trim();
+        var text = (textEl && textEl.value || '').trim();
+        if (!name || !text) return;
+        var list = loadUserReviews();
+        var avatarIndex = Math.floor(Math.random() * AVATARS.length);
+        list.push({ name: name, text: text, avatar: AVATARS[avatarIndex] });
+        saveUserReviews(list);
+        renderUserReviews();
+        closeModal();
+        if (typeof window.showToast === 'function') window.showToast('Спасибо! Ваш отзыв добавлен.', 'success');
+        else alert('Спасибо! Ваш отзыв добавлен.');
+    });
+
+    renderUserReviews();
+})();
+    </script>
 </body>
 </html>
+
