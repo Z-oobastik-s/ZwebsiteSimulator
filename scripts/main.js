@@ -19,6 +19,7 @@ const app = {
     errors: 0,
     totalChars: 0,
     soundEnabled: true,
+    bgMusicEnabled: false,
     animationsEnabled: true,
     theme: 'dark',
     lang: 'ru',
@@ -129,6 +130,10 @@ let audioWelcome = null;
 let audioVictory = null;
 let audioThemeTransition = null;
 let audioDeniedMoney = null;
+var bgMusicAudio = null;
+var bgMusicTrackIndex = 0;
+var BG_MUSIC_TRACKS = ['assets/sounds/violin.mp3', 'assets/sounds/violin_1.mp3'];
+var BG_MUSIC_VOLUME = 0.1;
 let audioSwipeAnimation = null;
 let audioOnSound = null;
 let audioOffSound = null;
@@ -1106,6 +1111,10 @@ function loadSettings() {
         app.animationsEnabled = savedAnimations === 'true';
         applyAnimationsSetting();
     }
+    var savedBgMusic = localStorage.getItem('bgMusic');
+    if (savedBgMusic !== null) app.bgMusicEnabled = savedBgMusic === 'true';
+    updateBgMusicIcon();
+    if (app.bgMusicEnabled) setTimeout(function() { startBgMusic(); }, 300);
 }
 
 // Initialize UI event listeners - ОПТИМИЗИРОВАНА
@@ -1125,6 +1134,10 @@ function initializeUI() {
     // Sound toggle
     const soundToggle = DOM.get('soundToggle');
     if (soundToggle) soundToggle.addEventListener('click', toggleSound);
+    
+    // Background music toggle
+    const bgMusicToggle = DOM.get('bgMusicToggle');
+    if (bgMusicToggle) bgMusicToggle.addEventListener('click', toggleBgMusic);
     
     // Animations toggle
     const animationsToggle = DOM.get('animationsToggle');
@@ -1254,6 +1267,47 @@ function toggleLayout() {
         const currentChar = app.currentText[app.currentPosition];
         window.keyboardModule.highlightStatic(currentChar);
     }
+}
+
+// Фоновая музыка (violin.mp3 ↔ violin_1.mp3 по кругу, ~10% громкость)
+function startBgMusic() {
+    if (!app.bgMusicEnabled || !BG_MUSIC_TRACKS.length) return;
+    if (!bgMusicAudio) {
+        bgMusicAudio = new Audio(BG_MUSIC_TRACKS[0]);
+        bgMusicAudio.volume = BG_MUSIC_VOLUME;
+        bgMusicAudio.addEventListener('ended', function() {
+            if (!app.bgMusicEnabled) return;
+            bgMusicTrackIndex = (bgMusicTrackIndex + 1) % BG_MUSIC_TRACKS.length;
+            bgMusicAudio.src = BG_MUSIC_TRACKS[bgMusicTrackIndex];
+            bgMusicAudio.play().catch(function() {});
+        });
+    }
+    bgMusicTrackIndex = 0;
+    bgMusicAudio.src = BG_MUSIC_TRACKS[0];
+    bgMusicAudio.volume = BG_MUSIC_VOLUME;
+    bgMusicAudio.play().catch(function() {});
+}
+
+function stopBgMusic() {
+    if (bgMusicAudio) {
+        bgMusicAudio.pause();
+        bgMusicAudio.currentTime = 0;
+    }
+}
+
+function updateBgMusicIcon() {
+    var icon = document.getElementById('bgMusicIcon');
+    if (!icon) return;
+    var path = 'M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z';
+    icon.innerHTML = app.bgMusicEnabled ? '<path d="' + path + '"/>' : '<path d="' + path + '" opacity="0.5"/>';
+}
+
+function toggleBgMusic() {
+    app.bgMusicEnabled = !app.bgMusicEnabled;
+    try { localStorage.setItem('bgMusic', app.bgMusicEnabled); } catch (e) {}
+    updateBgMusicIcon();
+    if (app.bgMusicEnabled) startBgMusic();
+    else stopBgMusic();
 }
 
 // Sound toggle
@@ -3918,4 +3972,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-
