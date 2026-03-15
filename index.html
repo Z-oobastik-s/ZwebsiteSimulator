@@ -85,6 +85,9 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0f172a">
     
+    <!-- Preload критичных ресурсов для быстрого отображения -->
+    <link rel="preload" as="image" href="assets/images/money.png">
+    
     <!-- TailwindCSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -1672,7 +1675,7 @@
             <div class="flex items-center gap-2 sm:gap-3 shrink-0">
                 <!-- Balance (only when logged in) -->
                 <div id="balanceDisplay" class="hidden header-action flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg glass border border-white/10 transition-colors" title="Баланс монет">
-                    <img src="assets/images/money.png" alt="" class="w-5 h-5 shrink-0 object-contain" width="20" height="20">
+                    <img src="assets/images/money.png" alt="" class="w-5 h-5 shrink-0 object-contain" width="20" height="20" decoding="async">
                     <span id="userBalance" class="text-sm font-bold text-amber-400 tabular-nums">0</span>
                 </div>
                 
@@ -2616,7 +2619,7 @@
                     <span class="opacity-80">[</span> <span data-i18n="shopTitle">Магазин уроков</span> <span class="opacity-80">]</span>
                 </h2>
                 <div id="shopBalanceWrap" class="shop-balance-badge flex items-center gap-2 px-4 py-2 rounded-lg border border-amber-500/50 bg-amber-500/10">
-                    <img src="assets/images/money.png" alt="" class="w-6 h-6 object-contain shrink-0" width="24" height="24">
+                    <img src="assets/images/money.png" alt="" class="w-6 h-6 object-contain shrink-0" width="24" height="24" decoding="async">
                     <span id="shopBalance" class="font-bold text-amber-400 tabular-nums text-lg">0</span>
                 </div>
             </div>
@@ -2744,19 +2747,18 @@
         </div>
     </footer>
     
-    <!-- Scripts -->
-    <script src="scripts/api-config.js"></script>
-    <script src="scripts/lessons-data.js"></script>
-    <script src="scripts/themed-texts.js"></script>
-    <script src="scripts/shop-data.js"></script>
-    <script src="scripts/keyboard.js"></script>
-    <script src="scripts/stats.js"></script>
-    <script src="scripts/achievements.js"></script>
-    <script src="scripts/level.js"></script>
+    <!-- Scripts (defer = загрузка параллельно, выполнение по порядку после разбора HTML) -->
+    <script src="scripts/api-config.js" defer></script>
+    <script src="scripts/lessons-data.js" defer></script>
+    <script src="scripts/themed-texts.js" defer></script>
+    <script src="scripts/shop-data.js" defer></script>
+    <script src="scripts/keyboard.js" defer></script>
+    <script src="scripts/stats.js" defer></script>
+    <script src="scripts/achievements.js" defer></script>
+    <script src="scripts/level.js" defer></script>
     <script type="module" src="scripts/multiplayer.js"></script>
     <script type="module" src="scripts/auth.js"></script>
-    <script src="scripts/main.js"></script>
+    <script src="scripts/main.js" defer></script>
     
 </body>
 </html>
-

@@ -763,12 +763,12 @@ function renderBackgroundSelectorGrid() {
     var isDark = document.documentElement.classList.contains('dark');
     var theme = isDark ? 'dark' : 'light';
     var unlocked = getUnlockedBackgroundIds();
-    var selectedDark = getSelectedBackgroundId('dark');
-    var selectedLight = getSelectedBackgroundId('light');
+    var selectedId = getSelectedBackgroundId(theme);
     grid.innerHTML = '';
-    BACKGROUNDS.forEach(function(bg) {
+    // Показываем только фоны текущей темы (тёмные при тёмной теме, светлые при светлой)
+    BACKGROUNDS.filter(function(b) { return b.theme === theme; }).forEach(function(bg) {
         var unlocked_ = unlocked.indexOf(bg.id) >= 0;
-        var selected = (theme === 'dark' ? selectedDark : selectedLight) === bg.id;
+        var selected = selectedId === bg.id;
         var card = document.createElement('div');
         card.className = 'profile-stat-tile rounded-xl overflow-hidden relative cursor-pointer transition-all duration-200 aspect-[4/3] min-h-0 ' +
             (selected ? 'ring-2 ring-cyan-500 ring-offset-2 ring-offset-gray-900 dark:ring-offset-black' : '');
@@ -919,27 +919,27 @@ function finishOnboarding() {
 }
 
 // Initialize app
-document.addEventListener('DOMContentLoaded', () => {
-    // Гарантируем что при загрузке страницы паузы нет
+document.addEventListener('DOMContentLoaded', function() {
     app.isPaused = false;
     
     loadSettings();
-    setRandomBackground(); // Устанавливаем случайный фон
-    applyAnimationsSetting(); // Применяем настройку анимаций
-    createParticles(); // Создаём плавающие частицы (если включены)
-    initializeAudio();
+    setRandomBackground();
+    applyAnimationsSetting();
     initializeUI();
     updateTranslations();
-    window.statsModule.updateDisplay();
+    if (window.statsModule) window.statsModule.updateDisplay();
     if (window.achievementsModule) window.achievementsModule.render('achievementsBlock');
     if (window.levelModule) renderLevelBlock();
-    window.keyboardModule.render(app.currentLayout);
+    if (window.keyboardModule) window.keyboardModule.render(app.currentLayout);
     initSiteRating();
-    
-    // Инициализируем изображение футера при загрузке
     updateFooterBackground();
     
-    // Онбординг при первом заходе (с небольшой задержкой)
+    // Неблокирующая инициализация: аудио и частицы после первого кадра
+    setTimeout(function() {
+        initializeAudio();
+        createParticles();
+    }, 0);
+    
     setTimeout(showOnboardingIfFirstVisit, 700);
     
     // PWA: регистрация Service Worker
@@ -3687,7 +3687,7 @@ function loadShopLessons() {
                 ${isPurchased ? `
                     <div class="shop-card-owned bg-success/20 text-success px-2 py-1 rounded-full text-xs font-bold whitespace-nowrap">✓</div>
                 ` : `
-                    <div class="shop-card-price text-right flex-shrink-0">${lesson.price} <span class="text-xs text-gray-400">монет</span></div>
+                    <div class="shop-card-price text-right flex-shrink-0 flex items-center justify-end gap-1">${lesson.price} ${COIN_ICON_IMG}</div>
                 `}
             </div>
             <div class="bg-gray-800/50 rounded-lg p-2 mb-2 text-xs text-gray-300 italic line-clamp-2">"${escapeHtml(lesson.preview)}"</div>
@@ -3904,4 +3904,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-
