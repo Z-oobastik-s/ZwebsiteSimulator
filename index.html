@@ -249,6 +249,17 @@
         }
         
         /* ========== Светлая тема: контраст и читаемость ========== */
+        /* Общая обводка и тёмный текст на светлом фоне — чтобы не сливалось */
+        html:not(.dark) body { color: #111827; }
+        html:not(.dark) .hero-subtitle {
+            color: #1f2937;
+            text-shadow: 0 0 1px rgba(255,255,255,0.8), 0 1px 1px rgba(0,0,0,0.06);
+        }
+        html:not(.dark) #statsPreview .text-gray-500,
+        html:not(.dark) [data-i18n].text-gray-500 {
+            color: #374151;
+            text-shadow: 0 0 1px rgba(255,255,255,0.6), 0 1px 1px rgba(0,0,0,0.05);
+        }
         html:not(.dark) .glass {
             background: rgba(255, 255, 255, 0.97);
             backdrop-filter: blur(12px);
@@ -271,17 +282,11 @@
         }
         html:not(.dark) .header-action {
             border-color: rgba(0, 0, 0, 0.1);
-            color: #374151;
+            color: #1f2937;
+            text-shadow: 0 0 1px rgba(255,255,255,0.5), 0 1px 1px rgba(0,0,0,0.04);
         }
         html:not(.dark) .header-action:hover {
             background: rgba(0, 0, 0, 0.06);
-        }
-        html:not(.dark) .hero-subtitle {
-            color: #4b5563;
-        }
-        html:not(.dark) #statsPreview .text-gray-500,
-        html:not(.dark) [data-i18n].text-gray-500 {
-            color: #6b7280;
         }
         html:not(.dark) #footer .text-gray-300,
         html:not(.dark) #footer .text-gray-400 {
@@ -313,9 +318,10 @@
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
         }
         html:not(.dark) .difficulty-card__badge {
-            color: #4b5563;
+            color: #374151;
             background: rgba(0, 0, 0, 0.06);
             border-color: rgba(0, 0, 0, 0.1);
+            text-shadow: 0 0 1px rgba(255,255,255,0.5), 0 1px 1px rgba(0,0,0,0.05);
         }
         html:not(.dark) .difficulty-card::after {
             color: rgba(0, 0, 0, 0.25);
@@ -345,8 +351,9 @@
         html:not(.dark) .lesson-card--medium .lesson-card__title { color: #b45309; text-shadow: 0 0 12px rgba(180, 83, 9, 0.2), 0 1px 1px rgba(0,0,0,0.08); }
         html:not(.dark) .lesson-card--hard .lesson-card__title { color: #b91c1c; text-shadow: 0 0 12px rgba(185, 28, 28, 0.2), 0 1px 1px rgba(0,0,0,0.08); }
         html:not(.dark) .lesson-card__desc {
-            color: #4b5563;
-            -webkit-text-stroke: 0.35px rgba(0, 0, 0, 0.15);
+            color: #374151;
+            -webkit-text-stroke: 0.35px rgba(0, 0, 0, 0.12);
+            text-shadow: 0 0 1px rgba(255,255,255,0.4), 0 1px 1px rgba(0,0,0,0.06);
         }
         html:not(.dark) .lesson-card__stats {
             border-top-color: rgba(0, 0, 0, 0.1);
@@ -376,13 +383,14 @@
             -webkit-text-stroke: 0.5px rgba(0, 0, 0, 0.35);
         }
         html:not(.dark) .difficulty-section-title {
-            color: #0e7490;
-            text-shadow: none;
+            color: #0c4a6e;
+            text-shadow: 0 0 1px rgba(255,255,255,0.9), 0 0 2px rgba(255,255,255,0.5), 0 1px 2px rgba(0,0,0,0.12);
         }
         html:not(.dark) .difficulty-section-title::before,
         html:not(.dark) .difficulty-section-title::after {
-            color: #0e7490;
-            opacity: 0.8;
+            color: #0c4a6e;
+            opacity: 0.9;
+            text-shadow: 0 0 1px rgba(255,255,255,0.8), 0 1px 1px rgba(0,0,0,0.08);
         }
         /* Модалки в светлой теме */
         html:not(.dark) #freeModeModal,
@@ -401,7 +409,8 @@
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
         }
         html:not(.dark) #avatarSelectorModal .avatar-modal-title {
-            color: #0e7490;
+            color: #0c4a6e;
+            text-shadow: 0 0 1px rgba(255,255,255,0.6), 0 1px 1px rgba(0,0,0,0.06);
         }
         html:not(.dark) #loginModal h3,
         html:not(.dark) #loginModal label,
@@ -414,7 +423,7 @@
             color: #111827;
         }
         html:not(.dark) #freeModeModal textarea::placeholder {
-            color: #6b7280;
+            color: #4b5563;
         }
         /* Сайдбар выбора языка уроков */
         html:not(.dark) [class*="bg-gray-800"][class*="sticky"] {
@@ -449,7 +458,8 @@
             background: rgba(0, 0, 0, 0.1) !important;
         }
         html:not(.dark) button.text-gray-400.hover\:text-white {
-            color: #6b7280;
+            color: #374151;
+            text-shadow: 0 0 1px rgba(255,255,255,0.5), 0 1px 1px rgba(0,0,0,0.04);
         }
         html:not(.dark) button.text-gray-400.hover\:text-white:hover {
             color: #111827;
@@ -1653,8 +1663,26 @@
         html:not(.dark) .profile-hero-panel { background: linear-gradient(145deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.98) 100%); border-color: rgba(0, 188, 212, 0.3); }
         html:not(.dark) .profile-stat-tile { background: rgba(255,255,255,0.7); border-color: rgba(0,0,0,0.08); }
         html:not(.dark) .profile-stat-tile:hover { border-color: rgba(0, 188, 212, 0.4); }
-        html:not(.dark) .profile-section-title { color: #0e7490; }
+        html:not(.dark) .profile-stat-tile .text-gray-400,
+        html:not(.dark) .profile-stat-tile [class*="text-gray"] {
+            color: #374151 !important;
+            text-shadow: 0 0 1px rgba(255,255,255,0.6), 0 1px 1px rgba(0,0,0,0.06);
+        }
+        html:not(.dark) .profile-section-title,
+        html:not(.dark) .profile-section-title::before,
+        html:not(.dark) .profile-section-title::after {
+            color: #0c4a6e;
+            text-shadow: 0 0 1px rgba(255,255,255,0.9), 0 0 2px rgba(255,255,255,0.5), 0 1px 2px rgba(0,0,0,0.1);
+        }
         html:not(.dark) .profile-bio-input { background: rgba(255,255,255,0.9); border-color: rgba(0,0,0,0.12); color: #111827; }
+        html:not(.dark) .profile-bio-input::placeholder { color: #4b5563; }
+        html:not(.dark) .profile-2090-header { color: #0c4a6e !important; text-shadow: 0 0 1px rgba(255,255,255,0.9), 0 0 2px rgba(255,255,255,0.5), 0 1px 2px rgba(0,0,0,0.12); }
+        html:not(.dark) .profile-hero-panel #profileUsername,
+        html:not(.dark) .profile-hero-panel h3.text-white { color: #111827 !important; text-shadow: 0 0 1px rgba(255,255,255,0.5), 0 1px 1px rgba(0,0,0,0.06); }
+        html:not(.dark) .profile-hero-panel .text-gray-400,
+        html:not(.dark) .profile-hero-panel .text-gray-500 { color: #374151 !important; text-shadow: 0 0 1px rgba(255,255,255,0.5), 0 1px 1px rgba(0,0,0,0.05); }
+        html:not(.dark) .profile-quick-btn.text-cyan-400,
+        html:not(.dark) .profile-quick-btn [class*="text-cyan"] { color: #0e7490 !important; }
         
         /* Avatar Modal - гарантируем что оно поверх всего */
         #avatarSelectorModal {
@@ -2933,3 +2961,4 @@
     
 </body>
 </html>
+
