@@ -722,6 +722,7 @@ function finishOnboarding() {
         overlay.style.display = '';
         overlay.style.visibility = '';
     }
+    setRandomBackground();
 }
 
 // Initialize app
@@ -940,6 +941,11 @@ function isModalVisible(id) {
     return el && !el.classList.contains('hidden') && el.classList.contains('flex');
 }
 
+function isAnyModalVisible() {
+    return isModalVisible('onboardingOverlay') || isModalVisible('levelUpTitr') || isModalVisible('levelUpModal') ||
+        isModalVisible('levelListModal') || isModalVisible('resultsModal') || isModalVisible('freeModeModal') || isModalVisible('loginModal');
+}
+
 function closeTopModal() {
     if (isModalVisible('onboardingOverlay')) { finishOnboarding(); return; }
     if (isModalVisible('levelUpTitr')) { finishLevelUpTitr(); return; }
@@ -952,7 +958,9 @@ function closeTopModal() {
 
 function handleGlobalHotkeys(e) {
     if (e.key === 'Escape') {
-        closeTopModal();
+        if (isAnyModalVisible()) {
+            closeTopModal();
+        }
         return;
     }
     if (isInputFocused()) return;
@@ -3696,3 +3704,4 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+
