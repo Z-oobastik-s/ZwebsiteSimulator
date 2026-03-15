@@ -866,6 +866,10 @@ function buyProfileBackground(backgroundId) {
             if (balanceEl) balanceEl.innerHTML = newBalance + ' ' + COIN_ICON_IMG;
             renderBackgroundSelectorGrid();
             updateProfileBgPreview();
+            var updatedUser = window.authModule && window.authModule.getCurrentUser ? window.authModule.getCurrentUser() : null;
+            if (updatedUser && typeof updateUserUI === 'function') updateUserUI(updatedUser, currentUserProfile || updatedUser);
+            var shopBalanceEl = DOM.get('shopBalance');
+            if (shopBalanceEl) shopBalanceEl.textContent = (updatedUser && (updatedUser.balance != null) ? updatedUser.balance : newBalance) + '';
             showToast(bg.name + ' — ' + (app.lang === 'en' ? 'Unlocked!' : 'Открыто!'), 'success');
         } else {
             showToast(result && result.error ? result.error : 'Ошибка', 'error');
@@ -4040,4 +4044,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-

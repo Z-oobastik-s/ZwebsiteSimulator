@@ -28,12 +28,13 @@ router.put('/:uid/profile', async (req, res) => {
         if (req.uid !== req.params.uid) {
             return res.status(403).json({ success: false, error: 'Forbidden' });
         }
-        const { username, displayName, bio } = req.body;
+        const { username, displayName, bio, balance } = req.body;
         const updates = [];
         const params = { uid: req.params.uid };
         if (username !== undefined) { updates.push('Username = @username'); params.username = username; }
         if (displayName !== undefined) { updates.push('DisplayName = @displayName'); params.displayName = displayName; }
         if (bio !== undefined) { updates.push('Bio = @bio'); params.bio = bio; }
+        if (balance !== undefined) { updates.push('Balance = @balance'); params.balance = balance; }
         if (updates.length === 0) {
             const user = await getUserById(req.params.uid);
             return res.json({ success: true, user });
@@ -222,4 +223,3 @@ router.get('/:uid/lesson-purchased/:lessonId', async (req, res) => {
 });
 
 module.exports = router;
-
