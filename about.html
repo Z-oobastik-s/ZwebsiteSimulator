@@ -4,31 +4,50 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>О проекте Zoobastiks — тренажёр слепой печати</title>
-    <meta name="description" content="О проекте Zoobastiks: кто мы, зачем тренажёр слепой печати, контакты и соцсети.">
+    <meta name="description" content="О проекте Zoobastiks: кто мы, зачем тренажёр слепой печати, миссия, возможности и контакты.">
     <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #00BCD4; --purple: #8B5CF6; }
-        body { font-family: 'Inter', sans-serif; }
+        :root { --cyan: #00e5ff; --cyan-dim: rgba(0,229,255,0.45); --purple: #8b5cf6; --purple-dim: rgba(139,92,246,0.35); }
+        body { font-family: 'Inter', sans-serif; min-height: 100vh; }
         .font-display { font-family: 'Orbitron', sans-serif; }
-        .gaming-bg { min-height: 100vh; position: relative; }
-        .gaming-bg::before { content: ''; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: url('./assets/images/about_the_site.jpg') center center / cover no-repeat; z-index: -2; }
-        .gaming-bg::after { content: ''; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(180deg, rgba(2,6,18,0.55) 0%, rgba(8,15,32,0.6) 50%, rgba(4,10,24,0.7) 100%); z-index: -1; }
-        .gaming-card { background: linear-gradient(145deg, rgba(15,23,42,0.92) 0%, rgba(6,10,22,0.96) 100%); border: 1px solid rgba(0,229,255,0.25); box-shadow: 0 0 40px rgba(0,229,255,0.08), inset 0 1px 0 rgba(255,255,255,0.06); backdrop-filter: blur(12px); }
-        .portal-btn { background: linear-gradient(135deg, rgba(0,229,255,0.2) 0%, rgba(139,92,246,0.2) 100%); border: 1px solid rgba(0,229,255,0.4); transition: all 0.3s; }
-        .portal-btn:hover { box-shadow: 0 0 30px rgba(0,229,255,0.3), 0 0 60px rgba(139,92,246,0.2); transform: scale(1.02); }
-        .scanlines::before { content: ''; position: fixed; inset: 0; background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px); pointer-events: none; z-index: 1; }
-        .page-enter { animation: pageEnter 0.35s ease-out forwards; }
-        @keyframes pageEnter { from { opacity: 0; } to { opacity: 1; } }
-        .glow-text { text-shadow: 0 0 20px rgba(0,229,255,0.4); }
+        #about-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; z-index: -2; }
+        #about-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(180deg, rgba(2,6,18,0.65) 0%, rgba(6,14,32,0.7) 35%, rgba(4,10,24,0.78) 70%, rgba(2,6,18,0.88) 100%); z-index: -1; pointer-events: none; }
+        .portal-btn { background: linear-gradient(135deg, rgba(0,229,255,0.2) 0%, rgba(139,92,246,0.2) 100%); border: 1px solid rgba(0,229,255,0.45); transition: all 0.3s; }
+        .portal-btn:hover { box-shadow: 0 0 30px rgba(0,229,255,0.35), 0 0 60px rgba(139,92,246,0.2); transform: scale(1.02); }
+        .scanlines::before { content: ''; position: fixed; inset: 0; background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.02) 2px, rgba(0,0,0,0.02) 4px); pointer-events: none; z-index: 0; }
+        .page-enter { animation: pageEnter 0.5s ease-out forwards; position: relative; z-index: 1; }
+        @keyframes pageEnter { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+        .hero-glow { text-shadow: 0 0 40px rgba(0,229,255,0.4), 0 0 80px rgba(139,92,246,0.2); }
+        .section-card {
+            background: linear-gradient(160deg, rgba(8,18,38,0.88) 0%, rgba(4,12,28,0.94) 100%);
+            border: 1px solid var(--cyan-dim);
+            box-shadow: 0 0 0 1px rgba(0,0,0,0.25), 0 0 30px rgba(0,229,255,0.08), inset 0 1px 0 rgba(255,255,255,0.05);
+            backdrop-filter: blur(14px);
+            position: relative;
+            overflow: hidden;
+        }
+        .section-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: linear-gradient(180deg, var(--cyan), var(--purple)); box-shadow: 0 0 16px var(--cyan-dim); }
+        .section-card:hover { border-color: rgba(0,229,255,0.5); box-shadow: 0 0 35px rgba(0,229,255,0.12), 0 0 0 1px rgba(0,229,255,0.15), inset 0 1px 0 rgba(255,255,255,0.06); }
+        .header-bar { border-bottom: 1px solid rgba(0,229,255,0.2); background: rgba(0,0,0,0.45); backdrop-filter: blur(16px); }
+        .link-tg { background: linear-gradient(135deg, rgba(0,229,255,0.2) 0%, rgba(139,92,246,0.15) 100%); border: 1px solid rgba(0,229,255,0.5); color: #67e8f9; transition: all 0.25s; }
+        .link-tg:hover { box-shadow: 0 0 25px rgba(0,229,255,0.3); border-color: rgba(0,229,255,0.7); color: #fff; transform: translateY(-1px); }
+        .stagger-1 { animation-delay: 0.05s; }
+        .stagger-2 { animation-delay: 0.1s; }
+        .stagger-3 { animation-delay: 0.15s; }
+        .stagger-4 { animation-delay: 0.2s; }
+        .stagger-5 { animation-delay: 0.25s; }
+        .stagger-6 { animation-delay: 0.3s; }
     </style>
 </head>
-<body class="gaming-bg text-gray-100 scanlines overflow-x-hidden">
-    <div class="page-enter relative z-0">
-        <!-- Header -->
-        <header class="sticky top-0 z-50 border-b border-white/10 bg-black/40 backdrop-blur-xl">
-            <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+<body class="text-gray-100 scanlines overflow-x-hidden">
+    <img id="about-bg" src="assets/images/about_the_site.jpg" alt="" role="presentation">
+    <div id="about-overlay"></div>
+
+    <div class="page-enter">
+        <header class="sticky top-0 z-50 header-bar">
+            <div class="container mx-auto px-4 py-3 flex items-center justify-between">
                 <button type="button" onclick="window.portalTo && portalTo('index.html')" class="text-xl font-display font-bold text-white hover:text-cyan-400 transition-colors bg-transparent border-0 cursor-pointer">Zooba<span class="text-cyan-400">stiks</span></button>
                 <button type="button" onclick="window.portalTo && portalTo('index.html')" class="portal-btn px-5 py-2.5 rounded-lg font-display font-semibold text-cyan-300 hover:text-white hover:border-cyan-400">
                     ← На главную
@@ -37,43 +56,55 @@
         </header>
 
         <!-- Hero -->
-        <section class="relative pt-16 pb-12 px-4">
-            <div class="absolute inset-0 bg-gradient-to-b from-cyan-500/5 via-transparent to-purple-500/5 pointer-events-none"></div>
-            <div class="container mx-auto max-w-3xl text-center relative">
-                <h1 class="font-display text-4xl md:text-5xl font-bold text-white mb-2 glow-text">О проекте</h1>
-                <p class="text-cyan-300/90 text-lg">Кто мы и зачем делаем тренажёр слепой печати</p>
-            </div>
+        <section class="pt-14 pb-16 md:pt-20 md:pb-24 px-4 text-center">
+            <h1 class="font-display text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-4 hero-glow">О проекте</h1>
+            <p class="text-cyan-200/95 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">Мы делаем тренажёр слепой печати, которым сами хотели бы пользоваться. Бесплатно, без рекламы и с душой.</p>
         </section>
 
-        <!-- Content cards -->
-        <section class="container mx-auto px-4 pb-20 max-w-3xl space-y-6">
-            <article class="gaming-card rounded-2xl p-6 md:p-8">
-                <h2 class="font-display text-xl text-cyan-400 mb-3">Кто мы</h2>
-                <p class="text-gray-300 leading-relaxed">Zoobastiks — это проект для тех, кто хочет печатать быстро и без ошибок. Мы делаем тренажёр слепой печати: уроки для начинающих и продвинутых, тест скорости, мультиплеер и достижения. Всё бесплатно и без рекламы, чтобы каждый мог научиться печатать вслепую на русском, английском и украинском.</p>
+        <section class="container mx-auto px-4 pb-24 max-w-3xl space-y-8">
+            <article class="section-card rounded-2xl pl-6 pr-6 py-6 md:p-8 stagger-1">
+                <h2 class="font-display text-2xl md:text-3xl font-bold text-cyan-300 mb-4">Кто мы</h2>
+                <p class="text-gray-200 leading-relaxed mb-4">Zoobastiks — это не корпорация и не стартап с инвесторами. Мы небольшая команда энтузиастов, которая верит: научиться печатать быстро и без ошибок должно быть доступно каждому. Школьнику, студенту, родителю, удалёнщику — всем, кто проводит за клавиатурой хотя бы полчаса в день.</p>
+                <p class="text-gray-300 leading-relaxed">Мы сами прошли через скучные тренажёры и рекламу на каждом шагу. Поэтому сделали свой: с уроками по шагам, тестом скорости, мультиплеером с друзьями и системой достижений. Всё то, чего не хватало нам, когда мы учились печатать.</p>
             </article>
-            <article class="gaming-card rounded-2xl p-6 md:p-8">
-                <h2 class="font-display text-xl text-cyan-400 mb-3">Зачем проект</h2>
-                <p class="text-gray-300 leading-relaxed">Наша цель — помочь школьникам, студентам и всем желающим освоить слепую печать. Умение быстро и точно печатать экономит время и снижает нагрузку на глаза. Мы верим, что обучение должно быть в удовольствие: поэтому в Zoobastiks есть геймификация, уровни, монеты и соревнования с друзьями.</p>
+
+            <article class="section-card rounded-2xl pl-6 pr-6 py-6 md:p-8 stagger-2">
+                <h2 class="font-display text-2xl md:text-3xl font-bold text-cyan-300 mb-4">Зачем мы это делаем</h2>
+                <p class="text-gray-200 leading-relaxed mb-4">Слепая печать — не суперспособность. Это навык, который экономит часы каждый месяц и снимает лишнюю нагрузку с глаз и спины. Но многие откладывают обучение, потому что не знают, с чего начать, или бросают на полпути из-за скуки.</p>
+                <p class="text-gray-300 leading-relaxed mb-4">Наша цель — чтобы вы не просто «прошли уроки», а реально набрали скорость и получали от процесса кайф. Поэтому в Zoobastiks есть уровни, монеты, соревнования и мультиплеер: учиться в игре проще, чем зубрить одному.</p>
+                <p class="text-gray-300 leading-relaxed">Мы делаем проект для людей: для школьников и учителей, для родителей и детей, для тех, кто работает из дома или готовится к экзаменам. Если вы здесь — вы уже наш человек.</p>
             </article>
-            <article class="gaming-card rounded-2xl p-6 md:p-8">
-                <h2 class="font-display text-xl text-cyan-400 mb-3">Контакты</h2>
-                <p class="text-gray-300 leading-relaxed mb-4">По вопросам сотрудничества, для учителей и школ — напишите нам. Мы открыты к предложениям и обратной связи.</p>
-                <a href="https://t.me/Zoobastiks" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-cyan-500/20 border border-cyan-400/40 text-cyan-300 hover:bg-cyan-500/30 transition-colors">
+
+            <article class="section-card rounded-2xl pl-6 pr-6 py-6 md:p-8 stagger-3">
+                <h2 class="font-display text-2xl md:text-3xl font-bold text-cyan-300 mb-4">Что внутри</h2>
+                <ul class="space-y-3 text-gray-200 leading-relaxed">
+                    <li><span class="text-cyan-400 font-semibold">Уроки</span> — от базовых рядов до сложных комбинаций, по шагам, без перегруза. Можно начать с нуля и дойти до уверенной скорости.</li>
+                    <li><span class="text-cyan-400 font-semibold">Тест скорости</span> — за минуту проверить, сколько знаков в минуту вы набираете. Честно и наглядно.</li>
+                    <li><span class="text-cyan-400 font-semibold">Свободная печать</span> — вставьте свой текст и тренируйтесь на нём. Удобно готовиться к экзаменам или просто печатать то, что нужно.</li>
+                    <li><span class="text-cyan-400 font-semibold">Мультиплеер</span> — соревнуйтесь с другом в реальном времени. Кто быстрее набрал текст — тот и выиграл.</li>
+                    <li><span class="text-cyan-400 font-semibold">Достижения и монеты</span> — за прохождение уроков и тестов получаете монеты, открываете аватарки и фоны. Обучение превращается в игру.</li>
+                    <li><span class="text-cyan-400 font-semibold">Три языка</span> — русская, английская и украинская раскладки. Один тренажёр на все случаи.</li>
+                </ul>
+            </article>
+
+            <article class="section-card rounded-2xl pl-6 pr-6 py-6 md:p-8 stagger-4">
+                <h2 class="font-display text-2xl md:text-3xl font-bold text-cyan-300 mb-4">Как мы делаем</h2>
+                <p class="text-gray-200 leading-relaxed mb-4">Zoobastiks полностью бесплатный. Ни подписок, ни премиум-блокировок, ни рекламы. Мы не продаём ваши данные и не заставляем смотреть баннеры. Всё, что есть на сайте, доступно сразу.</p>
+                <p class="text-gray-300 leading-relaxed">Можно заниматься без регистрации — просто заходите и печатайте. А если захотите сохранить прогресс, уровни и достижения — создайте аккаунт. Мы продолжаем развивать проект: добавляем новые уроки, режимы и улучшения. И делаем это так, чтобы вам было приятно возвращаться.</p>
+            </article>
+
+            <article class="section-card rounded-2xl pl-6 pr-6 py-6 md:p-8 stagger-5">
+                <h2 class="font-display text-2xl md:text-3xl font-bold text-cyan-300 mb-4">Напишите нам</h2>
+                <p class="text-gray-200 leading-relaxed mb-5">Есть идеи, вопросы или хотите подключить школу или класс? Нам важна обратная связь. Пишите в Telegram — ответим по возможности быстро.</p>
+                <a href="https://t.me/Zoobastiks" target="_blank" rel="noopener noreferrer" class="link-tg inline-flex items-center gap-2 px-5 py-3 rounded-xl font-display font-semibold">
                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.559z"/></svg>
                     Telegram: @Zoobastiks
                 </a>
-            </article>
-            <article class="gaming-card rounded-2xl p-6 md:p-8">
-                <h2 class="font-display text-xl text-cyan-400 mb-3">Соцсети</h2>
-                <p class="text-gray-300 leading-relaxed mb-4">Подписывайтесь, чтобы не пропустить обновления и новые режимы.</p>
-                <div class="flex flex-wrap gap-3">
-                    <a href="https://t.me/Zoobastiks" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-gray-300 hover:border-cyan-400/50 hover:text-cyan-300 transition-colors">
-                        Telegram
-                    </a>
-                </div>
+                <p class="text-gray-500 text-sm mt-4">Подписывайтесь на канал — там анонсы обновлений и новости проекта.</p>
             </article>
         </section>
     </div>
     <script src="scripts/portal-transition.js"></script>
 </body>
 </html>
+
