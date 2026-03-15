@@ -220,6 +220,7 @@ const translations = {
         words30: 'слов',
         words50: 'слов',
         words100: 'слов',
+        words1000: 'слов',
         // Auth & Profile
         login: 'Войти',
         register: 'Зарегистрироваться',
@@ -237,8 +238,11 @@ const translations = {
         loginSuccess: 'Вход выполнен успешно',
         level: 'Уровень',
         levelUp: 'Повышение уровня!',
+        levelUpLabel: 'Уровень',
         levelRank: 'Ранг',
         levelUpCongrats: 'Продолжайте в том же духе!',
+        tapToContinue: 'Нажмите чтобы продолжить',
+        unlockAtLevel: 'Разблокируется на уровне',
         continue: 'Продолжить',
         allLevels: 'Все уровни',
         skip: 'Пропустить',
@@ -406,6 +410,7 @@ const translations = {
         words30: 'words',
         words50: 'words',
         words100: 'words',
+        words1000: 'words',
         // Auth & Profile
         login: 'Login',
         register: 'Register',
@@ -425,8 +430,11 @@ const translations = {
         logoutSuccess: 'Logout successful',
         level: 'Level',
         levelUp: 'Level Up!',
+        levelUpLabel: 'Level',
         levelRank: 'Rank',
         levelUpCongrats: 'Keep up the great work!',
+        tapToContinue: 'Tap to continue',
+        unlockAtLevel: 'Unlock at level',
         continue: 'Continue',
         allLevels: 'All levels',
         skip: 'Skip',
@@ -934,6 +942,7 @@ function isModalVisible(id) {
 
 function closeTopModal() {
     if (isModalVisible('onboardingOverlay')) { finishOnboarding(); return; }
+    if (isModalVisible('levelUpTitr')) { finishLevelUpTitr(); return; }
     if (isModalVisible('levelUpModal')) { closeLevelUpModal(); return; }
     if (isModalVisible('levelListModal')) { closeLevelListModal(); return; }
     if (isModalVisible('resultsModal')) { closeResults(); return; }
@@ -2120,7 +2129,7 @@ function closeResults(skipExit) {
     }
     if (skipExit) return;
     if (app.pendingLevelUp) {
-        showLevelUpModal(app.pendingLevelUp);
+        showLevelUpSequence(app.pendingLevelUp);
         app.pendingLevelUp = null;
     } else {
         exitPractice();
@@ -2175,6 +2184,57 @@ function renderLevelBlock() {
     }
 }
 
+var levelUpTitrTimeout = null;
+var levelUpTitrKeydown = null;
+
+function finishLevelUpTitr() {
+    var titr = DOM.get('levelUpTitr');
+    if (titr) {
+        titr.classList.add('hidden');
+        titr.classList.remove('flex');
+    }
+    if (levelUpTitrTimeout) {
+        clearTimeout(levelUpTitrTimeout);
+        levelUpTitrTimeout = null;
+    }
+    if (levelUpTitrKeydown) {
+        document.removeEventListener('keydown', levelUpTitrKeydown);
+        levelUpTitrKeydown = null;
+    }
+    var level = app.levelUpTitrLevel;
+    if (level != null) {
+        app.levelUpTitrLevel = null;
+        showLevelUpModal(level);
+    }
+}
+
+function showLevelUpSequence(level) {
+    app.levelUpTitrLevel = level;
+    var titr = DOM.get('levelUpTitr');
+    var numEl = DOM.get('levelUpTitrNumber');
+    var rankEl = DOM.get('levelUpTitrRank');
+    if (numEl) numEl.textContent = level;
+    if (rankEl && window.levelModule) {
+        rankEl.textContent = window.levelModule.getTierName(level);
+    }
+    if (titr) {
+        titr.classList.remove('hidden');
+        titr.classList.add('flex');
+    }
+    if (app.soundEnabled && audioVictory) {
+        audioVictory.currentTime = 0;
+        audioVictory.play().catch(function() {});
+    }
+    levelUpTitrTimeout = setTimeout(finishLevelUpTitr, 2500);
+    levelUpTitrKeydown = function (e) {
+        if (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            finishLevelUpTitr();
+        }
+    };
+    document.addEventListener('keydown', levelUpTitrKeydown);
+}
+
 function showLevelUpModal(level) {
     var modal = DOM.get('levelUpModal');
     var numEl = DOM.get('levelUpNumber');
@@ -2183,10 +2243,6 @@ function showLevelUpModal(level) {
         modal.classList.remove('hidden');
         modal.classList.add('flex');
         focusFirstInModal(modal);
-    }
-    if (app.soundEnabled && audioVictory) {
-        audioVictory.currentTime = 0;
-        audioVictory.play().catch(function() {});
     }
 }
 
@@ -2670,12 +2726,20 @@ function showAvatarSelector() {
     // Get current avatar index
     const currentAvatarIndex = currentUserProfile?.avatarIndex ?? 0;
     
+    // Текущий уровень игрока для разблокировки аватаров
+    const currentLevel = window.levelModule ? window.levelModule.getLevelInfo(window.levelModule.getPlayerXP()).level : 1;
+    const unlockLevels = (window.authModule && window.authModule.AVATAR_UNLOCK_LEVELS) || [];
+
     // Create avatar selection grid
     if (window.authModule && window.authModule.AVAILABLE_AVATARS) {
         window.authModule.AVAILABLE_AVATARS.forEach((avatarPath, index) => {
+            const requiredLevel = unlockLevels[index] ?? 0;
+            const isLocked = requiredLevel > 0 && currentLevel < requiredLevel;
             const avatarItem = document.createElement('div');
-            const isSelected = index === currentAvatarIndex;
-            avatarItem.className = `relative cursor-pointer rounded-2xl overflow-hidden border-4 transition-all duration-300 group ${
+            const isSelected = index === currentAvatarIndex && !isLocked;
+            avatarItem.className = `relative rounded-2xl overflow-hidden border-4 transition-all duration-300 group ${
+                isLocked ? 'cursor-not-allowed opacity-75' : 'cursor-pointer'
+            } ${
                 isSelected 
                     ? 'border-primary shadow-2xl shadow-primary/50 scale-105' 
                     : 'border-gray-700/50 hover:border-primary/70 hover:shadow-xl hover:shadow-primary/30'
@@ -2691,7 +2755,7 @@ function showAvatarSelector() {
             const img = document.createElement('img');
             img.src = avatarPath;
             img.alt = `Avatar ${index + 1}`;
-            img.className = 'w-full h-full object-cover transition-transform duration-300 group-hover:scale-110';
+            img.className = 'w-full h-full object-cover transition-transform duration-300 group-hover:scale-110' + (isLocked ? ' grayscale blur-[1px]' : '');
             img.style.width = '100%';
             img.style.height = '200px';
             img.style.objectFit = 'cover';
@@ -2700,15 +2764,22 @@ function showAvatarSelector() {
             
             avatarItem.appendChild(img);
             
-            // Checkmark for selected avatar
-            if (isSelected) {
-                const checkmark = document.createElement('div');
-                checkmark.className = 'absolute top-3 right-3 bg-gradient-to-r from-primary to-cyan-500 rounded-full p-2 shadow-lg z-20 animate-pulse';
-                checkmark.innerHTML = '<svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>';
-                avatarItem.appendChild(checkmark);
+            if (isLocked) {
+                const lockOverlay = document.createElement('div');
+                lockOverlay.className = 'absolute inset-0 flex flex-col items-center justify-center bg-black/60 z-20';
+                lockOverlay.innerHTML = '<span class="text-4xl mb-2">🔒</span><span class="text-sm font-semibold text-amber-400 text-center px-2" data-unlock-level="' + requiredLevel + '">' + (t('unlockAtLevel') + ' ' + requiredLevel) + '</span>';
+                avatarItem.appendChild(lockOverlay);
+                avatarItem.onclick = () => showToast(t('unlockAtLevel') + ' ' + requiredLevel, 'info');
+            } else {
+                // Checkmark for selected avatar
+                if (isSelected) {
+                    const checkmark = document.createElement('div');
+                    checkmark.className = 'absolute top-3 right-3 bg-gradient-to-r from-primary to-cyan-500 rounded-full p-2 shadow-lg z-20 animate-pulse';
+                    checkmark.innerHTML = '<svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>';
+                    avatarItem.appendChild(checkmark);
+                }
+                avatarItem.onclick = () => selectAvatar(index);
             }
-            
-            avatarItem.onclick = () => selectAvatar(index);
             avatarGrid.appendChild(avatarItem);
         });
     }
@@ -3624,3 +3695,4 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+

@@ -95,7 +95,12 @@ async function applySessionToUser(uid, session) {
     const totalErrors = (u.TotalErrors || 0) + errors;
     const totalAccuracy = recentSessions.reduce((sum, s) => sum + (s.accuracy || 0), 0);
     const averageAccuracy = recentSessions.length > 0 ? Math.round(totalAccuracy / recentSessions.length) : 0;
-    const completedLessons = new Set(recentSessions.filter(s => s.lessonKey).map(s => s.lessonKey)).size;
+    // Completed lessons — считаем за всё время по UserSessions, а не по последним 100
+    const countResult = await query(
+        `SELECT COUNT(DISTINCT LessonKey) AS cnt FROM UserSessions WHERE UserId = @uid AND LessonKey IS NOT NULL AND LessonKey != ''`,
+        { uid }
+    );
+    const completedLessons = (countResult.recordset[0] && countResult.recordset[0].cnt) || 0;
     await query(
         `UPDATE Users SET TotalSessions = @totalSessions, TotalTime = @totalTime, BestSpeed = @bestSpeed, AverageAccuracy = @averageAccuracy, CompletedLessonsCount = @completedLessons, TotalErrors = @totalErrors, RecentSessionsJson = @recentJson WHERE Uid = @uid`,
         { uid, totalSessions, totalTime, bestSpeed, averageAccuracy, completedLessons, totalErrors, recentJson: JSON.stringify(recentSessions) }
@@ -217,3 +222,4 @@ router.get('/:uid/lesson-purchased/:lessonId', async (req, res) => {
 });
 
 module.exports = router;
+

@@ -13,6 +13,9 @@ export const AVAILABLE_AVATARS = [
     'assets/images/profile photo/profile_6.jpg'
 ];
 
+/** Минимальный уровень для разблокировки аватара (0 = доступен с первого уровня). */
+export const AVATAR_UNLOCK_LEVELS = [0, 0, 0, 5, 5, 10];
+
 const STORAGE_KEY_USERS = 'zwebsitesimulator_users';
 const STORAGE_KEY_CURRENT_USER = 'zwebsitesimulator_current_user';
 const STORAGE_KEY_TOKEN = 'zwebsitesimulator_token';
@@ -406,9 +409,6 @@ function checkAuthState() {
     if (user !== currentAuthUser) notifyAuthStateListeners(user);
 }
 
-if (!useApi()) {
-    setInterval(checkAuthState, 1000);
-}
 checkAuthState();
 
 // При использовании API: если есть токен, но нет пользователя в кэше — подгрузить с сервера
@@ -532,6 +532,7 @@ window.authModule = {
     updateUserProfile,
     updateProfileAvatar,
     AVAILABLE_AVATARS,
+    AVATAR_UNLOCK_LEVELS,
     addUserSession,
     isAdmin,
     getAllUsers,
@@ -542,3 +543,4 @@ window.authModule = {
     getUserBalance,
     isLessonPurchased
 };
+

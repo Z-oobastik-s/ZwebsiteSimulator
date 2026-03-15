@@ -29,7 +29,8 @@ async function query(sqlQuery, params = {}) {
     const p = await getPool();
     const request = p.request();
     Object.keys(params).forEach(key => {
-        request.input(key, params[key]);
+        const value = params[key];
+        request.input(key, value === undefined ? null : value);
     });
     return request.query(sqlQuery);
 }
@@ -42,3 +43,4 @@ async function close() {
 }
 
 module.exports = { getPool, query, sql, close };
+
