@@ -136,6 +136,7 @@ var bgMusicPausedAt = 0;
 var bgMusicPausedTrackIndex = 0;
 var BG_MUSIC_TRACKS = ['assets/sounds/violin.mp3', 'assets/sounds/violin_1.mp3'];
 var BG_MUSIC_VOLUME = 0.06;
+var SFX_VOLUME = 0.04; // 2–5% громкость всех эффектов
 let audioSwipeAnimation = null;
 let audioOnSound = null;
 let audioOffSound = null;
@@ -1024,26 +1025,26 @@ function initializeAudio() {
         audioClickMenu0 = new Audio('assets/sounds/click_menu_0.ogg');
         audioClickMenu1 = new Audio('assets/sounds/click_menu_1.ogg');
         
-        // Set volumes
-        if (audioClick) audioClick.volume = 0.3;
-        if (audioError) audioError.volume = 0.4;
-        if (audioWelcome) audioWelcome.volume = 0.15; // Тихо, 15%
-        if (audioVictory) audioVictory.volume = 0.15; // Тихо, 15%
-        if (audioThemeTransition) audioThemeTransition.volume = 0.25;
-        if (audioDeniedMoney) audioDeniedMoney.volume = 0.4;
-        if (audioSwipeAnimation) audioSwipeAnimation.volume = 0.35;
-        if (audioOnSound) audioOnSound.volume = 0.4;
-        if (audioOffSound) audioOffSound.volume = 0.4;
-        if (audioOpenShop) audioOpenShop.volume = 0.35;
-        if (audioClickLanguage) audioClickLanguage.volume = 0.35;
-        if (audioBuyShop) audioBuyShop.volume = 0.35;
-        if (audioOpenProfile) audioOpenProfile.volume = 0.35;
-        if (audioOpenAchievement) audioOpenAchievement.volume = 0.35;
-        if (audioCompleteAdvanced) audioCompleteAdvanced.volume = 0.35;
-        if (audioOpenTelegram) audioOpenTelegram.volume = 0.35;
-        if (audioFeedback) audioFeedback.volume = 0.35;
-        if (audioClickMenu0) audioClickMenu0.volume = 0.35;
-        if (audioClickMenu1) audioClickMenu1.volume = 0.35;
+        // Set volumes (2–5% через SFX_VOLUME)
+        if (audioClick) audioClick.volume = SFX_VOLUME;
+        if (audioError) audioError.volume = SFX_VOLUME;
+        if (audioWelcome) audioWelcome.volume = SFX_VOLUME;
+        if (audioVictory) audioVictory.volume = SFX_VOLUME;
+        if (audioThemeTransition) audioThemeTransition.volume = SFX_VOLUME;
+        if (audioDeniedMoney) audioDeniedMoney.volume = SFX_VOLUME;
+        if (audioSwipeAnimation) audioSwipeAnimation.volume = SFX_VOLUME;
+        if (audioOnSound) audioOnSound.volume = SFX_VOLUME;
+        if (audioOffSound) audioOffSound.volume = SFX_VOLUME;
+        if (audioOpenShop) audioOpenShop.volume = SFX_VOLUME;
+        if (audioClickLanguage) audioClickLanguage.volume = SFX_VOLUME;
+        if (audioBuyShop) audioBuyShop.volume = SFX_VOLUME;
+        if (audioOpenProfile) audioOpenProfile.volume = SFX_VOLUME;
+        if (audioOpenAchievement) audioOpenAchievement.volume = SFX_VOLUME;
+        if (audioCompleteAdvanced) audioCompleteAdvanced.volume = SFX_VOLUME;
+        if (audioOpenTelegram) audioOpenTelegram.volume = SFX_VOLUME;
+        if (audioFeedback) audioFeedback.volume = SFX_VOLUME;
+        if (audioClickMenu0) audioClickMenu0.volume = SFX_VOLUME;
+        if (audioClickMenu1) audioClickMenu1.volume = SFX_VOLUME;
     } catch (e) {
         console.log('Audio files not available, using fallback');
     }
@@ -1347,6 +1348,10 @@ function toggleSound() {
     } else if (!app.soundEnabled && audioOffSound) {
         audioOffSound.currentTime = 0;
         audioOffSound.play().catch(() => {});
+        if (audioWelcome) {
+            audioWelcome.pause();
+            audioWelcome.currentTime = 0;
+        }
     }
     const icon = DOM.get('soundIcon');
     if (icon) {
@@ -2557,7 +2562,7 @@ function toggleLevelListModal() {
         if (app.soundEnabled) {
             try {
                 var snd = audioOpenAchievement ? audioOpenAchievement.cloneNode() : new Audio('assets/sounds/open_achievement.ogg');
-                snd.volume = 0.35;
+                snd.volume = SFX_VOLUME;
                 snd.currentTime = 0;
                 snd.play().catch(function() {});
             } catch (e) {}
@@ -2631,13 +2636,12 @@ function playSound(type) {
     
     try {
         if (type === 'correct' && audioClick) {
-            // Clone and play для возможности быстрых повторений
             const sound = audioClick.cloneNode();
-            sound.volume = 0.3;
+            sound.volume = SFX_VOLUME;
             sound.play().catch(() => {});
         } else if (type === 'error' && audioError) {
             const sound = audioError.cloneNode();
-            sound.volume = 0.4;
+            sound.volume = SFX_VOLUME;
             sound.play().catch(() => {});
         }
     } catch (e) {
@@ -2652,10 +2656,10 @@ function playSound(type) {
             
             if (type === 'correct') {
                 oscillator.frequency.value = 800;
-                gainNode.gain.value = 0.1;
+                gainNode.gain.value = SFX_VOLUME;
             } else {
                 oscillator.frequency.value = 200;
-                gainNode.gain.value = 0.15;
+                gainNode.gain.value = SFX_VOLUME;
             }
             
             oscillator.start();
@@ -3904,7 +3908,7 @@ function playDeniedMoneySound() {
     if (!app.soundEnabled) return;
     try {
         var s = audioDeniedMoney ? audioDeniedMoney.cloneNode() : new Audio('assets/sounds/denied_money.ogg');
-        s.volume = 0.4;
+        s.volume = SFX_VOLUME;
         s.currentTime = 0;
         s.play().catch(function() {});
     } catch (e) {}
@@ -3920,7 +3924,7 @@ function playMenuClickSound() {
     if (!app.soundEnabled) return;
     var num = Math.random() < 0.5 ? '0' : '1';
     var s = new Audio('assets/sounds/click_menu_' + num + '.ogg');
-    s.volume = 0.35;
+    s.volume = SFX_VOLUME;
     s.play().catch(function () {});
 }
 
@@ -3998,4 +4002,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-
