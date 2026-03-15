@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <script>
       (function(){var L=localStorage.getItem('lang');if(L==='en'||L==='uk'){document.documentElement.setAttribute('data-lang',L);document.documentElement.setAttribute('lang',L);}})();
+      document.documentElement.classList.add('no-fouc');
     </script>
+    <style>html.no-fouc body{visibility:hidden;}</style>
     
     <!-- Primary Meta Tags -->
     <title>Клавиатура онлайн Zoobastiks — тренажёр слепой печати для школьников и всех</title>
@@ -2973,6 +2975,13 @@
         (function(){var t=window.tailwind||{};t.config={darkMode:'class',theme:{extend:{colors:{primary:'#00BCD4',success:'#8BC34A',warning:'#FFC107'}}}};window.tailwind=t;})();
     </script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      (function(){
+        function show(){ requestAnimationFrame(function(){ document.documentElement.classList.remove('no-fouc'); }); }
+        if (document.readyState==='loading') document.addEventListener('DOMContentLoaded',function(){ requestAnimationFrame(function(){ requestAnimationFrame(show); }); });
+        else requestAnimationFrame(function(){ requestAnimationFrame(show); });
+      })();
+    </script>
     <script src="scripts/portal-transition.js"></script>
     <script src="scripts/api-config.js" defer></script>
     <script src="scripts/lessons-data.js" defer></script>
@@ -2997,4 +3006,3 @@
     </script>
 </body>
 </html>
-
