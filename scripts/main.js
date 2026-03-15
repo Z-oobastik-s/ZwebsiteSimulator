@@ -951,7 +951,8 @@ function handleGlobalHotkeys(e) {
         if (isModalVisible('resultsModal')) { e.preventDefault(); repeatPractice(); return; }
         if (isModalVisible('levelUpModal')) { e.preventDefault(); closeLevelUpModal(); return; }
     }
-    if (e.key === 'r' || e.key === 'R') {
+    // Физическая клавиша R (KeyR) — работает при любой раскладке (RU/EN/UA).
+    if (e.code === 'KeyR') {
         if (e.ctrlKey || e.metaKey) return;
         if (isModalVisible('resultsModal')) { e.preventDefault(); repeatPractice(); return; }
     }
@@ -1572,6 +1573,8 @@ function startPractice(text, mode, lesson = null) {
     } else {
         startStatsTimer();
     }
+    // Фокус на body, чтобы нажатия клавиш сразу обрабатывались (особенно после «Повторить»).
+    setTimeout(function () { document.body.focus(); }, 0);
 }
 
 // Render text display - ОПТИМИЗИРОВАННАЯ ВЕРСИЯ с DocumentFragment
@@ -2108,13 +2111,14 @@ function copyResultsToClipboard() {
     }
 }
 
-// Close results modal - ОПТИМИЗИРОВАНА
-function closeResults() {
+// Close results modal - ОПТИМИЗИРОВАНА. skipExit = true: только скрыть окно (для «Повторить»).
+function closeResults(skipExit) {
     const modal = DOM.get('resultsModal');
     if (modal) {
         modal.classList.add('hidden');
         modal.classList.remove('flex');
     }
+    if (skipExit) return;
     if (app.pendingLevelUp) {
         showLevelUpModal(app.pendingLevelUp);
         app.pendingLevelUp = null;
@@ -2123,10 +2127,12 @@ function closeResults() {
     }
 }
 
-// Repeat practice
+// Repeat practice — не вызываем exitPractice(), только скрываем модалку и перезапускаем раунд.
 function repeatPractice() {
-    closeResults();
+    closeResults(true);
     restartPractice();
+    // Фокус на body, чтобы нажатия клавиш обрабатывались и раунд был активен.
+    setTimeout(function () { document.body.focus(); }, 0);
 }
 
 // Level block and level-up modal
@@ -2158,8 +2164,9 @@ function renderLevelBlock() {
     var streakEl = DOM.get('streakBadge');
     if (streakEl) {
         var streak = getStreak();
+        var numEl = streakEl.querySelector ? streakEl.querySelector('.streak-number') : null;
         if (streak > 0) {
-            streakEl.textContent = '\uD83D\uDD25 ' + streak;
+            if (numEl) numEl.textContent = streak; else streakEl.textContent = '\uD83D\uDD25 ' + streak;
             streakEl.title = (translations[app.lang].streakHint || 'Серия дней с тренировкой') + ': ' + streak + ' ' + (translations[app.lang].streakDays || 'дней подряд');
             streakEl.classList.remove('hidden');
         } else {
@@ -3617,4 +3624,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-
