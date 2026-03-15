@@ -33,6 +33,7 @@
         @keyframes pageEnter { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
         .title-glow { text-shadow: 0 0 25px rgba(0,229,255,0.5), 0 0 50px rgba(139,92,246,0.25); }
         .header-bar { border-bottom: 1px solid rgba(0,229,255,0.25); background: rgba(0,0,0,0.5); backdrop-filter: blur(16px); }
+        .review-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(0,229,255,0.4); flex-shrink: 0; }
     </style>
 </head>
 <body class="text-gray-100 scanlines overflow-x-hidden">
@@ -61,62 +62,104 @@
                 Оставить отзыв
             </a>
 
-            <div class="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-3">
-                <article class="review-card rounded-lg pl-4 pr-3 py-3">
-                    <p class="text-gray-200 text-sm leading-snug mb-2">за две недели реально быстрее печатать стал)) уроки по шагам норм и с другом гоняли кто быстрее прикольно</p>
-                    <span class="font-semibold text-cyan-300 text-sm">Алексей</span>
+            <div class="w-full max-w-2xl mx-auto space-y-3">
+                <article class="review-card rounded-lg pl-4 pr-3 pt-3 pb-3 flex gap-3">
+                    <img src="assets/images/profile photo/profile_3.jpg" alt="" class="review-avatar" width="36" height="36">
+                    <div class="min-w-0 flex-1">
+                        <div class="font-semibold text-cyan-300 text-sm mb-1.5">Алексей</div>
+                        <p class="text-gray-200 text-sm leading-snug">за две недели реально быстрее печатать стал)) уроки по шагам норм и с другом гоняли кто быстрее прикольно</p>
+                    </div>
                 </article>
-                <article class="review-card rounded-lg pl-4 pr-3 py-3">
-                    <p class="text-gray-200 text-sm leading-snug mb-2">наконец то нашла что то адекватное для сына тут и русский и английский без регистрации попробовали потом зашли всё сохранилось удобно</p>
-                    <span class="font-semibold text-cyan-300 text-sm">Марина</span>
+                <article class="review-card rounded-lg pl-4 pr-3 pt-3 pb-3 flex gap-3">
+                    <img src="assets/images/profile photo/profile_7.jpg" alt="" class="review-avatar" width="36" height="36">
+                    <div class="min-w-0 flex-1">
+                        <div class="font-semibold text-cyan-300 text-sm mb-1.5">Марина</div>
+                        <p class="text-gray-200 text-sm leading-snug">наконец то нашла что то адекватное для сына тут и русский и английский без регистрации попробовали потом зашли всё сохранилось удобно</p>
+                    </div>
                 </article>
-                <article class="review-card rounded-lg pl-4 pr-3 py-3">
-                    <p class="text-gray-200 text-sm leading-snug mb-2">тест на минуту зашёл достижения и монеты мотивируют прохожу уроки до конца одногруппникам скинул</p>
-                    <span class="font-semibold text-cyan-300 text-sm">Дмитрий</span>
+                <article class="review-card rounded-lg pl-4 pr-3 pt-3 pb-3 flex gap-3">
+                    <img src="assets/images/profile photo/profile_12.jpg" alt="" class="review-avatar" width="36" height="36">
+                    <div class="min-w-0 flex-1">
+                        <div class="font-semibold text-cyan-300 text-sm mb-1.5">Дмитрий</div>
+                        <p class="text-gray-200 text-sm leading-snug">тест на минуту зашёл достижения и монеты мотивируют прохожу уроки до конца одногруппникам скинул</p>
+                    </div>
                 </article>
-                <article class="review-card rounded-lg pl-4 pr-3 py-3">
-                    <p class="text-gray-200 text-sm leading-snug mb-2">понравился дизайн и что рекламы нет печатаю свои тексты к экзаменам готовлюсь норм</p>
-                    <span class="font-semibold text-cyan-300 text-sm">Катя</span>
+                <article class="review-card rounded-lg pl-4 pr-3 pt-3 pb-3 flex gap-3">
+                    <img src="assets/images/profile photo/profile_9.jpg" alt="" class="review-avatar" width="36" height="36">
+                    <div class="min-w-0 flex-1">
+                        <div class="font-semibold text-cyan-300 text-sm mb-1.5">Катя</div>
+                        <p class="text-gray-200 text-sm leading-snug">понравился дизайн и что рекламы нет печатаю свои тексты к экзаменам готовлюсь норм</p>
+                    </div>
                 </article>
-                <article class="review-card rounded-lg pl-4 pr-3 py-3">
-                    <p class="text-gray-200 text-sm leading-snug mb-2">юзаю на планшете с клавой всё ок уровни прокачиваешь как в игре сын занимается сам уже спасибо</p>
-                    <span class="font-semibold text-cyan-300 text-sm">Игорь</span>
+                <article class="review-card rounded-lg pl-4 pr-3 pt-3 pb-3 flex gap-3">
+                    <img src="assets/images/profile photo/profile_5.jpg" alt="" class="review-avatar" width="36" height="36">
+                    <div class="min-w-0 flex-1">
+                        <div class="font-semibold text-cyan-300 text-sm mb-1.5">Игорь</div>
+                        <p class="text-gray-200 text-sm leading-snug">юзаю на планшете с клавой всё ок уровни прокачиваешь как в игре сын занимается сам уже спасибо</p>
+                    </div>
                 </article>
-                <article class="review-card rounded-lg pl-4 pr-3 py-3">
-                    <p class="text-gray-200 text-sm leading-snug mb-2">по началу думала ерунда а потом видно прогресс дочка сама садится заниматься я тоже попробовала понравилось</p>
-                    <span class="font-semibold text-cyan-300 text-sm">Ольга</span>
+                <article class="review-card rounded-lg pl-4 pr-3 pt-3 pb-3 flex gap-3">
+                    <img src="assets/images/profile photo/profile_2.jpg" alt="" class="review-avatar" width="36" height="36">
+                    <div class="min-w-0 flex-1">
+                        <div class="font-semibold text-cyan-300 text-sm mb-1.5">Ольга</div>
+                        <p class="text-gray-200 text-sm leading-snug">по началу думала ерунда а потом видно прогресс дочка сама садится заниматься я тоже попробовала понравилось</p>
+                    </div>
                 </article>
-                <article class="review-card rounded-lg pl-4 pr-3 py-3">
-                    <p class="text-gray-200 text-sm leading-snug mb-2">учительница дала ссылку на уроке теперь дома тренируюсь буквы запоминаются быстрее чем думала</p>
-                    <span class="font-semibold text-cyan-300 text-sm">Настя</span>
+                <article class="review-card rounded-lg pl-4 pr-3 pt-3 pb-3 flex gap-3">
+                    <img src="assets/images/profile photo/profile_10.jpg" alt="" class="review-avatar" width="36" height="36">
+                    <div class="min-w-0 flex-1">
+                        <div class="font-semibold text-cyan-300 text-sm mb-1.5">Настя</div>
+                        <p class="text-gray-200 text-sm leading-snug">учительница дала ссылку на уроке теперь дома тренируюсь буквы запоминаются быстрее чем думала</p>
+                    </div>
                 </article>
-                <article class="review-card rounded-lg pl-4 pr-3 py-3">
-                    <p class="text-gray-200 text-sm leading-snug mb-2">ребёнок сидит не оторвать реально сам хочет проходить уроки потому что монетки собирает</p>
-                    <span class="font-semibold text-cyan-300 text-sm">Сергей</span>
+                <article class="review-card rounded-lg pl-4 pr-3 pt-3 pb-3 flex gap-3">
+                    <img src="assets/images/profile photo/profile_16.jpg" alt="" class="review-avatar" width="36" height="36">
+                    <div class="min-w-0 flex-1">
+                        <div class="font-semibold text-cyan-300 text-sm mb-1.5">Сергей</div>
+                        <p class="text-gray-200 text-sm leading-snug">ребёнок сидит не оторвать реально сам хочет проходить уроки потому что монетки собирает</p>
+                    </div>
                 </article>
-                <article class="review-card rounded-lg pl-4 pr-3 py-3">
-                    <p class="text-gray-200 text-sm leading-snug mb-2">без рекламы это прям редкость сейчас спасибо что бесплатно и нормально сделано</p>
-                    <span class="font-semibold text-cyan-300 text-sm">Лена</span>
+                <article class="review-card rounded-lg pl-4 pr-3 pt-3 pb-3 flex gap-3">
+                    <img src="assets/images/profile photo/profile_8.jpg" alt="" class="review-avatar" width="36" height="36">
+                    <div class="min-w-0 flex-1">
+                        <div class="font-semibold text-cyan-300 text-sm mb-1.5">Лена</div>
+                        <p class="text-gray-200 text-sm leading-snug">без рекламы это прям редкость сейчас спасибо что бесплатно и нормально сделано</p>
+                    </div>
                 </article>
-                <article class="review-card rounded-lg pl-4 pr-3 py-3">
-                    <p class="text-gray-200 text-sm leading-snug mb-2">с братом соревнуемся кто быстрее набрал скорость за месяц выросла в два раза не ожидал</p>
-                    <span class="font-semibold text-cyan-300 text-sm">Макс</span>
+                <article class="review-card rounded-lg pl-4 pr-3 pt-3 pb-3 flex gap-3">
+                    <img src="assets/images/profile photo/profile_14.jpg" alt="" class="review-avatar" width="36" height="36">
+                    <div class="min-w-0 flex-1">
+                        <div class="font-semibold text-cyan-300 text-sm mb-1.5">Макс</div>
+                        <p class="text-gray-200 text-sm leading-snug">с братом соревнуемся кто быстрее набрал скорость за месяц выросла в два раза не ожидал</p>
+                    </div>
                 </article>
-                <article class="review-card rounded-lg pl-4 pr-3 py-3">
-                    <p class="text-gray-200 text-sm leading-snug mb-2">для диплома печатала много тут удобно свой текст вставить и просто тренироваться без лишнего</p>
-                    <span class="font-semibold text-cyan-300 text-sm">Вика</span>
+                <article class="review-card rounded-lg pl-4 pr-3 pt-3 pb-3 flex gap-3">
+                    <img src="assets/images/profile photo/profile_11.jpg" alt="" class="review-avatar" width="36" height="36">
+                    <div class="min-w-0 flex-1">
+                        <div class="font-semibold text-cyan-300 text-sm mb-1.5">Вика</div>
+                        <p class="text-gray-200 text-sm leading-snug">для диплома печатала много тут удобно свой текст вставить и просто тренироваться без лишнего</p>
+                    </div>
                 </article>
-                <article class="review-card rounded-lg pl-4 pr-3 py-3">
-                    <p class="text-gray-200 text-sm leading-snug mb-2">до этого другие пробовала либо реклама лезет либо скучно здесь норм и ребёнку зашло</p>
-                    <span class="font-semibold text-cyan-300 text-sm">Татьяна</span>
+                <article class="review-card rounded-lg pl-4 pr-3 pt-3 pb-3 flex gap-3">
+                    <img src="assets/images/profile photo/profile_4.jpg" alt="" class="review-avatar" width="36" height="36">
+                    <div class="min-w-0 flex-1">
+                        <div class="font-semibold text-cyan-300 text-sm mb-1.5">Татьяна</div>
+                        <p class="text-gray-200 text-sm leading-snug">до этого другие пробовала либо реклама лезет либо скучно здесь норм и ребёнку зашло</p>
+                    </div>
                 </article>
-                <article class="review-card rounded-lg pl-4 pr-3 py-3">
-                    <p class="text-gray-200 text-sm leading-snug mb-2">мультиплеер с другом прикольная тема вечером гоняем кто больше слов за минуту</p>
-                    <span class="font-semibold text-cyan-300 text-sm">Артём</span>
+                <article class="review-card rounded-lg pl-4 pr-3 pt-3 pb-3 flex gap-3">
+                    <img src="assets/images/profile photo/profile_18.jpg" alt="" class="review-avatar" width="36" height="36">
+                    <div class="min-w-0 flex-1">
+                        <div class="font-semibold text-cyan-300 text-sm mb-1.5">Артём</div>
+                        <p class="text-gray-200 text-sm leading-snug">мультиплеер с другом прикольная тема вечером гоняем кто больше слов за минуту</p>
+                    </div>
                 </article>
-                <article class="review-card rounded-lg pl-4 pr-3 py-3">
-                    <p class="text-gray-200 text-sm leading-snug mb-2">работаю удалённо печатать пришлось много научился на этом тренажёре за пару недель</p>
-                    <span class="font-semibold text-cyan-300 text-sm">Андрей</span>
+                <article class="review-card rounded-lg pl-4 pr-3 pt-3 pb-3 flex gap-3">
+                    <img src="assets/images/profile photo/profile_6.jpg" alt="" class="review-avatar" width="36" height="36">
+                    <div class="min-w-0 flex-1">
+                        <div class="font-semibold text-cyan-300 text-sm mb-1.5">Андрей</div>
+                        <p class="text-gray-200 text-sm leading-snug">работаю удалённо печатать пришлось много научился на этом тренажёре за пару недель</p>
+                    </div>
                 </article>
             </div>
         </section>
@@ -124,4 +167,3 @@
     <script src="scripts/portal-transition.js"></script>
 </body>
 </html>
-
