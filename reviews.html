@@ -39,6 +39,17 @@
         .form-input { background: rgba(0,0,0,0.4); border: 1px solid rgba(0,229,255,0.3); color: #e2e8f0; }
         .form-input::placeholder { color: rgba(148,163,184,0.7); }
         .form-input:focus { outline: none; border-color: rgba(0,229,255,0.6); box-shadow: 0 0 0 2px rgba(0,229,255,0.15); }
+        .review-toast {
+            position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+            padding: 12px 20px; border-radius: 12px;
+            background: linear-gradient(145deg, rgba(8,18,38,0.95) 0%, rgba(4,12,28,0.98) 100%);
+            border: 1px solid rgba(0,229,255,0.4); box-shadow: 0 0 24px rgba(0,229,255,0.2), inset 0 1px 0 rgba(255,255,255,0.06);
+            backdrop-filter: blur(12px); color: #67e8f9; font-size: 14px; font-weight: 500;
+            z-index: 200; pointer-events: none;
+            animation: reviewToastIn 0.3s ease-out, reviewToastOut 0.3s ease-in 2.7s forwards;
+        }
+        @keyframes reviewToastIn { from { opacity: 0; transform: translateX(-50%) translateY(12px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+        @keyframes reviewToastOut { from { opacity: 1; transform: translateX(-50%) translateY(0); } to { opacity: 0; transform: translateX(-50%) translateY(-8px); } }
     </style>
 </head>
 <body class="text-gray-100 scanlines overflow-x-hidden">
@@ -197,6 +208,14 @@
     <script src="scripts/portal-transition.js"></script>
     <script>
 (function() {
+    function showReviewToast(message) {
+        var el = document.createElement('div');
+        el.className = 'review-toast';
+        el.textContent = message;
+        document.body.appendChild(el);
+        setTimeout(function() { if (el.parentNode) el.parentNode.removeChild(el); }, 3000);
+    }
+
     var STORAGE_KEY = 'zoobastiks_reviews';
     var AVATARS = [
         'assets/images/profile photo/profile_1.png',
@@ -296,8 +315,7 @@
         saveUserReviews(list);
         renderUserReviews();
         closeModal();
-        if (typeof window.showToast === 'function') window.showToast('Спасибо! Ваш отзыв добавлен.', 'success');
-        else alert('Спасибо! Ваш отзыв добавлен.');
+        showReviewToast('Спасибо! Ваш отзыв добавлен.');
     });
 
     renderUserReviews();
@@ -305,4 +323,3 @@
     </script>
 </body>
 </html>
-
