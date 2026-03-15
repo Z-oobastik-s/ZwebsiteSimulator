@@ -1167,6 +1167,24 @@ function initializeUI() {
     const animationsToggle = DOM.get('animationsToggle');
     if (animationsToggle) animationsToggle.addEventListener('click', toggleAnimations);
     
+    // Портал: выпадающее меню «О проекте» / «Отзывы»
+    const sitePortalBtn = document.getElementById('sitePortalBtn');
+    const sitePortalDropdown = document.getElementById('sitePortalDropdown');
+    if (sitePortalBtn && sitePortalDropdown) {
+        sitePortalBtn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            var open = !sitePortalDropdown.classList.contains('hidden');
+            sitePortalDropdown.classList.toggle('hidden', open);
+            sitePortalBtn.setAttribute('aria-expanded', !open);
+        });
+        document.addEventListener('click', function (e) {
+            if (!e.target.closest('#sitePortalWrap')) {
+                sitePortalDropdown.classList.add('hidden');
+                sitePortalBtn.setAttribute('aria-expanded', 'false');
+            }
+        });
+    }
+    
     // Keyboard input - используем passive для лучшей производительности
     document.addEventListener('keydown', handleKeyPress, { passive: false });
     // Global hotkeys: Esc — close modal, Enter/R — repeat when results open
@@ -4022,4 +4040,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-
