@@ -163,28 +163,39 @@ function render(container) {
                 var t = document.getElementById('achievementTooltip');
                 if (!t) { t = document.createElement('div'); t.id = 'achievementTooltip'; t.className = 'achievement-tooltip'; document.body.appendChild(t); }
                 t.textContent = tipText;
+                t.style.left = '0';
+                t.style.top = '0';
                 t.classList.remove('hidden');
-                function place() {
-                    var r = wrap.getBoundingClientRect();
-                    var gap = 6;
-                    t.style.left = r.left + 'px';
-                    t.style.top = (r.bottom + gap) + 'px';
-                    t.style.right = 'auto';
-                    t.style.maxWidth = '280px';
-                }
-                place();
-                requestAnimationFrame(function () {
-                    if (!t.classList.contains('hidden')) {
-                        var tRect = t.getBoundingClientRect();
-                        var r = wrap.getBoundingClientRect();
-                        var gap = 6;
-                        if (tRect.right > window.innerWidth - 8) t.style.left = (window.innerWidth - tRect.width - 8) + 'px';
-                        if (tRect.left < 8) t.style.left = '8px';
-                        if (tRect.bottom > window.innerHeight - 8) t.style.top = (r.top - tRect.height - gap) + 'px';
-                    }
-                });
                 var leave = function () { t.classList.add('hidden'); wrap.removeEventListener('mouseleave', leave); };
                 wrap.addEventListener('mouseleave', leave);
+                requestAnimationFrame(function () {
+                    if (t.classList.contains('hidden')) return;
+                    t.style.position = 'fixed';
+                    var r = wrap.getBoundingClientRect();
+                    var gap = 8;
+                    var top = r.bottom + gap;
+                    var left = r.left + (r.width / 2);
+                    t.style.left = left + 'px';
+                    t.style.top = top + 'px';
+                    t.style.transform = 'translateX(-50%)';
+                    t.style.maxWidth = '280px';
+                });
+                requestAnimationFrame(function () {
+                    if (t.classList.contains('hidden')) return;
+                    var tRect = t.getBoundingClientRect();
+                    var r = wrap.getBoundingClientRect();
+                    var gap = 8;
+                    var leftCenter = parseFloat(t.style.left, 10);
+                    var leftEdge = leftCenter - tRect.width / 2;
+                    if (tRect.right > window.innerWidth - 8) leftEdge = window.innerWidth - tRect.width - 8;
+                    if (tRect.left < 8) leftEdge = 8;
+                    t.style.left = leftEdge + 'px';
+                    t.style.transform = '';
+                    var top = parseFloat(t.style.top, 10);
+                    if (top + tRect.height > window.innerHeight - 8) top = r.top - tRect.height - gap;
+                    if (top < 8) top = 8;
+                    t.style.top = top + 'px';
+                });
             });
         })(div, tip);
         el.appendChild(div);
@@ -214,3 +225,4 @@ window.achievementsModule = {
     getAchievements: function () { return ACHIEVEMENTS; },
     COINS_PER_ACHIEVEMENT: COINS_PER_ACHIEVEMENT
 };
+
