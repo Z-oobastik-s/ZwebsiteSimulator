@@ -1107,9 +1107,8 @@ function loadSettings() {
         updateFooterBackground();
     }
     
-    if (savedLang) {
-        app.lang = savedLang;
-    }
+    if (savedLang) app.lang = savedLang;
+    try { document.documentElement.setAttribute('data-lang', app.lang || 'ru'); } catch (e) {}
     
     if (savedLayout) {
         app.currentLayout = savedLayout;
@@ -1255,6 +1254,7 @@ function toggleLanguage() {
     }
     app.lang = app.lang === 'ru' ? 'en' : 'ru';
     localStorage.setItem('lang', app.lang);
+    try { document.documentElement.setAttribute('data-lang', app.lang); } catch (e) {}
     const langEl = DOM.get('currentLang');
     if (langEl) langEl.textContent = app.lang.toUpperCase();
     updateTranslations();
@@ -4014,3 +4014,4 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+

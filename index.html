@@ -111,9 +111,16 @@
             --warning: #FFC107;
         }
         
-        /* Убираем полосу прокрутки справа на главной (скролл по колёсику/тачу остаётся) */
+        /* Убираем полосу прокрутки справа (скролл по колёсику/тачу остаётся) */
         html {
             overflow-x: hidden;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        html::-webkit-scrollbar {
+            display: none !important;
+            width: 0;
+            height: 0;
         }
         body {
             overflow-x: hidden;
@@ -121,7 +128,9 @@
             -ms-overflow-style: none;
         }
         body::-webkit-scrollbar {
-            display: none;
+            display: none !important;
+            width: 0;
+            height: 0;
         }
         
         /* Background image with overlay */
@@ -2795,3 +2804,4 @@
     
 </body>
 </html>
+

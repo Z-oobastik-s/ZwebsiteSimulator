@@ -24,7 +24,7 @@ function getOrCreateVisitorId() {
 
 function pluralPlayers(n, lang) {
     var num = typeof n === 'number' && n >= 0 ? n : 0;
-    lang = lang || (typeof window.app !== 'undefined' && window.app.lang) || 'ru';
+    lang = lang || getStatsLang();
     if (lang === 'en') {
         return num === 1 ? '1 player' : num + ' players';
     }
@@ -40,10 +40,20 @@ function pluralPlayers(n, lang) {
     return num + ' игроков';
 }
 
+function getStatsLang() {
+    if (typeof window.app !== 'undefined' && window.app.lang) return window.app.lang;
+    var dataLang = document.documentElement && document.documentElement.getAttribute('data-lang');
+    if (dataLang) return dataLang;
+    var htmlLang = document.documentElement && document.documentElement.getAttribute('lang');
+    if (htmlLang === 'en') return 'en';
+    if (htmlLang === 'uk') return 'uk';
+    return 'ru';
+}
+
 function updateUI(visits, onlineCount) {
     var visitsEl = document.getElementById('siteStatsVisits');
     var onlineEl = document.getElementById('siteStatsOnline');
-    var lang = (typeof window.app !== 'undefined' && window.app.lang) || 'ru';
+    var lang = getStatsLang();
     var locale = lang === 'en' ? 'en-US' : lang === 'uk' ? 'uk-UA' : 'ru-RU';
     if (visitsEl && typeof visits === 'number') visitsEl.textContent = visits.toLocaleString(locale);
     if (onlineEl) onlineEl.textContent = pluralPlayers(typeof onlineCount === 'number' ? onlineCount : 0, lang);
@@ -99,3 +109,4 @@ registerPresence();
 
 if (typeof window !== 'undefined') window.__siteStatsUpdateUI = updateUI;
 export { pluralPlayers, updateUI };
+
