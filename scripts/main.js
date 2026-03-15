@@ -2696,6 +2696,19 @@ function loadProfileData(profile) {
         const hours = Math.floor(totalMinutes / 60);
         totalTimeEl.textContent = hours > 0 ? hours + 'ч' : totalMinutes + 'м';
     }
+    
+    // Level, tier, balance, XP bar (2090 profile)
+    var levelInfo = window.levelModule ? window.levelModule.getLevelInfo(window.levelModule.getPlayerXP()) : { level: 1, tierName: '—', progressPct: 0, xpInLevel: 0, xpToNext: 100 };
+    var tierEl = DOM.get('profileTierName');
+    var levelEl = DOM.get('profileLevelNumber');
+    var balanceEl = DOM.get('profileBalance');
+    var xpBarEl = DOM.get('profileXPBar');
+    var xpLabelEl = DOM.get('profileXPLabel');
+    if (tierEl) tierEl.textContent = levelInfo.tierName || '—';
+    if (levelEl) levelEl.textContent = levelInfo.level || 1;
+    if (balanceEl) balanceEl.innerHTML = (profile.balance != null ? profile.balance : 0) + ' <span class="opacity-80">🪙</span>';
+    if (xpBarEl) xpBarEl.style.width = (levelInfo.progressPct != null ? levelInfo.progressPct : 0) + '%';
+    if (xpLabelEl) xpLabelEl.textContent = (levelInfo.xpInLevel != null ? levelInfo.xpInLevel : 0) + ' / ' + (levelInfo.xpToNext != null ? levelInfo.xpToNext : 300) + ' XP';
 }
 
 // Save profile
@@ -3704,4 +3717,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-

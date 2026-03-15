@@ -1393,6 +1393,105 @@
             z-index: 1;
         }
         
+        /* Profile 2090 — HUD / игровой стиль */
+        .profile-2090-header {
+            letter-spacing: 0.35em;
+            text-shadow: 0 0 24px rgba(0, 229, 255, 0.4);
+        }
+        .profile-2090-header .profile-2090-badge {
+            font-size: 0.65rem;
+            letter-spacing: 0.25em;
+            color: rgba(0, 229, 255, 0.8);
+        }
+        .profile-hero-panel {
+            background: linear-gradient(145deg, rgba(6, 12, 24, 0.98) 0%, rgba(15, 23, 42, 0.95) 50%, rgba(22, 35, 58, 0.92) 100%);
+            border: 1px solid rgba(0, 229, 255, 0.25);
+            box-shadow: inset 0 0 40px rgba(0, 229, 255, 0.04), 0 0 0 1px rgba(245, 158, 11, 0.1), 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+        .profile-hero-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(0, 229, 255, 0.4), transparent);
+            opacity: 0.8;
+        }
+        .profile-avatar-ring {
+            box-shadow: 0 0 0 3px rgba(0, 229, 255, 0.3), 0 0 24px rgba(0, 229, 255, 0.2);
+        }
+        .profile-stat-tile {
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .profile-stat-tile:hover {
+            border-color: rgba(0, 229, 255, 0.3);
+            box-shadow: 0 0 20px rgba(0, 229, 255, 0.08);
+        }
+        .profile-stat-tile .profile-stat-value {
+            text-shadow: 0 0 12px currentColor;
+        }
+        .profile-section-title {
+            font-size: 0.7rem;
+            letter-spacing: 0.3em;
+            color: rgba(0, 229, 255, 0.9);
+            text-shadow: 0 0 16px rgba(0, 229, 255, 0.3);
+        }
+        .profile-section-title::before {
+            content: '[ ';
+            color: rgba(0, 229, 255, 0.5);
+        }
+        .profile-section-title::after {
+            content: ' ]';
+            color: rgba(0, 229, 255, 0.5);
+        }
+        .profile-bio-input {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(0, 229, 255, 0.2);
+        }
+        .profile-bio-input:focus {
+            border-color: rgba(0, 229, 255, 0.5);
+            box-shadow: 0 0 16px rgba(0, 229, 255, 0.15);
+        }
+        .profile-quick-btn {
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+        }
+        .profile-quick-btn:hover {
+            border-color: rgba(0, 229, 255, 0.4);
+            background: rgba(0, 229, 255, 0.08);
+            box-shadow: 0 0 16px rgba(0, 229, 255, 0.1);
+        }
+        .profile-xp-bar-wrap {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 9999px;
+            overflow: hidden;
+        }
+        .profile-xp-bar-fill {
+            height: 6px;
+            border-radius: 9999px;
+            background: linear-gradient(90deg, rgba(245, 158, 11, 0.9), rgba(251, 191, 36, 0.9));
+            box-shadow: 0 0 12px rgba(251, 191, 36, 0.4);
+            transition: width 0.4s ease;
+        }
+        .profile-level-badge {
+            background: linear-gradient(180deg, rgba(245, 158, 11, 0.25), rgba(180, 83, 9, 0.3));
+            border: 1px solid rgba(251, 191, 36, 0.5);
+            box-shadow: 0 0 16px rgba(251, 191, 36, 0.2);
+        }
+        .profile-balance-badge {
+            border: 1px solid rgba(251, 191, 36, 0.4);
+            background: rgba(251, 191, 36, 0.08);
+            box-shadow: 0 0 12px rgba(251, 191, 36, 0.1);
+        }
+        html:not(.dark) .profile-hero-panel { background: linear-gradient(145deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.98) 100%); border-color: rgba(0, 188, 212, 0.3); }
+        html:not(.dark) .profile-stat-tile { background: rgba(255,255,255,0.7); border-color: rgba(0,0,0,0.08); }
+        html:not(.dark) .profile-stat-tile:hover { border-color: rgba(0, 188, 212, 0.4); }
+        html:not(.dark) .profile-section-title { color: #0e7490; }
+        html:not(.dark) .profile-bio-input { background: rgba(255,255,255,0.9); border-color: rgba(0,0,0,0.12); color: #111827; }
+        
         /* Avatar Modal - гарантируем что оно поверх всего */
         #avatarSelectorModal {
             z-index: 9999 !important;
@@ -2298,121 +2397,96 @@
         </div>
     </div>
     
-    <!-- Profile Screen -->
+    <!-- Profile Screen — 2090 HUD style -->
     <div id="profileScreen" class="hidden fade-in">
-        <div class="max-w-6xl mx-auto px-4">
-            <!-- Header -->
-            <div class="flex items-center justify-between mb-8">
-                <button onclick="showHome()" class="glass px-6 py-3 rounded-xl hover:bg-white/20 dark:hover:bg-black/20 flex items-center space-x-2 transition-all hover:scale-105">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                    </svg>
+        <div class="max-w-5xl mx-auto px-4">
+            <!-- Top bar -->
+            <div class="flex items-center justify-between mb-4">
+                <button onclick="showHome()" class="profile-quick-btn glass px-4 py-2 rounded-lg flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
                     <span data-i18n="back">Назад</span>
                 </button>
-                <h2 class="text-4xl font-bold bg-gradient-to-r from-primary via-cyan-400 to-purple-500 bg-clip-text text-transparent" data-i18n="profile">Профиль</h2>
-                <button onclick="logoutUser()" class="glass px-4 py-2 rounded-lg hover:bg-red-500/20 text-red-400 transition-all hover:scale-105">
+                <h2 class="profile-2090-header text-xl font-bold text-white uppercase" data-i18n="profile">Профиль</h2>
+                <button onclick="logoutUser()" class="profile-quick-btn px-4 py-2 rounded-lg text-red-400 hover:bg-red-500/20 border border-red-500/30">
                     <span data-i18n="logout">Выйти</span>
                 </button>
             </div>
             
-            <!-- Profile Header Card -->
-            <div class="glass rounded-3xl p-8 mb-6 relative overflow-hidden">
-                <!-- Gradient Background -->
-                <div class="absolute inset-0 bg-gradient-to-br from-primary/10 via-cyan-500/5 to-purple-500/10 opacity-50"></div>
-                
-                <div class="relative z-10 flex flex-col md:flex-row items-center md:items-start gap-8">
-                    <!-- Avatar Section -->
-                    <div class="relative group">
-                        <div class="absolute -inset-1 bg-gradient-to-r from-primary via-cyan-400 to-purple-500 rounded-full blur opacity-75 group-hover:opacity-100 transition duration-300"></div>
-                        <div class="relative">
-                            <img id="profilePhoto" src="" alt="Profile" class="w-40 h-40 rounded-full border-4 border-white/20 object-cover shadow-2xl" style="display: none; width: 160px; height: 160px; object-fit: cover;">
-                            <div id="profilePhotoPlaceholder" class="w-40 h-40 rounded-full border-4 border-white/20 bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center text-6xl shadow-2xl">
-                                👤
-                            </div>
-                            <button onclick="showAvatarSelector()" class="absolute bottom-2 right-2 bg-gradient-to-r from-primary to-cyan-500 rounded-full p-3 cursor-pointer hover:from-cyan-500 hover:to-purple-500 transition-all shadow-lg hover:scale-110 transform">
-                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                                </svg>
-                            </button>
+            <!-- Hero panel: avatar + nickname + rank + level + balance + XP -->
+            <div class="profile-hero-panel rounded-2xl p-6 mb-5 relative overflow-hidden">
+                <div class="flex flex-wrap items-center gap-4 md:gap-6">
+                    <div class="relative shrink-0">
+                        <div class="profile-avatar-ring w-24 h-24 md:w-28 md:h-28 rounded-full overflow-hidden bg-gray-800/80 flex items-center justify-center">
+                            <img id="profilePhoto" src="" alt="" class="w-full h-full object-cover" style="display: none; width: 112px; height: 112px; object-fit: cover;">
+                            <div id="profilePhotoPlaceholder" class="w-full h-full flex items-center justify-center text-4xl md:text-5xl">👤</div>
                         </div>
+                        <button onclick="showAvatarSelector()" class="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-cyan-500/90 hover:bg-cyan-400 flex items-center justify-center cursor-pointer shadow-lg">
+                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14"/></svg>
+                        </button>
                     </div>
-                    
-                    <!-- User Info Section -->
-                    <div class="flex-1 text-center md:text-left">
-                        <h3 id="profileUsername" class="text-4xl font-bold mb-2 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent"></h3>
-                        <p id="profileEmail" class="text-gray-400 mb-6 text-lg"></p>
-                        
-                        <!-- Bio Section -->
-                        <div class="space-y-3">
-                            <label class="block text-sm font-semibold mb-2 text-gray-300" data-i18n="bio">О себе</label>
-                            <textarea id="profileBio" rows="3" class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white resize-none focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all backdrop-blur-sm" placeholder="Расскажите о себе..."></textarea>
-                            <button onclick="saveProfile()" class="px-6 py-3 bg-gradient-to-r from-primary to-cyan-500 hover:from-cyan-500 hover:to-purple-500 text-white font-semibold rounded-xl transition-all shadow-lg hover:shadow-xl hover:scale-105 transform">
-                                <span data-i18n="save">Сохранить</span>
-                            </button>
+                    <div class="flex-1 min-w-0">
+                        <h3 id="profileUsername" class="text-2xl md:text-3xl font-bold text-white truncate"></h3>
+                        <p id="profileEmail" class="text-gray-400 text-sm truncate mt-0.5"></p>
+                        <div class="flex flex-wrap items-center gap-2 mt-2">
+                            <span id="profileTierName" class="profile-2090-badge uppercase text-xs px-2 py-0.5 rounded">—</span>
+                            <span id="profileLevelNumber" class="profile-level-badge text-amber-300 font-bold text-sm px-2.5 py-0.5 rounded">1</span>
+                            <span id="profileBalance" class="profile-balance-badge text-amber-300/90 text-sm px-2 py-0.5 rounded flex items-center gap-1">0</span>
+                        </div>
+                        <div class="mt-2 max-w-xs">
+                            <div class="profile-xp-bar-wrap w-full h-2">
+                                <div id="profileXPBar" class="profile-xp-bar-fill" style="width: 0%;"></div>
+                            </div>
+                            <p id="profileXPLabel" class="text-xs text-gray-500 mt-1">0 / 300 XP</p>
                         </div>
                     </div>
                 </div>
             </div>
             
-            <!-- Statistics Grid -->
-            <div class="mb-6" style="position: relative; z-index: 1;">
-                <h3 class="text-3xl font-bold mb-6 text-center md:text-left" data-i18n="statistics">
-                    <span class="bg-gradient-to-r from-primary to-cyan-400 bg-clip-text text-transparent">Статистика</span>
-                </h3>
-                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4" style="position: relative; z-index: 1;">
-                    <!-- Best Speed -->
-                    <div class="glass rounded-2xl p-6 text-center hover:scale-105 transition-all cursor-default group relative overflow-hidden">
-                        <div class="absolute inset-0 bg-gradient-to-br from-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                        <div class="relative z-10">
-                            <div class="text-4xl font-bold text-primary mb-2" id="profileBestSpeed">0</div>
-                            <div class="text-sm text-gray-400 font-medium" data-i18n="bestSpeed">Лучшая скорость</div>
-                        </div>
-                    </div>
-                    
-                    <!-- Average Accuracy -->
-                    <div class="glass rounded-2xl p-6 text-center hover:scale-105 transition-all cursor-default group relative overflow-hidden">
-                        <div class="absolute inset-0 bg-gradient-to-br from-success/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                        <div class="relative z-10">
-                            <div class="text-4xl font-bold text-success mb-2" id="profileAvgAccuracy">0%</div>
-                            <div class="text-sm text-gray-400 font-medium" data-i18n="avgAccuracy">Средняя точность</div>
-                        </div>
-                    </div>
-                    
-                    <!-- Total Sessions -->
-                    <div class="glass rounded-2xl p-6 text-center hover:scale-105 transition-all cursor-default group relative overflow-hidden">
-                        <div class="absolute inset-0 bg-gradient-to-br from-warning/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                        <div class="relative z-10">
-                            <div class="text-4xl font-bold text-warning mb-2" id="profileTotalSessions">0</div>
-                            <div class="text-sm text-gray-400 font-medium" data-i18n="totalSessions">Всего сессий</div>
-                        </div>
-                    </div>
-                    
-                    <!-- Total Time -->
-                    <div class="glass rounded-2xl p-6 text-center hover:scale-105 transition-all cursor-default group relative overflow-hidden">
-                        <div class="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                        <div class="relative z-10">
-                            <div class="text-4xl font-bold text-purple-500 mb-2" id="profileTotalTime">0м</div>
-                            <div class="text-sm text-gray-400 font-medium" data-i18n="totalTime">Общее время</div>
-                        </div>
-                    </div>
-                    
-                    <!-- Completed Lessons -->
-                    <div class="glass rounded-2xl p-6 text-center hover:scale-105 transition-all cursor-default group relative overflow-hidden">
-                        <div class="absolute inset-0 bg-gradient-to-br from-cyan-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                        <div class="relative z-10">
-                            <div class="text-4xl font-bold text-cyan-500 mb-2" id="profileCompletedLessons">0</div>
-                            <div class="text-sm text-gray-400 font-medium" data-i18n="completedLessons">Пройдено уроков</div>
-                        </div>
-                    </div>
-                    
-                    <!-- Total Errors -->
-                    <div class="glass rounded-2xl p-6 text-center hover:scale-105 transition-all cursor-default group relative overflow-hidden">
-                        <div class="absolute inset-0 bg-gradient-to-br from-red-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                        <div class="relative z-10">
-                            <div class="text-4xl font-bold text-red-500 mb-2" id="profileTotalErrors">0</div>
-                            <div class="text-sm text-gray-400 font-medium" data-i18n="totalErrors">Всего ошибок</div>
-                        </div>
-                    </div>
+            <!-- Quick actions -->
+            <div class="flex flex-wrap gap-2 mb-4">
+                <button onclick="showHome(); document.getElementById('lessonsTab')?.click?.();" class="profile-quick-btn glass px-4 py-2 rounded-lg text-sm flex items-center gap-2">
+                    <span data-i18n="lessons">Уроки</span>
+                </button>
+                <button onclick="showShop()" class="profile-quick-btn glass px-4 py-2 rounded-lg text-sm flex items-center gap-2">
+                    <span data-i18n="shop">Магазин</span>
+                </button>
+            </div>
+            
+            <!-- Bio -->
+            <div class="mb-5">
+                <p class="profile-section-title mb-2" data-i18n="bio">О себе</p>
+                <textarea id="profileBio" rows="2" class="profile-bio-input w-full px-4 py-2 rounded-lg text-white resize-none focus:outline-none text-sm" placeholder="Расскажите о себе..."></textarea>
+                <button onclick="saveProfile()" class="mt-2 profile-quick-btn px-4 py-2 rounded-lg text-cyan-400 border-cyan-500/40 text-sm">
+                    <span data-i18n="save">Сохранить</span>
+                </button>
+            </div>
+            
+            <!-- Statistics -->
+            <p class="profile-section-title mb-3" data-i18n="statistics">Статистика</p>
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+                <div class="profile-stat-tile rounded-xl p-4 text-center">
+                    <div id="profileBestSpeed" class="profile-stat-value text-2xl font-bold text-primary">0</div>
+                    <div class="text-xs text-gray-400 mt-1" data-i18n="bestSpeed">Лучший результат</div>
+                </div>
+                <div class="profile-stat-tile rounded-xl p-4 text-center">
+                    <div id="profileAvgAccuracy" class="profile-stat-value text-2xl font-bold text-success">0%</div>
+                    <div class="text-xs text-gray-400 mt-1" data-i18n="avgAccuracy">Средняя точность</div>
+                </div>
+                <div class="profile-stat-tile rounded-xl p-4 text-center">
+                    <div id="profileTotalSessions" class="profile-stat-value text-2xl font-bold text-white dark:text-gray-200">0</div>
+                    <div class="text-xs text-gray-400 mt-1" data-i18n="totalSessions">Всего сессий</div>
+                </div>
+                <div class="profile-stat-tile rounded-xl p-4 text-center">
+                    <div id="profileTotalTime" class="profile-stat-value text-2xl font-bold text-purple-400">0м</div>
+                    <div class="text-xs text-gray-400 mt-1" data-i18n="totalTime">Общее время</div>
+                </div>
+                <div class="profile-stat-tile rounded-xl p-4 text-center">
+                    <div id="profileCompletedLessons" class="profile-stat-value text-2xl font-bold text-cyan-400">0</div>
+                    <div class="text-xs text-gray-400 mt-1" data-i18n="completedLessons">Пройдено уроков</div>
+                </div>
+                <div class="profile-stat-tile rounded-xl p-4 text-center">
+                    <div id="profileTotalErrors" class="profile-stat-value text-2xl font-bold text-red-400">0</div>
+                    <div class="text-xs text-gray-400 mt-1" data-i18n="totalErrors">Всего ошибок</div>
                 </div>
             </div>
         </div>
@@ -2591,4 +2665,3 @@
     
 </body>
 </html>
-
