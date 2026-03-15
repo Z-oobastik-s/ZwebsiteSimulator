@@ -348,7 +348,8 @@ const translations = {
         reviewsLink: 'Отзывы',
         allReviews: 'Все отзывы',
         copyResult: 'Скопировать результат',
-        resultCopied: 'Результат скопирован в буфер',
+        resultCopied: 'Результат скопирован в буфер обмена',
+        copyFailed: 'Не удалось скопировать',
         hotkeysHint: 'Esc — закрыть · Enter или R — повторить',
         streakDays: 'дней подряд',
         streakHint: 'Серия дней с тренировкой'
@@ -549,6 +550,7 @@ const translations = {
         allReviews: 'All reviews',
         copyResult: 'Copy result',
         resultCopied: 'Result copied to clipboard',
+        copyFailed: 'Copy failed',
         hotkeysHint: 'Esc — close · Enter or R — repeat',
         streakDays: 'day streak',
         streakHint: 'Consecutive days with practice'
@@ -2441,24 +2443,52 @@ function updateResultsModalHotkeysHint() {
     if (el && translations[app.lang].hotkeysHint) el.textContent = translations[app.lang].hotkeysHint;
 }
 
-// Copy result to clipboard (for sharing)
+// Copy result to clipboard (for sharing). Используем Clipboard API с fallback на execCommand.
 function copyResultsToClipboard() {
     const d = lastResultData;
     const mins = Math.floor(d.time / 60);
     const secs = Math.floor(d.time % 60);
-    const timeStr = `${mins}:${secs.toString().padStart(2, '0')}`;
+    const timeStr = mins + ':' + (secs < 10 ? '0' : '') + secs;
     const site = 'Zoobastiks';
     const text = app.lang === 'en'
-        ? `${site} — ${d.speed} cpm, ${d.accuracy}% accuracy, ${timeStr}, ${d.errors} errors`
-        : `Zoobastiks — ${d.speed} зн/мин, точность ${d.accuracy}%, время ${timeStr}, ошибок ${d.errors}`;
-    if (navigator.clipboard && navigator.clipboard.writeText) {
+        ? site + ' — ' + d.speed + ' cpm, ' + d.accuracy + '% accuracy, ' + timeStr + ', ' + d.errors + ' errors'
+        : site + ' — ' + d.speed + ' зн/мин, точность ' + d.accuracy + '%, время ' + timeStr + ', ошибок ' + d.errors;
+
+    function onSuccess() {
+        showToast(t('resultCopied'), 'success', '');
+    }
+    function onFail() {
+        showToast(typeof t('copyFailed') !== 'undefined' ? t('copyFailed') : 'Не удалось скопировать', 'warning', '');
+    }
+
+    if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
         navigator.clipboard.writeText(text).then(function () {
-            showToast(t('resultCopied'), 'success', '');
+            onSuccess();
         }).catch(function () {
-            showToast('Copy failed', 'warning', '');
+            fallbackCopy();
         });
     } else {
-        showToast('Clipboard not available', 'warning', '');
+        fallbackCopy();
+    }
+
+    function fallbackCopy() {
+        var textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.setAttribute('readonly', '');
+        textarea.style.position = 'fixed';
+        textarea.style.left = '-9999px';
+        textarea.style.top = '0';
+        document.body.appendChild(textarea);
+        textarea.focus();
+        try {
+            textarea.select();
+            textarea.setSelectionRange(0, text.length);
+            var ok = document.execCommand('copy');
+            if (ok) onSuccess(); else onFail();
+        } catch (e) {
+            onFail();
+        }
+        document.body.removeChild(textarea);
     }
 }
 
@@ -4046,4 +4076,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-
