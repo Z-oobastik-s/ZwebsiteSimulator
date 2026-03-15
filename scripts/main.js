@@ -341,6 +341,7 @@ const translations = {
         contactDesc: 'Подключись к нейросети разработчика через квантовый канал связи',
         copyright: '© 2025 Zoobastiks. Все права защищены. Проект из будущего.',
         poweredBy: 'Работает на квантовых процессорах',
+        statsVisits: 'Посещений:',
         copyResult: 'Скопировать результат',
         resultCopied: 'Результат скопирован в буфер',
         hotkeysHint: 'Esc — закрыть · Enter или R — повторить',
@@ -535,6 +536,7 @@ const translations = {
         contactDesc: 'Connect to the developer\'s neural network through a quantum communication channel',
         copyright: '© 2025 Zoobastiks. All rights reserved. Project from the future.',
         poweredBy: 'Powered by quantum processors',
+        statsVisits: 'Visits:',
         copyResult: 'Copy result',
         resultCopied: 'Result copied to clipboard',
         hotkeysHint: 'Esc — close · Enter or R — repeat',
@@ -1440,6 +1442,9 @@ function updateTranslations() {
     });
     updateResultsModalHotkeysHint();
     if (window.levelModule) renderLevelBlock();
+    if (typeof window.__siteStatsUpdateUI === 'function' && typeof window.__siteStatsVisits !== 'undefined') {
+        window.__siteStatsUpdateUI(window.__siteStatsVisits, window.__siteStatsOnline);
+    }
 }
 
 // Navigation functions
@@ -4009,4 +4014,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-

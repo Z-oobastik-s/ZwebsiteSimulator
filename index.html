@@ -2753,6 +2753,18 @@
                     </div>
                 </div>
                 
+                <!-- Статистика: посещения и онлайн -->
+                <div class="flex flex-wrap items-center justify-center gap-x-4 gap-y-0.5 py-1.5 text-xs text-gray-400">
+                    <span class="inline-flex items-center gap-1">
+                        <span data-i18n="statsVisits">Посещений:</span>
+                        <strong id="siteStatsVisits" class="text-cyan-400/90 tabular-nums">—</strong>
+                    </span>
+                    <span class="inline-flex items-center gap-1">
+                        <span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true"></span>
+                        <span id="siteStatsOnline" class="text-emerald-400/90">0 игроков</span>
+                    </span>
+                </div>
+                
                 <!-- Bottom: Copyright + searchable phrases (zoobastiks, клавиатура онлайн, для школьников) -->
                 <div class="flex flex-col sm:flex-row justify-between items-center gap-1 text-xs text-gray-300">
                     <p data-i18n="copyright">© 2025 Zoobastiks. Все права защищены.</p>
@@ -2777,9 +2789,9 @@
     <script src="scripts/achievements.js" defer></script>
     <script src="scripts/level.js" defer></script>
     <script type="module" src="scripts/multiplayer.js"></script>
+    <script type="module" src="scripts/visitor-stats.js"></script>
     <script type="module" src="scripts/auth.js"></script>
     <script src="scripts/main.js" defer></script>
     
 </body>
 </html>
-
