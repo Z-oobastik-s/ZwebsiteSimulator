@@ -133,7 +133,7 @@ let audioDeniedMoney = null;
 var bgMusicAudio = null;
 var bgMusicTrackIndex = 0;
 var BG_MUSIC_TRACKS = ['assets/sounds/violin.mp3', 'assets/sounds/violin_1.mp3'];
-var BG_MUSIC_VOLUME = 0.1;
+var BG_MUSIC_VOLUME = 0.06;
 let audioSwipeAnimation = null;
 let audioOnSound = null;
 let audioOffSound = null;
@@ -1269,30 +1269,29 @@ function toggleLayout() {
     }
 }
 
-// Фоновая музыка (violin.mp3 ↔ violin_1.mp3 по кругу, ~10% громкость)
+// Фоновая музыка (violin.mp3 ↔ violin_1.mp3 по кругу, продолжение с места паузы)
 function startBgMusic() {
     if (!app.bgMusicEnabled || !BG_MUSIC_TRACKS.length) return;
-    if (!bgMusicAudio) {
-        bgMusicAudio = new Audio(BG_MUSIC_TRACKS[0]);
+    if (bgMusicAudio) {
         bgMusicAudio.volume = BG_MUSIC_VOLUME;
-        bgMusicAudio.addEventListener('ended', function() {
-            if (!app.bgMusicEnabled) return;
-            bgMusicTrackIndex = (bgMusicTrackIndex + 1) % BG_MUSIC_TRACKS.length;
-            bgMusicAudio.src = BG_MUSIC_TRACKS[bgMusicTrackIndex];
-            bgMusicAudio.play().catch(function() {});
-        });
+        bgMusicAudio.play().catch(function() {});
+        return;
     }
+    bgMusicAudio = new Audio(BG_MUSIC_TRACKS[0]);
+    bgMusicAudio.volume = BG_MUSIC_VOLUME;
+    bgMusicAudio.addEventListener('ended', function() {
+        if (!app.bgMusicEnabled) return;
+        bgMusicTrackIndex = (bgMusicTrackIndex + 1) % BG_MUSIC_TRACKS.length;
+        bgMusicAudio.src = BG_MUSIC_TRACKS[bgMusicTrackIndex];
+        bgMusicAudio.play().catch(function() {});
+    });
     bgMusicTrackIndex = 0;
     bgMusicAudio.src = BG_MUSIC_TRACKS[0];
-    bgMusicAudio.volume = BG_MUSIC_VOLUME;
     bgMusicAudio.play().catch(function() {});
 }
 
 function stopBgMusic() {
-    if (bgMusicAudio) {
-        bgMusicAudio.pause();
-        bgMusicAudio.currentTime = 0;
-    }
+    if (bgMusicAudio) bgMusicAudio.pause();
 }
 
 function updateBgMusicIcon() {
@@ -3972,3 +3971,4 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+
