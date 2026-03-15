@@ -2742,81 +2742,72 @@ function showAvatarSelector() {
     const avatarGrid = DOM.get('avatarGrid');
     if (!avatarGrid) return;
     
-    // Clear previous avatars
     avatarGrid.innerHTML = '';
     
-    // Get current avatar index
-    const currentAvatarIndex = currentUserProfile?.avatarIndex ?? 0;
-    
-    // Текущий уровень игрока для разблокировки аватаров
-    const currentLevel = window.levelModule ? window.levelModule.getLevelInfo(window.levelModule.getPlayerXP()).level : 1;
-    const unlockLevels = (window.authModule && window.authModule.AVATAR_UNLOCK_LEVELS) || [];
-
-    // Create avatar selection grid
-    if (window.authModule && window.authModule.AVAILABLE_AVATARS) {
-        window.authModule.AVAILABLE_AVATARS.forEach((avatarPath, index) => {
-            const requiredLevel = unlockLevels[index] ?? 0;
-            const isLocked = requiredLevel > 0 && currentLevel < requiredLevel;
-            const avatarItem = document.createElement('div');
-            const isSelected = index === currentAvatarIndex && !isLocked;
-            avatarItem.className = `relative rounded-2xl overflow-hidden border-4 transition-all duration-300 group ${
-                isLocked ? 'cursor-not-allowed opacity-75' : 'cursor-pointer'
-            } ${
-                isSelected 
-                    ? 'border-primary shadow-2xl shadow-primary/50 scale-105' 
-                    : 'border-gray-700/50 hover:border-primary/70 hover:shadow-xl hover:shadow-primary/30'
-            }`;
-            
-            // Gradient overlay for selected
-            if (isSelected) {
-                const overlay = document.createElement('div');
-                overlay.className = 'absolute inset-0 bg-gradient-to-br from-primary/20 to-cyan-500/20 z-10';
-                avatarItem.appendChild(overlay);
-            }
-            
-            const img = document.createElement('img');
-            img.src = avatarPath;
-            img.alt = `Avatar ${index + 1}`;
-            img.className = 'w-full h-full object-cover transition-transform duration-300 group-hover:scale-110' + (isLocked ? ' grayscale blur-[1px]' : '');
-            img.style.width = '100%';
-            img.style.height = '200px';
-            img.style.objectFit = 'cover';
-            img.style.objectPosition = 'center';
-            img.loading = 'lazy';
-            
-            avatarItem.appendChild(img);
-            
-            if (isLocked) {
-                const lockOverlay = document.createElement('div');
-                lockOverlay.className = 'absolute inset-0 flex flex-col items-center justify-center bg-black/60 z-20';
-                lockOverlay.innerHTML = '<span class="text-4xl mb-2">🔒</span><span class="text-sm font-semibold text-amber-400 text-center px-2" data-unlock-level="' + requiredLevel + '">' + (t('unlockAtLevel') + ' ' + requiredLevel) + '</span>';
-                avatarItem.appendChild(lockOverlay);
-                avatarItem.onclick = () => showToast(t('unlockAtLevel') + ' ' + requiredLevel, 'info');
-            } else {
-                // Checkmark for selected avatar
-                if (isSelected) {
-                    const checkmark = document.createElement('div');
-                    checkmark.className = 'absolute top-3 right-3 bg-gradient-to-r from-primary to-cyan-500 rounded-full p-2 shadow-lg z-20 animate-pulse';
-                    checkmark.innerHTML = '<svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>';
-                    avatarItem.appendChild(checkmark);
-                }
-                avatarItem.onclick = () => selectAvatar(index);
-            }
-            avatarGrid.appendChild(avatarItem);
-        });
+    var avatars = (window.authModule && window.authModule.AVAILABLE_AVATARS) ? window.authModule.AVAILABLE_AVATARS.slice() : [];
+    var unlockLevels = (window.authModule && window.authModule.AVATAR_UNLOCK_LEVELS) ? window.authModule.AVATAR_UNLOCK_LEVELS.slice() : [];
+    // Подстраховка: если загрузился старый кэш с 6 аватарами — добиваем пути 7–20 и уровни
+    if (avatars.length >= 6 && avatars.length < 20) {
+        var levels7090 = [12, 12, 15, 15, 18, 18, 21, 21, 24, 24, 27, 27, 30, 30];
+        for (var i = avatars.length; i < 20; i++) {
+            avatars.push('assets/images/profile photo/profile_' + (i + 1) + '.jpg');
+            unlockLevels[i] = levels7090[i - 6] != null ? levels7090[i - 6] : 30;
+        }
     }
-    
-    // Убеждаемся что модальное окно поверх всего
+    var currentAvatarIndex = currentUserProfile?.avatarIndex ?? 0;
+    var currentLevel = window.levelModule ? window.levelModule.getLevelInfo(window.levelModule.getPlayerXP()).level : 1;
+
+    avatars.forEach(function(avatarPath, index) {
+        var requiredLevel = unlockLevels[index] ?? 0;
+        var isLocked = requiredLevel > 0 && currentLevel < requiredLevel;
+        var isSelected = index === currentAvatarIndex && !isLocked;
+
+        var avatarItem = document.createElement('div');
+        avatarItem.className = 'avatar-card relative overflow-hidden transition-all duration-200 group ' +
+            (isLocked ? 'avatar-card--locked cursor-not-allowed' : 'cursor-pointer') +
+            (isSelected ? ' avatar-card--selected' : '');
+
+        var img = document.createElement('img');
+        img.src = avatarPath;
+        img.alt = 'Avatar ' + (index + 1);
+        img.loading = 'lazy';
+        img.onerror = function() {
+            this.style.background = 'rgba(255,255,255,0.08)';
+            this.alt = '?';
+            this.onerror = null;
+        };
+        avatarItem.appendChild(img);
+
+        if (isSelected) {
+            var overlay = document.createElement('div');
+            overlay.className = 'absolute inset-0 bg-gradient-to-br from-cyan-500/15 to-transparent pointer-events-none z-10';
+            avatarItem.appendChild(overlay);
+            var checkmark = document.createElement('div');
+            checkmark.className = 'absolute top-1 right-1 bg-cyan-500/90 rounded-full p-1 z-20';
+            checkmark.innerHTML = '<svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>';
+            avatarItem.appendChild(checkmark);
+        }
+
+        if (isLocked) {
+            var lockOverlay = document.createElement('div');
+            lockOverlay.className = 'absolute inset-0 flex flex-col items-center justify-center bg-black/55 z-20';
+            lockOverlay.innerHTML = '<span class="text-2xl mb-1">🔒</span><span class="text-xs font-semibold text-amber-400 text-center px-1">' + (t('unlockAtLevel') + ' ' + requiredLevel) + '</span>';
+            avatarItem.appendChild(lockOverlay);
+            avatarItem.onclick = function() { showToast(t('unlockAtLevel') + ' ' + requiredLevel, 'info'); };
+        } else {
+            avatarItem.onclick = (function(idx) { return function() { selectAvatar(idx); }; })(index);
+        }
+
+        avatarGrid.appendChild(avatarItem);
+    });
+
     modal.style.zIndex = '9999';
     modal.style.position = 'fixed';
     modal.classList.remove('hidden');
     modal.classList.add('flex');
-    
-    // Закрытие при клике вне модального окна
-    modal.onclick = (e) => {
-        if (e.target === modal) {
-            closeAvatarSelector();
-        }
+
+    modal.onclick = function(e) {
+        if (e.target === modal) closeAvatarSelector();
     };
 }
 
@@ -3717,4 +3708,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-
