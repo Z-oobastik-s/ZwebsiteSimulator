@@ -9,109 +9,114 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #00BCD4; --purple: #8B5CF6; }
+        :root { --primary: #00BCD4; --cyan-glow: rgba(0,229,255,0.5); --purple-glow: rgba(139,92,246,0.4); }
         body { font-family: 'Inter', sans-serif; }
         .font-display { font-family: 'Orbitron', sans-serif; }
         .gaming-bg { min-height: 100vh; position: relative; }
-        .gaming-bg::before { content: ''; position: fixed; inset: 0; background: url('assets/images/reviews.jpg') center/cover no-repeat; z-index: -2; }
-        .gaming-bg::after { content: ''; position: fixed; inset: 0; background: linear-gradient(180deg, rgba(3,7,18,0.82) 0%, rgba(15,23,42,0.86) 35%, rgba(6,10,22,0.9) 100%); z-index: -1; }
-        .review-card { background: linear-gradient(145deg, rgba(15,23,42,0.88) 0%, rgba(6,10,22,0.94) 100%); border: 1px solid rgba(0,229,255,0.22); box-shadow: 0 8px 32px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.04); backdrop-filter: blur(14px); }
-        .review-card:hover { border-color: rgba(0,229,255,0.35); box-shadow: 0 12px 40px rgba(0,0,0,0.4), 0 0 24px rgba(0,229,255,0.06); }
+        .gaming-bg::before { content: ''; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: url('./assets/images/reviews.jpg') center center / cover no-repeat; z-index: -2; }
+        .gaming-bg::after { content: ''; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(180deg, rgba(2,6,18,0.55) 0%, rgba(8,15,32,0.6) 50%, rgba(4,10,24,0.7) 100%); z-index: -1; }
+        .review-card {
+            background: linear-gradient(135deg, rgba(10,18,35,0.82) 0%, rgba(6,12,28,0.9) 100%);
+            border: 1px solid rgba(0,229,255,0.28);
+            box-shadow: 0 0 0 1px rgba(0,229,255,0.08), 0 4px 20px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.04);
+            backdrop-filter: blur(12px);
+            position: relative;
+            overflow: hidden;
+        }
+        .review-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: linear-gradient(180deg, var(--cyan-glow), var(--purple-glow)); opacity: 0.9; }
+        .review-card:hover { border-color: rgba(0,229,255,0.45); box-shadow: 0 0 25px rgba(0,229,255,0.15), 0 0 0 1px rgba(0,229,255,0.12), inset 0 1px 0 rgba(255,255,255,0.06); }
         .portal-btn { background: linear-gradient(135deg, rgba(0,229,255,0.2) 0%, rgba(139,92,246,0.2) 100%); border: 1px solid rgba(0,229,255,0.4); transition: all 0.3s; }
-        .portal-btn:hover { box-shadow: 0 0 30px rgba(0,229,255,0.3); transform: scale(1.02); }
-        .scanlines::before { content: ''; position: fixed; inset: 0; background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.02) 2px, rgba(0,0,0,0.02) 4px); pointer-events: none; z-index: 0; }
+        .portal-btn:hover { box-shadow: 0 0 30px rgba(0,229,255,0.35); transform: scale(1.02); }
+        .btn-review { background: linear-gradient(135deg, rgba(0,229,255,0.25) 0%, rgba(139,92,246,0.25) 100%); border: 1px solid rgba(0,229,255,0.5); color: #67e8f9; transition: all 0.3s; text-shadow: 0 0 20px rgba(0,229,255,0.3); }
+        .btn-review:hover { box-shadow: 0 0 35px rgba(0,229,255,0.4), 0 0 60px rgba(139,92,246,0.2); border-color: rgba(0,229,255,0.7); color: #fff; transform: scale(1.03); }
+        .scanlines::before { content: ''; position: fixed; inset: 0; background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px); pointer-events: none; z-index: 0; }
         .page-enter { animation: pageEnter 0.35s ease-out forwards; position: relative; z-index: 1; }
         @keyframes pageEnter { from { opacity: 0; } to { opacity: 1; } }
-        .star { color: #fbbf24; }
-        .review-text { line-height: 1.65; }
-        .review-meta { color: rgba(148, 163, 184, 0.95); }
+        .title-glow { text-shadow: 0 0 30px rgba(0,229,255,0.35), 0 0 60px rgba(139,92,246,0.2); }
     </style>
 </head>
 <body class="gaming-bg text-gray-100 scanlines overflow-x-hidden">
     <div class="page-enter">
-        <header class="sticky top-0 z-50 border-b border-white/10 bg-black/40 backdrop-blur-xl">
-            <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+        <header class="sticky top-0 z-50 border-b border-cyan-500/20 bg-black/50 backdrop-blur-xl">
+            <div class="container mx-auto px-4 py-3 flex items-center justify-between">
                 <button type="button" onclick="window.portalTo && portalTo('index.html')" class="text-xl font-display font-bold text-white hover:text-cyan-400 transition-colors bg-transparent border-0 cursor-pointer">Zooba<span class="text-cyan-400">stiks</span></button>
-                <button type="button" onclick="window.portalTo && portalTo('index.html')" class="portal-btn px-5 py-2.5 rounded-lg font-display font-semibold text-cyan-300 hover:text-white hover:border-cyan-400">
+                <button type="button" onclick="window.portalTo && portalTo('index.html')" class="portal-btn px-4 py-2 rounded-lg font-display text-sm font-semibold text-cyan-300 hover:text-white hover:border-cyan-400">
                     ← На главную
                 </button>
             </div>
         </header>
 
-        <section class="pt-12 pb-10 px-4 text-center">
-            <h1 class="font-display text-4xl md:text-5xl font-bold text-white mb-2">Отзывы</h1>
-            <p class="text-cyan-300/90 text-lg">Что пишут те кто уже занимается</p>
+        <section class="pt-8 pb-6 px-4 text-center">
+            <h1 class="font-display text-3xl md:text-4xl font-bold text-white mb-1 title-glow">Отзывы</h1>
+            <p class="text-cyan-300/80 text-sm">что пишут те кто уже занимается</p>
         </section>
 
-        <section class="container mx-auto px-4 pb-24 max-w-2xl space-y-5">
-            <article class="review-card rounded-2xl p-5 md:p-6">
-                <p class="review-text text-gray-200 mb-4">за две недели реально быстрее печатать стал)) уроки по шагам норм не грузит и с другом гоняли кто быстрее прикольно</p>
-                <div class="flex items-center gap-3">
-                    <div class="w-11 h-11 rounded-full bg-gradient-to-br from-cyan-500/35 to-purple-500/35 border border-white/25 flex items-center justify-center text-lg font-semibold text-white">А</div>
-                    <div>
-                        <span class="font-semibold text-white">Алексей</span>
-                        <span class="review-meta text-sm block">школьник 14 лет</span>
-                    </div>
-                </div>
-            </article>
+        <section class="container mx-auto px-4 pb-6 flex flex-col items-center">
+            <a href="https://t.me/Zoobastiks" target="_blank" rel="noopener noreferrer" class="btn-review inline-flex items-center gap-2 px-5 py-2.5 rounded-lg font-display font-semibold text-sm mb-6">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.559z"/></svg>
+                Оставить отзыв
+            </a>
 
-            <article class="review-card rounded-2xl p-5 md:p-6">
-                <p class="review-text text-gray-200 mb-4">наконец то нашла что то адекватное для сына тут и русский и английский есть без регистрации попробовали а потом зашли и всё сохранилось удобно очень</p>
-                <div class="flex items-center gap-3">
-                    <div class="w-11 h-11 rounded-full bg-gradient-to-br from-amber-500/35 to-orange-500/35 border border-white/25 flex items-center justify-center text-lg font-semibold text-white">М</div>
-                    <div>
-                        <span class="font-semibold text-white">Марина</span>
-                        <span class="review-meta text-sm block">мама двоих детей</span>
-                    </div>
-                </div>
-            </article>
-
-            <article class="review-card rounded-2xl p-5 md:p-6">
-                <p class="review-text text-gray-200 mb-4">тест на минуту зашёл достижения и монеты мотивируют реально прохожу уроки до конца уже одногруппникам скинул</p>
-                <div class="flex items-center gap-3">
-                    <div class="w-11 h-11 rounded-full bg-gradient-to-br from-emerald-500/35 to-teal-500/35 border border-white/25 flex items-center justify-center text-lg font-semibold text-white">Д</div>
-                    <div>
-                        <span class="font-semibold text-white">Дмитрий</span>
-                        <span class="review-meta text-sm block">студент</span>
-                    </div>
-                </div>
-            </article>
-
-            <article class="review-card rounded-2xl p-5 md:p-6">
-                <p class="review-text text-gray-200 mb-4">мне понравился дизайн и что рекламы нет) печатаю свои тексты готовлюсь к экзаменам в свободном режиме норм</p>
-                <div class="flex items-center gap-3">
-                    <div class="w-11 h-11 rounded-full bg-gradient-to-br from-rose-500/35 to-pink-500/35 border border-white/25 flex items-center justify-center text-lg font-semibold text-white">К</div>
-                    <div>
-                        <span class="font-semibold text-white">Катя</span>
-                        <span class="review-meta text-sm block">ученица 10 класса</span>
-                    </div>
-                </div>
-            </article>
-
-            <article class="review-card rounded-2xl p-5 md:p-6">
-                <p class="review-text text-gray-200 mb-4">юзаю на планшете с клавой всё ок уровни прокачиваешь как в игре сын занимается сам без напоминаний уже спасибо</p>
-                <div class="flex items-center gap-3">
-                    <div class="w-11 h-11 rounded-full bg-gradient-to-br from-violet-500/35 to-purple-500/35 border border-white/25 flex items-center justify-center text-lg font-semibold text-white">И</div>
-                    <div>
-                        <span class="font-semibold text-white">Игорь</span>
-                        <span class="review-meta text-sm block">папа фрилансер</span>
-                    </div>
-                </div>
-            </article>
-
-            <article class="review-card rounded-2xl p-5 md:p-6">
-                <p class="review-text text-gray-200 mb-4">по началу думала ерунда какая то а потом видно что прогресс есть дочка сама садится заниматься я сама попробовала тоже понравилось</p>
-                <div class="flex items-center gap-3">
-                    <div class="w-11 h-11 rounded-full bg-gradient-to-br from-sky-500/35 to-indigo-500/35 border border-white/25 flex items-center justify-center text-lg font-semibold text-white">О</div>
-                    <div>
-                        <span class="font-semibold text-white">Ольга</span>
-                        <span class="review-meta text-sm block">мама</span>
-                    </div>
-                </div>
-            </article>
+            <div class="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-3">
+                <article class="review-card rounded-lg pl-4 pr-3 py-3">
+                    <p class="text-gray-200 text-sm leading-snug mb-2">за две недели реально быстрее печатать стал)) уроки по шагам норм и с другом гоняли кто быстрее прикольно</p>
+                    <span class="font-semibold text-cyan-300/90 text-sm">Алексей</span>
+                </article>
+                <article class="review-card rounded-lg pl-4 pr-3 py-3">
+                    <p class="text-gray-200 text-sm leading-snug mb-2">наконец то нашла что то адекватное для сына тут и русский и английский без регистрации попробовали потом зашли всё сохранилось удобно</p>
+                    <span class="font-semibold text-cyan-300/90 text-sm">Марина</span>
+                </article>
+                <article class="review-card rounded-lg pl-4 pr-3 py-3">
+                    <p class="text-gray-200 text-sm leading-snug mb-2">тест на минуту зашёл достижения и монеты мотивируют прохожу уроки до конца одногруппникам скинул</p>
+                    <span class="font-semibold text-cyan-300/90 text-sm">Дмитрий</span>
+                </article>
+                <article class="review-card rounded-lg pl-4 pr-3 py-3">
+                    <p class="text-gray-200 text-sm leading-snug mb-2">понравился дизайн и что рекламы нет печатаю свои тексты к экзаменам готовлюсь норм</p>
+                    <span class="font-semibold text-cyan-300/90 text-sm">Катя</span>
+                </article>
+                <article class="review-card rounded-lg pl-4 pr-3 py-3">
+                    <p class="text-gray-200 text-sm leading-snug mb-2">юзаю на планшете с клавой всё ок уровни прокачиваешь как в игре сын занимается сам уже спасибо</p>
+                    <span class="font-semibold text-cyan-300/90 text-sm">Игорь</span>
+                </article>
+                <article class="review-card rounded-lg pl-4 pr-3 py-3">
+                    <p class="text-gray-200 text-sm leading-snug mb-2">по началу думала ерунда а потом видно прогресс дочка сама садится заниматься я тоже попробовала понравилось</p>
+                    <span class="font-semibold text-cyan-300/90 text-sm">Ольга</span>
+                </article>
+                <article class="review-card rounded-lg pl-4 pr-3 py-3">
+                    <p class="text-gray-200 text-sm leading-snug mb-2">учительница дала ссылку на уроке теперь дома тренируюсь буквы запоминаются быстрее чем думала</p>
+                    <span class="font-semibold text-cyan-300/90 text-sm">Настя</span>
+                </article>
+                <article class="review-card rounded-lg pl-4 pr-3 py-3">
+                    <p class="text-gray-200 text-sm leading-snug mb-2">ребёнок сидит не оторвать реально сам хочет проходить уроки потому что монетки собирает</p>
+                    <span class="font-semibold text-cyan-300/90 text-sm">Сергей</span>
+                </article>
+                <article class="review-card rounded-lg pl-4 pr-3 py-3">
+                    <p class="text-gray-200 text-sm leading-snug mb-2">без рекламы это прям редкость сейчас спасибо что бесплатно и нормально сделано</p>
+                    <span class="font-semibold text-cyan-300/90 text-sm">Лена</span>
+                </article>
+                <article class="review-card rounded-lg pl-4 pr-3 py-3">
+                    <p class="text-gray-200 text-sm leading-snug mb-2">с братом соревнуемся кто быстрее набрал скорость за месяц выросла в два раза не ожидал</p>
+                    <span class="font-semibold text-cyan-300/90 text-sm">Макс</span>
+                </article>
+                <article class="review-card rounded-lg pl-4 pr-3 py-3">
+                    <p class="text-gray-200 text-sm leading-snug mb-2">для диплома печатала много тут удобно свой текст вставить и просто тренироваться без лишнего</p>
+                    <span class="font-semibold text-cyan-300/90 text-sm">Вика</span>
+                </article>
+                <article class="review-card rounded-lg pl-4 pr-3 py-3">
+                    <p class="text-gray-200 text-sm leading-snug mb-2">до этого другие пробовала либо реклама лезет либо скучно здесь норм и ребёнку зашло</p>
+                    <span class="font-semibold text-cyan-300/90 text-sm">Татьяна</span>
+                </article>
+                <article class="review-card rounded-lg pl-4 pr-3 py-3">
+                    <p class="text-gray-200 text-sm leading-snug mb-2">мультиплеер с другом прикольная тема вечером гоняем кто больше слов за минуту</p>
+                    <span class="font-semibold text-cyan-300/90 text-sm">Артём</span>
+                </article>
+                <article class="review-card rounded-lg pl-4 pr-3 py-3">
+                    <p class="text-gray-200 text-sm leading-snug mb-2">работаю удалённо печатать пришлось много научился на этом тренажёре за пару недель</p>
+                    <span class="font-semibold text-cyan-300/90 text-sm">Андрей</span>
+                </article>
+            </div>
         </section>
     </div>
     <script src="scripts/portal-transition.js"></script>
 </body>
 </html>
-

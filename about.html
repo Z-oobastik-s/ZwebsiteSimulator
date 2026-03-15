@@ -13,8 +13,8 @@
         body { font-family: 'Inter', sans-serif; }
         .font-display { font-family: 'Orbitron', sans-serif; }
         .gaming-bg { min-height: 100vh; position: relative; }
-        .gaming-bg::before { content: ''; position: fixed; inset: 0; background: url('assets/images/about_the_site.jpg') center/cover no-repeat; z-index: -2; }
-        .gaming-bg::after { content: ''; position: fixed; inset: 0; background: linear-gradient(180deg, rgba(3,7,18,0.85) 0%, rgba(15,23,42,0.88) 40%, rgba(6,10,22,0.92) 100%); z-index: -1; }
+        .gaming-bg::before { content: ''; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: url('./assets/images/about_the_site.jpg') center center / cover no-repeat; z-index: -2; }
+        .gaming-bg::after { content: ''; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(180deg, rgba(2,6,18,0.55) 0%, rgba(8,15,32,0.6) 50%, rgba(4,10,24,0.7) 100%); z-index: -1; }
         .gaming-card { background: linear-gradient(145deg, rgba(15,23,42,0.92) 0%, rgba(6,10,22,0.96) 100%); border: 1px solid rgba(0,229,255,0.25); box-shadow: 0 0 40px rgba(0,229,255,0.08), inset 0 1px 0 rgba(255,255,255,0.06); backdrop-filter: blur(12px); }
         .portal-btn { background: linear-gradient(135deg, rgba(0,229,255,0.2) 0%, rgba(139,92,246,0.2) 100%); border: 1px solid rgba(0,229,255,0.4); transition: all 0.3s; }
         .portal-btn:hover { box-shadow: 0 0 30px rgba(0,229,255,0.3), 0 0 60px rgba(139,92,246,0.2); transform: scale(1.02); }
@@ -77,4 +77,3 @@
     <script src="scripts/portal-transition.js"></script>
 </body>
 </html>
-
