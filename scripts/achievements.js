@@ -159,16 +159,32 @@ function render(container) {
             render('achievementsBlock');
         });
         (function (wrap, tipText) {
-            wrap.addEventListener('mouseenter', function (e) {
+            wrap.addEventListener('mouseenter', function () {
                 var t = document.getElementById('achievementTooltip');
                 if (!t) { t = document.createElement('div'); t.id = 'achievementTooltip'; t.className = 'achievement-tooltip'; document.body.appendChild(t); }
                 t.textContent = tipText;
                 t.classList.remove('hidden');
-                var move = function (ev) { t.style.left = (ev.pageX + 12) + 'px'; t.style.top = (ev.pageY + 12) + 'px'; };
-                var leave = function () { t.classList.add('hidden'); wrap.removeEventListener('mousemove', move); wrap.removeEventListener('mouseleave', leave); };
-                wrap.addEventListener('mousemove', move);
+                function place() {
+                    var r = wrap.getBoundingClientRect();
+                    var gap = 6;
+                    t.style.left = r.left + 'px';
+                    t.style.top = (r.bottom + gap) + 'px';
+                    t.style.right = 'auto';
+                    t.style.maxWidth = '280px';
+                }
+                place();
+                requestAnimationFrame(function () {
+                    if (!t.classList.contains('hidden')) {
+                        var tRect = t.getBoundingClientRect();
+                        var r = wrap.getBoundingClientRect();
+                        var gap = 6;
+                        if (tRect.right > window.innerWidth - 8) t.style.left = (window.innerWidth - tRect.width - 8) + 'px';
+                        if (tRect.left < 8) t.style.left = '8px';
+                        if (tRect.bottom > window.innerHeight - 8) t.style.top = (r.top - tRect.height - gap) + 'px';
+                    }
+                });
+                var leave = function () { t.classList.add('hidden'); wrap.removeEventListener('mouseleave', leave); };
                 wrap.addEventListener('mouseleave', leave);
-                move(e);
             });
         })(div, tip);
         el.appendChild(div);
@@ -198,4 +214,3 @@ window.achievementsModule = {
     getAchievements: function () { return ACHIEVEMENTS; },
     COINS_PER_ACHIEVEMENT: COINS_PER_ACHIEVEMENT
 };
-

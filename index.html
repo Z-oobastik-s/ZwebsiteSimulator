@@ -860,9 +860,11 @@
         .achievement-unlocked[class*="ach-hover-"]:hover {
             transition: none;
         }
-        /* Site rating stars — компактно, эпично */
+        /* Site rating stars — компактно, эпично; выше футера по слою, чтобы звёзды не перекрывались */
         .site-rating-wrap {
             background: linear-gradient(135deg, rgba(15, 23, 42, 0.85) 0%, rgba(30, 41, 59, 0.75) 100%);
+            position: relative;
+            z-index: 50;
         }
         .site-star-svg {
             color: rgba(148, 163, 184, 0.4);
@@ -1781,7 +1783,7 @@
                 <!-- Портал: О проекте / Отзывы (выпадающее меню) -->
                 <div class="relative" id="sitePortalWrap">
                     <button type="button" id="sitePortalBtn" class="header-action p-1 rounded-lg glass border border-cyan-500/30 hover:bg-cyan-500/10 transition-colors flex items-center justify-center" title="О проекте и отзывы" aria-haspopup="true" aria-expanded="false" aria-label="О проекте и отзывы">
-                        <img src="assets/images/info_about.png" alt="" class="w-6 h-6 object-contain" width="24" height="24">
+                        <img src="assets/images/info_about%20.png" alt="" class="w-6 h-6 object-contain" width="24" height="24">
                     </button>
                     <div id="sitePortalDropdown" class="absolute right-0 top-full mt-1.5 py-1 min-w-[160px] rounded-xl glass border border-cyan-500/30 bg-gray-900/95 shadow-xl shadow-black/30 hidden z-[100]">
                         <button type="button" onclick="window.portalTo && portalTo('about.html'); document.getElementById('sitePortalDropdown').classList.add('hidden');" class="w-full text-left px-4 py-2.5 text-sm text-cyan-300 hover:bg-cyan-500/20 hover:text-white transition-colors flex items-center gap-2" data-i18n="aboutProject">О проекте</button>
@@ -1914,8 +1916,8 @@
                         <!-- Filled by achievements.js -->
                     </div>
                 </div>
-                <!-- Site rating: 1-5 stars (compact, below achievements) -->
-                <div class="mt-4 flex justify-center">
+                <!-- Site rating: 1-5 stars (compact, below achievements); z-index выше футера -->
+                <div class="mt-4 mb-6 flex justify-center">
                     <div class="site-rating-wrap glass rounded-xl px-4 py-2.5 flex items-center gap-1.5 border border-amber-500/20 shadow-lg shadow-amber-500/5">
                         <span class="text-[10px] uppercase tracking-wider text-gray-500 dark:text-gray-400 mr-0.5 whitespace-nowrap" data-i18n="rateSite">Оцените сайт</span>
                         <div class="flex gap-0.5" id="siteRatingStars" role="group" aria-label="Оценка сайта от 1 до 5">
@@ -2829,4 +2831,3 @@
     
 </body>
 </html>
-
