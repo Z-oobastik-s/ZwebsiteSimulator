@@ -1324,9 +1324,12 @@ function stopBgMusic() {
 
 function updateBgMusicIcon() {
     var icon = document.getElementById('bgMusicIcon');
-    if (!icon) return;
-    var path = 'M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z';
-    icon.innerHTML = app.bgMusicEnabled ? '<path d="' + path + '"/>' : '<path d="' + path + '" opacity="0.5"/>';
+    var btn = document.getElementById('bgMusicToggle');
+    if (icon) {
+        var path = 'M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z';
+        icon.innerHTML = app.bgMusicEnabled ? '<path d="' + path + '"/>' : '<path d="' + path + '" opacity="0.5"/>';
+    }
+    if (btn) btn.disabled = !app.soundEnabled;
 }
 
 function toggleBgMusic() {
@@ -1341,19 +1344,23 @@ function toggleBgMusic() {
 function toggleSound() {
     app.soundEnabled = !app.soundEnabled;
     localStorage.setItem('sound', app.soundEnabled);
-    // Звук вкл/выкл — проигрываем до смены состояния (On_sound при включении, Off_sound при выключении)
     if (app.soundEnabled && audioOnSound) {
         audioOnSound.currentTime = 0;
         audioOnSound.play().catch(() => {});
-    } else if (!app.soundEnabled && audioOffSound) {
-        audioOffSound.currentTime = 0;
-        audioOffSound.play().catch(() => {});
+        if (app.bgMusicEnabled) startBgMusic();
+    } else {
+        stopBgMusic();
+        if (audioOffSound) {
+            audioOffSound.currentTime = 0;
+            audioOffSound.play().catch(() => {});
+        }
         if (audioWelcome) {
             audioWelcome.pause();
             audioWelcome.currentTime = 0;
         }
     }
-    const icon = DOM.get('soundIcon');
+    updateBgMusicIcon();
+    var icon = DOM.get('soundIcon');
     if (icon) {
         if (app.soundEnabled) {
             icon.innerHTML = '<path fill-rule="evenodd" d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.929a1 1 0 011.414 0A9.972 9.972 0 0119 10a9.972 9.972 0 01-2.929 7.071 1 1 0 01-1.414-1.414A7.971 7.971 0 0017 10c0-2.21-.894-4.208-2.343-5.657a1 1 0 010-1.414zm-2.829 2.828a1 1 0 011.415 0A5.983 5.983 0 0115 10a5.984 5.984 0 01-1.757 4.243 1 1 0 01-1.415-1.415A3.984 3.984 0 0013 10a3.983 3.983 0 00-1.172-2.828 1 1 0 010-1.415z" clip-rule="evenodd" />';
@@ -4002,3 +4009,4 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+
