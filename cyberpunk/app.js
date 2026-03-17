@@ -10,6 +10,7 @@ const app = {
     theme: 'dark',
     lang: 'ru',
     timerInterval: null,
+    speedTestLimit: 60,
     lessons: {
         beginner: [
             { id: 1, name: 'Домашний ряд', text: 'ааа ооо еее ввв ааа ооо еее ввв фыва олдж', difficulty: 'Легко' },
@@ -207,7 +208,14 @@ function updateStats() {
 
 function startTimer() {
     app.timerInterval = setInterval(() => {
-        if (!app.isPaused) updateStats();
+        if (app.isPaused) return;
+        updateStats();
+        if (app.currentMode === 'speedtest') {
+            const elapsed = (Date.now() - app.startTime) / 1000;
+            if (elapsed >= app.speedTestLimit) {
+                finishPractice();
+            }
+        }
     }, 100);
 }
 
@@ -466,4 +474,3 @@ document.addEventListener('DOMContentLoaded', () => {
     
     console.log('Initialization complete');
 });
-
