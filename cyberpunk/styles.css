@@ -503,6 +503,13 @@ body {
     flex-direction: column;
 }
 
+/* ===== LESSONS SCREEN ===== */
+#lessonsScreen {
+    height: calc(100vh - 90px);
+    overflow-y: auto;
+    flex-direction: column;
+}
+
 .practice-container {
     max-width: 1400px;
     margin: 0 auto;
@@ -1039,4 +1046,3 @@ body {
         grid-template-columns: 1fr;
     }
 }
-

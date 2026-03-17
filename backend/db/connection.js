@@ -43,4 +43,3 @@ async function close() {
 }
 
 module.exports = { getPool, query, sql, close };
-
