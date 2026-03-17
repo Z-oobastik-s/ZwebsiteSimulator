@@ -105,11 +105,12 @@ function showSpeedTest() {
 
 function showFreeMode() {
     console.log('showFreeMode called');
-    const text = prompt('Введите текст для тренировки:');
-    if (text && text.trim()) {
-        startPractice(text, 'free');
-        setModeLabel('modeFree');
-    }
+    const modal = document.getElementById('freeModeModal');
+    const textarea = document.getElementById('freeModeTextarea');
+    if (!modal || !textarea) return;
+    textarea.value = '';
+    updateFreeModeChars();
+    modal.classList.add('active');
 }
 
 function showMultiplayer() {
@@ -135,6 +136,31 @@ function closeResults() {
 function repeatPractice() {
     closeResults();
     restartPractice();
+}
+
+function closeFreeModeModal() {
+    const modal = document.getElementById('freeModeModal');
+    if (modal) modal.classList.remove('active');
+}
+
+function startFreeModeFromModal() {
+    const textarea = document.getElementById('freeModeTextarea');
+    if (!textarea) return;
+    const text = textarea.value.trim();
+    if (!text) {
+        showNotification('Введите текст для тренировки', 'warning');
+        return;
+    }
+    closeFreeModeModal();
+    startPractice(text, 'free');
+    setModeLabel('modeFree');
+}
+
+function updateFreeModeChars() {
+    const textarea = document.getElementById('freeModeTextarea');
+    const counter = document.getElementById('freeModeChars');
+    if (!textarea || !counter) return;
+    counter.textContent = textarea.value.length;
 }
 
 function startPractice(text, mode) {
@@ -165,6 +191,16 @@ function renderText() {
     }
     display.innerHTML = html;
     showNextKey();
+    // Автопрокрутка, чтобы текущий символ оставался в пределах поля
+    const currentSpan = display.querySelector('.char-current');
+    if (currentSpan && display.scrollWidth > display.clientWidth) {
+        const spanRect = currentSpan.getBoundingClientRect();
+        const containerRect = display.getBoundingClientRect();
+        if (spanRect.right > containerRect.right || spanRect.left < containerRect.left) {
+            const centerOffset = currentSpan.offsetLeft - display.clientWidth / 2 + currentSpan.offsetWidth / 2;
+            display.scrollTo({ left: Math.max(0, centerOffset), behavior: 'smooth' });
+        }
+    }
 }
 
 function escapeHtml(text) {
@@ -497,6 +533,12 @@ document.addEventListener('DOMContentLoaded', () => {
     renderKeyboard();
     updateLanguage();
     showNotification('Система инициализирована', 'success');
+
+    // Free mode modal bindings
+    document.getElementById('freeModeCancelBtn')?.addEventListener('click', closeFreeModeModal);
+    document.getElementById('freeModeStartBtn')?.addEventListener('click', startFreeModeFromModal);
+    document.getElementById('freeModeTextarea')?.addEventListener('input', updateFreeModeChars);
     
     console.log('Initialization complete');
 });
+

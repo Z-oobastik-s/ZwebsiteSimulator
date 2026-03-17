@@ -243,6 +243,29 @@
     <!-- Notification System -->
     <div id="notifications" class="notifications"></div>
 
+    <!-- Free Mode Modal -->
+    <div id="freeModeModal" class="modal">
+        <div class="modal-content free-mode-modal">
+            <div class="modal-header">
+                <h3>СВОБОДНЫЙ РЕЖИМ</h3>
+                <div class="modal-status">CUSTOM TEXT</div>
+            </div>
+            <div class="free-mode-body">
+                <p class="free-mode-subtitle">Вставьте свой текст или напишите его здесь. Всё, что вы напечатаете, превратится в неоновый поток.</p>
+                <textarea id="freeModeTextarea" class="free-mode-textarea" rows="6" placeholder="Вставьте сюда фрагмент книги, конспект, код или любой другой текст..."></textarea>
+                <div class="free-mode-footer">
+                    <div class="free-mode-meta">
+                        <span id="freeModeChars">0</span> символов
+                    </div>
+                    <div class="modal-actions">
+                        <button class="cyber-btn secondary" id="freeModeCancelBtn">ОТМЕНА</button>
+                        <button class="cyber-btn primary" id="freeModeStartBtn">СТАРТ</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Results Modal -->
     <div id="resultsModal" class="modal">
         <div class="modal-content">
@@ -280,3 +303,4 @@
     <script src="app.js"></script>
 </body>
 </html>
+
