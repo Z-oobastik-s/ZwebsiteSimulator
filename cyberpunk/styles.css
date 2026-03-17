@@ -282,7 +282,6 @@ body {
 
 #homeScreen {
     height: 100%;
-    display: flex;
     flex-direction: column;
     justify-content: space-between;
     padding-bottom: 1rem;
@@ -294,7 +293,7 @@ body {
 }
 
 .screen.active {
-    display: block;
+    display: flex;
 }
 
 @keyframes fadeIn {
@@ -501,7 +500,6 @@ body {
 #practiceScreen {
     height: calc(100vh - 90px);
     overflow: hidden;
-    display: flex;
     flex-direction: column;
 }
 
@@ -992,4 +990,3 @@ body {
         grid-template-columns: 1fr;
     }
 }
-
