@@ -25,6 +25,7 @@ const app = {
             { id: 7, name: 'Длинный текст', text: 'В киберпанк мире технологии развились до невероятных высот и нейронные интерфейсы стали реальностью', difficulty: 'Сложно' }
         ]
     },
+    currentLessonId: null,
     speedWords: ['как', 'так', 'все', 'это', 'был', 'она', 'они', 'мой', 'его', 'что', 'год', 'дом', 'день', 'раз', 'рука', 'нога', 'вода', 'небо', 'земля', 'город']
 };
 
@@ -37,7 +38,9 @@ const translations = {
         statsTitle: 'СТАТИСТИКА СИСТЕМЫ', speed: 'СКОРОСТЬ', speedUnit: 'зн/мин',
         accuracy: 'ТОЧНОСТЬ', accuracyUnit: '%', modules: 'МОДУЛИ', modulesUnit: 'пройдено',
         time: 'ВРЕМЯ', timeUnit: 'минут', exit: 'ВЫХОД', restart: 'РЕСТАРТ',
-        close: 'ЗАКРЫТЬ', repeat: 'ПОВТОРИТЬ', back: 'НАЗАД', lessonsTitle: 'МОДУЛИ ОБУЧЕНИЯ'
+        close: 'ЗАКРЫТЬ', repeat: 'ПОВТОРИТЬ', back: 'НАЗАД', lessonsTitle: 'МОДУЛИ ОБУЧЕНИЯ',
+        themeChanged: 'Тема изменена', soundOn: 'Звук включен', soundOff: 'Звук выключен',
+        langChanged: 'Язык изменен', systemReady: 'Система инициализирована', mpSoon: 'Мультиплеер запускается на основном сайте'
     },
     en: {
         training: 'TRAINING', trainingDesc: 'Neural adaptation program', trainingStats: '46 modules',
@@ -47,7 +50,9 @@ const translations = {
         statsTitle: 'SYSTEM STATISTICS', speed: 'SPEED', speedUnit: 'cpm',
         accuracy: 'ACCURACY', accuracyUnit: '%', modules: 'MODULES', modulesUnit: 'completed',
         time: 'TIME', timeUnit: 'minutes', exit: 'EXIT', restart: 'RESTART',
-        close: 'CLOSE', repeat: 'REPEAT', back: 'BACK', lessonsTitle: 'TRAINING MODULES'
+        close: 'CLOSE', repeat: 'REPEAT', back: 'BACK', lessonsTitle: 'TRAINING MODULES',
+        themeChanged: 'Theme changed', soundOn: 'Sound enabled', soundOff: 'Sound muted',
+        langChanged: 'Language changed', systemReady: 'System initialized', mpSoon: 'Multiplayer runs on the main site'
     }
 };
 
@@ -93,7 +98,8 @@ function showFreeMode() {
 
 function showMultiplayer() {
     console.log('showMultiplayer called');
-    showNotification('Мультиплеер в разработке', 'warning');
+    // Переход на основной сайт с полноценным мультиплеером
+    window.location.href = 'https://zoobastik.me/';
 }
 
 function exitPractice() {
@@ -232,11 +238,17 @@ function renderLessons() {
     const container = document.getElementById('lessonsList');
     console.log('lessonsList container:', container);
     container.innerHTML = '';
+    const stats = JSON.parse(localStorage.getItem('neuralTyperStats') || '{}');
+    const completedIds = new Set(stats.completedLessonIds || []);
     Object.entries(app.lessons).forEach(([, lessons]) => {
         lessons.forEach(lesson => {
             const card = document.createElement('div');
-            card.className = 'lesson-card';
-            card.onclick = () => startPractice(lesson.text, 'lesson');
+            const isCompleted = completedIds.has(lesson.id);
+            card.className = 'lesson-card' + (isCompleted ? ' completed' : '');
+            card.onclick = () => {
+                app.currentLessonId = lesson.id;
+                startPractice(lesson.text, 'lesson');
+            };
             card.innerHTML = `
                 <div class="lesson-title">${lesson.name}</div>
                 <div class="lesson-desc">${lesson.difficulty}</div>
@@ -313,21 +325,21 @@ function generateSpeedTest() {
 function toggleTheme() {
     app.theme = app.theme === 'dark' ? 'light' : 'dark';
     document.body.style.filter = app.theme === 'light' ? 'invert(1) hue-rotate(180deg)' : 'none';
-    showNotification('Тема изменена', 'info');
+    showNotification(translations[app.lang].themeChanged, 'info');
 }
 
 function toggleSound() {
     app.soundEnabled = !app.soundEnabled;
     const icon = document.querySelector('#soundToggle .icon');
     icon.textContent = app.soundEnabled ? '♪' : '🔇';
-    showNotification(app.soundEnabled ? 'Звук включен' : 'Звук выключен', 'info');
+    showNotification(app.soundEnabled ? translations[app.lang].soundOn : translations[app.lang].soundOff, 'info');
 }
 
 function toggleLang() {
     app.lang = app.lang === 'ru' ? 'en' : 'ru';
     document.getElementById('currentLang').textContent = app.lang.toUpperCase();
     updateLanguage();
-    showNotification('Язык изменен', 'info');
+    showNotification(translations[app.lang].langChanged, 'info');
 }
 
 function updateLanguage() {
@@ -393,6 +405,12 @@ function saveStats(speed, accuracy, time) {
     stats.sessions = (stats.sessions || 0) + 1;
     stats.totalAccuracy = (stats.totalAccuracy || 0) + accuracy;
     stats.avgAccuracy = Math.round(stats.totalAccuracy / stats.sessions);
+    if (app.currentMode === 'lesson' && app.currentLessonId != null) {
+        const set = new Set(stats.completedLessonIds || []);
+        set.add(app.currentLessonId);
+        stats.completedLessonIds = Array.from(set);
+        stats.completedLessons = stats.completedLessonIds.length;
+    }
     localStorage.setItem('neuralTyperStats', JSON.stringify(stats));
     loadStats();
 }
@@ -448,3 +466,4 @@ document.addEventListener('DOMContentLoaded', () => {
     
     console.log('Initialization complete');
 });
+

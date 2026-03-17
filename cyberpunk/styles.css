@@ -250,6 +250,29 @@ body {
     border-color: var(--cyber-primary);
 }
 
+/* Main-site CTA button */
+.cyber-btn.main-link {
+    background: radial-gradient(circle at 0% 0%, var(--cyber-accent), var(--cyber-secondary));
+    border-color: var(--cyber-accent);
+    color: #0b1024;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding-inline: 1.4rem;
+}
+
+.cyber-btn.main-link .icon {
+    font-size: 0.9rem;
+}
+
+.cyber-btn.main-link:hover {
+    box-shadow: 0 0 24px var(--glow-secondary), 0 0 40px rgba(255, 0, 110, 0.45);
+    transform: translateY(-2px) scale(1.02);
+}
+
 /* ===== MAIN CONTENT ===== */
 .main-content {
     padding-top: 90px;
@@ -960,3 +983,4 @@ body {
         grid-template-columns: 1fr;
     }
 }
+
