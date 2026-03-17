@@ -41,7 +41,9 @@ const translations = {
         time: 'ВРЕМЯ', timeUnit: 'минут', exit: 'ВЫХОД', restart: 'РЕСТАРТ',
         close: 'ЗАКРЫТЬ', repeat: 'ПОВТОРИТЬ', back: 'НАЗАД', lessonsTitle: 'МОДУЛИ ОБУЧЕНИЯ',
         themeChanged: 'Тема изменена', soundOn: 'Звук включен', soundOff: 'Звук выключен',
-        langChanged: 'Язык изменен', systemReady: 'Система инициализирована', mpSoon: 'Мультиплеер запускается на основном сайте'
+        langChanged: 'Язык изменен', systemReady: 'Система инициализирована', mpSoon: 'Мультиплеер запускается на основном сайте',
+        hubIdle: 'HUB · IDLE', modeLessons: 'MODE · TRAINING', modeSpeed: 'MODE · SPEED TEST',
+        modeFree: 'MODE · FREE TYPING', modeLesson: 'MODE · LESSON'
     },
     en: {
         training: 'TRAINING', trainingDesc: 'Neural adaptation program', trainingStats: '46 modules',
@@ -53,9 +55,18 @@ const translations = {
         time: 'TIME', timeUnit: 'minutes', exit: 'EXIT', restart: 'RESTART',
         close: 'CLOSE', repeat: 'REPEAT', back: 'BACK', lessonsTitle: 'TRAINING MODULES',
         themeChanged: 'Theme changed', soundOn: 'Sound enabled', soundOff: 'Sound muted',
-        langChanged: 'Language changed', systemReady: 'System initialized', mpSoon: 'Multiplayer runs on the main site'
+        langChanged: 'Language changed', systemReady: 'System initialized', mpSoon: 'Multiplayer runs on the main site',
+        hubIdle: 'HUB · IDLE', modeLessons: 'MODE · TRAINING', modeSpeed: 'MODE · SPEED TEST',
+        modeFree: 'MODE · FREE TYPING', modeLesson: 'MODE · LESSON'
     }
 };
+
+function setModeLabel(key) {
+    const el = document.getElementById('modeLabel');
+    if (!el) return;
+    const t = translations[app.lang] || translations.ru;
+    el.textContent = t[key] || '';
+}
 
 function hideAllScreens() {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -66,6 +77,7 @@ function showHome() {
     hideAllScreens();
     document.getElementById('homeScreen').classList.add('active');
     app.currentMode = 'home';
+    setModeLabel('hubIdle');
 }
 
 function showLessons() {
@@ -77,6 +89,7 @@ function showLessons() {
         screen.classList.add('active');
         app.currentMode = 'lessons';
         renderLessons();
+        setModeLabel('modeLessons');
     } else {
         console.error('lessonsScreen not found!');
     }
@@ -87,6 +100,7 @@ function showSpeedTest() {
     const text = generateSpeedTest();
     console.log('Generated text:', text);
     startPractice(text, 'speedtest');
+    setModeLabel('modeSpeed');
 }
 
 function showFreeMode() {
@@ -94,6 +108,7 @@ function showFreeMode() {
     const text = prompt('Введите текст для тренировки:');
     if (text && text.trim()) {
         startPractice(text, 'free');
+        setModeLabel('modeFree');
     }
 }
 
@@ -136,6 +151,7 @@ function startPractice(text, mode) {
     renderText();
     updateStats();
     startTimer();
+    if (mode === 'lesson') setModeLabel('modeLesson');
 }
 
 function renderText() {
@@ -474,3 +490,4 @@ document.addEventListener('DOMContentLoaded', () => {
     
     console.log('Initialization complete');
 });
+

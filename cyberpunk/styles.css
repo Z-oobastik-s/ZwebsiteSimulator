@@ -320,6 +320,15 @@ body {
     gap: 1rem;
 }
 
+.mode-label {
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    opacity: 0.8;
+}
+
 /* ===== MODE GRID ===== */
 .mode-grid {
     max-width: 1200px;
@@ -983,3 +992,4 @@ body {
         grid-template-columns: 1fr;
     }
 }
+
