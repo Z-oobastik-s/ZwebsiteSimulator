@@ -276,8 +276,9 @@ body {
 /* ===== MAIN CONTENT ===== */
 .main-content {
     padding-top: 90px;
-    height: calc(100vh - 90px);
-    overflow: hidden;
+    min-height: calc(100vh - 90px);
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 #homeScreen {
@@ -498,15 +499,11 @@ body {
 
 /* ===== PRACTICE SCREEN ===== */
 #practiceScreen {
-    height: calc(100vh - 90px);
-    overflow: hidden;
     flex-direction: column;
 }
 
 /* ===== LESSONS SCREEN ===== */
 #lessonsScreen {
-    height: calc(100vh - 90px);
-    overflow-y: auto;
     flex-direction: column;
 }
 
@@ -631,7 +628,7 @@ body {
     justify-content: flex-start;
     box-shadow: 0 0 30px var(--glow-primary);
     clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);
-    overflow-x: auto;
+    overflow-x: hidden;
     overflow-y: hidden;
 }
 
@@ -1046,3 +1043,4 @@ body {
         grid-template-columns: 1fr;
     }
 }
+

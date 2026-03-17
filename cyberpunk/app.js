@@ -125,7 +125,13 @@ function exitPractice() {
 }
 
 function restartPractice() {
-    startPractice(app.currentText, app.currentMode);
+    if (app.currentMode === 'speedtest') {
+        const text = generateSpeedTest();
+        startPractice(text, 'speedtest');
+        setModeLabel('modeSpeed');
+    } else {
+        startPractice(app.currentText, app.currentMode);
+    }
 }
 
 function closeResults() {
@@ -135,7 +141,11 @@ function closeResults() {
 
 function repeatPractice() {
     closeResults();
-    restartPractice();
+    if (app.currentMode === 'speedtest') {
+        showSpeedTest();
+    } else {
+        restartPractice();
+    }
 }
 
 function closeFreeModeModal() {
@@ -541,3 +551,4 @@ document.addEventListener('DOMContentLoaded', () => {
     
     console.log('Initialization complete');
 });
+
