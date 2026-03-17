@@ -425,7 +425,8 @@ function saveStats(speed, accuracy, time) {
     const stats = JSON.parse(localStorage.getItem('neuralTyperStats') || '{}');
     if (!stats.bestSpeed || speed > stats.bestSpeed) stats.bestSpeed = speed;
     if (!stats.bestAccuracy || accuracy > stats.bestAccuracy) stats.bestAccuracy = accuracy;
-    stats.totalTime = (stats.totalTime || 0) + Math.round(time / 60);
+    const addSeconds = Math.round(time);
+    stats.totalTimeSeconds = (stats.totalTimeSeconds || 0) + addSeconds;
     stats.sessions = (stats.sessions || 0) + 1;
     stats.totalAccuracy = (stats.totalAccuracy || 0) + accuracy;
     stats.avgAccuracy = Math.round(stats.totalAccuracy / stats.sessions);
@@ -444,7 +445,16 @@ function loadStats() {
     document.getElementById('bestSpeed').textContent = stats.bestSpeed || 0;
     document.getElementById('avgAccuracy').textContent = stats.avgAccuracy || 0;
     document.getElementById('completedLessons').textContent = stats.completedLessons || 0;
-    document.getElementById('totalTime').textContent = stats.totalTime || 0;
+    const totalSec = stats.totalTimeSeconds || 0;
+    const totalMin = Math.floor(totalSec / 60);
+    const hours = Math.floor(totalMin / 60);
+    let timeText;
+    if (hours > 0) {
+        timeText = hours + (app.lang === 'en' ? 'h' : 'ч');
+    } else {
+        timeText = totalMin + (app.lang === 'en' ? 'm' : 'м');
+    }
+    document.getElementById('totalTime').textContent = timeText;
 }
 
 // Initialize
@@ -490,3 +500,4 @@ document.addEventListener('DOMContentLoaded', () => {
     
     console.log('Initialization complete');
 });
+
