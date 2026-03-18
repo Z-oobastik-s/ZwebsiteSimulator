@@ -114,15 +114,23 @@ function maybeUppercase(word) {
     return word.charAt(0).toUpperCase() + word.slice(1);
 }
 
+function sanitizeToken(token) {
+    if (!token) return '';
+    const s = String(token);
+    try {
+        // Keep only letters/digits (remove em-dash, hyphens, quotes, etc).
+        return s.replace(/[^\p{L}\p{N}]+/gu, '');
+    } catch (_) {
+        // Fallback for older engines without unicode property escapes.
+        return s.replace(/[^0-9A-Za-zА-Яа-яЁёІіЇїЄєҐґ]+/g, '');
+    }
+}
+
 function generateRandomTextByChars(targetChars, language, theme, options = {}) {
     const includeComma = !!options.includeComma;
     const includePeriod = !!options.includePeriod;
     const includeDigits = !!options.includeDigits;
     const mixCase = !!options.mixCase;
-
-    const punctuation = [];
-    if (includeComma) punctuation.push(',');
-    if (includePeriod) punctuation.push('.');
 
     const wordsFromRandomPool = language === 'en'
         ? ['the', 'and', 'for', 'are', 'but', 'not', 'you', 'all', 'can', 'her', 'was', 'one', 'our', 'out', 'day', 'get', 'has', 'him', 'his', 'how', 'man', 'new', 'now', 'old', 'see', 'time', 'two', 'way', 'who', 'boy', 'did', 'its', 'let', 'put', 'say', 'she', 'too', 'use', 'with', 'work', 'year', 'back', 'call', 'come', 'made', 'make', 'more', 'over', 'such', 'take', 'than', 'them', 'then', 'very', 'well', 'when', 'your']
@@ -137,52 +145,52 @@ function generateRandomTextByChars(targetChars, language, theme, options = {}) {
     const wordPool = themedWords.length ? themedWords : wordsFromRandomPool;
 
     // Tune probabilities: punctuation isn't overwhelming.
-    const commaChance = includeComma ? 0.12 : 0;
-    const periodChance = includePeriod ? 0.08 : 0;
+    const commaChance = includeComma ? 0.10 : 0;
+    const periodChance = includePeriod ? 0.06 : 0;
     const digitChance = includeDigits ? 0.03 : 0;
 
     let out = '';
-    let canAddSpace = false;
-    let capitalizeNext = true;
+    let needSpace = false;
 
     while (out.length < targetChars) {
-        // Add a digit "word" sometimes.
+        // Choose token
         let token = '';
         if (digitChance && cryptoRandInt(1000) < Math.floor(digitChance * 1000)) {
-            const n = cryptoRandInt(9999) + 1;
-            token = String(n);
+            token = String(cryptoRandInt(9999) + 1);
         } else {
-            token = cryptoPick(wordPool);
+            token = cryptoPick(wordPool) || cryptoPick(wordsFromRandomPool);
         }
-        if (!token) token = cryptoPick(wordsFromRandomPool);
 
-        if (mixCase && cryptoRandInt(100) < 12) token = token.toUpperCase();
-        if (capitalizeNext) token = maybeUppercase(token);
+        token = sanitizeToken(token);
+        if (!token) continue;
 
-        if (canAddSpace) out += ' ';
+        // Respect casing option: no uppercase unless mixCase is enabled.
+        if (!mixCase) {
+            token = token.toLowerCase();
+        } else {
+            // MixCase: occasionally upper-case first letter / whole token.
+            const rCase = cryptoRandInt(100);
+            if (rCase < 20) token = maybeUppercase(token);
+            else if (rCase >= 20 && rCase < 24) token = token.toUpperCase();
+            else token = token.toLowerCase();
+        }
+
+        if (needSpace) out += ' ';
         out += token;
-        canAddSpace = true;
+        needSpace = true;
 
-        if (punctuation.length) {
+        // Optional punctuation (only comma/dot - no dashes, etc).
+        if (includeComma || includePeriod) {
             const r = cryptoRandInt(1000);
             if (includeComma && r < Math.floor(commaChance * 1000)) {
                 out += ',';
-                capitalizeNext = false;
             } else if (includePeriod && r < Math.floor((commaChance + periodChance) * 1000)) {
                 out += '.';
-                canAddSpace = false; // after dot, next token shouldn't immediately have a space in "out.length" checks
-                capitalizeNext = true;
+                // after dot we still keep space before next token (needSpace stays true)
             }
-        }
-
-        // If we just added a dot, allow the next loop to add a space properly.
-        if (!canAddSpace && out.length < targetChars) {
-            // We'll add space before next word.
-            canAddSpace = true;
         }
     }
 
-    // Trim to exact chars to match the user's chosen length.
     return out.slice(0, targetChars).trim();
 }
 
@@ -498,4 +506,3 @@ window.multiplayerModule = {
     getMultiplayerState,
     isMultiplayerActive
 };
-

@@ -3817,7 +3817,15 @@ function handleMultiplayerKeyPress(e) {
 
 // Update multiplayer progress
 function updateMultiplayerProgress() {
-    const progress = Math.round((app.currentPosition / app.currentText.length) * 100);
+    if (!app.currentText || app.currentText.length === 0) {
+        const progress = 0;
+        document.getElementById('multiplayerMyProgress').textContent = progress;
+        document.getElementById('multiplayerMyProgressBar').style.width = progress + '%';
+        return;
+    }
+    const raw = (app.currentPosition / app.currentText.length) * 100;
+    const isFinished = app.currentPosition >= app.currentText.length;
+    const progress = isFinished ? 100 : Math.floor(raw);
     document.getElementById('multiplayerMyProgress').textContent = progress;
     document.getElementById('multiplayerMyProgressBar').style.width = progress + '%';
     
@@ -3831,13 +3839,17 @@ async function finishMultiplayerGame() {
     
     app.gameEnded = true;
     document.removeEventListener('keydown', handleMultiplayerKeyPress);
-    
-    await window.multiplayerModule.finishGame();
-    
-    showToast(t('youWonMsg'), 'success', '🏆 ' + t('youWon'));
-    setTimeout(() => {
-        returnToMultiplayerLobby();
-    }, 2500);
+    try {
+        await window.multiplayerModule.finishGame();
+        showToast(t('youWonMsg'), 'success', '🏆 ' + t('youWon'));
+    } catch (e) {
+        console.error('finishMultiplayerGame error:', e);
+        showToast('Ошибка завершения матча', 'error', 'Multiplayer');
+    } finally {
+        setTimeout(() => {
+            returnToMultiplayerLobby();
+        }, 1800);
+    }
 }
 
 // Return to lobby after match
@@ -4222,4 +4234,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-
