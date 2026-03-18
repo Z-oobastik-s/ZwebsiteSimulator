@@ -3538,6 +3538,10 @@ async function joinMultiplayerRoom() {
 // Leave multiplayer room
 async function leaveMultiplayerRoom() {
     try {
+        // Stop game input handler to avoid "ghost" key presses after leaving.
+        app.gameEnded = true;
+        document.removeEventListener('keydown', handleMultiplayerKeyPress);
+
         await window.multiplayerModule.leaveRoom();
         showToast(t('leftRoom'), 'info', t('multiplayer'));
         showHome();
@@ -3609,6 +3613,10 @@ function renderMultiplayerText() {
 window.onMultiplayerUpdate = (data) => {
     // Update player count
     if (data.playerCount) {
+        // If opponent left, allow the "second player joined" toast next time.
+        if (data.playerCount < 2 && window.secondPlayerNotified) {
+            window.secondPlayerNotified = false;
+        }
         const countEl = document.getElementById('multiplayerPlayerCount');
         if (countEl) {
             countEl.innerHTML = `<span class="text-success font-bold">${data.playerCount}</span> / <span class="text-gray-400">2</span> <span data-i18n="playersCount">${t('playersCount')}</span>`;
@@ -4135,3 +4143,4 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+
