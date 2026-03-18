@@ -2120,6 +2120,7 @@ function generateUaBeginnerLessonText(poolText, minChars = 100, maxChars = 200) 
 
 // More "sentence-like" UA beginner generator (still: only lowercase Ukrainian letters + spaces).
 function generateUaBeginnerSentenceText(poolText, minChars = 100, maxChars = 200) {
+    const poolLower = String(poolText || '').toLowerCase();
     const rawWords = String(poolText || '')
         .split(/\s+/)
         .map(s => sanitizeUaBeginnerWord(s))
@@ -2146,8 +2147,28 @@ function generateUaBeginnerSentenceText(poolText, minChars = 100, maxChars = 200
         'допомагаю', 'навчаю', 'готую', 'вожу'
     ].map(w => sanitizeUaBeginnerWord(w)).filter(Boolean);
 
-    const subjects = ['я', 'ми', 'ти', 'він', 'вона', 'воно']
-        .map(w => sanitizeUaBeginnerWord(w)).filter(Boolean);
+    // Keep a single subject for readability (1st person singular).
+    const subjects = ['я'].map(w => sanitizeUaBeginnerWord(w)).filter(Boolean);
+
+    // Choose a stable verb by topic keywords (to keep the sentence coherent).
+    const has = (needle) => poolLower.includes(String(needle || '').toLowerCase());
+    let fixedVerb = null;
+    if (has('клей') || has('стикер') || has('етикет') || has('наклей') || has('клейщик')) fixedVerb = 'клею';
+    else if (has('пакет') || has('короб') || has('комплект') || has('замов') || has('посил') || has('посилка')) fixedVerb = 'пакую';
+    else if (has('вантаж') || has('груз') || has('ящик') || has('грузчик')) fixedVerb = 'вантажу';
+    else if (has('продав') || has('магазин') || has('клієнт') || has('клиент') || has('чек') || has('покуп')) fixedVerb = 'продаю';
+    else if (has('айтіш') || has('айти') || has('код') || has('програма') || has('сервер') || has('тест')) fixedVerb = 'пишу';
+    else if (has('вчитель') || has('учень') || has('урок') || has('навч')) fixedVerb = 'вчу';
+    else if (has('водій') || has('маршрут') || has('кермо') || has('водiй')) fixedVerb = 'керую';
+    else if (has('ножиці') || has('ножи') || has('ножиц') || has('стриж') || has('перукар') || has('гребін')) fixedVerb = 'стрижу';
+    else if (has('фарб') || has('пензель') || has('валик') || has('маляр')) fixedVerb = 'малюю';
+    else if (has('ремонт') || has('сервіс') || has('сервис') || has('гайка') || has('болт') || has('слюсар') || has('механ')) fixedVerb = 'ремонтую';
+    else if (has('полив') || has('садівник') || has('садов') || has('квітка') || has('квитка') || has('квiтка')) fixedVerb = 'поливаю';
+    else if (has('кухня') || has('суп') || has('каша') || has('борщ') || has('кондитер') || has('торт')) fixedVerb = 'готую';
+    else if (has('лікар') || has('ліки')) fixedVerb = 'лікую';
+    else if (has('поштар') || has('лист')) fixedVerb = 'відправляю';
+    else fixedVerb = 'працюю';
+    fixedVerb = sanitizeUaBeginnerWord(fixedVerb) || 'працюю';
 
     candidates = Array.from(new Set(candidates.concat(helpers)));
     const connectors = ['і', 'та', 'але', 'бо', 'тому', 'потім'];
@@ -2158,8 +2179,8 @@ function generateUaBeginnerSentenceText(poolText, minChars = 100, maxChars = 200
         ['{time}', '{subj}', '{verb}', '{w}', '{w}', 'та', '{w}', '{w}', 'і', '{w}', '{w}'],
         ['{time}', '{subj}', '{verb}', '{w}', '{w}', 'і', '{w}', '{w}', 'та', '{w}', '{w}'],
         ['{time}', '{subj}', '{verb}', '{w}', 'і', '{w}', '{w}', 'але', '{w}', '{w}'],
-        ['{time}', '{subj}', 'вчу', '{w}', '{w}', 'та', '{w}', '{w}', 'бо', '{w}', '{w}'],
-        ['{time}', '{subj}', 'працюю', '{w}', '{w}', 'і', '{w}', 'та', '{w}', '{w}', 'завжди']
+        ['{time}', '{subj}', '{verb}', '{w}', '{w}', 'та', '{w}', '{w}', 'бо', '{w}', '{w}'],
+        ['{time}', '{subj}', '{verb}', '{w}', '{w}', 'і', '{w}', 'та', '{w}', '{w}', 'завжди']
     ];
 
     const pickRandom = (arr) => {
@@ -2184,8 +2205,7 @@ function generateUaBeginnerSentenceText(poolText, minChars = 100, maxChars = 200
                 const available = candidates.filter(w => !used.has(w) && !w.includes('ґ'));
                 word = pickRandom(available);
             } else if (token === '{verb}') {
-                const available = verbs.filter(w => !used.has(w) && !w.includes('ґ'));
-                word = pickRandom(available);
+                word = fixedVerb;
             } else if (token === '{subj}') {
                 const available = subjects.filter(w => !used.has(w) && !w.includes('ґ'));
                 word = pickRandom(available);
@@ -2293,6 +2313,7 @@ function sanitizeEnBeginnerWord(word) {
 }
 
 function generateRuBeginnerSentenceText(poolText, minChars = 100, maxChars = 200) {
+    const poolLower = String(poolText || '').toLowerCase();
     const rawWords = String(poolText || '')
         .split(/\s+/)
         .map(s => sanitizeRuBeginnerWord(s))
@@ -2313,10 +2334,24 @@ function generateRuBeginnerSentenceText(poolText, minChars = 100, maxChars = 200
     }
     if (candidates.length === 0) return 'я учусь печатать и читаю слова';
 
-    const subjects = ['я', 'мы', 'ты', 'он', 'она', 'оно'];
+    // Beginner readability: always use 1st person singular.
+    const subjects = ['я'];
     const times = ['сегодня', 'вчера', 'завтра', 'утром', 'вечером', 'ночью', 'днем', 'теперь', 'всегда'];
     const verbs = ['учусь', 'пишу', 'читаю', 'делаю', 'знаю', 'вижу', 'помню', 'повторяю', 'практикую', 'тренируюсь'];
     const connectors = ['и', 'а', 'но', 'потом', 'снова', 'тогда'];
+
+    // Choose a stable verb by keywords.
+    const has = (needle) => poolLower.includes(String(needle || '').toLowerCase());
+    let fixedVerb = null;
+    if (has('клей') || has('стикер') || has('наклей')) fixedVerb = 'клею';
+    else if (has('склад') || has('заказ') || has('комплект') || has('короб') || has('упаков')) fixedVerb = 'комплектую';
+    else if (has('груз') || has('ящик')) fixedVerb = 'гружу';
+    else if (has('продав') || has('магазин') || has('клиент') || has('чек')) fixedVerb = 'продаю';
+    else if (has('айтиш') || has('код') || has('программа') || has('сервер') || has('тест')) fixedVerb = 'пишу';
+    else if (has('учитель') || has('учен') || has('урок') || has('знани')) fixedVerb = 'учу';
+    else if (has('водител') || has('маршрут') || has('руль')) fixedVerb = 'вожу';
+    else fixedVerb = 'учусь';
+    fixedVerb = sanitizeRuBeginnerWord(fixedVerb) || 'учусь';
 
     const templates = [
         ['{time}', '{subj}', '{verb}', '{w}', '{w}', '{c}', '{w}', '{w}'],
@@ -2346,7 +2381,7 @@ function generateRuBeginnerSentenceText(poolText, minChars = 100, maxChars = 200
             } else if (token === '{subj}') {
                 word = pickRandom(subjects.filter(w => !used.has(w)));
             } else if (token === '{verb}') {
-                word = pickRandom(verbs.filter(w => !used.has(w)));
+                word = fixedVerb;
             } else if (token === '{time}') {
                 word = pickRandom(times.filter(w => !used.has(w)));
             } else if (token === '{c}') {
@@ -2428,6 +2463,7 @@ function generateRuBeginnerSentenceText(poolText, minChars = 100, maxChars = 200
 }
 
 function generateEnBeginnerSentenceText(poolText, minChars = 100, maxChars = 200) {
+    const poolLower = String(poolText || '').toLowerCase();
     const rawWords = String(poolText || '')
         .split(/\s+/)
         .map(s => sanitizeEnBeginnerWord(s))
@@ -2442,10 +2478,24 @@ function generateEnBeginnerSentenceText(poolText, minChars = 100, maxChars = 200
     }
     if (candidates.length === 0) return 'i practice typing and read words';
 
-    const subjects = ['i', 'we', 'you', 'he', 'she', 'it'];
+    // Beginner readability: always use "i".
+    const subjects = ['i'];
     const times = ['today', 'now', 'morning', 'evening', 'night', 'always', 'then'];
     const verbs = ['type', 'learn', 'read', 'write', 'practice', 'repeat', 'improve', 'focus'];
     const connectors = ['and', 'but', 'then', 'because', 'so', 'always'];
+
+    // Choose a stable verb by keywords.
+    const has = (needle) => poolLower.includes(String(needle || '').toLowerCase());
+    let fixedVerb = null;
+    if (has('warehouse') || has('pack') || has('order') || has('box')) fixedVerb = 'pack';
+    else if (has('sticker') || has('label')) fixedVerb = 'stick';
+    else if (has('loader') || has('load') || has('crate') || has('cargo')) fixedVerb = 'load';
+    else if (has('seller') || has('shop') || has('customer')) fixedVerb = 'sell';
+    else if (has('it') || has('code') || has('program') || has('server') || has('test')) fixedVerb = 'code';
+    else if (has('driver') || has('route') || has('car')) fixedVerb = 'drive';
+    else if (has('read') || has('book') || has('words')) fixedVerb = 'read';
+    else fixedVerb = 'type';
+    fixedVerb = sanitizeEnBeginnerWord(fixedVerb) || 'type';
 
     const templates = [
         ['{time}', '{subj}', '{verb}', '{w}', '{w}', '{c}', '{w}', '{w}'],
@@ -2472,7 +2522,7 @@ function generateEnBeginnerSentenceText(poolText, minChars = 100, maxChars = 200
             let word = null;
             if (token === '{w}') word = pickRandom(candidates.filter(w => !used.has(w)));
             else if (token === '{subj}') word = pickRandom(subjects.filter(w => !used.has(w)));
-            else if (token === '{verb}') word = pickRandom(verbs.filter(w => !used.has(w)));
+            else if (token === '{verb}') word = fixedVerb;
             else if (token === '{time}') word = pickRandom(times.filter(w => !used.has(w)));
             else if (token === '{c}') word = pickRandom(connectors.filter(w => !used.has(w)));
             else word = sanitizeEnBeginnerWord(token);
@@ -5411,3 +5461,4 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+
