@@ -3727,6 +3727,10 @@ window.onMultiplayerStart = (gameText) => {
     // Render text
     const display = document.getElementById('multiplayerTextDisplay');
     renderMultiplayerText();
+    if (display) {
+        // Prevent stale horizontal scroll offset from previous match.
+        display.scrollLeft = 0;
+    }
     
     // Reset progress bars
     document.getElementById('multiplayerMyProgress').textContent = '0';
@@ -4218,4 +4222,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-

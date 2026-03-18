@@ -1059,4 +1059,3 @@ const LESSONS_DATA = {
         ]
     }
 };
-
