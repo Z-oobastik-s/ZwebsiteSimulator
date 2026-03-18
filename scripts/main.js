@@ -17,6 +17,7 @@ const app = {
     endTime: null,
     isPaused: false,
     errors: 0,
+    opponentErrors: 0,
     totalChars: 0,
     soundEnabled: true,
     bgMusicEnabled: false,
@@ -3686,6 +3687,9 @@ function renderMultiplayerText() {
 }
 
 window.onMultiplayerUpdate = (data) => {
+    if (data && typeof data.opponentErrors !== 'undefined') {
+        app.opponentErrors = data.opponentErrors || 0;
+    }
     // Update player count
     if (data.playerCount) {
         // If opponent left, allow the "second player joined" toast next time.
@@ -3762,8 +3766,9 @@ window.onOpponentFinished = () => {
     if (!app.gameEnded) {
         app.gameEnded = true;
         document.removeEventListener('keydown', handleMultiplayerKeyPress);
-        showToast(t('youLostMsg'), 'error', t('youLost'));
-        setTimeout(() => returnToMultiplayerLobby(), 2500);
+        // Disable rematch auto-start: mark myself as not ready.
+        try { window.multiplayerModule?.setReadyForNext?.(false); } catch (e) {}
+        openMultiplayerResultsModal(false);
     }
 };
 
@@ -3812,6 +3817,7 @@ function handleMultiplayerKeyPress(e) {
         // Error
         app.errors++;
         playSound('error');
+        window.multiplayerModule?.updateErrors?.(app.errors);
     }
 }
 
@@ -3841,26 +3847,95 @@ async function finishMultiplayerGame() {
     document.removeEventListener('keydown', handleMultiplayerKeyPress);
     try {
         await window.multiplayerModule.finishGame();
-        showToast(t('youWonMsg'), 'success', '🏆 ' + t('youWon'));
     } catch (e) {
         console.error('finishMultiplayerGame error:', e);
-        showToast('Ошибка завершения матча', 'error', 'Multiplayer');
     } finally {
-        setTimeout(() => {
-            returnToMultiplayerLobby();
-        }, 1800);
+        openMultiplayerResultsModal(true);
     }
 }
 
 // Return to lobby after match
-function returnToMultiplayerLobby() {
-    window.multiplayerModule.resetGame();
+async function returnToMultiplayerLobby() {
+    try { await window.multiplayerModule.resetGame(); } catch (e) {}
     hideAllScreens();
     document.getElementById('multiplayerWaitingScreen').classList.remove('hidden');
     app.currentMode = 'multiplayer-waiting';
     app.gameEnded = false;
     window.secondPlayerNotified = false;
 }
+
+function formatClock(totalSeconds) {
+    totalSeconds = Math.max(0, Math.floor(totalSeconds));
+    const m = Math.floor(totalSeconds / 60);
+    const s = totalSeconds % 60;
+    return m + ':' + String(s).padStart(2, '0');
+}
+
+function openMultiplayerResultsModal(isWin) {
+    const modal = document.getElementById('multiplayerResultsModal');
+    if (!modal) return;
+
+    const myChars = app.currentPosition || 0;
+    const myErrors = app.errors || 0;
+    const totalLen = (app.currentText && app.currentText.length) ? app.currentText.length : 1;
+    const opponentErrors = app.opponentErrors || 0;
+
+    // Opponent chars from current opponent progress percent.
+    const oppProgressEl = document.getElementById('multiplayerOpponentProgress');
+    const oppProgress = oppProgressEl ? parseFloat(oppProgressEl.textContent) : 0;
+    const oppChars = Math.round((oppProgress / 100) * totalLen);
+
+    const timeSec = (Date.now() - (app.startTime || Date.now())) / 1000;
+    const minutes = Math.max(1 / 60, timeSec / 60);
+
+    const myCpm = Math.round(myChars / minutes);
+    const myWpm = Math.round((myChars / 5) / minutes);
+    const myAcc = Math.round(myChars + myErrors > 0 ? (myChars / (myChars + myErrors)) * 100 : 100);
+
+    const oppCpm = Math.round(oppChars / minutes);
+    const oppAcc = Math.round(oppChars + opponentErrors > 0 ? (oppChars / (oppChars + opponentErrors)) * 100 : 100);
+
+    const title = isWin ? 'Победа' : 'Поражение';
+    const subtitle = isWin ? 'Матч завершён. Вы ввели текст быстрее.' : 'Матч завершён. Соперник был быстрее.';
+
+    document.getElementById('multiplayerResultsTitle').textContent = title;
+    document.getElementById('multiplayerResultsSubtitle').textContent = subtitle;
+    document.getElementById('mpResMyBadge').textContent = isWin ? 'WIN' : 'LOSE';
+    document.getElementById('mpResOppBadge').textContent = isWin ? 'LOSE' : 'WIN';
+
+    document.getElementById('mpResMyCpm').textContent = myCpm;
+    document.getElementById('mpResMyWpm').textContent = myWpm;
+    document.getElementById('mpResMyAcc').textContent = myAcc;
+    document.getElementById('mpResMyChars').textContent = myChars;
+    document.getElementById('mpResMyErrors').textContent = myErrors;
+    document.getElementById('mpResMyTime').textContent = formatClock(timeSec);
+
+    document.getElementById('mpResOppCpm').textContent = oppCpm;
+    document.getElementById('mpResOppAcc').textContent = oppAcc;
+    document.getElementById('mpResOppChars').textContent = oppChars;
+    document.getElementById('mpResOppErrors').textContent = opponentErrors;
+
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+}
+
+function closeMultiplayerResultsModal() {
+    const modal = document.getElementById('multiplayerResultsModal');
+    if (!modal) return;
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+}
+
+window.multiplayerResultsRematch = async function() {
+    closeMultiplayerResultsModal();
+    // Reset local player state and mark myself ready (server will start next match only after both are ready).
+    await returnToMultiplayerLobby();
+};
+
+window.multiplayerResultsExit = async function() {
+    closeMultiplayerResultsModal();
+    await leaveMultiplayerRoom();
+};
 
 // Shop functions
 let currentShopCategory = 'all';
@@ -4234,3 +4309,4 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+

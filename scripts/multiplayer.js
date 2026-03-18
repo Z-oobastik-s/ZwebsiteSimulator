@@ -21,7 +21,9 @@ const multiplayerState = {
     gameStarted: false,
     gameText: '',
     myProgress: 0,
+    myErrors: 0,
     opponentProgress: 0,
+    opponentErrors: 0,
     gameEnded: false,
     autoStartTimeoutId: null,
     roomListenerUnsub: null,
@@ -220,6 +222,7 @@ export async function createRoom(wordCount = 50, theme = 'random', layout = 'ru'
                 number: 1,
                 ready: true,
                 progress: 0,
+                errors: 0,
                 finished: false,
                 lastUpdate: serverTimestamp()
             }
@@ -276,6 +279,7 @@ export async function joinRoom(roomCode) {
         number: 2,
         ready: true,
         progress: 0,
+        errors: 0,
         finished: false,
         lastUpdate: serverTimestamp()
     });
@@ -316,6 +320,7 @@ function listenToRoom(roomCode) {
         if (opponentId) {
             multiplayerState.opponentId = opponentId;
             multiplayerState.opponentProgress = players[opponentId].progress || 0;
+            multiplayerState.opponentErrors = players[opponentId].errors || 0;
             
             // Check if opponent finished
             if (players[opponentId].finished && !multiplayerState.gameEnded) {
@@ -343,13 +348,15 @@ function listenToRoom(roomCode) {
             window.onMultiplayerUpdate({
                 playerCount: playerIds.length,
                 started: roomData.started,
-                opponentProgress: multiplayerState.opponentProgress
+                opponentProgress: multiplayerState.opponentProgress,
+                opponentErrors: multiplayerState.opponentErrors
             });
         }
         
         // Start game when both players ready
         if (multiplayerState.isHost) {
-            const shouldAutoStart = playerIds.length === 2 && !roomData.started;
+            const allReady = playerIds.length === 2 && playerIds.every(id => players[id] && players[id].ready === true);
+            const shouldAutoStart = allReady && !roomData.started;
             if (shouldAutoStart && !multiplayerState.autoStartTimeoutId) {
                 // Auto-start after 3 seconds, but we will re-check players inside callback.
                 multiplayerState.autoStartTimeoutId = setTimeout(async () => {
@@ -364,6 +371,8 @@ function listenToRoom(roomCode) {
                     const freshPlayers = freshRoom.players || {};
                     const freshPlayerIds = Object.keys(freshPlayers);
                     if (freshPlayerIds.length !== 2) return; // someone left during the delay
+                    const freshAllReady = freshPlayerIds.every(id => freshPlayers[id] && freshPlayers[id].ready === true);
+                    if (!freshAllReady) return;
 
                     await update(roomRef, { 
                         started: true,
@@ -402,6 +411,27 @@ export async function updateProgress(progress) {
     });
 }
 
+// Update player errors (wrong key presses)
+export async function updateErrors(errors) {
+    if (!multiplayerState.roomCode || !multiplayerState.playerId) return;
+    multiplayerState.myErrors = errors;
+    const playerRef = ref(database, `rooms/${multiplayerState.roomCode}/players/${multiplayerState.playerId}`);
+    await update(playerRef, {
+        errors: errors,
+        lastUpdate: serverTimestamp()
+    });
+}
+
+// Used to control rematch: when a player is ready for the next match, set ready=true.
+export async function setReadyForNext(ready) {
+    if (!multiplayerState.roomCode || !multiplayerState.playerId) return;
+    const playerRef = ref(database, `rooms/${multiplayerState.roomCode}/players/${multiplayerState.playerId}`);
+    await update(playerRef, {
+        ready: !!ready,
+        lastUpdate: serverTimestamp()
+    });
+}
+
 // Mark player as finished
 export async function finishGame() {
     if (!multiplayerState.roomCode || !multiplayerState.playerId) return;
@@ -412,6 +442,8 @@ export async function finishGame() {
     await update(playerRef, {
         finished: true,
         progress: 100,
+        errors: multiplayerState.myErrors || 0,
+        ready: false,
         finishedAt: serverTimestamp()
     });
 }
@@ -470,7 +502,8 @@ export async function resetGame() {
     await update(playerRef, {
         progress: 0,
         finished: false,
-        ready: true
+        ready: true,
+        errors: 0
     });
 
     // Make sure "started" is false when someone left (so the other player can re-invite).
@@ -500,9 +533,12 @@ window.multiplayerModule = {
     createRoom,
     joinRoom,
     updateProgress,
+    updateErrors,
     finishGame,
     leaveRoom,
     resetGame,
+    setReadyForNext,
     getMultiplayerState,
     isMultiplayerActive
 };
+
