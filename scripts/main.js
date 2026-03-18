@@ -3738,6 +3738,10 @@ window.onMultiplayerStart = (gameText) => {
     document.getElementById('multiplayerGameScreen').classList.remove('hidden');
     app.currentMode = 'multiplayer-game';
     
+    // Close results modal and stop countdown from previous rematch.
+    try { closeMultiplayerResultsModal(); } catch (e) {}
+    stopMultiplayerRematchCountdown();
+    
     // Setup game
     app.currentText = gameText;
     app.currentPosition = 0;
@@ -3957,10 +3961,15 @@ function updateMultiplayerResultsHint() {
     const opponentWants = app.opponentReady === true;
     const iWant = app.myReady === true;
 
+    updateMultiplayerReadyPills();
+
     if (!opponentWants) {
         hint.textContent = isEnglish
             ? 'Next match starts only when both players press "Rematch".'
             : (isUkrainian ? 'Наступний матч почнеться лише коли обидва гравці натиснуть «Грати знову».' : 'Следующий матч начнётся только когда оба игрока нажмут «Играть снова».');
+        hint.style.border = '1px solid rgba(255,255,255,0.10)';
+        hint.style.background = 'transparent';
+        hint.style.boxShadow = 'none';
         return;
     }
 
@@ -3968,15 +3977,82 @@ function updateMultiplayerResultsHint() {
         hint.textContent = isEnglish
             ? 'Your opponent wants a rematch. Press "Rematch" to start.'
             : (isUkrainian ? 'Суперник хоче зіграти ще раз. Натисніть «Грати знову».' : 'Соперник хочет сыграть ещё раз. Нажмите «Играть снова».');
+        hint.style.border = '1px solid rgba(168,85,247,0.25)';
+        hint.style.background = 'rgba(168,85,247,0.08)';
+        hint.style.boxShadow = '0 0 22px rgba(168,85,247,0.18)';
         return;
     }
 
     if (opponentWants && iWant) {
+        startMultiplayerRematchCountdown();
+        const remainingMs = mpRematchCountdownEndTs ? (mpRematchCountdownEndTs - Date.now()) : 0;
+        const remainingSec = Math.max(0, Math.ceil(remainingMs / 1000));
+
         hint.textContent = isEnglish
-            ? 'Both players are ready. Starting next match...'
-            : (isUkrainian ? 'Обидва гравці готові. Починаємо наступний матч...' : 'Оба игрока готовы. Следующий матч стартует...');
+            ? `Both players are ready. Starting next match in ${remainingSec}s...`
+            : (isUkrainian
+                ? `Обидва гравці готові. Наступний матч через ${remainingSec}с...`
+                : `Оба игрока готовы. Следующий матч через ${remainingSec}с...`);
+        hint.style.border = '1px solid rgba(0,229,255,0.25)';
+        hint.style.background = 'rgba(0,229,255,0.08)';
+        hint.style.boxShadow = '0 0 22px rgba(0,229,255,0.18)';
         return;
     }
+}
+
+function updateMultiplayerReadyPills() {
+    const myPill = document.getElementById('mpResMyReadyPill');
+    const oppPill = document.getElementById('mpResOppReadyPill');
+    if (!myPill || !oppPill) return;
+
+    const isEnglish = app.lang === 'en';
+    const isUkrainian = app.lang === 'ua';
+
+    const myReady = app.myReady === true;
+    const oppReady = app.opponentReady === true;
+
+    const myText = myReady
+        ? (isEnglish ? 'YOU READY' : (isUkrainian ? 'ВИ ГОТОВІ' : 'ВЫ ГОТОВЫ'))
+        : (isEnglish ? 'YOU WAIT' : (isUkrainian ? 'ВИ ЧЕКАЄТЕ' : 'ВЫ ЖДЁТЕ'));
+
+    const oppText = oppReady
+        ? (isEnglish ? 'OPP READY' : (isUkrainian ? 'СУПЕРНИК ГОТОВИЙ' : 'СОПЕРНИК ГОТОВ'))
+        : (isEnglish ? 'OPP WAIT' : (isUkrainian ? 'СУПЕРНИК ЧЕКАЄ' : 'СОПЕРНИК ЖДЁТ'));
+
+    const applyPillStyle = (el, isReady, color) => {
+        el.textContent = el === myPill ? myText : oppText;
+        if (isReady) {
+            el.style.borderColor = color.readyBorder;
+            el.style.background = color.readyBg;
+            el.style.color = color.readyColor;
+            el.style.boxShadow = color.readyGlow;
+        } else {
+            el.style.borderColor = color.notBorder;
+            el.style.background = color.notBg;
+            el.style.color = color.notColor;
+            el.style.boxShadow = 'none';
+        }
+    };
+
+    applyPillStyle(myPill, myReady, {
+        readyBorder: 'rgba(0,229,255,0.85)',
+        readyBg: 'rgba(0,229,255,0.12)',
+        readyColor: 'rgba(0,229,255,0.98)',
+        readyGlow: '0 0 18px rgba(0,229,255,0.22)',
+        notBorder: 'rgba(255,255,255,0.10)',
+        notBg: 'rgba(255,255,255,0.04)',
+        notColor: 'rgba(229,231,235,0.75)'
+    });
+
+    applyPillStyle(oppPill, oppReady, {
+        readyBorder: 'rgba(168,85,247,0.85)',
+        readyBg: 'rgba(168,85,247,0.12)',
+        readyColor: 'rgba(196,181,253,0.98)',
+        readyGlow: '0 0 18px rgba(168,85,247,0.20)',
+        notBorder: 'rgba(255,255,255,0.10)',
+        notBg: 'rgba(255,255,255,0.04)',
+        notColor: 'rgba(229,231,235,0.75)'
+    });
 }
 
 function closeMultiplayerResultsModal() {
@@ -3984,6 +4060,29 @@ function closeMultiplayerResultsModal() {
     if (!modal) return;
     modal.classList.add('hidden');
     modal.classList.remove('flex');
+    stopMultiplayerRematchCountdown();
+}
+
+let mpRematchCountdownIntervalId = null;
+let mpRematchCountdownEndTs = null;
+
+function stopMultiplayerRematchCountdown() {
+    if (mpRematchCountdownIntervalId) {
+        clearInterval(mpRematchCountdownIntervalId);
+        mpRematchCountdownIntervalId = null;
+    }
+    mpRematchCountdownEndTs = null;
+}
+
+function startMultiplayerRematchCountdown() {
+    if (mpRematchCountdownIntervalId) return;
+    // Host auto-start delay is 3000ms.
+    mpRematchCountdownEndTs = Date.now() + 3000;
+    mpRematchCountdownIntervalId = setInterval(function () {
+        updateMultiplayerResultsHint();
+        const remainingMs = mpRematchCountdownEndTs ? (mpRematchCountdownEndTs - Date.now()) : 0;
+        if (remainingMs <= 0) stopMultiplayerRematchCountdown();
+    }, 150);
 }
 
 window.multiplayerResultsRematch = async function() {
@@ -4374,3 +4473,4 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+
