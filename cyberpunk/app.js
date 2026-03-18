@@ -245,17 +245,34 @@ function renderText() {
     }
 }
 
+function getLineTranslateX() {
+    const line = document.getElementById('text-line');
+    if (!line) return 0;
+    const style = getComputedStyle(line);
+    const m = style.transform?.match(/matrix\(([^)]+)\)/);
+    if (m) return parseFloat(m[1].split(',')[4]) || 0;
+    return 0;
+}
+
 function centerLineOnWord(wordEl) {
     const line = document.getElementById('text-line');
+    const container = document.getElementById('typingWindow');
     if (!line || !wordEl) return;
     const rect = wordEl.getBoundingClientRect();
-    const center = window.innerWidth / 2;
-    line.style.transform = `translateX(${center - rect.left - rect.width / 2}px)`;
+    const wordCenter = rect.left + rect.width / 2;
+    const center = container
+        ? container.getBoundingClientRect().left + container.offsetWidth / 2
+        : window.innerWidth / 2;
+    const currentTx = app.speedTestTranslateX != null ? app.speedTestTranslateX : getLineTranslateX();
+    const newTranslateX = currentTx + (center - wordCenter);
+    app.speedTestTranslateX = newTranslateX;
+    line.style.transform = `translateX(${newTranslateX}px)`;
 }
 
 function renderSpeedTestLine() {
     const line = document.getElementById('text-line');
     if (!line) return;
+    app.speedTestTranslateX = 0;
     const words = app.currentText.trim().split(/\s+/).filter(Boolean);
     line.innerHTML = words.map((w, i) => {
         const span = document.createElement('span');
@@ -263,7 +280,7 @@ function renderSpeedTestLine() {
         if (i === 0) span.classList.add('current');
         return span;
     }).map(s => s.outerHTML).join('');
-    line.style.transform = '';
+    line.style.transform = 'translateX(0)';
     requestAnimationFrame(() => {
         const first = line.querySelector('span.current');
         if (first) centerLineOnWord(first);
@@ -758,3 +775,4 @@ document.addEventListener('DOMContentLoaded', () => {
     
     console.log('Initialization complete');
 });
+
