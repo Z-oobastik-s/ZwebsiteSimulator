@@ -9,6 +9,7 @@ const app = {
     soundEnabled: true,
     theme: 'dark',
     lang: 'ru',
+    audioPreset: 'full', // 'full' | 'office'
     timerInterval: null,
     speedTestLimit: 60,
     lessons: {
@@ -30,6 +31,9 @@ const app = {
     speedWords: ['как', 'так', 'все', 'это', 'был', 'она', 'они', 'мой', 'его', 'что', 'год', 'дом', 'день', 'раз', 'рука', 'нога', 'вода', 'небо', 'земля', 'город']
 };
 
+let lessonsFilterDifficulty = 'all';
+let lessonsFilterType = 'all';
+
 const translations = {
     ru: {
         training: 'ОБУЧЕНИЕ', trainingDesc: 'Программа нейро-адаптации', trainingStats: '46 модулей',
@@ -41,6 +45,7 @@ const translations = {
         time: 'ВРЕМЯ', timeUnit: 'минут', exit: 'ВЫХОД', restart: 'РЕСТАРТ',
         close: 'ЗАКРЫТЬ', repeat: 'ПОВТОРИТЬ', back: 'НАЗАД', lessonsTitle: 'МОДУЛИ ОБУЧЕНИЯ',
         themeChanged: 'Тема изменена', soundOn: 'Звук включен', soundOff: 'Звук выключен',
+        presetFull: 'Полный киберпанк', presetOffice: 'Офис',
         langChanged: 'Язык изменен', systemReady: 'Система инициализирована', mpSoon: 'Мультиплеер запускается на основном сайте',
         hubIdle: 'HUB · IDLE', modeLessons: 'MODE · TRAINING', modeSpeed: 'MODE · SPEED TEST',
         modeFree: 'MODE · FREE TYPING', modeLesson: 'MODE · LESSON'
@@ -55,6 +60,7 @@ const translations = {
         time: 'TIME', timeUnit: 'minutes', exit: 'EXIT', restart: 'RESTART',
         close: 'CLOSE', repeat: 'REPEAT', back: 'BACK', lessonsTitle: 'TRAINING MODULES',
         themeChanged: 'Theme changed', soundOn: 'Sound enabled', soundOff: 'Sound muted',
+        presetFull: 'Full cyberpunk', presetOffice: 'Office',
         langChanged: 'Language changed', systemReady: 'System initialized', mpSoon: 'Multiplayer runs on the main site',
         hubIdle: 'HUB · IDLE', modeLessons: 'MODE · TRAINING', modeSpeed: 'MODE · SPEED TEST',
         modeFree: 'MODE · FREE TYPING', modeLesson: 'MODE · LESSON'
@@ -173,8 +179,26 @@ function updateFreeModeChars() {
     counter.textContent = textarea.value.length;
 }
 
+function applyFreeModePreset(preset) {
+    const textarea = document.getElementById('freeModeTextarea');
+    if (!textarea) return;
+    let text = '';
+    if (preset === 'motivation') {
+        text = 'Каждый день по несколько минут печати приближает тебя к скорости, о которой ты раньше только мечтал. Главное — не идеальный результат, а регулярное движение вперёд.';
+    } else if (preset === 'code') {
+        text = 'function neuralTyping(speed, accuracy) { const focus = true; const practice = speed * accuracy; return focus && practice > 0 ? "upgrade" : "idle"; }';
+    } else if (preset === 'story') {
+        text = 'В неоновом тумане мегаполиса клавиатура щёлкает как сердце системы. Каждый символ — импульс по проводам, каждое слово — новый пакет данных в бесконечной сети.';
+    }
+    textarea.value = text;
+    updateFreeModeChars();
+    textarea.focus();
+    textarea.setSelectionRange(text.length, text.length);
+}
+
 function startPractice(text, mode) {
     console.log('startPractice called with mode:', mode);
+    if (mode !== 'speedtest') setConsecutiveSpeedtests(0);
     hideAllScreens();
     document.getElementById('practiceScreen').classList.add('active');
     app.currentMode = mode;
@@ -184,13 +208,22 @@ function startPractice(text, mode) {
     app.errors = 0;
     app.isPaused = false;
     document.getElementById('sessionId').textContent = String(Date.now()).slice(-3);
-    renderText();
+    const wrapper = document.getElementById('textDisplayWrapper');
+    if (mode === 'speedtest') {
+        wrapper?.classList.add('speedtest-mode');
+        app.speedTestWordIndex = 0;
+        renderSpeedTestLine();
+    } else {
+        wrapper?.classList.remove('speedtest-mode');
+        renderText();
+    }
     updateStats();
     startTimer();
     if (mode === 'lesson') setModeLabel('modeLesson');
 }
 
 function renderText() {
+    if (app.currentMode === 'speedtest') return;
     const display = document.getElementById('textDisplay');
     let html = '';
     for (let i = 0; i < app.currentText.length; i++) {
@@ -201,7 +234,6 @@ function renderText() {
     }
     display.innerHTML = html;
     showNextKey();
-    // Автопрокрутка, чтобы текущий символ оставался в пределах поля
     const currentSpan = display.querySelector('.char-current');
     if (currentSpan && display.scrollWidth > display.clientWidth) {
         const spanRect = currentSpan.getBoundingClientRect();
@@ -213,6 +245,45 @@ function renderText() {
     }
 }
 
+function centerLineOnWord(wordEl) {
+    const line = document.getElementById('text-line');
+    if (!line || !wordEl) return;
+    const rect = wordEl.getBoundingClientRect();
+    const center = window.innerWidth / 2;
+    line.style.transform = `translateX(${center - rect.left - rect.width / 2}px)`;
+}
+
+function renderSpeedTestLine() {
+    const line = document.getElementById('text-line');
+    if (!line) return;
+    const words = app.currentText.trim().split(/\s+/).filter(Boolean);
+    line.innerHTML = words.map((w, i) => {
+        const span = document.createElement('span');
+        span.textContent = w;
+        if (i === 0) span.classList.add('current');
+        return span;
+    }).map(s => s.outerHTML).join('');
+    line.style.transform = '';
+    requestAnimationFrame(() => {
+        const first = line.querySelector('span.current');
+        if (first) centerLineOnWord(first);
+    });
+}
+
+function nextWord() {
+    const line = document.getElementById('text-line');
+    const words = line ? line.querySelectorAll('span') : [];
+    const index = app.speedTestWordIndex || 0;
+    if (index >= words.length) return;
+    words[index].classList.add('done');
+    words[index].classList.remove('current');
+    if (index + 1 < words.length) {
+        words[index + 1].classList.add('current');
+        centerLineOnWord(words[index + 1]);
+    }
+    app.speedTestWordIndex = index + 1;
+}
+
 function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
@@ -220,6 +291,17 @@ function escapeHtml(text) {
 }
 
 function handleKeyPress(e) {
+    // Глобальные хоткеи для переключения режимов на главном экране
+    if (app.currentMode === 'home') {
+        if (e.key === '1') { e.preventDefault(); showLessons(); return; }
+        if (e.key === '2') { e.preventDefault(); showSpeedTest(); return; }
+        if (e.key === '3') { e.preventDefault(); showFreeMode(); return; }
+        if (e.key === '4') { e.preventDefault(); showMultiplayer(); return; }
+        if (e.key.toLowerCase() === 'l') { e.preventDefault(); showLessons(); return; }
+        if (e.key.toLowerCase() === 's') { e.preventDefault(); showSpeedTest(); return; }
+        if (e.key.toLowerCase() === 'f') { e.preventDefault(); showFreeMode(); return; }
+    }
+
     if (app.currentMode !== 'speedtest' && app.currentMode !== 'free' && app.currentMode !== 'lesson') return;
     if (app.isPaused) return;
     if (e.key.length > 1 && e.key !== 'Backspace') return;
@@ -239,6 +321,9 @@ function handleKeyPress(e) {
         app.currentPosition++;
         playSound('correct');
         highlightKey(e.key);
+        if (app.currentMode === 'speedtest' && app.currentText[app.currentPosition - 1] === ' ') {
+            nextWord();
+        }
     } else {
         app.errors++;
         playSound('error');
@@ -288,6 +373,10 @@ function finishPractice() {
     const speed = Math.round(app.currentPosition / minutes);
     const totalAttempts = app.currentPosition + app.errors;
     const accuracy = Math.round((app.currentPosition / totalAttempts) * 100);
+    if (app.currentMode === 'speedtest') {
+        const n = getConsecutiveSpeedtests() + 1;
+        setConsecutiveSpeedtests(n);
+    }
     saveStats(speed, accuracy, elapsed);
     showResults(speed, accuracy, elapsed, app.errors);
 }
@@ -310,8 +399,11 @@ function renderLessons() {
     container.innerHTML = '';
     const stats = JSON.parse(localStorage.getItem('neuralTyperStats') || '{}');
     const completedIds = new Set(stats.completedLessonIds || []);
-    Object.entries(app.lessons).forEach(([, lessons]) => {
+    Object.entries(app.lessons).forEach(([levelKey, lessons]) => {
         lessons.forEach(lesson => {
+            const type = getLessonType(lesson);
+            if (lessonsFilterDifficulty !== 'all' && levelKey !== lessonsFilterDifficulty) return;
+            if (lessonsFilterType !== 'all' && type !== lessonsFilterType) return;
             const card = document.createElement('div');
             const isCompleted = completedIds.has(lesson.id);
             card.className = 'lesson-card' + (isCompleted ? ' completed' : '');
@@ -319,18 +411,34 @@ function renderLessons() {
                 app.currentLessonId = lesson.id;
                 startPractice(lesson.text, 'lesson');
             };
+            const previewText = lesson.text.slice(0, 120).replace(/\s+/g, ' ').trim();
             card.innerHTML = `
                 <div class="lesson-title">${lesson.name}</div>
                 <div class="lesson-desc">${lesson.difficulty}</div>
-                <div class="lesson-stats">
-                    <span>ID: ${lesson.id}</span>
+                <div class="lesson-meta">
+                    <span class="lesson-type-badge">${type === 'letters' ? 'Буквы' : type === 'words' ? 'Слова' : 'Текст'}</span>
                     <span>${lesson.text.length} символов</span>
                 </div>
+                <div class="lesson-stats">
+                    <span>ID: ${lesson.id}</span>
+                    <span>Язык: RU</span>
+                </div>
+                <div class="lesson-preview">${escapeHtml(previewText)}${lesson.text.length > previewText.length ? '…' : ''}</div>
             `;
             container.appendChild(card);
         });
     });
     console.log('Lessons rendered, total cards:', container.children.length);
+}
+
+function getLessonType(lesson) {
+    const text = (lesson.text || '').trim();
+    if (!text) return 'text';
+    const words = text.split(/\s+/);
+    const hasSentencePunctuation = /[.!?]/.test(text);
+    if (!hasSentencePunctuation && words.length <= 3) return 'letters';
+    if (!hasSentencePunctuation && words.length <= 10) return 'words';
+    return 'text';
 }
 
 function renderKeyboard() {
@@ -405,6 +513,15 @@ function toggleSound() {
     showNotification(app.soundEnabled ? translations[app.lang].soundOn : translations[app.lang].soundOff, 'info');
 }
 
+function togglePreset() {
+    app.audioPreset = app.audioPreset === 'full' ? 'office' : 'full';
+    localStorage.setItem('neuralTyperPreset', app.audioPreset);
+    const icon = document.getElementById('presetIcon');
+    if (icon) icon.textContent = app.audioPreset === 'full' ? '◈' : '▢';
+    const t = translations[app.lang];
+    showNotification(app.audioPreset === 'full' ? t.presetFull : t.presetOffice, 'info');
+}
+
 function toggleLang() {
     app.lang = app.lang === 'ru' ? 'en' : 'ru';
     document.getElementById('currentLang').textContent = app.lang.toUpperCase();
@@ -422,6 +539,7 @@ function updateLanguage() {
 
 function playSound(type) {
     if (!app.soundEnabled) return;
+    const vol = app.audioPreset === 'office' ? 0.35 : 1;
     try {
         const audioContext = new (window.AudioContext || window.webkitAudioContext)();
         const oscillator = audioContext.createOscillator();
@@ -430,12 +548,12 @@ function playSound(type) {
         gainNode.connect(audioContext.destination);
         if (type === 'correct') {
             oscillator.frequency.value = 800;
-            gainNode.gain.value = 0.1;
+            gainNode.gain.value = 0.1 * vol;
             oscillator.start();
             oscillator.stop(audioContext.currentTime + 0.05);
         } else if (type === 'error') {
             oscillator.frequency.value = 200;
-            gainNode.gain.value = 0.15;
+            gainNode.gain.value = 0.15 * vol;
             oscillator.start();
             oscillator.stop(audioContext.currentTime + 0.1);
         } else if (type === 'victory') {
@@ -445,7 +563,7 @@ function playSound(type) {
                 osc.connect(gain);
                 gain.connect(audioContext.destination);
                 osc.frequency.value = freq;
-                gain.gain.value = 0.1;
+                gain.gain.value = 0.1 * vol;
                 osc.start(audioContext.currentTime + i * 0.1);
                 osc.stop(audioContext.currentTime + i * 0.1 + 0.2);
             });
@@ -467,6 +585,63 @@ function showNotification(message, type = 'info') {
     }, 3000);
 }
 
+const ACHIEVEMENTS = [
+    { id: 'first_lesson', titleRu: 'Первый модуль', titleEn: 'First module', check: (s) => (s.completedLessonIds || []).length >= 1 },
+    { id: 'five_lessons', titleRu: 'Пять модулей', titleEn: 'Five modules', check: (s) => (s.completedLessonIds || []).length >= 5 },
+    { id: 'speed_100', titleRu: 'Скорость 100+', titleEn: 'Speed 100+', check: (s) => (s.bestSpeed || 0) >= 100 },
+    { id: 'three_speedtests', titleRu: 'Три спидтеста подряд', titleEn: 'Three speedtests in a row', check: () => false },
+    { id: 'ten_minutes', titleRu: '10 минут практики', titleEn: '10 minutes practice', check: (s) => (s.totalTimeSeconds || 0) >= 600 }
+];
+
+function getUnlockedAchievements() {
+    try {
+        const raw = localStorage.getItem('neuralTyperAchievements');
+        return raw ? JSON.parse(raw) : [];
+    } catch (_) { return []; }
+}
+
+function unlockAchievement(id) {
+    const unlocked = getUnlockedAchievements();
+    if (unlocked.includes(id)) return false;
+    unlocked.push(id);
+    localStorage.setItem('neuralTyperAchievements', JSON.stringify(unlocked));
+    return true;
+}
+
+function showAchievementToast(achievement) {
+    const container = document.getElementById('notifications');
+    if (!container) return;
+    const t = app.lang === 'en' ? achievement.titleEn : achievement.titleRu;
+    const el = document.createElement('div');
+    el.className = 'notification achievement-toast';
+    el.innerHTML = `<span class="achievement-toast-icon">★</span><span class="achievement-toast-title">${escapeHtml(t)}</span>`;
+    container.appendChild(el);
+    setTimeout(() => {
+        el.style.animation = 'slideInRight 0.5s ease reverse';
+        setTimeout(() => el.remove(), 500);
+    }, 3500);
+}
+
+function getConsecutiveSpeedtests() {
+    return parseInt(localStorage.getItem('neuralTyperConsecutiveSpeedtests') || '0', 10);
+}
+
+function setConsecutiveSpeedtests(n) {
+    localStorage.setItem('neuralTyperConsecutiveSpeedtests', String(n));
+}
+
+function checkAchievements(stats, options = {}) {
+    const unlocked = getUnlockedAchievements();
+    const justUnlocked = [];
+    for (const a of ACHIEVEMENTS) {
+        if (unlocked.includes(a.id)) continue;
+        const ok = a.id === 'three_speedtests' ? (options.consecutiveSpeedtests >= 3) : a.check(stats);
+        if (ok && unlockAchievement(a.id)) justUnlocked.push(a);
+    }
+    justUnlocked.forEach(a => showAchievementToast(a));
+    if (options.consecutiveSpeedtests >= 3) setConsecutiveSpeedtests(0);
+}
+
 function saveStats(speed, accuracy, time) {
     const stats = JSON.parse(localStorage.getItem('neuralTyperStats') || '{}');
     if (!stats.bestSpeed || speed > stats.bestSpeed) stats.bestSpeed = speed;
@@ -484,6 +659,7 @@ function saveStats(speed, accuracy, time) {
     }
     localStorage.setItem('neuralTyperStats', JSON.stringify(stats));
     loadStats();
+    checkAchievements(stats, { consecutiveSpeedtests: getConsecutiveSpeedtests() });
 }
 
 function loadStats() {
@@ -507,9 +683,14 @@ function loadStats() {
 document.addEventListener('DOMContentLoaded', () => {
     console.log('DOM loaded, initializing...');
     
+    app.audioPreset = localStorage.getItem('neuralTyperPreset') || 'full';
+    const presetIcon = document.getElementById('presetIcon');
+    if (presetIcon) presetIcon.textContent = app.audioPreset === 'full' ? '◈' : '▢';
+    
     // Header buttons
     document.getElementById('themeToggle')?.addEventListener('click', toggleTheme);
     document.getElementById('soundToggle')?.addEventListener('click', toggleSound);
+    document.getElementById('presetToggle')?.addEventListener('click', togglePreset);
     document.getElementById('langToggle')?.addEventListener('click', toggleLang);
     
     // Mode cards
@@ -548,7 +729,32 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('freeModeCancelBtn')?.addEventListener('click', closeFreeModeModal);
     document.getElementById('freeModeStartBtn')?.addEventListener('click', startFreeModeFromModal);
     document.getElementById('freeModeTextarea')?.addEventListener('input', updateFreeModeChars);
+    document.querySelectorAll('.free-mode-preset').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const preset = btn.getAttribute('data-preset');
+            applyFreeModePreset(preset);
+        });
+    });
+
+    // Lessons filters
+    document.querySelectorAll('.lessons-filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const value = btn.getAttribute('data-difficulty');
+            lessonsFilterDifficulty = value || 'all';
+            document.querySelectorAll('.lessons-filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderLessons();
+        });
+    });
+    document.querySelectorAll('.lessons-type-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const value = btn.getAttribute('data-type');
+            lessonsFilterType = value || 'all';
+            document.querySelectorAll('.lessons-type-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderLessons();
+        });
+    });
     
     console.log('Initialization complete');
 });
-

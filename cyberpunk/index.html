@@ -43,6 +43,9 @@
                 <button class="cyber-btn" id="soundToggle">
                     <span class="icon">♪</span>
                 </button>
+                <button class="cyber-btn" id="presetToggle" title="Режим: Полный киберпанк / Офис">
+                    <span class="icon" id="presetIcon">◈</span>
+                </button>
                 <button class="cyber-btn active" id="langToggle">
                     <span id="currentLang">RU</span>
                 </button>
@@ -209,9 +212,12 @@
                 </div>
 
                 <!-- Text Display -->
-                <div class="text-display">
+                <div class="text-display" id="textDisplayWrapper">
                     <div class="text-content" id="textDisplay">
-                        <!-- Text will be rendered here -->
+                        <!-- Character-by-character (lesson / free) -->
+                    </div>
+                    <div class="typing-window" id="typingWindow">
+                        <div id="text-line"><!-- Word-by-word (speed test) --></div>
                     </div>
                 </div>
 
@@ -231,6 +237,23 @@
                     </button>
                     <h2 class="screen-title" data-i18n="lessonsTitle">МОДУЛИ ОБУЧЕНИЯ</h2>
                     <div class="spacer"></div>
+                </div>
+
+                <div class="lessons-filters">
+                    <div class="lessons-filter-group">
+                        <span class="lessons-filter-label">Сложность:</span>
+                        <button type="button" class="cyber-btn secondary lessons-filter-btn active" data-difficulty="all">Все</button>
+                        <button type="button" class="cyber-btn secondary lessons-filter-btn" data-difficulty="beginner">Легко</button>
+                        <button type="button" class="cyber-btn secondary lessons-filter-btn" data-difficulty="medium">Средне</button>
+                        <button type="button" class="cyber-btn secondary lessons-filter-btn" data-difficulty="advanced">Сложно</button>
+                    </div>
+                    <div class="lessons-filter-group">
+                        <span class="lessons-filter-label">Тип:</span>
+                        <button type="button" class="cyber-btn secondary lessons-type-btn active" data-type="all">Все</button>
+                        <button type="button" class="cyber-btn secondary lessons-type-btn" data-type="letters">Буквы</button>
+                        <button type="button" class="cyber-btn secondary lessons-type-btn" data-type="words">Слова</button>
+                        <button type="button" class="cyber-btn secondary lessons-type-btn" data-type="text">Тексты</button>
+                    </div>
                 </div>
 
                 <div class="lessons-grid" id="lessonsList">
@@ -253,6 +276,11 @@
             <div class="free-mode-body">
                 <p class="free-mode-subtitle">Вставьте свой текст или напишите его здесь. Всё, что вы напечатаете, превратится в неоновый поток.</p>
                 <textarea id="freeModeTextarea" class="free-mode-textarea" rows="6" placeholder="Вставьте сюда фрагмент книги, конспект, код или любой другой текст..."></textarea>
+                <div class="free-mode-presets">
+                    <button type="button" class="cyber-btn secondary free-mode-preset" data-preset="motivation">Мотивация</button>
+                    <button type="button" class="cyber-btn secondary free-mode-preset" data-preset="code">Код</button>
+                    <button type="button" class="cyber-btn secondary free-mode-preset" data-preset="story">Киберпанк‑история</button>
+                </div>
                 <div class="free-mode-footer">
                     <div class="free-mode-meta">
                         <span id="freeModeChars">0</span> символов
@@ -303,4 +331,3 @@
     <script src="app.js"></script>
 </body>
 </html>
-

@@ -664,6 +664,46 @@ body {
     opacity: 0.6;
 }
 
+/* ===== TYPING WINDOW (SPEED TEST — Monkeytype-style) ===== */
+.text-display.speedtest-mode .text-content {
+    display: none;
+}
+
+.text-display:not(.speedtest-mode) .typing-window {
+    display: none;
+}
+
+.typing-window {
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+}
+
+#text-line {
+    display: flex;
+    gap: 12px;
+    transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    will-change: transform;
+    width: max-content;
+    font-size: 1.8rem;
+    line-height: 1.6;
+    letter-spacing: 1px;
+}
+
+#text-line span {
+    opacity: 0.4;
+}
+
+#text-line span.current {
+    opacity: 1;
+    color: #00ffa6;
+    text-shadow: 0 0 10px rgba(0, 255, 166, 0.5);
+}
+
+#text-line span.done {
+    opacity: 0;
+}
+
 /* ===== KEYBOARD ===== */
 .keyboard-container {
     background: var(--cyber-surface);
@@ -738,6 +778,38 @@ body {
     padding: 2rem;
 }
 
+.lessons-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    align-items: center;
+}
+
+.lessons-filter-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.lessons-filter-label {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+}
+
+.lessons-filter-group .cyber-btn {
+    padding-inline: 0.8rem;
+    font-size: 0.8rem;
+}
+
+.lessons-filter-group .cyber-btn.active {
+    background: var(--cyber-primary);
+    color: var(--cyber-bg);
+}
+
 .screen-header {
     display: flex;
     justify-content: space-between;
@@ -808,11 +880,42 @@ body {
     font-size: 0.9rem;
 }
 
+.lesson-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.6rem;
+}
+
+.lesson-type-badge {
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    border: 1px solid var(--cyber-border);
+    font-size: 0.75rem;
+}
+
 .lesson-stats {
     display: flex;
     justify-content: space-between;
     font-size: 0.8rem;
     color: var(--text-secondary);
+}
+
+.lesson-preview {
+    margin-top: 0.75rem;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-height 0.25s ease, opacity 0.25s ease;
+}
+
+.lesson-card:hover .lesson-preview {
+    max-height: 120px;
+    opacity: 1;
 }
 
 /* ===== NOTIFICATIONS ===== */
@@ -851,6 +954,25 @@ body {
 
 .notification.warning {
     border-color: var(--cyber-warning);
+}
+
+.achievement-toast {
+    border-color: var(--cyber-accent);
+    box-shadow: 0 0 24px var(--glow-accent), inset 0 0 20px rgba(255, 0, 128, 0.08);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.achievement-toast-icon {
+    color: var(--cyber-accent);
+    font-size: 1.5rem;
+    text-shadow: 0 0 10px var(--glow-accent);
+}
+
+.achievement-toast-title {
+    font-weight: 700;
+    letter-spacing: 0.05em;
 }
 
 /* ===== MODAL ===== */
@@ -928,6 +1050,17 @@ body {
 .free-mode-meta {
     font-size: 0.85rem;
     color: var(--text-secondary);
+}
+
+.free-mode-presets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.free-mode-presets .cyber-btn {
+    padding-inline: 1rem;
+    font-size: 0.8rem;
 }
 
 @keyframes modalZoom {
@@ -1043,4 +1176,3 @@ body {
         grid-template-columns: 1fr;
     }
 }
-
