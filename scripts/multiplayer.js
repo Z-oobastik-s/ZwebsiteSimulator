@@ -24,7 +24,8 @@ const multiplayerState = {
     opponentProgress: 0,
     gameEnded: false,
     autoStartTimeoutId: null,
-    roomListenerUnsub: null
+    roomListenerUnsub: null,
+    currentMatchId: null
 };
 
 function clearAutoStartTimer() {
@@ -217,6 +218,7 @@ export async function createRoom(wordCount = 50, theme = 'random', layout = 'ru'
         },
         gameText: multiplayerState.gameText,
         started: false,
+        matchId: 0,
         createdAt: serverTimestamp()
     });
     
@@ -355,18 +357,25 @@ function listenToRoom(roomCode) {
                     const freshPlayerIds = Object.keys(freshPlayers);
                     if (freshPlayerIds.length !== 2) return; // someone left during the delay
 
-                    await update(roomRef, { started: true });
+                    await update(roomRef, { 
+                        started: true,
+                        matchId: Date.now()
+                    });
                 }, 3000);
             } else if ((!shouldAutoStart || roomData.started) && multiplayerState.autoStartTimeoutId) {
                 clearAutoStartTimer();
             }
         }
         
-        // Notify when game starts
-        if (roomData.started && !multiplayerState.gameStarted) {
-            multiplayerState.gameStarted = true;
-            if (window.onMultiplayerStart) {
-                window.onMultiplayerStart(multiplayerState.gameText);
+        // Notify when game starts (matchId prevents race conditions)
+        if (roomData.started) {
+            const matchId = roomData.matchId || 0;
+            if (matchId && matchId !== multiplayerState.currentMatchId) {
+                multiplayerState.currentMatchId = matchId;
+                multiplayerState.gameStarted = true;
+                if (window.onMultiplayerStart) {
+                    window.onMultiplayerStart(multiplayerState.gameText);
+                }
             }
         }
     });
@@ -446,6 +455,8 @@ export async function resetGame() {
     multiplayerState.gameEnded = false;
     multiplayerState.myProgress = 0;
     multiplayerState.opponentProgress = 0;
+    // currentMatchId stays to prevent duplicate onMultiplayerStart for the same match.
+    // It will change when the host sets a new matchId for the next round.
     
     const playerRef = ref(database, `rooms/${multiplayerState.roomCode}/players/${multiplayerState.playerId}`);
     await update(playerRef, {
@@ -487,3 +498,4 @@ window.multiplayerModule = {
     getMultiplayerState,
     isMultiplayerActive
 };
+
