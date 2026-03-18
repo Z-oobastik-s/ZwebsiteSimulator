@@ -17,6 +17,8 @@ const app = {
     endTime: null,
     isPaused: false,
     errors: 0,
+    myReady: false,
+    opponentReady: false,
     opponentErrors: 0,
     totalChars: 0,
     soundEnabled: true,
@@ -3612,7 +3614,7 @@ async function joinMultiplayerRoom() {
 }
 
 // Leave multiplayer room
-async function leaveMultiplayerRoom() {
+async function leaveMultiplayerRoom(redirectTo = 'home') {
     try {
         // Stop game input handler to avoid "ghost" key presses after leaving.
         app.gameEnded = true;
@@ -3620,13 +3622,21 @@ async function leaveMultiplayerRoom() {
 
         await window.multiplayerModule.leaveRoom();
         showToast(t('leftRoom'), 'info', t('multiplayer'));
-        showHome();
+        if (redirectTo === 'multiplayer-menu') {
+            showMultiplayerMenu();
+        } else {
+            showHome();
+        }
         // Восстанавливаем фон и частицы
         setRandomBackground();
         createParticles();
     } catch (error) {
         console.error('Failed to leave room:', error);
-        showHome();
+        if (redirectTo === 'multiplayer-menu') {
+            showMultiplayerMenu();
+        } else {
+            showHome();
+        }
         setRandomBackground();
         createParticles();
     }
@@ -3690,6 +3700,13 @@ window.onMultiplayerUpdate = (data) => {
     if (data && typeof data.opponentErrors !== 'undefined') {
         app.opponentErrors = data.opponentErrors || 0;
     }
+    if (data && typeof data.opponentReady !== 'undefined') {
+        app.opponentReady = !!data.opponentReady;
+    }
+    if (data && typeof data.myReady !== 'undefined') {
+        app.myReady = !!data.myReady;
+    }
+    updateMultiplayerResultsHint();
     // Update player count
     if (data.playerCount) {
         // If opponent left, allow the "second player joined" toast next time.
@@ -3895,13 +3912,20 @@ function openMultiplayerResultsModal(isWin) {
     const oppCpm = Math.round(oppChars / minutes);
     const oppAcc = Math.round(oppChars + opponentErrors > 0 ? (oppChars / (oppChars + opponentErrors)) * 100 : 100);
 
-    const title = isWin ? 'Победа' : 'Поражение';
-    const subtitle = isWin ? 'Матч завершён. Вы ввели текст быстрее.' : 'Матч завершён. Соперник был быстрее.';
+    const isEnglish = app.lang === 'en';
+    const isUkrainian = app.lang === 'ua';
+    const badgeWin = isEnglish ? 'WIN' : (isUkrainian ? 'ПОБЕДА' : 'ПОБЕДА');
+    const badgeLose = isEnglish ? 'LOSE' : (isUkrainian ? 'ПОРАЖЕННЯ' : 'ПОРАЖЕНИЕ');
+
+    const title = isWin ? (isEnglish ? 'Victory' : 'Победа') : (isEnglish ? 'Defeat' : 'Поражение');
+    const subtitle = isWin
+        ? (isEnglish ? 'Match finished. You typed faster.' : 'Матч завершён. Вы ввели текст быстрее.')
+        : (isEnglish ? 'Match finished. Opponent was faster.' : 'Матч завершён. Соперник был быстрее.');
 
     document.getElementById('multiplayerResultsTitle').textContent = title;
     document.getElementById('multiplayerResultsSubtitle').textContent = subtitle;
-    document.getElementById('mpResMyBadge').textContent = isWin ? 'WIN' : 'LOSE';
-    document.getElementById('mpResOppBadge').textContent = isWin ? 'LOSE' : 'WIN';
+    document.getElementById('mpResMyBadge').textContent = isWin ? badgeWin : badgeLose;
+    document.getElementById('mpResOppBadge').textContent = isWin ? badgeLose : badgeWin;
 
     document.getElementById('mpResMyCpm').textContent = myCpm;
     document.getElementById('mpResMyWpm').textContent = myWpm;
@@ -3917,6 +3941,42 @@ function openMultiplayerResultsModal(isWin) {
 
     modal.classList.remove('hidden');
     modal.classList.add('flex');
+    updateMultiplayerResultsHint();
+}
+
+function updateMultiplayerResultsHint() {
+    const modal = document.getElementById('multiplayerResultsModal');
+    const hint = document.getElementById('mpResRematchHint');
+    if (!modal || !hint) return;
+    const isVisible = !modal.classList.contains('hidden');
+    if (!isVisible) return;
+
+    const isEnglish = app.lang === 'en';
+    const isUkrainian = app.lang === 'ua';
+
+    const opponentWants = app.opponentReady === true;
+    const iWant = app.myReady === true;
+
+    if (!opponentWants) {
+        hint.textContent = isEnglish
+            ? 'Next match starts only when both players press "Rematch".'
+            : (isUkrainian ? 'Наступний матч почнеться лише коли обидва гравці натиснуть «Грати знову».' : 'Следующий матч начнётся только когда оба игрока нажмут «Играть снова».');
+        return;
+    }
+
+    if (opponentWants && !iWant) {
+        hint.textContent = isEnglish
+            ? 'Your opponent wants a rematch. Press "Rematch" to start.'
+            : (isUkrainian ? 'Суперник хоче зіграти ще раз. Натисніть «Грати знову».' : 'Соперник хочет сыграть ещё раз. Нажмите «Играть снова».');
+        return;
+    }
+
+    if (opponentWants && iWant) {
+        hint.textContent = isEnglish
+            ? 'Both players are ready. Starting next match...'
+            : (isUkrainian ? 'Обидва гравці готові. Починаємо наступний матч...' : 'Оба игрока готовы. Следующий матч стартует...');
+        return;
+    }
 }
 
 function closeMultiplayerResultsModal() {
@@ -3935,6 +3995,11 @@ window.multiplayerResultsRematch = async function() {
 window.multiplayerResultsExit = async function() {
     closeMultiplayerResultsModal();
     await leaveMultiplayerRoom();
+};
+
+window.multiplayerResultsSettings = async function() {
+    closeMultiplayerResultsModal();
+    await leaveMultiplayerRoom('multiplayer-menu');
 };
 
 // Shop functions
@@ -4309,4 +4374,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-

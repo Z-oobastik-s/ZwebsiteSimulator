@@ -24,6 +24,8 @@ const multiplayerState = {
     myErrors: 0,
     opponentProgress: 0,
     opponentErrors: 0,
+    myReady: true,
+    opponentReady: true,
     gameEnded: false,
     autoStartTimeoutId: null,
     roomListenerUnsub: null,
@@ -317,6 +319,11 @@ function listenToRoom(roomCode) {
         
         // Find opponent
         const opponentId = playerIds.find(id => id !== multiplayerState.playerId);
+
+        // Readiness state for rematch sync
+        multiplayerState.myReady = players[multiplayerState.playerId]?.ready === true;
+        multiplayerState.opponentReady = opponentId ? (players[opponentId]?.ready === true) : false;
+
         if (opponentId) {
             multiplayerState.opponentId = opponentId;
             multiplayerState.opponentProgress = players[opponentId].progress || 0;
@@ -349,7 +356,9 @@ function listenToRoom(roomCode) {
                 playerCount: playerIds.length,
                 started: roomData.started,
                 opponentProgress: multiplayerState.opponentProgress,
-                opponentErrors: multiplayerState.opponentErrors
+                opponentErrors: multiplayerState.opponentErrors,
+                myReady: multiplayerState.myReady,
+                opponentReady: multiplayerState.opponentReady
             });
         }
         
@@ -541,4 +550,3 @@ window.multiplayerModule = {
     getMultiplayerState,
     isMultiplayerActive
 };
-
