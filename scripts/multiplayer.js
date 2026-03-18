@@ -27,6 +27,7 @@ const multiplayerState = {
     myReady: true,
     opponentReady: true,
     gameEnded: false,
+    opponentLeftHandled: false,
     autoStartTimeoutId: null,
     roomListenerUnsub: null,
     currentMatchId: null
@@ -341,8 +342,11 @@ function listenToRoom(roomCode) {
         
         // If game already started and we no longer have an opponent player in the room,
         // treat it as "opponent left" to avoid leaving the other player in a broken state.
-        if (roomData.started && multiplayerState.gameStarted && !multiplayerState.gameEnded) {
-            if (!opponentId) {
+        // This must also work after match end (results modal open), so we intentionally
+        // do NOT gate by gameEnded.
+        if (roomData.started && multiplayerState.gameStarted && !opponentId) {
+            if (!multiplayerState.opponentLeftHandled) {
+                multiplayerState.opponentLeftHandled = true;
                 multiplayerState.gameEnded = true;
                 if (window.onOpponentLeft) {
                     window.onOpponentLeft();
@@ -480,6 +484,7 @@ export async function leaveRoom() {
     multiplayerState.isHost = false;
     multiplayerState.gameStarted = false;
     multiplayerState.gameEnded = false;
+    multiplayerState.opponentLeftHandled = false;
     multiplayerState.myProgress = 0;
     multiplayerState.opponentProgress = 0;
 }
@@ -502,6 +507,7 @@ export async function resetGame() {
     // Keep room listener active for rematch; just clear auto-start.
     multiplayerState.gameStarted = false;
     multiplayerState.gameEnded = false;
+    multiplayerState.opponentLeftHandled = false;
     multiplayerState.myProgress = 0;
     multiplayerState.opponentProgress = 0;
     // currentMatchId stays to prevent duplicate onMultiplayerStart for the same match.
@@ -550,4 +556,3 @@ window.multiplayerModule = {
     getMultiplayerState,
     isMultiplayerActive
 };
-

@@ -259,7 +259,7 @@ const LESSONS_DATA = {
                 name: "Фрукти та овочі",
                 description: "Корисна їжа",
                 layout: "ua",
-                text: "яблуко банан апельсин помідор огірок морква картопля капуста яблука бувають червоні зелені та жовті банани ростуть на пальмах і дуже солодкі апельсини соковиті та корисні для здоров'я помідори червоні та круглі огірки зелені та хрусткі морква помаранчева та містить вітаміни картоплю можна варити смажити та запікати капуста йде в салати та супи",
+                text: "яблуко банан апельсин помідор огірок морква картопля капуста яблука бувають червоні зелені та жовті банани ростуть на пальмах і дуже солодкі апельсини соковиті та корисні для здоровя помідори червоні та круглі огірки зелені та хрусткі морква помаранчева та містить вітаміни картоплю можна варити смажити та запікати капуста йде в салати та супи",
                 difficulty: "easy"
             },
             {
@@ -283,7 +283,7 @@ const LESSONS_DATA = {
                 name: "Спорт та ігри",
                 description: "Активний відпочинок",
                 layout: "ua",
-                text: "футбол баскетбол плавання біг теніс велосипед футбол грають ногами та м'ячем баскетбол грають руками та кошиком плавання корисне для здоров'я біг зміцнює ноги теніс гра з ракеткою велосипед їзда на двох коліщатках спорт робить нас сильними та здоровими",
+                text: "футбол баскетбол плавання біг теніс велосипед футбол грають ногами та мячем баскетбол грають руками та кошиком плавання корисне для здоровя біг зміцнює ноги теніс гра з ракеткою велосипед їзда на двох коліщатках спорт робить нас сильними та здоровими",
                 difficulty: "easy"
             },
             {
@@ -292,6 +292,566 @@ const LESSONS_DATA = {
                 description: "Засоби пересування",
                 layout: "ua",
                 text: "машина автобус потяг літак велосипед мотоцикл машина їздить дорогами автобус перевозить багато людей потяг їде рейками літак літає в небі велосипед їздить на двох коліщатках мотоцикл швидкий та шумний транспорт допомагає швидко дістатися куди потрібно",
+                difficulty: "easy"
+            },
+            {
+                id: 111,
+                name: "Тварини України",
+                description: "Фауна та різноманіття",
+                layout: "ua",
+                text: "ведмідь вовк лисиця білка сова лелека журавель орел сокіл голуб горобець кабан заєць рис олень їжак бобер єнот",
+                difficulty: "easy"
+            },
+            {
+                id: 112,
+                name: "Птахи та крила",
+                description: "Пернаті друзі",
+                layout: "ua",
+                text: "ластівка лелека журавель орел сокіл голуб горлиця зозуля шпака ворона чайка качка гуска лебідь",
+                difficulty: "easy"
+            },
+            {
+                id: 113,
+                name: "Квітковий сад",
+                description: "Ароматні назви",
+                layout: "ua",
+                text: "квітка троянда ромашка волошка соняшник жоржина тюльпан барвінок пролісок калина кущ дерево сад",
+                difficulty: "easy"
+            },
+            {
+                id: 114,
+                name: "Лісова стежка",
+                description: "Тиша і природа",
+                layout: "ua",
+                text: "ліс трава гриб дерево гілка листя мох ягода жолудь пень камінь стежка тінь",
+                difficulty: "easy"
+            },
+            {
+                id: 115,
+                name: "Море і хвилі",
+                description: "Безмежний горизонт",
+                layout: "ua",
+                text: "море хвиля прибій берег пісок камінь риба дельфін чайка хвіст мушля корабель вітер",
+                difficulty: "easy"
+            },
+            {
+                id: 116,
+                name: "Річки та озера",
+                description: "Вода поруч",
+                layout: "ua",
+                text: "річка озеро вода струмінь місток човен туман берег хвиля риба міст злива",
+                difficulty: "easy"
+            },
+            {
+                id: 117,
+                name: "Їжа та смак",
+                description: "Смачні слова",
+                layout: "ua",
+                text: "хліб сир масло молоко яблуко банан апельсин помідор огірок морква картопля капуста вареники борщ сметана",
+                difficulty: "easy"
+            },
+            {
+                id: 118,
+                name: "Кухонні предмети",
+                description: "Тарілки і ложки",
+                layout: "ua",
+                text: "сковорода каструля ложка вилка тарілка чашка чайник плита духовка ніж дошка кухонний салат суп",
+                difficulty: "easy"
+            },
+            {
+                id: 119,
+                name: "Місто вогнів",
+                description: "Урбаністичні слова",
+                layout: "ua",
+                text: "місто вулиця будинок площа парк ліхтар неон метро зупинка дорога проспект будні тиша",
+                difficulty: "easy"
+            },
+            {
+                id: 120,
+                name: "Транспорт навколо",
+                description: "Рух і швидкість",
+                layout: "ua",
+                text: "машина автобус поїзд літак велосипед мотоцикл тролейбус таксі вантажівка маршрутка дорога міст місток колеса",
+                difficulty: "easy"
+            },
+            {
+                id: 121,
+                name: "Час і календар",
+                description: "Вчимося на час",
+                layout: "ua",
+                text: "день ніч ранок вечір вчора сьогодні завтра секунда хвилина година тиждень місяць рік погода",
+                difficulty: "easy"
+            },
+            {
+                id: 122,
+                name: "Школа та уроки",
+                description: "Класні слова",
+                layout: "ua",
+                text: "школа клас учитель учень домашнє завдання зошит ручка олівець книга дошка навчання знання",
+                difficulty: "easy"
+            },
+            {
+                id: 123,
+                name: "Робота і навички",
+                description: "Розвиток щодня",
+                layout: "ua",
+                text: "праця вміння навичка робота старання відповідальність розвиток мета терпіння спокій впевненість результат",
+                difficulty: "easy"
+            },
+            {
+                id: 124,
+                name: "Емоції та надія",
+                description: "Теплі слова",
+                layout: "ua",
+                text: "радість сміх любов дружба надія віра спокій упевненість натхнення доброта турбота мрія",
+                difficulty: "easy"
+            },
+            {
+                id: 125,
+                name: "Кольори спектра",
+                description: "Палітра без меж",
+                layout: "ua",
+                text: "синій блакитний зелений жовтий помаранчевий червоний фіолетовий рожевий білий чорний сірий веселка",
+                difficulty: "easy"
+            },
+            {
+                id: 126,
+                name: "Українська культура",
+                description: "Традиції та мистецтво",
+                layout: "ua",
+                text: "вишиванка писанка орнамент калина пісня кобзар бандура рушник традиція родина серце",
+                difficulty: "easy"
+            },
+            {
+                id: 127,
+                name: "Козацька слава",
+                description: "Історія і воля",
+                layout: "ua",
+                text: "козак гетьман січ фортеця воля свобода табір кінь шабля козацький степ шлях",
+                difficulty: "easy"
+            },
+            {
+                id: 128,
+                name: "Спорт і гра",
+                description: "Активний день",
+                layout: "ua",
+                text: "футбол баскетбол теніс гра мяч ракетка біг плавання велосипед швидко спритно легко",
+                difficulty: "easy"
+            },
+            {
+                id: 129,
+                name: "Домашні улюбленці",
+                description: "Тепло в оселі",
+                layout: "ua",
+                text: "кіт кішка собака пес кролик білка папуга рибка черепаха морська свинка їжак",
+                difficulty: "easy"
+            },
+            {
+                id: 130,
+                name: "Мрії та думки",
+                description: "Вперед до мети",
+                layout: "ua",
+                text: "мрія думка сила воля шлях мета успіх старання перемога віра радість спокій",
+                difficulty: "easy"
+            },
+            {
+                id: 131,
+                name: "Комплектовщик складу",
+                description: "Про роботу та порядок",
+                layout: "ua",
+                text: "комплектовщик пакує коробки складає замовлення перевіряє позиції етикетка штрихкод товар склад відправка доставка клієнт",
+                difficulty: "easy"
+            },
+            {
+                id: 132,
+                name: "Клейщик стикерів",
+                description: "Етикетки і акуратність",
+                layout: "ua",
+                text: "клейщик клею стикер наклейка етикетка клей стрічка папір упаковка товар бренд номер серія коробка",
+                difficulty: "easy"
+            },
+            {
+                id: 133,
+                name: "Грузчик",
+                description: "Вантаж і відповідальність",
+                layout: "ua",
+                text: "грузчик підіймає ящик вантаж вага доставка склад руки піддон теліжка безпека швидко",
+                difficulty: "easy"
+            },
+            {
+                id: 134,
+                name: "Продавець",
+                description: "Магазин і добрий сервіс",
+                layout: "ua",
+                text: "продавець магазин вітрина клієнт покупець каса ціна чек товар вибір вдячність посмішка",
+                difficulty: "easy"
+            },
+            {
+                id: 135,
+                name: "Айтішник",
+                description: "Код і щоденна практика",
+                layout: "ua",
+                text: "айтишник компютер програма код сервер тест відлагодження браузер мережа дані алгоритм знання помилки",
+                difficulty: "easy"
+            },
+            {
+                id: 136,
+                name: "Водій",
+                description: "Маршрут і спокій",
+                layout: "ua",
+                text: "водій керує машина дорога маршрут зупинка час безпека пасажир поїздка кермо",
+                difficulty: "easy"
+            },
+            {
+                id: 137,
+                name: "Факти про зорі",
+                description: "Нічне небо",
+                layout: "ua",
+                text: "факт зорі світло ніч небо телескоп всесвіт галактика сяє мерехтить тиша диво",
+                difficulty: "easy"
+            },
+            {
+                id: 138,
+                name: "Факти про час",
+                description: "День за днем",
+                layout: "ua",
+                text: "факт день ніч ранок вечір сонце місяць хвилина година секунда час цикл повтор",
+                difficulty: "easy"
+            },
+            {
+                id: 139,
+                name: "Факти про тварин",
+                description: "Птахи і звірі",
+                layout: "ua",
+                text: "факт тварина дельфін кит жаба лисиця білка сова лелека птах вода їжа",
+                difficulty: "easy"
+            },
+            {
+                id: 140,
+                name: "Факти про рослини",
+                description: "Сад і життя",
+                layout: "ua",
+                text: "факт дерево трава квітка насіння листя корінь сонце волога грунт сад квітне",
+                difficulty: "easy"
+            },
+            {
+                id: 141,
+                name: "Історія про урок",
+                description: "Школа і знання",
+                layout: "ua",
+                text: "історія школа урок знання учень вчитель зошит ручка олівець книга дошка навчання завдання",
+                difficulty: "easy"
+            },
+            {
+                id: 142,
+                name: "Історія про працю",
+                description: "Старання щодня",
+                layout: "ua",
+                text: "історія праця робота старання відповідальність терпіння результат спокій впевненість успіх щодня",
+                difficulty: "easy"
+            },
+            {
+                id: 143,
+                name: "Маленька мандрівка",
+                description: "Дорога і спокій",
+                layout: "ua",
+                text: "історія ранок дорога місто село парк ліс річка місток човен туман поворот",
+                difficulty: "easy"
+            },
+            {
+                id: 144,
+                name: "Історія про склад",
+                description: "Коробки і порядок",
+                layout: "ua",
+                text: "історія склад коробка товар посилка відправка вантаж руки порядок чекання щиро",
+                difficulty: "easy"
+            },
+            {
+                id: 145,
+                name: "Кухня щодня",
+                description: "Смак і турбота",
+                layout: "ua",
+                text: "історія кухня суп каша молоко сир хліб чашка ложка тарілка плита смак варю смажу",
+                difficulty: "easy"
+            },
+            {
+                id: 146,
+                name: "Перукар",
+                description: "Зачіска і акуратність",
+                layout: "ua",
+                text: "перукар волосся зачіска гребінець ножиці шампунь клієнт дзеркало стрижка укладка охайність",
+                difficulty: "easy"
+            },
+            {
+                id: 147,
+                name: "Маляр",
+                description: "Колір і ремонт",
+                layout: "ua",
+                text: "маляр фарба стіна колір пензель валик ремонт майстер чистота рівна поверхня",
+                difficulty: "easy"
+            },
+            {
+                id: 148,
+                name: "Механік",
+                description: "Мотор і сервіс",
+                layout: "ua",
+                text: "механік мотор колесо сервіс ремонт інструмент гайка болт ключ двигун безпека",
+                difficulty: "easy"
+            },
+            {
+                id: 149,
+                name: "Садівник",
+                description: "Полив і квіти",
+                layout: "ua",
+                text: "садівник дерево трава квітка насіння листя полив вода сонце грунт сад квітне",
+                difficulty: "easy"
+            },
+            {
+                id: 150,
+                name: "Лікар",
+                description: "Турбота і здоровя",
+                layout: "ua",
+                text: "лікар лікує здоровя пацієнт лікарня медсестра турбота ліки шприц допомога спокій",
+                difficulty: "easy"
+            },
+            {
+                id: 151,
+                name: "Поштар",
+                description: "Листи і доставка",
+                layout: "ua",
+                text: "поштар лист конверт адреса марка пошта номер трек доставка швидко чекання",
+                difficulty: "easy"
+            },
+            {
+                id: 152,
+                name: "Фотограф",
+                description: "Світло і кадр",
+                layout: "ua",
+                text: "фотограф камера світло кадр фото портрет лінза момент фокус тиша",
+                difficulty: "easy"
+            },
+            {
+                id: 153,
+                name: "Дизайнер",
+                description: "Стиль і ідеї",
+                layout: "ua",
+                text: "дизайнер макет колір шрифт стиль ідея фон кнопка екран працює",
+                difficulty: "easy"
+            },
+            {
+                id: 154,
+                name: "Курєр",
+                description: "Пакет і дорога",
+                layout: "ua",
+                text: "курєр пакет доставка адреса дорога час сумка пакування двері підїзд",
+                difficulty: "easy"
+            },
+            {
+                id: 155,
+                name: "Оператор",
+                description: "Заявки і відповідь",
+                layout: "ua",
+                text: "оператор телефон лінія заявка клієнт відповідає компютер меню система порядок",
+                difficulty: "easy"
+            },
+            {
+                id: 156,
+                name: "Кондитер",
+                description: "Тісто і смак",
+                layout: "ua",
+                text: "кондитер тісто цукор мед печиво торт кухня смак запах аромат плита",
+                difficulty: "easy"
+            },
+            {
+                id: 157,
+                name: "Слюсар",
+                description: "Ремонт і інструмент",
+                layout: "ua",
+                text: "слюсар труба кран вода ключ гайка ремонт інструмент майстер будинок сервіс",
+                difficulty: "easy"
+            },
+            {
+                id: 158,
+                name: "Електрик",
+                description: "Світло і безпека",
+                layout: "ua",
+                text: "електрик провід світло щит кабель розетка безпека вимикач робота",
+                difficulty: "easy"
+            },
+            {
+                id: 159,
+                name: "Вчитель",
+                description: "Учень і урок",
+                layout: "ua",
+                text: "вчитель урок знання учень клас навчання читання писання пояснює старання",
+                difficulty: "easy"
+            },
+            {
+                id: 160,
+                name: "Будівельник",
+                description: "Цегла і дах",
+                layout: "ua",
+                text: "будівельник цегла бетон стіна дах ремонт інструмент рівень робота порядок",
+                difficulty: "easy"
+            },
+            {
+                id: 26,
+                name: "Склад и порядок",
+                description: "Про работу и внимательность",
+                layout: "ru",
+                text: "я работаю на складе внимательно комплектую коробки проверяю метки и аккуратно готовлю посылки для клиентов",
+                difficulty: "easy"
+            },
+            {
+                id: 27,
+                name: "Клей и стикеры",
+                description: "Про наклейки без спешки",
+                layout: "ru",
+                text: "я клейщик наклеиваю стикеры ровно разглаживаю пленку чтобы не было пузырей и проверяю номер на коробке",
+                difficulty: "easy"
+            },
+            {
+                id: 28,
+                name: "Груз и безопасность",
+                description: "Про аккуратные движения",
+                layout: "ru",
+                text: "я грузчик поднимаю ящики бережно ставлю поддон точно следую правилам безопасности и работаю спокойно",
+                difficulty: "easy"
+            },
+            {
+                id: 29,
+                name: "Магазин и чек",
+                description: "Про сервис и доброту",
+                layout: "ru",
+                text: "продавец приветствует клиента помогает выбрать товар и дает понятный чек после покупки улыбка остается надолго",
+                difficulty: "easy"
+            },
+            {
+                id: 30,
+                name: "Айти практика",
+                description: "Про код и порядок мыслей",
+                layout: "ru",
+                text: "айтишник пишет код запускает тесты ищет ошибки исправляет решение и снова проверяет пока все работает ровно",
+                difficulty: "easy"
+            },
+            {
+                id: 31,
+                name: "Дорога и время",
+                description: "Про маршрут без спешки",
+                layout: "ru",
+                text: "водитель ведет машину по маршруту держит скорость спокойно думает о безопасности и уважает время каждого дня",
+                difficulty: "easy"
+            },
+            {
+                id: 32,
+                name: "Факт о море",
+                description: "Небо и волны",
+                layout: "ru",
+                text: "факт море бесконечно волны приносят свежесть звезды сияют далеко и когда учишься печатать настроение становится лучше",
+                difficulty: "easy"
+            },
+            {
+                id: 33,
+                name: "Факт о лесe",
+                description: "Природа рядом",
+                layout: "ru",
+                text: "в лесу растут деревья трава поют птицы и слышен тихий ветер я смотрю внимательно и запоминаю красоту вокруг",
+                difficulty: "easy"
+            },
+            {
+                id: 34,
+                name: "История дня",
+                description: "Мини рассказ",
+                layout: "ru",
+                text: "сегодня я учусь печатать дома потом читаю слова вслух делаю короткую паузу и замечаю как растет точность",
+                difficulty: "easy"
+            },
+            {
+                id: 35,
+                name: "Снова и лучше",
+                description: "Про регулярность",
+                layout: "ru",
+                text: "каждый день я тренируюсь печатаю спокойно сохраняю ошибки в голове и постепенно становлюсь быстрее и точнее",
+                difficulty: "easy"
+            },
+            {
+                id: 201,
+                name: "Work at the warehouse",
+                description: "Packs and labels carefully",
+                layout: "en",
+                text: "today i work at a warehouse i pack boxes carefully check each label and prepare every order for shipping to customers",
+                difficulty: "easy"
+            },
+            {
+                id: 202,
+                name: "Sticker maker",
+                description: "Smooth and tidy results",
+                layout: "en",
+                text: "i am a sticker maker i place each label straight smooth the film and double check the number on the box",
+                difficulty: "easy"
+            },
+            {
+                id: 203,
+                name: "Loading with care",
+                description: "Safety first",
+                layout: "en",
+                text: "i am a loader i lift crates gently set pallets correctly follow safety rules and work without rushing",
+                difficulty: "easy"
+            },
+            {
+                id: 204,
+                name: "Friendly shop service",
+                description: "Help and a clear receipt",
+                layout: "en",
+                text: "the shop seller greets customers helps them choose the right item prints a receipt and keeps a warm smile",
+                difficulty: "easy"
+            },
+            {
+                id: 205,
+                name: "Coding every day",
+                description: "Fix errors and continue",
+                layout: "en",
+                text: "an it person writes code runs tests finds bugs fixes the solution and checks again until everything works well",
+                difficulty: "easy"
+            },
+            {
+                id: 206,
+                name: "Driver calm route",
+                description: "Time and safety",
+                layout: "en",
+                text: "the driver follows the route keeps safe speed stays calm and respects time so each trip feels smooth",
+                difficulty: "easy"
+            },
+            {
+                id: 207,
+                name: "Fact about the ocean",
+                description: "Waves and wonder",
+                layout: "en",
+                text: "fact the ocean is wide waves bring cool air distant stars shine and learning to type makes the day feel brighter",
+                difficulty: "easy"
+            },
+            {
+                id: 208,
+                name: "Forest is alive",
+                description: "Birds and wind",
+                layout: "en",
+                text: "in the forest trees grow grass sings birds fly and a quiet wind moves leaves i look carefully and remember the beauty",
+                difficulty: "easy"
+            },
+            {
+                id: 209,
+                name: "A small morning story",
+                description: "Practice and reading",
+                layout: "en",
+                text: "this morning i practice typing at home then i read words out loud take a short break and notice better accuracy",
+                difficulty: "easy"
+            },
+            {
+                id: 210,
+                name: "Again and better",
+                description: "Regular training",
+                layout: "en",
+                text: "every day i train calmly keep mistakes in mind and slowly become faster with steady practice and clear focus",
                 difficulty: "easy"
             }
         ]
@@ -624,11 +1184,219 @@ const LESSONS_DATA = {
                 difficulty: "medium"
             },
             {
+                id: 200,
+                name: "Комплектування замовлень",
+                description: "Праця, порядок, уважність",
+                layout: "ua",
+                text: "Сьогодні я комплектую замовлення: кожна коробка має етикетку, а товар має своє місце. Я перевіряю позиції й швидко готую посилки до відправки. Усе складається рівно, бо порядок економить час.",
+                difficulty: "medium"
+            },
+            {
+                id: 201,
+                name: "Історія про продавця",
+                description: "Сервіс і доброзичливість",
+                layout: "ua",
+                text: "У магазині продавець вітає клієнта усмішкою та уважно слухає побажання. Він пропонує вибір, пояснює різницю й формує чек. Коли сервіс простий, покупки стають приємними та зрозумілими.",
+                difficulty: "medium"
+            },
+            {
+                id: 202,
+                name: "Факт про зорі",
+                description: "Далеке світло",
+                layout: "ua",
+                text: "Нічне небо мерехтить, і кожна зоря світить далеко, крізь час. Телескоп відкриває нові відтінки та дає відчуття масштабу всесвіту. Коли дивишся вгору, думки стають спокійнішими.",
+                difficulty: "medium"
+            },
+            {
+                id: 203,
+                name: "Подорож водія",
+                description: "Маршрут, безпека, спокій",
+                layout: "ua",
+                text: "Водій стежить за маршрутом і за правилами безпеки. Коли дорога рівна, подорож проходить тихо, без поспіху. Подумки я рахую зупинки й відчуваю, як час минає м'яко.",
+                difficulty: "medium"
+            },
+            {
+                id: 204,
+                name: "Факт про час",
+                description: "Планування щодня",
+                layout: "ua",
+                text: "Хвилина здається короткою, але саме вона будує звичку. Година встигає розгорнути думки та справи. Тому я планую день і залишаю місце для відпочинку.",
+                difficulty: "medium"
+            },
+            {
+                id: 205,
+                name: "Урок вчителя",
+                description: "Слухати, питати, робити",
+                layout: "ua",
+                text: "Учень слухає уважно, ставить питання й записує головне. Вчитель пояснює простими словами, а завдання стає ясним кроком. Коли практика триває щодня, знання збираються в міцну картину.",
+                difficulty: "medium"
+            },
+            {
+                id: 206,
+                name: "Річка і трава",
+                description: "Природний ритм",
+                layout: "ua",
+                text: "Річка тече до моря, а трава росте після дощу. Кожен день має свій ритм, і природа нагадує про терпіння. Достатньо зупинитися та подивитися уважно, щоб помітити красу.",
+                difficulty: "medium"
+            },
+            {
+                id: 207,
+                name: "Айтішник працює",
+                description: "Код і тести",
+                layout: "ua",
+                text: "Айтішник пише код, запускає програму та перевіряє результат. Якщо з'являється помилка, він аналізує причину та виправляє рішення. Коли все працює, відчувається впевненість і порядок у думках.",
+                difficulty: "medium"
+            },
+            {
+                id: 208,
+                name: "Факти про тварин",
+                description: "Поведінка і дім",
+                layout: "ua",
+                text: "Дельфін пливе поруч із хвилями й ловить ритм моря. Білка стрибає між гілками та шукає їжу. У кожної істоти є свій спосіб жити, і цей спосіб вартий уваги.",
+                difficulty: "medium"
+            },
+            {
+                id: 209,
+                name: "Кухня щодня",
+                description: "Смак і турбота",
+                layout: "ua",
+                text: "Коли вариш суп, кухня наповнюється теплим запахом. Смаки збирають родину за столом, а слова стають простішими. Я готую повільно, щоб кожна ложка була вдалою.",
+                difficulty: "medium"
+            },
+            {
                 id: 31,
                 name: "Секретный уровень",
                 description: "Забытый сервер под городом",
                 layout: "ru",
                 text: "В старом подземном комплексе под городом где давно никто не был стоял забытый сервер игры Однажды случайный игрок нашёл вход и решил зайти внутрь Там было темно но в центре зала светился старый терминал На экране было написано секретный уровень если ты это читаешь значит ты первый кто дошёл сюда Игрок нажал запуск и двери позади закрылись начался таймер а вокруг ожили старые механизмы ловушки движущиеся стены и тёмные коридоры Он бежал вперёд разгадывал простые но опасные загадки и постепенно добрался до последних дверей Когда таймер показывал последние секунды он открыл их и нажал финальную кнопку В тот же момент система выдала сообщение уровень пройден сервер разблокирован а на экране появилась надпись победитель только один И когда игрок вышел на поверхность сервер окончательно выключился словно этот уровень существовал лишь для того чтобы один раз быть пройденным",
+                difficulty: "medium"
+            },
+            {
+                id: 500,
+                name: "Комплектовка заказов",
+                description: "Порядок в каждой коробке",
+                layout: "ru",
+                text: "Сегодня я комплектую заказ. Я нахожу нужный товар, сверяю метку и аккуратно кладу всё в коробку. Затем я готовлю посылку к отправке и проверяю детали, чтобы ничего не перепутать.",
+                difficulty: "medium"
+            },
+            {
+                id: 501,
+                name: "Стикеры без ошибок",
+                description: "Точность и терпение",
+                layout: "ru",
+                text: "Я клею стикер ровно и без спешки. Сначала я выравниваю поверхность, потом разглаживаю наклейку, чтобы не осталось пузырей. Номер на упаковке я проверяю два раза.",
+                difficulty: "medium"
+            },
+            {
+                id: 502,
+                name: "Грузчик и тишина",
+                description: "Движения без лишнего шума",
+                layout: "ru",
+                text: "Грузчик поднимает ящики осторожно. Он ставит поддон на место, следит за безопасностью и работает в своём ритме. Когда склад организован, всё происходит быстрее и спокойнее.",
+                difficulty: "medium"
+            },
+            {
+                id: 503,
+                name: "Продавец помогает",
+                description: "Сервис в деталях",
+                layout: "ru",
+                text: "Продавец встречает клиента доброжелательно. Он предлагает выбор, поясняет различия и помогает найти подходящий товар. В конце он печатает чек и желает хорошего дня.",
+                difficulty: "medium"
+            },
+            {
+                id: 504,
+                name: "Айтишник и тест",
+                description: "Ошибка превращается в подсказку",
+                layout: "ru",
+                text: "Айтишник пишет код и запускает тесты. Если появляется ошибка, он читает журнал, ищет причину и исправляет решение. Потом он снова проверяет, пока программа не станет стабильной.",
+                difficulty: "medium"
+            },
+            {
+                id: 505,
+                name: "Факт о звёздах",
+                description: "Ночь и наблюдение",
+                layout: "ru",
+                text: "Небо ночью выглядит тихим, но в нём идёт вечная история. Звёзды светят далеко, и свет идёт к нам из прошлого. Если поднять голову и понаблюдать, мысли становятся спокойнее.",
+                difficulty: "medium"
+            },
+            {
+                id: 506,
+                name: "Факт о море",
+                description: "Волны меняют настроение",
+                layout: "ru",
+                text: "Море широкое, и его волны всегда двигаются по-своему. Сегодня ты видишь спокойную гладь, а завтра приходит шторм. Такая перемена напоминает, что ритм важен для обучения.",
+                difficulty: "medium"
+            },
+            {
+                id: 507,
+                name: "Мини-история о дне",
+                description: "Повторение и рост",
+                layout: "ru",
+                text: "Сначала я печатаю несколько слов медленно. Затем я добавляю скорость, но сохраняю точность. В конце дня я вижу, что прогресс стал заметным, и хочется продолжать ещё раз завтра.",
+                difficulty: "medium"
+            },
+            {
+                id: 1500,
+                name: "Computer and care",
+                description: "A steady routine",
+                layout: "en",
+                text: "I work step by step every day. First I prepare the computer, then I test the program and look for mistakes. When the code behaves well, I feel calm and ready to type faster.",
+                difficulty: "medium"
+            },
+            {
+                id: 1501,
+                name: "Seller and service",
+                description: "Clear choices",
+                layout: "en",
+                text: "The seller helps the customer choose the right item. He explains the options and keeps the process friendly. After that he prints the receipt and wishes you a good day.",
+                difficulty: "medium"
+            },
+            {
+                id: 1502,
+                name: "Facts in the night",
+                description: "Stars and silence",
+                layout: "en",
+                text: "The night sky looks quiet, but it is full of distant light. Stars shine far away, and their light reaches us slowly. Taking a moment to watch can refresh your mind.",
+                difficulty: "medium"
+            },
+            {
+                id: 1503,
+                name: "Ocean rhythm",
+                description: "Waves and focus",
+                layout: "en",
+                text: "The ocean is wide and the waves move again and again. One day the surface is smooth, and another day the water changes. This rhythm reminds me to keep typing with patience.",
+                difficulty: "medium"
+            },
+            {
+                id: 1504,
+                name: "Packing carefully",
+                description: "Order makes it easy",
+                layout: "en",
+                text: "I pack boxes carefully and check each label before shipping. Everything has a place, and that makes the work fast and safe. Calm steps help me learn and improve.",
+                difficulty: "medium"
+            },
+            {
+                id: 1505,
+                name: "Sticker work",
+                description: "No bubbles",
+                layout: "en",
+                text: "I place stickers carefully and smooth the surface. I check the number twice to avoid mistakes. When the label looks neat, the whole package feels better.",
+                difficulty: "medium"
+            },
+            {
+                id: 1506,
+                name: "A short story",
+                description: "Practice grows",
+                layout: "en",
+                text: "Today I start slowly, focusing on correct letters. Then I continue with steady speed and clear attention. At the end I notice that my accuracy improves, and I want to try again tomorrow.",
+                difficulty: "medium"
+            },
+            {
+                id: 1507,
+                name: "Driver calm route",
+                description: "Rules and calm",
+                layout: "en",
+                text: "The driver follows the route and keeps safety first. He stays calm, respects the time, and avoids rushing. With a good plan, every trip feels smoother and easier.",
                 difficulty: "medium"
             }
         ]
@@ -1049,14 +1817,197 @@ const LESSONS_DATA = {
                 difficulty: "hard"
             },
             {
+                id: 200,
+                name: "Комплектовщик складу",
+                description: "Порядок і точність",
+                layout: "ua",
+                text: "У передсвітлі я бачу склад. Комплектовщик зчитує штрихкод, знаходить товар і складає коробку акуратно. Потім він готує посилку до відправки, і черга рухається швидко. Кожна деталь має значення, тому все працює рівно.",
+                difficulty: "hard"
+            },
+            {
+                id: 201,
+                name: "Клейщик стикерів",
+                description: "Рівні етикетки",
+                layout: "ua",
+                text: "Клейщик стикерів працює з терпінням. Він розгладжує наклейку без бульбашок, вирівнює етикетку і перевіряє номер. Коли все виходить рівно, упаковка виглядає як подарунок, а клієнт радіє. Спокій і уважність роблять процес простішим.",
+                difficulty: "hard"
+            },
+            {
+                id: 202,
+                name: "Грузчик",
+                description: "Безпека на першому місці",
+                layout: "ua",
+                text: "Грузчик підіймає вантаж обережно, бо вага відчувається в кожному русі. Він ставить піддон правильно, стежить за безпекою і не поспішає. Коли склад організований, все працює тихо і точно. Так день завершується без зайвих труднощів.",
+                difficulty: "hard"
+            },
+            {
+                id: 203,
+                name: "Продавець",
+                description: "Сервіс у деталях",
+                layout: "ua",
+                text: "Продавець у магазині зустрічає людей чемно. Він допомагає вибрати товар, підказує розмір і пояснює умови. Чек завершує розмову, і клієнт виходить із посмішкою. Доброта та порядок створюють відчуття надійності.",
+                difficulty: "hard"
+            },
+            {
+                id: 204,
+                name: "Айтішник",
+                description: "Код, тести і стабільність",
+                layout: "ua",
+                text: "Айтішник пише код вранці і тестує ввечері. Програма може видати помилку, але він аналізує лог, виправляє рішення та запускає тест ще раз. Так формується стабільність, а страх зникає. Коли все працює, відчувається справжня впевненість.",
+                difficulty: "hard"
+            },
+            {
+                id: 205,
+                name: "Маленька подорож",
+                description: "Місто і думки",
+                layout: "ua",
+                text: "Уяви маленьку подорож містом. У старих вулицях чути кроки, а вечірній ліхтар підсвічує тіні. Я йду повільно, щоб помітити деталі, і думаю про новий день. Так мандри стають цікавими, а розум відпочиває.",
+                difficulty: "hard"
+            },
+            {
+                id: 206,
+                name: "Факт про зорі",
+                description: "Нічне диво",
+                layout: "ua",
+                text: "Нічне небо приховує диво. Зорі здаються спокійними, але вони сяють і змінюються щомиті. Коли я дивлюся в телескоп, уявляю цілі галактики та відчуваю тишу. Навіть одна хвилина спостереження додає натхнення.",
+                difficulty: "hard"
+            },
+            {
+                id: 207,
+                name: "Факт про час",
+                description: "План і повторення",
+                layout: "ua",
+                text: "Час минає, але можна керувати планом. Хвилина має значення, а година дає можливість зробити більше. Я повторюю кроки щодня і бачу результат. Так знання міцнішають, а день стає продуктивним.",
+                difficulty: "hard"
+            },
+            {
+                id: 208,
+                name: "Річка і ліс",
+                description: "Природа говорить",
+                layout: "ua",
+                text: "Річка тече до моря, і трава росте після дощу. Птахи прокидаються рано, а ліс дихає спокоєм. Якщо зупинитися й слухати, природа розповість свої секрети. Я вчуся бачити красу у простих речах.",
+                difficulty: "hard"
+            },
+            {
+                id: 209,
+                name: "Факт про тварин",
+                description: "Дельфін і звірі",
+                layout: "ua",
+                text: "Дельфін пливе поруч із хвилями, ніби грає з водою. Звірі шукають їжу й захищають свій дім. Кожен день приносить нові дрібні факти, і це захоплює. Так природа підтримує цікавість щодня.",
+                difficulty: "hard"
+            },
+            {
+                id: 210,
+                name: "Учень і вчитель",
+                description: "Знання та практика",
+                layout: "ua",
+                text: "Учитель пояснює матеріал чітко, а учень задає питання. Клас працює разом, і знання стають міцними. Практика приносить впевненість, а страх помилок зникає. Коли все повторюється, результат стає видно.",
+                difficulty: "hard"
+            },
+            {
                 id: 29,
                 name: "Игрок без ника",
                 description: "Киберпанк-история о тёмном городе и порталах",
                 layout: "ru",
                 text: "В тёмном городе, где неон светится как порталы между мирами, жил один игрок, которого никто никогда не видел, но все знали его ник. Он появлялся там, где система ломалась, где правила игры вдруг переставали работать, где карты менялись прямо под ногами людей. И однажды ночью, когда сервер города снова перезагрузился и улицы на секунду стали пусты как чистая карта перед стартом нового уровня, он снова вошёл в игру. Никто не знал, кто он на самом деле. Одни говорили, что он просто игрок, который когда-то зашёл в игру и не смог выйти. Другие говорили, что он часть самой системы, баг, который научился думать как человек. Но правда была ещё страннее и опаснее, ведь этот игрок знал секреты уровней, о которых даже разработчики давно забыли. У него не было базы, не было команды, не было даже стабильного спавна. Он просто двигался сквозь город, уровень за уровнем, как тень, скользящая по карте, собирая информацию, ресурсы и странные артефакты, которые выпадали только в тех местах, где реальность давала трещину. И именно поэтому эта история только начинается, ведь каждый новый уровень таит новые ловушки, новые союзы, новые предательства и новых игроков, которые думают, что смогут победить систему. Но рано или поздно все они узнают одну простую вещь: в этой игре выигрывает не тот, кто сильнее, а тот, кто видит правила там, где другие видят лишь карту.",
                 difficulty: "hard"
+            },
+            {
+                id: 3000,
+                name: "Спокойный ритм",
+                description: "Скорость растет, когда ты уверен в каждом символе",
+                layout: "ru",
+                text: "Сегодня я читаю текст внимательно, затем печатаю ровно, без лишних рывков. Если появляется ошибка, я не устраиваю суету, а возвращаюсь и продолжаю. С каждым новым заходом пальцы запоминают порядок, и скорость становится стабильной. Так тренировка превращается в спокойный ритм.",
+                difficulty: "hard"
+            },
+            {
+                id: 3001,
+                name: "План и точность",
+                description: "Мысль впереди пальцев",
+                layout: "ru",
+                text: "Я мысленно разбиваю строку на части, чтобы не терять фокус. Точность важнее спешки, потому что ошибка ломает поток. Когда я удерживаю темп, становится легче сохранять правильные позиции. В конце урока я вижу прогресс не только в скорости, но и в качестве.",
+                difficulty: "hard"
+            },
+            {
+                id: 3002,
+                name: "Невидимые детали",
+                description: "Урок из мелочей",
+                layout: "ru",
+                text: "Тонкие детали решают результат, даже когда они кажутся незаметными. Правильные паузы между словами помогают дыханию, а стабильный угол взгляда снижает ошибки. Я повторяю практику, фиксирую прогресс и продолжаю. Так незаметные привычки собираются в заметный рост.",
+                difficulty: "hard"
+            },
+            {
+                id: 3003,
+                name: "Сила привычки",
+                description: "Повторение формирует контроль",
+                layout: "ru",
+                text: "Привычка печатать регулярно сильнее мотивации, которая приходит и уходит. Важно сохранять спокойствие и доверять повторению. Каждый урок добавляет маленький слой уверенности, и через время точность становится привычкой. Скорость приходит вместе с контролем, и текст начинает читаться легче.",
+                difficulty: "hard"
+            },
+            {
+                id: 3004,
+                name: "Короткая история",
+                description: "Как ошибка стала подсказкой",
+                layout: "ru",
+                text: "Когда я впервые допустил ошибку в середине строки, я остановился и понял причину. Я не просто вернулся назад, я изменил темп и снова проверил путь. В следующем заходе скорость выросла, а количество ошибок уменьшилось. Именно так одна подсказка превращается в уверенность.",
+                difficulty: "hard"
+            },
+            {
+                id: 3005,
+                name: "Сосредоточение",
+                description: "Один символ за раз",
+                layout: "ru",
+                text: "Пока текст движется вперед, я держу внимание на текущем символе. Я слушаю ритм и печатаю без пауз, когда это возможно. Если нужно, я делаю микропаузу и продолжаю. В итоге урок превращается в контроль, а контроль дает рост.",
+                difficulty: "hard"
+            },
+            {
+                id: 4000,
+                name: "Code and calm",
+                description: "Focus keeps the flow",
+                layout: "en",
+                text: "Typing feels smoother when focus leads the hands. I read the next phrase carefully, then I type it with steady rhythm, one character at a time. If a mistake appears, I correct it and continue without rushing. With practice, the flow returns, and accuracy becomes natural.",
+                difficulty: "hard"
+            },
+            {
+                id: 4001,
+                name: "A lesson in details",
+                description: "Small changes make big progress",
+                layout: "en",
+                text: "I break the text into small parts, so my mind stays ready for what comes next. Slow is not failure, it is control. Each run teaches timing, and each correct repeat builds confidence. When the pace is stable, the text looks clearer and typing feels easier.",
+                difficulty: "hard"
+            },
+            {
+                id: 4002,
+                name: "Night facts",
+                description: "Stars guide the attention",
+                layout: "en",
+                text: "The night sky is quiet, yet it holds endless facts. I imagine distant stars shining through time, and I keep my attention on the screen. This mindset reduces errors and helps me stay consistent. One line of focus turns into momentum for the next run.",
+                difficulty: "hard"
+            },
+            {
+                id: 4003,
+                name: "Ocean rhythm",
+                description: "Learning needs patience",
+                layout: "en",
+                text: "The ocean never stops moving, and neither does learning. Waves remind me that progress comes in cycles. I keep typing with a calm pace, and I let repetition do the work. After every session, I review my results and return with a better plan.",
+                difficulty: "hard"
+            },
+            {
+                id: 4004,
+                name: "A short story",
+                description: "Mistakes become signals",
+                layout: "en",
+                text: "When I made a mistake in the middle of the sentence, I paused and analyzed it. Then I changed the rhythm and tried again with clearer attention. The next run felt smoother, and my accuracy improved quickly. That is how one signal becomes a guide.",
+                difficulty: "hard"
+            },
+            {
+                id: 4005,
+                name: "Clear routine",
+                description: "Confidence is built step by step",
+                layout: "en",
+                text: "A clear routine helps me stay confident. I start slowly, I keep the current char in mind, and I maintain the flow until the end. When punctuation appears, I remain careful and consistent. At the end, the lesson feels like a small victory.",
+                difficulty: "hard"
             }
         ]
     }
 };
-

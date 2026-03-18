@@ -1052,6 +1052,18 @@
         @keyframes ach-glow { 0%, 100% { filter: drop-shadow(0 0 8px rgba(0,229,255,0.5)); } 50% { filter: drop-shadow(0 0 20px rgba(0,229,255,0.9)); } }
         @keyframes ach-rubber { 0%, 100% { transform: scaleX(1); } 30% { transform: scaleX(1.25); } 50% { transform: scaleX(0.9); } 70% { transform: scaleX(1.1); } }
         @keyframes ach-jello { 0%, 100% { transform: skew(0deg); } 30% { transform: skew(-8deg); } 50% { transform: skew(8deg); } 70% { transform: skew(-4deg); } }
+
+        /* Multiplayer rematch countdown "2100" pulse */
+        @keyframes mpCountdownPulse {
+            0%, 100% {
+                transform: scale(1);
+                filter: drop-shadow(0 0 8px rgba(0,229,255,0.20));
+            }
+            50% {
+                transform: scale(1.03);
+                filter: drop-shadow(0 0 22px rgba(0,229,255,0.55));
+            }
+        }
         .achievement-unlocked.ach-hover-0:hover { animation: ach-bounce 0.55s ease; }
         .achievement-unlocked.ach-hover-1:hover { animation: ach-spin 0.6s ease; }
         .achievement-unlocked.ach-hover-2:hover { animation: ach-wiggle 0.4s ease-in-out 2; }
@@ -2944,6 +2956,7 @@
                     </div>
                     <div class="space-y-2 text-sm">
                         <div class="flex justify-between"><span>Скорость (оценка)</span><span class="font-bold text-purple-300"><span id="mpResOppCpm">0</span> зн/мин</span></div>
+                        <div class="flex justify-between"><span>WPM (оценка)</span><span class="font-bold text-purple-300"><span id="mpResOppWpm">0</span></span></div>
                         <div class="flex justify-between"><span>Точность (оценка)</span><span class="font-bold text-purple-200"><span id="mpResOppAcc">0</span>%</span></div>
                         <div class="flex justify-between"><span>Символов</span><span class="font-bold"><span id="mpResOppChars">0</span></span></div>
                         <div class="flex justify-between"><span>Ошибки</span><span class="font-bold text-red-400"><span id="mpResOppErrors">0</span></span></div>
@@ -3401,4 +3414,3 @@
     </script>
 </body>
 </html>
-
