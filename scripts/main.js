@@ -3399,9 +3399,13 @@ function showMultiplayerMenu() {
 }
 
 // Room settings
-let selectedWordCount = 50; // Default
+let selectedWordCount = 500; // Default (now used as "chars" length)
 let selectedTheme = 'random'; // Default
 let selectedMultiplayerLang = 'ru'; // Default
+let selectedTextOptComma = true;
+let selectedTextOptPeriod = true;
+let selectedTextOptDigits = false;
+let selectedTextOptMixCase = false;
 
 // Show room settings
 function showRoomSettings() {
@@ -3473,6 +3477,23 @@ function selectWordCount(count) {
     });
 }
 
+function setMultiplayerTextOption(type, value) {
+    if (type === 'comma') selectedTextOptComma = !!value;
+    if (type === 'period') selectedTextOptPeriod = !!value;
+    if (type === 'digits') selectedTextOptDigits = !!value;
+    if (type === 'mixCase') selectedTextOptMixCase = !!value;
+}
+
+function getMultiplayerTextOptions() {
+    return {
+        lengthMode: 'chars',
+        includeComma: selectedTextOptComma,
+        includePeriod: selectedTextOptPeriod,
+        includeDigits: selectedTextOptDigits,
+        mixCase: selectedTextOptMixCase
+    };
+}
+
 // Show join room dialog
 function showJoinRoomDialog() {
     document.getElementById('multiplayerMainMenu').classList.add('hidden');
@@ -3492,7 +3513,8 @@ function hideJoinRoomDialog() {
 async function createMultiplayerRoomWithSettings() {
     try {
         window.secondPlayerNotified = false; // Сброс флага
-        const roomCode = await window.multiplayerModule.createRoom(selectedWordCount, selectedTheme, selectedMultiplayerLang);
+        const opts = getMultiplayerTextOptions();
+        const roomCode = await window.multiplayerModule.createRoom(selectedWordCount, selectedTheme, selectedMultiplayerLang, opts);
         
         hideRoomSettings();
         hideAllScreens();
@@ -4143,4 +4165,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-

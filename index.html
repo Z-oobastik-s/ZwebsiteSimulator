@@ -1902,6 +1902,17 @@
             border-radius: 1rem;
             background: radial-gradient(circle at 20% 10%, rgba(0,229,255,0.10), transparent 45%),
                         radial-gradient(circle at 80% 90%, rgba(168,85,247,0.10), transparent 55%);
+            white-space: nowrap;
+            flex-wrap: nowrap !important;
+            overflow-x: auto;
+            overflow-y: hidden;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE/Edge */
+        }
+
+        #multiplayerTextDisplay::-webkit-scrollbar {
+            height: 0;
+            width: 0;
         }
 
         /* Progress bars: animated stripes + glow */
@@ -2455,24 +2466,58 @@
                     
                     <!-- Word Count -->
                     <div class="mb-4">
-                        <h4 class="text-sm font-semibold mb-2 text-center" data-i18n="wordCount">Количество слов</h4>
+                        <h4 class="text-sm font-semibold mb-2 text-center">Длина текста (символы)</h4>
                         <div class="grid grid-cols-4 gap-2">
-                            <button onclick="selectWordCount(30)" class="room-setting-btn glass rounded-lg px-3 py-5 hover:bg-primary/20 transition-all text-center border-2 border-transparent hover:border-primary" data-words="30">
-                                <div class="text-2xl font-bold text-primary mb-1">30</div>
-                                <div class="text-xs" data-i18n="words30">слов</div>
+                            <button onclick="selectWordCount(200)" class="room-setting-btn glass rounded-lg px-3 py-5 hover:bg-primary/20 transition-all text-center border-2 border-transparent hover:border-primary" data-words="200">
+                                <div class="text-2xl font-bold text-primary mb-1">200</div>
+                                <div class="text-xs">симв</div>
                             </button>
-                            <button onclick="selectWordCount(50)" class="room-setting-btn glass rounded-lg px-3 py-5 bg-primary/20 hover:bg-primary/30 transition-all text-center border-2 border-primary" data-words="50">
-                                <div class="text-2xl font-bold text-primary mb-1">50</div>
-                                <div class="text-xs" data-i18n="words50">слов</div>
-                            </button>
-                            <button onclick="selectWordCount(100)" class="room-setting-btn glass rounded-lg px-3 py-5 hover:bg-primary/20 transition-all text-center border-2 border-transparent hover:border-primary" data-words="100">
-                                <div class="text-2xl font-bold text-primary mb-1">100</div>
-                                <div class="text-xs" data-i18n="words100">слов</div>
+                            <button onclick="selectWordCount(500)" class="room-setting-btn glass rounded-lg px-3 py-5 bg-primary/20 hover:bg-primary/30 transition-all text-center border-2 border-primary" data-words="500">
+                                <div class="text-2xl font-bold text-primary mb-1">500</div>
+                                <div class="text-xs">симв</div>
                             </button>
                             <button onclick="selectWordCount(1000)" class="room-setting-btn glass rounded-lg px-3 py-5 hover:bg-primary/20 transition-all text-center border-2 border-transparent hover:border-primary" data-words="1000">
                                 <div class="text-2xl font-bold text-primary mb-1">1000</div>
-                                <div class="text-xs" data-i18n="words1000">слов</div>
+                                <div class="text-xs">симв</div>
                             </button>
+                            <button onclick="selectWordCount(1800)" class="room-setting-btn glass rounded-lg px-3 py-5 hover:bg-primary/20 transition-all text-center border-2 border-transparent hover:border-primary" data-words="1800">
+                                <div class="text-2xl font-bold text-primary mb-1">1800</div>
+                                <div class="text-xs">симв</div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Text Options -->
+                    <div class="mb-4">
+                        <h4 class="text-sm font-semibold mb-2 text-center">Параметры текста</h4>
+                        <div class="grid grid-cols-2 gap-2">
+                            <label class="glass rounded-lg px-4 py-3 cursor-pointer border border-white/10 hover:bg-white/10 flex items-center justify-between gap-3">
+                                <span class="text-sm font-semibold">Запятые</span>
+                                <input id="mpOptComma" type="checkbox" checked onchange="setMultiplayerTextOption('comma', this.checked)" />
+                            </label>
+                            <label class="glass rounded-lg px-4 py-3 cursor-pointer border border-white/10 hover:bg-white/10 flex items-center justify-between gap-3">
+                                <span class="text-sm font-semibold">Точки</span>
+                                <input id="mpOptPeriod" type="checkbox" checked onchange="setMultiplayerTextOption('period', this.checked)" />
+                            </label>
+                            <label class="glass rounded-lg px-4 py-3 cursor-pointer border border-white/10 hover:bg-white/10 flex items-center justify-between gap-3">
+                                <span class="text-sm font-semibold">Цифры</span>
+                                <input id="mpOptDigits" type="checkbox" onchange="setMultiplayerTextOption('digits', this.checked)" />
+                            </label>
+                            <label class="glass rounded-lg px-4 py-3 cursor-pointer border border-white/10 hover:bg-white/10 flex items-center justify-between gap-3">
+                                <span class="text-sm font-semibold">Микс-регистр</span>
+                                <input id="mpOptMixCase" type="checkbox" onchange="setMultiplayerTextOption('mixCase', this.checked)" />
+                            </label>
+                        </div>
+                        <div class="text-gray-400 text-xs mt-3 text-center">
+                            Текст всегда генерируется случайно на лету (по крипто-случайности).
+                        </div>
+                    </div>
+
+                    <!-- Players -->
+                    <div class="mb-4">
+                        <h4 class="text-sm font-semibold mb-2 text-center">Игроки</h4>
+                        <div class="glass rounded-lg px-4 py-3 text-center border border-white/10">
+                            Сейчас доступна только дуэль: <span class="text-primary font-bold">2 игрока</span>.
                         </div>
                     </div>
                     
@@ -3179,4 +3224,3 @@
     </script>
 </body>
 </html>
-

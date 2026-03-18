@@ -84,23 +84,109 @@ const textLibrary = {
     }
 };
 
-function getThemedText(theme, layout, wordCount) {
+function getThemedWords(theme, layout) {
     const text = textLibrary[theme]?.[layout] || textLibrary[theme]?.ru;
-    if (!text) return null;
-    
-    const words = text.split(' ');
-    const selectedWords = [];
-    
-    // Если запрошено больше слов чем есть в тексте, повторяем
-    for (let i = 0; i < wordCount; i++) {
-        selectedWords.push(words[i % words.length]);
+    if (!text) return [];
+    return text.split(/\s+/).filter(Boolean);
+}
+
+function cryptoRandInt(max) {
+    // max > 0
+    try {
+        if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+            const arr = new Uint32Array(1);
+            crypto.getRandomValues(arr);
+            return arr[0] % max;
+        }
+    } catch (e) {}
+    // Fallback: should not be used in modern browsers, but keeps the app working.
+    return Math.floor(Math.random() * max);
+}
+
+function cryptoPick(arr) {
+    if (!arr || !arr.length) return '';
+    return arr[cryptoRandInt(arr.length)];
+}
+
+function maybeUppercase(word) {
+    if (!word) return word;
+    return word.charAt(0).toUpperCase() + word.slice(1);
+}
+
+function generateRandomTextByChars(targetChars, language, theme, options = {}) {
+    const includeComma = !!options.includeComma;
+    const includePeriod = !!options.includePeriod;
+    const includeDigits = !!options.includeDigits;
+    const mixCase = !!options.mixCase;
+
+    const punctuation = [];
+    if (includeComma) punctuation.push(',');
+    if (includePeriod) punctuation.push('.');
+
+    const wordsFromRandomPool = language === 'en'
+        ? ['the', 'and', 'for', 'are', 'but', 'not', 'you', 'all', 'can', 'her', 'was', 'one', 'our', 'out', 'day', 'get', 'has', 'him', 'his', 'how', 'man', 'new', 'now', 'old', 'see', 'time', 'two', 'way', 'who', 'boy', 'did', 'its', 'let', 'put', 'say', 'she', 'too', 'use', 'with', 'work', 'year', 'back', 'call', 'come', 'made', 'make', 'more', 'over', 'such', 'take', 'than', 'them', 'then', 'very', 'well', 'when', 'your']
+        : language === 'ua'
+            ? ['як', 'так', 'все', 'це', 'був', 'вона', 'вони', 'мій', 'його', 'що', 'рік', 'дім', 'день', 'раз', 'рука', 'нога', 'мама', 'тато', 'вода', 'небо', 'земля', 'місто', 'стіл', 'вікно', 'двері', 'книга', 'лампа', 'стілець', 'друг', 'життя', 'час', 'люди', 'справа', 'місце', 'слово', 'сторона', 'питання', 'робота', 'школа', 'дитина', 'батько', 'сестра', 'брат', 'країна', 'мова', 'дерево', 'квітка', 'сонце', 'місяць', 'зірка']
+            : ['как', 'так', 'все', 'это', 'был', 'она', 'они', 'мой', 'его', 'что', 'год', 'дом', 'день', 'раз', 'рука', 'нога', 'мама', 'папа', 'вода', 'небо', 'земля', 'город', 'стол', 'окно', 'дверь', 'книга', 'лампа', 'стул', 'друг', 'жизнь', 'время', 'человек', 'дело', 'место', 'слово', 'сторона', 'вопрос', 'работа', 'школа', 'ребенок', 'отец', 'мать', 'брат', 'сестра', 'страна', 'язык', 'дерево', 'цветок', 'солнце', 'луна', 'звезда'];
+
+    const themedWords = theme && theme !== 'random'
+        ? getThemedWords(theme, language)
+        : [];
+
+    const wordPool = themedWords.length ? themedWords : wordsFromRandomPool;
+
+    // Tune probabilities: punctuation isn't overwhelming.
+    const commaChance = includeComma ? 0.12 : 0;
+    const periodChance = includePeriod ? 0.08 : 0;
+    const digitChance = includeDigits ? 0.03 : 0;
+
+    let out = '';
+    let canAddSpace = false;
+    let capitalizeNext = true;
+
+    while (out.length < targetChars) {
+        // Add a digit "word" sometimes.
+        let token = '';
+        if (digitChance && cryptoRandInt(1000) < Math.floor(digitChance * 1000)) {
+            const n = cryptoRandInt(9999) + 1;
+            token = String(n);
+        } else {
+            token = cryptoPick(wordPool);
+        }
+        if (!token) token = cryptoPick(wordsFromRandomPool);
+
+        if (mixCase && cryptoRandInt(100) < 12) token = token.toUpperCase();
+        if (capitalizeNext) token = maybeUppercase(token);
+
+        if (canAddSpace) out += ' ';
+        out += token;
+        canAddSpace = true;
+
+        if (punctuation.length) {
+            const r = cryptoRandInt(1000);
+            if (includeComma && r < Math.floor(commaChance * 1000)) {
+                out += ',';
+                capitalizeNext = false;
+            } else if (includePeriod && r < Math.floor((commaChance + periodChance) * 1000)) {
+                out += '.';
+                canAddSpace = false; // after dot, next token shouldn't immediately have a space in "out.length" checks
+                capitalizeNext = true;
+            }
+        }
+
+        // If we just added a dot, allow the next loop to add a space properly.
+        if (!canAddSpace && out.length < targetChars) {
+            // We'll add space before next word.
+            canAddSpace = true;
+        }
     }
-    
-    return selectedWords.join(' ');
+
+    // Trim to exact chars to match the user's chosen length.
+    return out.slice(0, targetChars).trim();
 }
 
 // Create new room
-export async function createRoom(wordCount = 50, theme = 'random', layout = 'ru') {
+export async function createRoom(wordCount = 50, theme = 'random', layout = 'ru', options = {}) {
     const roomCode = generateRoomCode();
     const playerId = generatePlayerId();
     
@@ -109,28 +195,9 @@ export async function createRoom(wordCount = 50, theme = 'random', layout = 'ru'
     multiplayerState.isHost = true;
     multiplayerState.playerNumber = 1;
     
-    // Generate game text
-    let gameText;
-    
-    if (theme !== 'random' && textLibrary[theme]) {
-        // Use themed text
-        gameText = getThemedText(theme, layout, wordCount);
-    }
-    
-    if (!gameText) {
-        // Fallback to random words
-        const words = layout === 'en' 
-        ? ['the', 'and', 'for', 'are', 'but', 'not', 'you', 'all', 'can', 'her', 'was', 'one', 'our', 'out', 'day', 'get', 'has', 'him', 'his', 'how', 'man', 'new', 'now', 'old', 'see', 'time', 'two', 'way', 'who', 'boy', 'did', 'its', 'let', 'put', 'say', 'she', 'too', 'use', 'with', 'work', 'year', 'back', 'call', 'come', 'made', 'make', 'more', 'over', 'such', 'take', 'than', 'them', 'then', 'very', 'well', 'when', 'your']
-        : layout === 'ua'
-        ? ['як', 'так', 'все', 'це', 'був', 'вона', 'вони', 'мій', 'його', 'що', 'рік', 'дім', 'день', 'раз', 'рука', 'нога', 'мама', 'тато', 'вода', 'небо', 'земля', 'місто', 'стіл', 'вікно', 'двері', 'книга', 'лампа', 'стілець', 'друг', 'життя', 'час', 'люди', 'справа', 'місце', 'слово', 'сторона', 'питання', 'робота', 'школа', 'дитина', 'батько', 'сестра', 'брат', 'країна', 'мова', 'дерево', 'квітка', 'сонце', 'місяць', 'зірка']
-        : ['как', 'так', 'все', 'это', 'был', 'она', 'они', 'мой', 'его', 'что', 'год', 'дом', 'день', 'раз', 'рука', 'нога', 'мама', 'папа', 'вода', 'небо', 'земля', 'город', 'стол', 'окно', 'дверь', 'книга', 'лампа', 'стул', 'друг', 'жизнь', 'время', 'человек', 'дело', 'место', 'слово', 'сторона', 'вопрос', 'работа', 'школа', 'ребенок', 'отец', 'мать', 'брат', 'сестра', 'страна', 'язык', 'дерево', 'цветок', 'солнце', 'луна', 'звезда'];
-        
-        const randomWords = [];
-        for (let i = 0; i < wordCount; i++) {
-            randomWords.push(words[Math.floor(Math.random() * words.length)]);
-        }
-        gameText = randomWords.join(' ');
-    }
+    // Generate game text: always random (crypto) + respects punctuation/options.
+    // Currently wordCount parameter is used as "target chars".
+    const gameText = generateRandomTextByChars(wordCount, layout, theme, options);
     
     multiplayerState.gameText = gameText;
     
@@ -386,13 +453,26 @@ export async function resetGame() {
         finished: false,
         ready: true
     });
-    
-    // If host, reset game state
-    if (multiplayerState.isHost) {
-        const roomRef = ref(database, `rooms/${multiplayerState.roomCode}`);
-        await update(roomRef, {
-            started: false
-        });
+
+    // Make sure "started" is false when someone left (so the other player can re-invite).
+    // For rematch with two players we keep the previous behavior (host controls started=false).
+    const roomRef = ref(database, `rooms/${multiplayerState.roomCode}`);
+    try {
+        const roomSnapshot = await get(roomRef);
+        if (roomSnapshot.exists()) {
+            const roomData = roomSnapshot.val() || {};
+            const players = roomData.players || {};
+            const playerCount = Object.keys(players).length;
+
+            if (playerCount < 2 || multiplayerState.isHost) {
+                await update(roomRef, { started: false });
+            }
+        }
+    } catch (e) {
+        // If we can't read the room, we still keep the old safe path: host resets started=false.
+        if (multiplayerState.isHost) {
+            await update(roomRef, { started: false });
+        }
     }
 }
 
@@ -407,4 +487,3 @@ window.multiplayerModule = {
     getMultiplayerState,
     isMultiplayerActive
 };
-
