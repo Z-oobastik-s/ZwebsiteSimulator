@@ -177,7 +177,7 @@
             #statsPreview .text-gray-500 { white-space: normal; overflow: visible; text-overflow: unset; }
             #statsPreview .truncate { white-space: normal; overflow: visible; text-overflow: unset; }
             #statsPreview > div { min-width: 0; }
-            #achievementsBlock { padding-left: 0.5rem; padding-right: 0.5rem; gap: 0.5rem; }
+            #achievementsBlock { padding-left: 0.25rem; padding-right: 0.25rem; }
             .site-rating-wrap { margin-bottom: 0.5rem; }
             #footer { padding-bottom: env(safe-area-inset-bottom); }
             #footer .footer-content { padding-bottom: max(0.75rem, env(safe-area-inset-bottom)); padding-left: 0.75rem; padding-right: 0.75rem; }
@@ -919,15 +919,37 @@
         }
 
         /* Achievements */
+        #achievementsBlock {
+            display: flex;
+            flex-wrap: nowrap;
+            gap: 0.75rem;
+            overflow-x: auto;
+            padding: 0.5rem 1rem;
+            scroll-snap-type: x mandatory;
+        }
+        #achievementsBlock::-webkit-scrollbar {
+            height: 6px;
+        }
+        #achievementsBlock::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        #achievementsBlock::-webkit-scrollbar-thumb {
+            background: rgba(148,163,184,0.6);
+            border-radius: 9999px;
+        }
         .achievement-icon-wrap {
             display: inline-flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            width: 2.5rem;
-            height: 2.5rem;
-            border-radius: 12px;
+            width: 3rem;
+            min-width: 3rem;
+            height: 3rem;
+            border-radius: 9999px;
             cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease, filter 0.2s ease;
+            scroll-snap-align: center;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease, filter 0.2s ease, background 0.25s ease;
+            position: relative;
         }
         .achievement-icon-wrap:not(.achievement-unlocked):hover {
             transform: scale(1.15);
@@ -944,8 +966,8 @@
         .achievement-unlocked {
             opacity: 1;
             filter: none;
-            background: rgba(0, 229, 255, 0.08);
-            box-shadow: 0 0 12px rgba(0, 229, 255, 0.2);
+            background: radial-gradient(circle at 30% 0%, rgba(56,189,248,0.35), transparent 55%), radial-gradient(circle at 70% 100%, rgba(59,130,246,0.5), transparent 60%), rgba(15,23,42,0.9);
+            box-shadow: 0 0 18px rgba(56,189,248,0.45);
         }
         .achievement-unlocked:hover {
             box-shadow: 0 0 20px rgba(0, 229, 255, 0.4);
@@ -967,16 +989,28 @@
         .site-star.active .site-star-svg { color: #fbbf24; filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.8)); }
         .site-rating-wrap .site-star.hover .site-star-svg { color: #fbbf24; filter: drop-shadow(0 0 6px rgba(251, 191, 36, 0.5)); }
         .achievement-selected {
-            outline: 2px solid rgba(0, 229, 255, 0.9);
+            outline: 2px solid rgba(56,189,248,0.95);
             outline-offset: 2px;
-            box-shadow: 0 0 16px rgba(0, 229, 255, 0.5);
+            box-shadow: 0 0 20px rgba(56,189,248,0.75);
         }
         .achievement-unlocked.achievement-selected {
-            box-shadow: 0 0 24px rgba(0, 229, 255, 0.6);
+            box-shadow: 0 0 26px rgba(56,189,248,0.9);
         }
         .achievement-icon {
-            font-size: 1.4rem;
+            font-size: 1.35rem;
             line-height: 1;
+        }
+        .achievement-label {
+            margin-top: 0.25rem;
+            font-size: 0.6rem;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            max-width: 4.5rem;
+            text-align: center;
+            opacity: 0.9;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .achievement-tooltip {
             position: fixed;
@@ -3006,3 +3040,4 @@
     </script>
 </body>
 </html>
+

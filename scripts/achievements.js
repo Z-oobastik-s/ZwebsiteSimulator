@@ -152,7 +152,8 @@ function render(container) {
         div.title = tip;
         div.setAttribute('data-achievement-id', ach.id);
         div.setAttribute('data-tooltip', tip);
-        div.innerHTML = '<span class="achievement-icon">' + ach.icon + '</span>';
+        var shortTitle = title.length > 10 ? title.slice(0, 9) + '…' : title;
+        div.innerHTML = '<span class="achievement-icon">' + ach.icon + '</span><span class="achievement-label">' + shortTitle + '</span>';
         div.addEventListener('click', function () {
             const newSel = isSelected ? null : ach.id;
             setSelectedId(newSel);
@@ -225,3 +226,4 @@ window.achievementsModule = {
     getAchievements: function () { return ACHIEVEMENTS; },
     COINS_PER_ACHIEVEMENT: COINS_PER_ACHIEVEMENT
 };
+
