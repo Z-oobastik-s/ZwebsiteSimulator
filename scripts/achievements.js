@@ -140,6 +140,10 @@ function render(container) {
     const selectedId = getSelectedId();
     const lang = getLang();
     el.innerHTML = '';
+    const maxPerRow = 16;
+    const useLabels = ACHIEVEMENTS.length <= maxPerRow;
+    const total = ACHIEVEMENTS.length;
+    const baseSize = total <= maxPerRow ? 48 : 40;
     ACHIEVEMENTS.forEach(function (ach, index) {
         const isUnlocked = unlocked.indexOf(ach.id) !== -1;
         const isSelected = selectedId === ach.id;
@@ -153,7 +157,14 @@ function render(container) {
         div.setAttribute('data-achievement-id', ach.id);
         div.setAttribute('data-tooltip', tip);
         var shortTitle = title.length > 10 ? title.slice(0, 9) + '…' : title;
-        div.innerHTML = '<span class="achievement-icon">' + ach.icon + '</span><span class="achievement-label">' + shortTitle + '</span>';
+        div.style.width = baseSize + 'px';
+        div.style.minWidth = baseSize + 'px';
+        div.style.height = baseSize + 'px';
+        if (useLabels) {
+            div.innerHTML = '<span class="achievement-icon">' + ach.icon + '</span><span class="achievement-label">' + shortTitle + '</span>';
+        } else {
+            div.innerHTML = '<span class="achievement-icon">' + ach.icon + '</span>';
+        }
         div.addEventListener('click', function () {
             const newSel = isSelected ? null : ach.id;
             setSelectedId(newSel);
@@ -201,6 +212,11 @@ function render(container) {
         })(div, tip);
         el.appendChild(div);
     });
+    if (!useLabels) {
+        el.classList.add('wrap');
+    } else {
+        el.classList.remove('wrap');
+    }
 }
 
 const COINS_PER_ACHIEVEMENT = 50;
@@ -226,4 +242,3 @@ window.achievementsModule = {
     getAchievements: function () { return ACHIEVEMENTS; },
     COINS_PER_ACHIEVEMENT: COINS_PER_ACHIEVEMENT
 };
-
