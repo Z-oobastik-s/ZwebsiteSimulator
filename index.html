@@ -1980,6 +1980,105 @@
             100% { transform: translate(-50%, -50%) rotate(360deg); }
         }
 
+        /* ==========================================
+           2100 Room Settings (multiplayer)
+           ========================================== */
+        .mp-room-dialog{
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(0,229,255,0.20) !important;
+            box-shadow: 0 0 0 1px rgba(168,85,247,0.10) inset, 0 0 30px rgba(0,229,255,0.10);
+        }
+        .mp-room-dialog::before{
+            content:'';
+            position:absolute;
+            inset:-3px;
+            background:
+                radial-gradient(circle at 20% 10%, rgba(0,229,255,0.22), transparent 55%),
+                radial-gradient(circle at 85% 70%, rgba(168,85,247,0.20), transparent 60%),
+                linear-gradient(135deg, rgba(0,229,255,0.06), rgba(168,85,247,0.06));
+            filter: blur(14px);
+            opacity: 0.9;
+            pointer-events:none;
+        }
+        .mp-room-dialog > * { position: relative; z-index: 1; }
+
+        .mp-room-top { display:flex; flex-direction:column; align-items:center; }
+        .mp-room-summary{
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            gap: 0.25rem;
+            width: 100%;
+            padding: 0.45rem 0.8rem;
+            border-radius: 1rem;
+            border: 1px solid rgba(0,229,255,0.18);
+            background: rgba(2,132,199,0.08);
+            box-shadow: 0 0 20px rgba(0,229,255,0.12);
+            font-weight: 800;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            font-size: 0.78rem;
+            overflow: hidden;
+        }
+        .mp-room-summary::after{
+            content:'';
+            position:absolute;
+            /* no-op placeholder for older browsers */
+        }
+
+        .mp-room-grid{
+            display:grid;
+            grid-template-columns: 1fr;
+            gap: 0.9rem;
+            margin-top: 0.9rem;
+        }
+        @media (min-width: 768px){
+            .mp-room-grid{
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .mp-group{
+            padding: 0.6rem 0.6rem 0.8rem 0.6rem;
+            border-radius: 1rem;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(15,23,42,0.22);
+        }
+        .mp-group-wide{
+            grid-column: 1 / -1;
+        }
+        .mp-group-title{
+            text-align:center;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            font-size: 0.72rem;
+            color: rgba(226,232,240,0.95);
+            margin-bottom: 0.6rem;
+        }
+
+        /* Selected tiles (works even if Tailwind classes are not generated) */
+        #roomSettingsDialog .theme-btn[data-selected="true"],
+        #roomSettingsDialog .mp-lang-btn[data-selected="true"],
+        #roomSettingsDialog .room-setting-btn[data-selected="true"]{
+            border-color: rgba(0,229,255,0.95) !important;
+            background: rgba(0,229,255,0.12) !important;
+            box-shadow:
+                0 0 0 2px rgba(0,229,255,0.18),
+                0 0 26px rgba(0,229,255,0.26);
+            transform: translateY(-1px);
+        }
+        #roomSettingsDialog .mp-opt[data-on="true"]{
+            border-color: rgba(0,229,255,0.60) !important;
+            background: rgba(0,229,255,0.10) !important;
+            box-shadow: 0 0 22px rgba(0,229,255,0.18);
+        }
+
+        .mp-room-actions{
+            position: relative;
+        }
+
         /* Multiplayer keyboard: bigger keys */
         #multiplayerKeyboardContainer .key-btn {
             min-height: 52px !important;
@@ -2411,119 +2510,130 @@
                 </div>
                 
                 <!-- Room Settings Dialog -->
-                <div id="roomSettingsDialog" class="glass rounded-2xl p-6 mb-6 hidden">
-                    <h3 class="text-xl font-bold mb-4 text-center" data-i18n="chooseGameMode">Выбери режим игры</h3>
-                    
-                    <!-- Themes -->
-                    <div class="mb-4">
-                        <h4 class="text-sm font-semibold mb-2 text-center" data-i18n="textTheme">Тематика текста</h4>
-                        <div class="grid grid-cols-3 gap-2">
-                            <button onclick="selectTheme('random')" class="theme-btn glass rounded-lg px-4 py-3 bg-success/20 hover:bg-success/30 transition-all text-center border-2 border-success" data-theme="random">
-                                <div class="text-2xl mb-1">🎲</div>
-                                <div class="text-sm font-semibold">Случайные</div>
-                            </button>
-                            <button onclick="selectTheme('anime')" class="theme-btn glass rounded-lg px-4 py-3 hover:bg-success/20 transition-all text-center border-2 border-transparent hover:border-success" data-theme="anime">
-                                <div class="text-2xl mb-1">🎌</div>
-                                <div class="text-sm font-semibold">Аниме</div>
-                            </button>
-                            <button onclick="selectTheme('games')" class="theme-btn glass rounded-lg px-4 py-3 hover:bg-success/20 transition-all text-center border-2 border-transparent hover:border-success" data-theme="games">
-                                <div class="text-2xl mb-1">🎮</div>
-                                <div class="text-sm font-semibold">Игры</div>
-                            </button>
-                            <button onclick="selectTheme('animals')" class="theme-btn glass rounded-lg px-4 py-3 hover:bg-success/20 transition-all text-center border-2 border-transparent hover:border-success" data-theme="animals">
-                                <div class="text-2xl mb-1">🐾</div>
-                                <div class="text-sm font-semibold">Животные</div>
-                            </button>
-                            <button onclick="selectTheme('space')" class="theme-btn glass rounded-lg px-4 py-3 hover:bg-success/20 transition-all text-center border-2 border-transparent hover:border-success" data-theme="space">
-                                <div class="text-2xl mb-1">🚀</div>
-                                <div class="text-sm font-semibold">Космос</div>
-                            </button>
-                            <button onclick="selectTheme('nature')" class="theme-btn glass rounded-lg px-4 py-3 hover:bg-success/20 transition-all text-center border-2 border-transparent hover:border-success" data-theme="nature">
-                                <div class="text-2xl mb-1">🌲</div>
-                                <div class="text-sm font-semibold">Природа</div>
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <!-- Language Selection -->
-                    <div class="mb-4">
-                        <h4 class="text-sm font-semibold mb-2 text-center" data-i18n="textLanguage">Язык текста</h4>
-                        <div class="grid grid-cols-3 gap-2">
-                            <button onclick="selectMultiplayerLang('ru')" class="mp-lang-btn glass rounded-lg px-4 py-4 bg-warning/20 hover:bg-warning/30 transition-all text-center border-2 border-warning" data-lang="ru">
-                                <div class="text-2xl font-bold mb-1">РУС</div>
-                                <div class="text-xs">Русский</div>
-                            </button>
-                            <button onclick="selectMultiplayerLang('en')" class="mp-lang-btn glass rounded-lg px-4 py-4 hover:bg-warning/20 transition-all text-center border-2 border-transparent hover:border-warning" data-lang="en">
-                                <div class="text-2xl font-bold mb-1">ENG</div>
-                                <div class="text-xs">English</div>
-                            </button>
-                            <button onclick="selectMultiplayerLang('ua')" class="mp-lang-btn glass rounded-lg px-4 py-4 hover:bg-warning/20 transition-all text-center border-2 border-transparent hover:border-warning" data-lang="ua">
-                                <div class="text-2xl font-bold mb-1">УКР</div>
-                                <div class="text-xs">Українська</div>
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <!-- Word Count -->
-                    <div class="mb-4">
-                        <h4 class="text-sm font-semibold mb-2 text-center">Длина текста (символы)</h4>
-                        <div class="grid grid-cols-4 gap-2">
-                            <button onclick="selectWordCount(200)" class="room-setting-btn glass rounded-lg px-3 py-5 hover:bg-primary/20 transition-all text-center border-2 border-transparent hover:border-primary" data-words="200">
-                                <div class="text-2xl font-bold text-primary mb-1">200</div>
-                                <div class="text-xs">симв</div>
-                            </button>
-                            <button onclick="selectWordCount(500)" class="room-setting-btn glass rounded-lg px-3 py-5 bg-primary/20 hover:bg-primary/30 transition-all text-center border-2 border-primary" data-words="500">
-                                <div class="text-2xl font-bold text-primary mb-1">500</div>
-                                <div class="text-xs">симв</div>
-                            </button>
-                            <button onclick="selectWordCount(1000)" class="room-setting-btn glass rounded-lg px-3 py-5 hover:bg-primary/20 transition-all text-center border-2 border-transparent hover:border-primary" data-words="1000">
-                                <div class="text-2xl font-bold text-primary mb-1">1000</div>
-                                <div class="text-xs">симв</div>
-                            </button>
-                            <button onclick="selectWordCount(1800)" class="room-setting-btn glass rounded-lg px-3 py-5 hover:bg-primary/20 transition-all text-center border-2 border-transparent hover:border-primary" data-words="1800">
-                                <div class="text-2xl font-bold text-primary mb-1">1800</div>
-                                <div class="text-xs">симв</div>
-                            </button>
+                <div id="roomSettingsDialog" class="glass rounded-2xl p-5 mb-6 hidden mp-room-dialog">
+                    <div class="mp-room-top">
+                        <h3 class="text-xl font-bold text-center" data-i18n="chooseGameMode">Выбери режим игры</h3>
+                        <div id="mpRoomSummary" class="mp-room-summary mt-3">
+                            <span id="mpRoomSummaryTheme">Тематика</span>
+                            <span class="mx-2 text-gray-500">/</span>
+                            <span id="mpRoomSummaryLang">Язык</span>
+                            <span class="mx-2 text-gray-500">/</span>
+                            <span id="mpRoomSummaryLen">Длина</span>
                         </div>
                     </div>
 
-                    <!-- Text Options -->
-                    <div class="mb-4">
-                        <h4 class="text-sm font-semibold mb-2 text-center">Параметры текста</h4>
-                        <div class="grid grid-cols-2 gap-2">
-                            <label class="glass rounded-lg px-4 py-3 cursor-pointer border border-white/10 hover:bg-white/10 flex items-center justify-between gap-3">
-                                <span class="text-sm font-semibold">Запятые</span>
-                                <input id="mpOptComma" type="checkbox" checked onchange="setMultiplayerTextOption('comma', this.checked)" />
-                            </label>
-                            <label class="glass rounded-lg px-4 py-3 cursor-pointer border border-white/10 hover:bg-white/10 flex items-center justify-between gap-3">
-                                <span class="text-sm font-semibold">Точки</span>
-                                <input id="mpOptPeriod" type="checkbox" checked onchange="setMultiplayerTextOption('period', this.checked)" />
-                            </label>
-                            <label class="glass rounded-lg px-4 py-3 cursor-pointer border border-white/10 hover:bg-white/10 flex items-center justify-between gap-3">
-                                <span class="text-sm font-semibold">Цифры</span>
-                                <input id="mpOptDigits" type="checkbox" onchange="setMultiplayerTextOption('digits', this.checked)" />
-                            </label>
-                            <label class="glass rounded-lg px-4 py-3 cursor-pointer border border-white/10 hover:bg-white/10 flex items-center justify-between gap-3">
-                                <span class="text-sm font-semibold">Микс-регистр</span>
-                                <input id="mpOptMixCase" type="checkbox" onchange="setMultiplayerTextOption('mixCase', this.checked)" />
-                            </label>
+                    <div class="mp-room-grid">
+                        <!-- Themes -->
+                        <div class="mp-group">
+                            <h4 class="mp-group-title" data-i18n="textTheme">Тематика текста</h4>
+                            <div class="grid grid-cols-3 gap-2">
+                                <button onclick="selectTheme('random')" class="theme-btn glass rounded-lg px-3 py-2 border-2 border-transparent" data-theme="random">
+                                    <div class="text-2xl mb-0.5">🎲</div>
+                                    <div class="text-xs font-semibold">Случайные</div>
+                                </button>
+                                <button onclick="selectTheme('anime')" class="theme-btn glass rounded-lg px-3 py-2 border-2 border-transparent" data-theme="anime">
+                                    <div class="text-2xl mb-0.5">🎌</div>
+                                    <div class="text-xs font-semibold">Аниме</div>
+                                </button>
+                                <button onclick="selectTheme('games')" class="theme-btn glass rounded-lg px-3 py-2 border-2 border-transparent" data-theme="games">
+                                    <div class="text-2xl mb-0.5">🎮</div>
+                                    <div class="text-xs font-semibold">Игры</div>
+                                </button>
+                                <button onclick="selectTheme('animals')" class="theme-btn glass rounded-lg px-3 py-2 border-2 border-transparent" data-theme="animals">
+                                    <div class="text-2xl mb-0.5">🐾</div>
+                                    <div class="text-xs font-semibold">Животные</div>
+                                </button>
+                                <button onclick="selectTheme('space')" class="theme-btn glass rounded-lg px-3 py-2 border-2 border-transparent" data-theme="space">
+                                    <div class="text-2xl mb-0.5">🚀</div>
+                                    <div class="text-xs font-semibold">Космос</div>
+                                </button>
+                                <button onclick="selectTheme('nature')" class="theme-btn glass rounded-lg px-3 py-2 border-2 border-transparent" data-theme="nature">
+                                    <div class="text-2xl mb-0.5">🌲</div>
+                                    <div class="text-xs font-semibold">Природа</div>
+                                </button>
+                            </div>
                         </div>
-                        <div class="text-gray-400 text-xs mt-3 text-center">
-                            Текст всегда генерируется случайно на лету (по крипто-случайности).
+
+                        <!-- Language -->
+                        <div class="mp-group">
+                            <h4 class="mp-group-title" data-i18n="textLanguage">Язык текста</h4>
+                            <div class="grid grid-cols-3 gap-2">
+                                <button onclick="selectMultiplayerLang('ru')" class="mp-lang-btn glass rounded-lg px-3 py-2 border-2 border-transparent" data-lang="ru">
+                                    <div class="text-2xl font-bold mb-0.5">РУС</div>
+                                    <div class="text-[10px]">Русский</div>
+                                </button>
+                                <button onclick="selectMultiplayerLang('en')" class="mp-lang-btn glass rounded-lg px-3 py-2 border-2 border-transparent" data-lang="en">
+                                    <div class="text-2xl font-bold mb-0.5">ENG</div>
+                                    <div class="text-[10px]">English</div>
+                                </button>
+                                <button onclick="selectMultiplayerLang('ua')" class="mp-lang-btn glass rounded-lg px-3 py-2 border-2 border-transparent" data-lang="ua">
+                                    <div class="text-2xl font-bold mb-0.5">УКР</div>
+                                    <div class="text-[10px]">Українська</div>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Length -->
+                        <div class="mp-group">
+                            <h4 class="mp-group-title">Длина текста (символы)</h4>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button onclick="selectWordCount(200)" class="room-setting-btn glass rounded-lg px-3 py-3 border-2 border-transparent" data-words="200">
+                                    <div class="text-xl font-bold text-primary mb-0.5">200</div>
+                                    <div class="text-[10px]">симв</div>
+                                </button>
+                                <button onclick="selectWordCount(500)" class="room-setting-btn glass rounded-lg px-3 py-3 border-2 border-transparent" data-words="500">
+                                    <div class="text-xl font-bold text-primary mb-0.5">500</div>
+                                    <div class="text-[10px]">симв</div>
+                                </button>
+                                <button onclick="selectWordCount(1000)" class="room-setting-btn glass rounded-lg px-3 py-3 border-2 border-transparent" data-words="1000">
+                                    <div class="text-xl font-bold text-primary mb-0.5">1000</div>
+                                    <div class="text-[10px]">симв</div>
+                                </button>
+                                <button onclick="selectWordCount(1800)" class="room-setting-btn glass rounded-lg px-3 py-3 border-2 border-transparent" data-words="1800">
+                                    <div class="text-xl font-bold text-primary mb-0.5">1800</div>
+                                    <div class="text-[10px]">симв</div>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Text Options -->
+                        <div class="mp-group">
+                            <h4 class="mp-group-title">Параметры текста</h4>
+                            <div class="grid grid-cols-2 gap-2">
+                                <label class="mp-opt glass rounded-lg px-3 py-2 cursor-pointer border border-white/10 hover:bg-white/10 flex items-center justify-between gap-2" data-opt="comma">
+                                    <span class="text-xs font-semibold">Запятые</span>
+                                    <input id="mpOptComma" type="checkbox" checked onchange="setMultiplayerTextOption('comma', this.checked)" />
+                                </label>
+                                <label class="mp-opt glass rounded-lg px-3 py-2 cursor-pointer border border-white/10 hover:bg-white/10 flex items-center justify-between gap-2" data-opt="period">
+                                    <span class="text-xs font-semibold">Точки</span>
+                                    <input id="mpOptPeriod" type="checkbox" checked onchange="setMultiplayerTextOption('period', this.checked)" />
+                                </label>
+                                <label class="mp-opt glass rounded-lg px-3 py-2 cursor-pointer border border-white/10 hover:bg-white/10 flex items-center justify-between gap-2" data-opt="digits">
+                                    <span class="text-xs font-semibold">Цифры</span>
+                                    <input id="mpOptDigits" type="checkbox" onchange="setMultiplayerTextOption('digits', this.checked)" />
+                                </label>
+                                <label class="mp-opt glass rounded-lg px-3 py-2 cursor-pointer border border-white/10 hover:bg-white/10 flex items-center justify-between gap-2" data-opt="mixCase">
+                                    <span class="text-xs font-semibold">Микс</span>
+                                    <input id="mpOptMixCase" type="checkbox" onchange="setMultiplayerTextOption('mixCase', this.checked)" />
+                                </label>
+                            </div>
+                            <div class="text-gray-400 text-[11px] mt-2 text-center">
+                                Текст всегда генерируется случайно на лету.
+                            </div>
+                        </div>
+
+                        <!-- Players -->
+                        <div class="mp-group mp-group-wide">
+                            <h4 class="mp-group-title">Игроки</h4>
+                            <div class="glass rounded-lg px-4 py-3 text-center border border-white/10">
+                                Сейчас доступна только дуэль: <span class="text-primary font-bold">2 игрока</span>.
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Players -->
-                    <div class="mb-4">
-                        <h4 class="text-sm font-semibold mb-2 text-center">Игроки</h4>
-                        <div class="glass rounded-lg px-4 py-3 text-center border border-white/10">
-                            Сейчас доступна только дуэль: <span class="text-primary font-bold">2 игрока</span>.
-                        </div>
-                    </div>
-                    
-                    <div class="flex gap-4">
-                        <button onclick="hideRoomSettings()" class="flex-1 px-6 py-3 rounded-lg glass hover:bg-white/20 dark:hover:bg-black/20" data-i18n="back">Назад</button>
-                        <button onclick="createMultiplayerRoomWithSettings()" class="flex-1 px-6 py-3 rounded-lg bg-purple-500 hover:bg-purple-600 text-white font-semibold" data-i18n="createRoom">Создать</button>
+                    <div class="flex gap-4 mt-4 mp-room-actions">
+                        <button onclick="hideRoomSettings()" class="flex-1 px-4 py-3 rounded-lg glass hover:bg-white/20 dark:hover:bg-black/20" data-i18n="back">Назад</button>
+                        <button onclick="createMultiplayerRoomWithSettings()" class="flex-1 px-4 py-3 rounded-lg bg-purple-500 hover:bg-purple-600 text-white font-semibold" data-i18n="createRoom">Создать</button>
                     </div>
                 </div>
                 
@@ -3224,3 +3334,4 @@
     </script>
 </body>
 </html>
+

@@ -3412,6 +3412,7 @@ function showRoomSettings() {
     document.getElementById('multiplayerMainMenu').classList.add('hidden');
     document.getElementById('roomSettingsDialog').classList.remove('hidden');
     document.getElementById('joinRoomDialog').classList.add('hidden');
+    updateRoomSelectionUI();
 }
 
 // Select multiplayer language
@@ -3431,6 +3432,7 @@ function selectMultiplayerLang(lang) {
             divs.forEach(div => div.classList.remove('text-white'));
         }
     });
+    updateRoomSelectionUI();
 }
 
 // Select theme
@@ -3450,6 +3452,7 @@ function selectTheme(theme) {
             divs.forEach(div => div.classList.remove('text-white'));
         }
     });
+    updateRoomSelectionUI();
 }
 
 // Hide room settings
@@ -3475,6 +3478,7 @@ function selectWordCount(count) {
             divs.forEach(div => div.classList.remove('text-white'));
         }
     });
+    updateRoomSelectionUI();
 }
 
 function setMultiplayerTextOption(type, value) {
@@ -3482,6 +3486,7 @@ function setMultiplayerTextOption(type, value) {
     if (type === 'period') selectedTextOptPeriod = !!value;
     if (type === 'digits') selectedTextOptDigits = !!value;
     if (type === 'mixCase') selectedTextOptMixCase = !!value;
+    updateRoomSelectionUI();
 }
 
 function getMultiplayerTextOptions() {
@@ -3492,6 +3497,54 @@ function getMultiplayerTextOptions() {
         includeDigits: selectedTextOptDigits,
         mixCase: selectedTextOptMixCase
     };
+}
+
+function updateRoomSelectionUI() {
+    const dialog = document.getElementById('roomSettingsDialog');
+    if (!dialog) return;
+
+    // Ensure selected-state attrs are always visible (independent of Tailwind generation).
+    dialog.querySelectorAll('.theme-btn').forEach(btn => {
+        const t = btn.getAttribute('data-theme');
+        btn.dataset.selected = String(t === selectedTheme);
+    });
+    dialog.querySelectorAll('.mp-lang-btn').forEach(btn => {
+        const l = btn.getAttribute('data-lang');
+        btn.dataset.selected = String(l === selectedMultiplayerLang);
+    });
+    dialog.querySelectorAll('.room-setting-btn').forEach(btn => {
+        const w = parseInt(btn.getAttribute('data-words') || '0', 10);
+        btn.dataset.selected = String(w === selectedWordCount);
+    });
+
+    // Options visual state
+    const setOptOn = (opt, on) => {
+        const el = dialog.querySelector(`.mp-opt[data-opt="${opt}"]`);
+        if (el) el.dataset.on = String(!!on);
+    };
+    setOptOn('comma', selectedTextOptComma);
+    setOptOn('period', selectedTextOptPeriod);
+    setOptOn('digits', selectedTextOptDigits);
+    setOptOn('mixCase', selectedTextOptMixCase);
+
+    // Summary
+    const themeTitles = {
+        random: 'Случайные',
+        anime: 'Аниме',
+        games: 'Игры',
+        animals: 'Животные',
+        space: 'Космос',
+        nature: 'Природа'
+    };
+    const langTitles = { ru: 'РУС', en: 'ENG', ua: 'УКР' };
+
+    const themeEl = document.getElementById('mpRoomSummaryTheme');
+    const langEl = document.getElementById('mpRoomSummaryLang');
+    const lenEl = document.getElementById('mpRoomSummaryLen');
+
+    if (themeEl) themeEl.textContent = 'ТЕМА: ' + (themeTitles[selectedTheme] || 'RANDOM');
+    if (langEl) langEl.textContent = 'ЯЗЫК: ' + (langTitles[selectedMultiplayerLang] || selectedMultiplayerLang);
+    if (lenEl) lenEl.textContent = 'ДЛИНА: ' + String(selectedWordCount);
 }
 
 // Show join room dialog
@@ -4165,3 +4218,4 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+
