@@ -209,12 +209,10 @@ function startPractice(text, mode) {
     app.isPaused = false;
     document.getElementById('sessionId').textContent = String(Date.now()).slice(-3);
     const wrapper = document.getElementById('textDisplayWrapper');
-    if (mode === 'speedtest') {
-        wrapper?.classList.add('speedtest-mode');
+    if (wrapper) {
         app.speedTestWordIndex = 0;
         renderSpeedTestLine();
     } else {
-        wrapper?.classList.remove('speedtest-mode');
         renderText();
     }
     updateStats();
@@ -223,7 +221,7 @@ function startPractice(text, mode) {
 }
 
 function renderText() {
-    if (app.currentMode === 'speedtest') return;
+    if (app.currentMode === 'speedtest' || app.currentMode === 'lesson' || app.currentMode === 'free') return;
     const display = document.getElementById('textDisplay');
     let html = '';
     for (let i = 0; i < app.currentText.length; i++) {
@@ -245,28 +243,19 @@ function renderText() {
     }
 }
 
-function getLineTranslateX() {
-    const line = document.getElementById('text-line');
-    if (!line) return 0;
-    const style = getComputedStyle(line);
-    const m = style.transform?.match(/matrix\(([^)]+)\)/);
-    if (m) return parseFloat(m[1].split(',')[4]) || 0;
-    return 0;
-}
+const TEXT_LINE_GAP = 12;
 
-function centerLineOnWord(wordEl) {
-    const line = document.getElementById('text-line');
-    const container = document.getElementById('typingWindow');
-    if (!line || !wordEl) return;
-    const rect = wordEl.getBoundingClientRect();
-    const wordCenter = rect.left + rect.width / 2;
-    const center = container
-        ? container.getBoundingClientRect().left + container.offsetWidth / 2
-        : window.innerWidth / 2;
-    const currentTx = app.speedTestTranslateX != null ? app.speedTestTranslateX : getLineTranslateX();
-    const newTranslateX = currentTx + (center - wordCenter);
-    app.speedTestTranslateX = newTranslateX;
-    line.style.transform = `translateX(${newTranslateX}px)`;
+function applyPresetUI() {
+    const icon = document.getElementById('presetIcon');
+    const label = document.getElementById('presetLabel');
+    if (!icon || !label) return;
+    if (app.audioPreset === 'full') {
+        icon.textContent = '◈';
+        label.textContent = app.lang === 'en' ? 'CYBER FX' : 'КИБЕР FX';
+    } else {
+        icon.textContent = '▢';
+        label.textContent = app.lang === 'en' ? 'OFFICE' : 'ОФИС';
+    }
 }
 
 function renderSpeedTestLine() {
@@ -281,10 +270,6 @@ function renderSpeedTestLine() {
         return span;
     }).map(s => s.outerHTML).join('');
     line.style.transform = 'translateX(0)';
-    requestAnimationFrame(() => {
-        const first = line.querySelector('span.current');
-        if (first) centerLineOnWord(first);
-    });
 }
 
 function nextWord() {
@@ -294,9 +279,12 @@ function nextWord() {
     if (index >= words.length) return;
     words[index].classList.add('done');
     words[index].classList.remove('current');
+    const currentTx = app.speedTestTranslateX != null ? app.speedTestTranslateX : 0;
+    const shift = words[index].offsetWidth + TEXT_LINE_GAP;
+    app.speedTestTranslateX = currentTx - shift;
+    line.style.transform = `translateX(${app.speedTestTranslateX}px)`;
     if (index + 1 < words.length) {
         words[index + 1].classList.add('current');
-        centerLineOnWord(words[index + 1]);
     }
     app.speedTestWordIndex = index + 1;
 }
@@ -338,8 +326,11 @@ function handleKeyPress(e) {
         app.currentPosition++;
         playSound('correct');
         highlightKey(e.key);
-        if (app.currentMode === 'speedtest' && app.currentText[app.currentPosition - 1] === ' ') {
-            nextWord();
+        if ((app.currentMode === 'speedtest' || app.currentMode === 'lesson' || app.currentMode === 'free')) {
+            const justTyped = app.currentText[app.currentPosition - 1];
+            if (justTyped === ' ' || app.currentPosition === app.currentText.length) {
+                nextWord();
+            }
         }
     } else {
         app.errors++;
@@ -533,10 +524,9 @@ function toggleSound() {
 function togglePreset() {
     app.audioPreset = app.audioPreset === 'full' ? 'office' : 'full';
     localStorage.setItem('neuralTyperPreset', app.audioPreset);
-    const icon = document.getElementById('presetIcon');
-    if (icon) icon.textContent = app.audioPreset === 'full' ? '◈' : '▢';
     const t = translations[app.lang];
     showNotification(app.audioPreset === 'full' ? t.presetFull : t.presetOffice, 'info');
+    applyPresetUI();
 }
 
 function toggleLang() {
@@ -544,6 +534,7 @@ function toggleLang() {
     document.getElementById('currentLang').textContent = app.lang.toUpperCase();
     updateLanguage();
     showNotification(translations[app.lang].langChanged, 'info');
+    applyPresetUI();
 }
 
 function updateLanguage() {
@@ -701,8 +692,7 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('DOM loaded, initializing...');
     
     app.audioPreset = localStorage.getItem('neuralTyperPreset') || 'full';
-    const presetIcon = document.getElementById('presetIcon');
-    if (presetIcon) presetIcon.textContent = app.audioPreset === 'full' ? '◈' : '▢';
+    applyPresetUI();
     
     // Header buttons
     document.getElementById('themeToggle')?.addEventListener('click', toggleTheme);
@@ -775,4 +765,3 @@ document.addEventListener('DOMContentLoaded', () => {
     
     console.log('Initialization complete');
 });
-

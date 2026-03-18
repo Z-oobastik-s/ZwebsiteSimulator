@@ -639,6 +639,7 @@ body {
     text-align: left;
     width: max-content;
     white-space: nowrap;
+    display: none; /* основной режим теперь word-line */
 }
 
 .char-typed {
@@ -664,15 +665,7 @@ body {
     opacity: 0.6;
 }
 
-/* ===== TYPING WINDOW (SPEED TEST — Monkeytype-style) ===== */
-.text-display.speedtest-mode .text-content {
-    display: none;
-}
-
-.text-display:not(.speedtest-mode) .typing-window {
-    display: none;
-}
-
+/* ===== TYPING WINDOW (Monkeytype-style) ===== */
 .typing-window {
     width: 100%;
     overflow: hidden;
@@ -702,6 +695,12 @@ body {
 
 #text-line span.done {
     opacity: 0;
+}
+
+.preset-label {
+    margin-left: 0.4rem;
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
 }
 
 /* ===== KEYBOARD ===== */
@@ -1176,4 +1175,3 @@ body {
         grid-template-columns: 1fr;
     }
 }
-
