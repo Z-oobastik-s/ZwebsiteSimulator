@@ -22,8 +22,24 @@ const multiplayerState = {
     gameText: '',
     myProgress: 0,
     opponentProgress: 0,
-    gameEnded: false
+    gameEnded: false,
+    autoStartTimeoutId: null,
+    roomListenerUnsub: null
 };
+
+function clearAutoStartTimer() {
+    if (multiplayerState.autoStartTimeoutId) {
+        clearTimeout(multiplayerState.autoStartTimeoutId);
+        multiplayerState.autoStartTimeoutId = null;
+    }
+}
+
+function unsubscribeRoomListener() {
+    if (multiplayerState.roomListenerUnsub) {
+        try { multiplayerState.roomListenerUnsub(); } catch (e) {}
+        multiplayerState.roomListenerUnsub = null;
+    }
+}
 
 // Generate unique room code
 function generateRoomCode() {
@@ -199,8 +215,13 @@ export async function joinRoom(roomCode) {
 // Listen to room updates
 function listenToRoom(roomCode) {
     const roomRef = ref(database, `rooms/${roomCode}`);
-    
-    onValue(roomRef, (snapshot) => {
+
+    // Prevent duplicated listeners if user re-enters multiplayer quickly
+    unsubscribeRoomListener();
+    multiplayerState.roomListenerUnsub = onValue(roomRef, (snapshot) => {
+        // After leaving/resetting state we should ignore any updates.
+        if (!multiplayerState.roomCode || !multiplayerState.playerId) return;
+
         if (!snapshot.exists()) {
             // Room deleted
             if (window.onMultiplayerRoomDeleted) {
@@ -221,8 +242,21 @@ function listenToRoom(roomCode) {
             
             // Check if opponent finished
             if (players[opponentId].finished && !multiplayerState.gameEnded) {
+                // Stop further opponent-finished callbacks for this client.
+                multiplayerState.gameEnded = true;
                 if (window.onOpponentFinished) {
                     window.onOpponentFinished();
+                }
+            }
+        }
+        
+        // If game already started and we no longer have an opponent player in the room,
+        // treat it as "opponent left" to avoid leaving the other player in a broken state.
+        if (roomData.started && multiplayerState.gameStarted && !multiplayerState.gameEnded) {
+            if (!opponentId) {
+                multiplayerState.gameEnded = true;
+                if (window.onOpponentLeft) {
+                    window.onOpponentLeft();
                 }
             }
         }
@@ -237,17 +271,28 @@ function listenToRoom(roomCode) {
         }
         
         // Start game when both players ready
-        if (playerIds.length === 2 && !roomData.started && multiplayerState.isHost) {
-            // Auto-start after 3 seconds
-            setTimeout(async () => {
-                const currentSnapshot = await get(roomRef);
-                if (currentSnapshot.exists() && !currentSnapshot.val().started) {
+        if (multiplayerState.isHost) {
+            const shouldAutoStart = playerIds.length === 2 && !roomData.started;
+            if (shouldAutoStart && !multiplayerState.autoStartTimeoutId) {
+                // Auto-start after 3 seconds, but we will re-check players inside callback.
+                multiplayerState.autoStartTimeoutId = setTimeout(async () => {
+                    multiplayerState.autoStartTimeoutId = null;
+                    if (!multiplayerState.roomCode || !multiplayerState.playerId) return;
+
+                    const currentSnapshot = await get(roomRef);
+                    if (!currentSnapshot.exists()) return;
+                    const freshRoom = currentSnapshot.val() || {};
+                    if (freshRoom.started) return;
+
+                    const freshPlayers = freshRoom.players || {};
+                    const freshPlayerIds = Object.keys(freshPlayers);
+                    if (freshPlayerIds.length !== 2) return; // someone left during the delay
+
                     await update(roomRef, { started: true });
-                    if (window.onMultiplayerStart) {
-                        window.onMultiplayerStart(multiplayerState.gameText);
-                    }
-                }
-            }, 3000);
+                }, 3000);
+            } else if ((!shouldAutoStart || roomData.started) && multiplayerState.autoStartTimeoutId) {
+                clearAutoStartTimer();
+            }
         }
         
         // Notify when game starts
@@ -290,6 +335,9 @@ export async function finishGame() {
 // Leave room
 export async function leaveRoom() {
     if (!multiplayerState.roomCode || !multiplayerState.playerId) return;
+
+    clearAutoStartTimer();
+    unsubscribeRoomListener();
     
     const playerRef = ref(database, `rooms/${multiplayerState.roomCode}/players/${multiplayerState.playerId}`);
     await remove(playerRef);
@@ -325,6 +373,8 @@ export function isMultiplayerActive() {
 export async function resetGame() {
     if (!multiplayerState.roomCode || !multiplayerState.playerId) return;
     
+    clearAutoStartTimer();
+    // Keep room listener active for rematch; just clear auto-start.
     multiplayerState.gameStarted = false;
     multiplayerState.gameEnded = false;
     multiplayerState.myProgress = 0;
@@ -357,4 +407,3 @@ window.multiplayerModule = {
     getMultiplayerState,
     isMultiplayerActive
 };
-

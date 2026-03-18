@@ -3680,6 +3680,15 @@ window.onOpponentFinished = () => {
     }
 };
 
+window.onOpponentLeft = () => {
+    if (!app.gameEnded) {
+        app.gameEnded = true;
+        document.removeEventListener('keydown', handleMultiplayerKeyPress);
+        showToast(t('opponentLeft'), 'warning', t('roomClosed'));
+        setTimeout(() => returnToMultiplayerLobby(), 2000);
+    }
+};
+
 // Handle multiplayer key press
 function handleMultiplayerKeyPress(e) {
     if (app.currentMode !== 'multiplayer-game' || app.isPaused) return;
@@ -4126,4 +4135,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-
