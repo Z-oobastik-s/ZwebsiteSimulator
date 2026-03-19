@@ -89,9 +89,13 @@
     <!-- PWA -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0f172a">
-    <!-- Preconnect для быстрого подключения к CDN/шрифтам (фон тела подгружается после первого кадра, чтобы LCP был контент, а не картинка) -->
+    <!-- Preconnect для шрифтов -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Preload критических ресурсов — загружаются параллельно до парсинга body -->
+    <link rel="preload" href="assets/css/tailwind.min.css" as="style">
+    <link rel="preload" href="assets/js/main.min.js" as="script">
+    <link rel="preload" href="assets/js/lessons-data.min.js" as="script">
     <!-- Шрифты: асинхронная загрузка без блокировки отрисовки (display=swap) -->
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Roboto+Mono:wght@400;500&display=swap" as="style">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
@@ -2184,7 +2188,7 @@
             src="assets/video/intro.mp4"
             muted
             playsinline
-            preload="auto"
+            preload="metadata"
             style="width:100vw; height:100vh; object-fit:cover; object-position:center; display:block;"
         ></video>
     </div>
@@ -3536,10 +3540,8 @@
             }
         })();
     </script>
-    <script>
-        (function(){var t=window.tailwind||{};t.config={darkMode:'class',theme:{extend:{colors:{primary:'#00BCD4',success:'#8BC34A',warning:'#FFC107'}}}};window.tailwind=t;})();
-    </script>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tailwind: pre-built, minified (39KB vs 330KB CDN runtime) -->
+    <link rel="stylesheet" href="assets/css/tailwind.min.css">
     <script>
       (function(){
         function show(){ requestAnimationFrame(function(){ document.documentElement.classList.remove('no-fouc'); }); }
@@ -3547,21 +3549,21 @@
         else requestAnimationFrame(function(){ requestAnimationFrame(show); });
       })();
     </script>
-    <script src="scripts/portal-transition.js"></script>
-    <script src="scripts/api-config.js" defer></script>
-    <script src="scripts/lessons-data.js" defer></script>
-    <script src="scripts/themed-texts.js" defer></script>
-    <script src="scripts/shop-data.js" defer></script>
-    <script src="scripts/keyboard.js" defer></script>
-    <script src="scripts/stats.js" defer></script>
-    <script src="scripts/achievements.js" defer></script>
-    <script src="scripts/level.js" defer></script>
-    <script type="module" src="scripts/auth.js"></script>
-    <script src="scripts/main.js" defer></script>
+    <script src="assets/js/portal-transition.min.js" defer></script>
+    <script src="assets/js/api-config.min.js" defer></script>
+    <script src="assets/js/lessons-data.min.js" defer></script>
+    <script src="assets/js/themed-texts.min.js" defer></script>
+    <script src="assets/js/shop-data.min.js" defer></script>
+    <script src="assets/js/keyboard.min.js" defer></script>
+    <script src="assets/js/stats.min.js" defer></script>
+    <script src="assets/js/achievements.min.js" defer></script>
+    <script src="assets/js/level.min.js" defer></script>
+    <script type="module" src="assets/js/auth.min.js"></script>
+    <script src="assets/js/main.min.js" defer></script>
     <script>
         (function(){
             function loadDeferredModules() {
-                ['scripts/multiplayer.js','scripts/visitor-stats.js'].forEach(function(src){
+                ['assets/js/multiplayer.min.js','assets/js/visitor-stats.min.js'].forEach(function(src){
                     var s=document.createElement('script'); s.type='module'; s.src=src; document.body.appendChild(s);
                 });
             }
@@ -3571,3 +3573,4 @@
     </script>
 </body>
 </html>
+

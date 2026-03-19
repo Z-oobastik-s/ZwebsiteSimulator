@@ -1,0 +1,16 @@
+{
+  "name": "zwebsite-simulator",
+  "private": true,
+  "description": "Deploy script for Zoobastiks typing trainer",
+  "scripts": {
+    "deploy": "node deploy.js",
+    "build:css": "tailwindcss -i ./src/input.css -o ./assets/css/tailwind.min.css --minify",
+    "build:js": "node build-min.js",
+    "build": "npm run build:css && npm run build:js"
+  },
+  "devDependencies": {
+    "basic-ftp": "^5.0.5",
+    "tailwindcss": "^3.4.17",
+    "terser": "^5.46.1"
+  }
+}
