@@ -2147,6 +2147,32 @@
             background: radial-gradient(circle at 50% 50%, rgba(0,229,255,0.22), transparent 60%);
             pointer-events: none;
         }
+
+        /* ── Performance: GPU-layer promotion for hot typing elements ── */
+
+        /* textDisplay changes every keypress — isolate its layout/style recalc */
+        #textDisplay {
+            contain: layout style;
+            transform: translateZ(0);
+            backface-visibility: hidden;
+        }
+
+        /* Keyboard container: layout/style changes are self-contained */
+        #keyboardContainer {
+            contain: layout style;
+        }
+
+        /* Lessons list can be long — skip paint for off-screen rows */
+        #lessonsList {
+            content-visibility: auto;
+            contain-intrinsic-size: 0 600px;
+        }
+
+        /* Progress bar promoted to compositor layer for smooth width transitions */
+        #progressBar {
+            will-change: width;
+            transform: translateZ(0);
+        }
     </style>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen" tabindex="-1">
@@ -3545,3 +3571,4 @@
     </script>
 </body>
 </html>
+

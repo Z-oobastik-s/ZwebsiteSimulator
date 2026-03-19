@@ -91,16 +91,27 @@ const DOM = {
     }
 };
 
-// Throttle function для оптимизации обновлений
+// Throttle: fires immediately on first call, then at most once per `limit` ms.
+// A trailing call is always scheduled so the last invocation never gets silently dropped.
 function throttle(func, limit) {
-    let inThrottle;
+    let lastCall = 0;
+    let trailingTimer = null;
     return function() {
+        const now = Date.now();
+        const remaining = limit - (now - lastCall);
         const args = arguments;
-        const context = this;
-        if (!inThrottle) {
-            func.apply(context, args);
-            inThrottle = true;
-            setTimeout(() => inThrottle = false, limit);
+        const ctx = this;
+        if (remaining <= 0) {
+            if (trailingTimer) { clearTimeout(trailingTimer); trailingTimer = null; }
+            lastCall = now;
+            func.apply(ctx, args);
+        } else {
+            clearTimeout(trailingTimer);
+            trailingTimer = setTimeout(function() {
+                lastCall = Date.now();
+                trailingTimer = null;
+                func.apply(ctx, args);
+            }, remaining);
         }
     };
 }
@@ -1028,6 +1039,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Неблокирующая инициализация: аудио и частицы после первого кадра
     setTimeout(function() {
         initializeAudio();
+        _initSfxPools();
         createParticles();
     }, 0);
     
@@ -1281,13 +1293,18 @@ function handleGlobalHotkeys(e) {
         return;
     }
     if (isInputFocused()) return;
+    // Guard: ignore hotkeys fired within 500 ms of practice finishing to prevent
+    // the very keystroke that typed the last character from instantly repeating the round.
+    const justFinished = app.practiceFinishedAt && (Date.now() - app.practiceFinishedAt < 500);
     if (e.key === 'Enter') {
+        if (justFinished) return;
         if (isModalVisible('resultsModal')) { e.preventDefault(); repeatPractice(); return; }
         if (isModalVisible('levelUpModal')) { e.preventDefault(); closeLevelUpModal(); return; }
     }
     // Физическая клавиша R (KeyR) — работает при любой раскладке (RU/EN/UA).
     if (e.code === 'KeyR') {
         if (e.ctrlKey || e.metaKey) return;
+        if (justFinished) return;
         if (isModalVisible('resultsModal')) { e.preventDefault(); repeatPractice(); return; }
     }
 }
@@ -1341,6 +1358,7 @@ function toggleLanguage() {
     const langEl = DOM.get('currentLang');
     if (langEl) langEl.textContent = app.lang.toUpperCase();
     updateTranslations();
+    updateRoomSelectionUI();
 }
 
 // Layout toggle
@@ -1544,6 +1562,7 @@ function toggleFooter(show) {
 }
 
 function showHome() {
+    DOM.clear(); // Invalidate stale element references after screen switch.
     hideAllScreens();
     const homeScreen = DOM.get('homeScreen');
     if (homeScreen) homeScreen.classList.remove('hidden');
@@ -1985,35 +2004,10 @@ function generateUaBeginnerLessonText(poolText, minChars = 100, maxChars = 200) 
     }
 
     if (isSmallPool) {
-        // Allow repetition: shuffle the small set repeatedly until target length is reached.
-        const outWords = [];
-        let outLen = 0;
-        let pass = 0;
-        while (outLen < minChars) {
-            const shuffled = cryptoShuffle(candidates);
-            for (let i = 0; i < shuffled.length; i++) {
-                const w = shuffled[i];
-                const sep = outWords.length ? 1 : 0;
-                const nextLen = outLen + sep + w.length;
-                if (nextLen > maxChars) break;
-                outWords.push(w);
-                outLen = nextLen;
-                if (outLen >= minChars) break;
-            }
-            if (++pass > 50) break; // safety valve
-        }
-        const result = outWords.join(' ').trim();
-        if (result.length >= minChars) return result;
-        // If still short (unlikely), just repeat raw words
-        return (candidates.join(' ') + ' ').repeat(Math.ceil(minChars / (candidates.join(' ').length + 1))).trim().slice(0, maxChars);
+        return generateCyclicWordText(candidates, minChars, maxChars);
     }
 
-    // Normal path: enrich with fallback only when pool is very small (< 6 unique words)
-    // and didn't hit the isSmallPool cyclic path above. For 6-13 word pools (standard
-    // vocabulary lessons) we keep only the lesson's own vocabulary.
-    if (candidates.length < 6) {
-        candidates = Array.from(new Set(candidates.concat(UA_BEGINNER_FALLBACK_WORDS)));
-    }
+    // No fallback enrichment — keep only the lesson's own vocabulary.
 
     // Build targets without repeating words within a single output string.
     const maxAttempts = 12;
@@ -2038,44 +2032,7 @@ function generateUaBeginnerLessonText(poolText, minChars = 100, maxChars = 200) 
         }
     }
 
-    // Final fallback: if pool total chars are not enough to reach minChars without repetition,
-    // allow cyclic repetition (shuffle passes) to fill the required length.
-    const totalPoolChars = candidates.reduce((sum, w) => sum + w.length, 0) + Math.max(0, candidates.length - 1);
-    if (totalPoolChars < minChars) {
-        // Cyclic shuffle passes (same logic as isSmallPool but for larger constrained pools).
-        const outWords = [];
-        let outLen = 0;
-        let pass = 0;
-        while (outLen < minChars && pass < 50) {
-            const shuffled = cryptoShuffle(candidates);
-            for (let i = 0; i < shuffled.length; i++) {
-                const w = shuffled[i];
-                const sep = outWords.length ? 1 : 0;
-                const nextLen = outLen + sep + w.length;
-                if (nextLen > maxChars) break;
-                outWords.push(w);
-                outLen = nextLen;
-                if (outLen >= minChars) break;
-            }
-            pass++;
-        }
-        return outWords.join(' ').trim().replace(/\s+/g, ' ');
-    }
-
-    // Single-pass best-effort if total pool is large enough.
-    const shuffled = cryptoShuffle(candidates);
-    const outWords = [];
-    let outLen = 0;
-    for (let i = 0; i < shuffled.length; i++) {
-        const w = shuffled[i];
-        const sep = outWords.length ? 1 : 0;
-        const nextLen = outLen + sep + w.length;
-        if (nextLen > maxChars) continue;
-        outWords.push(w);
-        outLen = nextLen;
-        if (outLen >= minChars) break;
-    }
-    return outWords.join(' ').trim().replace(/\s+/g, ' ');
+    return generateShuffledPoolText(candidates, minChars, maxChars);
 }
 
 // More "sentence-like" UA beginner generator (still: only lowercase Ukrainian letters + spaces).
@@ -2342,8 +2299,63 @@ function generateUaBeginnerSentenceText(poolText, minChars = 100, maxChars = 200
         }
     }
 
-    // Fallback to the old "word bag" generator.
+    // Fallback to the word bag generator (also uses shared helpers internally).
     return generateUaBeginnerLessonText(poolText, minChars, maxChars);
+}
+
+// ------------------------------
+// Shared helpers for all language beginner generators
+// ------------------------------
+
+// Cyclic shuffle: repeat a small word set until minChars is reached (for keyboard drills).
+function generateCyclicWordText(words, minChars, maxChars) {
+    const outWords = [];
+    let outLen = 0;
+    let pass = 0;
+    while (outLen < minChars && pass < 60) {
+        const shuffled = cryptoShuffle(words.slice());
+        for (let i = 0; i < shuffled.length; i++) {
+            const w = shuffled[i];
+            const sep = outWords.length ? 1 : 0;
+            const nextLen = outLen + sep + w.length;
+            if (nextLen > maxChars) break;
+            outWords.push(w);
+            outLen = nextLen;
+            if (outLen >= minChars) break;
+        }
+        pass++;
+    }
+    const result = outWords.join(' ').trim();
+    if (result.length >= minChars) return result;
+    // Ultimate fallback for extremely short words
+    return (words.join(' ') + ' ').repeat(Math.ceil(minChars / (words.join(' ').length + 1))).trim().slice(0, maxChars);
+}
+
+// Pool shuffler: shuffle pool words and cycle if total pool chars < minChars (for vocab lessons).
+function generateShuffledPoolText(words, minChars, maxChars) {
+    const totalChars = words.reduce((s, w) => s + w.length, 0) + Math.max(0, words.length - 1);
+    if (totalChars < minChars) {
+        return generateCyclicWordText(words, minChars, maxChars);
+    }
+    const maxAttempts = 12;
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+        const shuffled = cryptoShuffle(words.slice());
+        const outWords = [];
+        let outLen = 0;
+        for (let i = 0; i < shuffled.length; i++) {
+            const w = shuffled[i];
+            const sep = outWords.length ? 1 : 0;
+            const nextLen = outLen + sep + w.length;
+            if (nextLen > maxChars) continue;
+            outWords.push(w);
+            outLen = nextLen;
+            if (outLen >= minChars) break;
+        }
+        const text = outWords.join(' ').trim().replace(/\s+/g, ' ');
+        if (text.length >= minChars && text.length <= maxChars) return text;
+    }
+    // Last resort: just join all words
+    return words.join(' ').slice(0, maxChars);
 }
 
 // ------------------------------
@@ -2375,19 +2387,17 @@ function generateRuBeginnerSentenceText(poolText, minChars = 100, maxChars = 200
         .filter(Boolean);
 
     let candidates = Array.from(new Set(rawWords));
-    if (candidates.length < 10) {
-        const RU_FALLBACK_WORDS = [
-            'дом', 'кот', 'мама', 'папа', 'вода', 'рука', 'нога', 'день', 'ночь',
-            'стол', 'стул', 'окно', 'дверь', 'лампа', 'книга', 'лес', 'трава',
-            'море', 'река', 'гора', 'снег', 'ветер', 'солнце', 'звезда', 'цветы',
-            'школа', 'урок', 'знание'
-        ];
-        candidates = Array.from(new Set(candidates.concat(RU_FALLBACK_WORDS.map(w => sanitizeRuBeginnerWord(w)).filter(Boolean)).concat([
-            'я', 'мы', 'ты', 'он', 'она', 'оно', 'это', 'сегодня', 'вчера', 'завтра', 'утром', 'вечером',
-            'ночью', 'днем', 'всегда', 'снова', 'потом', 'теперь', 'и', 'а', 'но'
-        ].map(w => sanitizeRuBeginnerWord(w)).filter(Boolean))));
-    }
+
     if (candidates.length === 0) return 'я учусь печатать и читаю слова';
+
+    // Small pool (keyboard drills like "фыва олдж"): cyclic repetition, no foreign words.
+    if (candidates.length < 5) {
+        return generateCyclicWordText(candidates, minChars, maxChars);
+    }
+    // Medium pool (standard vocabulary lessons 5-17 words): shuffle pool-only, no sentence builder.
+    if (candidates.length < 17) {
+        return generateShuffledPoolText(candidates, minChars, maxChars);
+    }
 
     // Beginner readability: always use 1st person singular.
     const subjects = ['я'];
@@ -2604,13 +2614,17 @@ function generateEnBeginnerSentenceText(poolText, minChars = 100, maxChars = 200
         .filter(Boolean);
 
     let candidates = Array.from(new Set(rawWords));
-    if (candidates.length < 10) {
-        candidates = Array.from(new Set(candidates.concat([
-            'i', 'we', 'you', 'he', 'she', 'it', 'this', 'today', 'now', 'morning', 'evening', 'night',
-            'always', 'then', 'and', 'but', 'because', 'so', 'practice', 'lesson', 'type', 'read', 'write', 'learn'
-        ].map(w => sanitizeEnBeginnerWord(w)).filter(Boolean))));
-    }
+
     if (candidates.length === 0) return 'i practice typing and read words';
+
+    // Small pool (keyboard drills): cyclic repetition, no foreign words.
+    if (candidates.length < 5) {
+        return generateCyclicWordText(candidates, minChars, maxChars);
+    }
+    // Medium pool (standard vocabulary lessons): shuffle pool-only, no sentence builder.
+    if (candidates.length < 17) {
+        return generateShuffledPoolText(candidates, minChars, maxChars);
+    }
 
     // Beginner readability: always use "i".
     const subjects = ['i'];
@@ -3096,13 +3110,12 @@ function startPractice(text, mode, lesson = null) {
     setTimeout(function () { document.body.focus(); }, 0);
 }
 
-// Render text display - ОПТИМИЗИРОВАННАЯ ВЕРСИЯ с DocumentFragment
+// Render text display — reuses existing span nodes to avoid per-keypress DOM create/destroy.
 function renderText() {
     const display = DOM.get('textDisplay');
     if (!display) return;
 
-    // Extra safety: if for any reason `app.currentText` becomes empty (UA bug),
-    // the UI would render nothing. Restore a valid fallback before drawing.
+    // Safety: restore text if it got cleared unexpectedly.
     if (typeof app.currentText !== 'string' || app.currentText.length === 0) {
         const lesson = app.currentLesson;
         const pool = (lesson && lesson.text) ? lesson.text : '';
@@ -3117,61 +3130,59 @@ function renderText() {
             app.currentPosition = Math.min(app.currentPosition || 0, app.currentText.length);
         }
     }
-    
-    // Определяем окно видимости (сколько символов показывать)
-    const WINDOW_SIZE = 60; // Показываем ~60 символов
-    const TYPED_VISIBLE = 10; // Показываем последние 10 набранных символов
-    
-    // Вычисляем начало и конец видимого окна
+
+    const WINDOW_SIZE = 60;
+    const TYPED_VISIBLE = 10;
+
     const startPos = Math.max(0, app.currentPosition - TYPED_VISIBLE);
     const endPos = Math.min(app.currentText.length, startPos + WINDOW_SIZE);
-    
-    // Используем DocumentFragment для batch updates
-    const fragment = document.createDocumentFragment();
-    const tempDiv = document.createElement('div');
-    
-    for (let i = startPos; i < endPos; i++) {
-        const char = app.currentText[i];
-        const span = document.createElement('span');
-        
-        if (i < app.currentPosition) {
-            // Уже набранный текст
-            span.className = 'char-typed';
-            const distanceFromCurrent = app.currentPosition - i;
-            const opacity = Math.max(0.2, 1 - (distanceFromCurrent / TYPED_VISIBLE));
-            span.style.opacity = opacity;
-            span.style.fontSize = '0.9em';
-        } else if (i === app.currentPosition) {
-            // Текущий символ для набора
-            span.className = 'char-current';
-        } else {
-            // Будущие символы
-            span.className = 'char-future';
-        }
-        
-        if (char === ' ') {
-            span.innerHTML = '&nbsp;';
-        } else {
-            span.textContent = char;
-        }
-        
-        fragment.appendChild(span);
+    const windowLen = endPos - startPos;
+
+    if (windowLen === 0) { display.innerHTML = ''; return; }
+
+    // Adjust child count WITHOUT clearing innerHTML — reuse existing spans.
+    while (display.childElementCount > windowLen) display.removeChild(display.lastChild);
+    if (display.childElementCount < windowLen) {
+        const frag = document.createDocumentFragment();
+        for (let i = display.childElementCount; i < windowLen; i++) frag.appendChild(document.createElement('span'));
+        display.appendChild(frag);
     }
-    
-    // Batch update - один раз заменяем весь контент
-    display.innerHTML = '';
-    display.appendChild(fragment);
-    
-    // Автоскролл к текущему символу
-    const currentCharEl = display.querySelector('.char-current');
-    if (currentCharEl) {
-        currentCharEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+
+    const children = display.children;
+
+    for (let i = 0; i < windowLen; i++) {
+        const charIdx = startPos + i;
+        const char = app.currentText[charIdx];
+        const span = children[i];
+
+        let newClass;
+        if (charIdx < app.currentPosition) {
+            newClass = 'char-typed';
+            const dist = app.currentPosition - charIdx;
+            const opacity = Math.max(0.2, 1 - (dist / TYPED_VISIBLE));
+            // cssText batches two property writes into one style recalc.
+            span.style.cssText = 'opacity:' + opacity + ';font-size:0.9em';
+        } else {
+            if (span.style.cssText) span.style.cssText = '';
+            newClass = charIdx === app.currentPosition ? 'char-current' : 'char-future';
+        }
+
+        if (span.className !== newClass) span.className = newClass;
+
+        // Use \u00A0 for space to avoid innerHTML (avoids HTML parser call).
+        const content = char === ' ' ? '\u00A0' : char;
+        if (span.textContent !== content) span.textContent = content;
     }
-    
-    // Подсветить текущую клавишу на клавиатуре
+
+    // Direct O(1) index access — no querySelector('.char-current') needed.
+    const cursorSpan = children[app.currentPosition - startPos];
+    if (cursorSpan) {
+        // 'instant' eliminates competing smooth-scroll animations during fast typing.
+        cursorSpan.scrollIntoView({ behavior: 'instant', block: 'nearest', inline: 'center' });
+    }
+
     if (app.currentPosition < app.currentText.length) {
-        const currentChar = app.currentText[app.currentPosition];
-        window.keyboardModule.highlightStatic(currentChar);
+        window.keyboardModule.highlightStatic(app.currentText[app.currentPosition]);
     }
 }
 
@@ -3546,6 +3557,7 @@ async function finishPractice() {
         var xp = window.levelModule.calculateSessionXP(sessionData);
         var xpResult = window.levelModule.addPlayerXP(xp);
         if (xpResult.leveledUp) app.pendingLevelUp = xpResult.newLevel;
+        renderLevelBlock();
     }
     var newlyAchievements = window.achievementsModule ? window.achievementsModule.checkAndNotify() : [];
     if (newlyAchievements && newlyAchievements.length > 0 && app.soundEnabled && audioCompleteAdvanced) {
@@ -3588,6 +3600,10 @@ async function finishPractice() {
         }
     }
     
+    // Mark timestamp so handleGlobalHotkeys ignores the same keydown event
+    // that finished the lesson (prevents instant repeat-round trigger).
+    app.practiceFinishedAt = Date.now();
+
     showResults(speed, accuracy, elapsed, app.errors, rewardCoins);
 }
 
@@ -3908,18 +3924,53 @@ function fillLevelListModal() {
 }
 
 // Play sound
+// Pre-allocated audio pools — avoids cloneNode() and GC pressure on every keypress.
+const _SFX_POOL_SIZE = 6;
+let _clickPool = null, _clickIdx = 0;
+let _errorPool = null, _errorIdx = 0;
+
+function _initSfxPools() {
+    try {
+        if (audioClick && !_clickPool) {
+            _clickPool = [];
+            for (let i = 0; i < _SFX_POOL_SIZE; i++) {
+                const a = audioClick.cloneNode();
+                a.volume = SFX_VOLUME;
+                _clickPool.push(a);
+            }
+        }
+        if (audioError && !_errorPool) {
+            _errorPool = [];
+            for (let i = 0; i < _SFX_POOL_SIZE; i++) {
+                const a = audioError.cloneNode();
+                a.volume = SFX_VOLUME;
+                _errorPool.push(a);
+            }
+        }
+    } catch (e) {}
+}
+
 function playSound(type) {
     if (!app.soundEnabled) return;
-    
+    if (!_clickPool) _initSfxPools();
+
     try {
-        if (type === 'correct' && audioClick) {
-            const sound = audioClick.cloneNode();
-            sound.volume = SFX_VOLUME;
+        if (type === 'correct' && _clickPool && _clickPool.length) {
+            const sound = _clickPool[_clickIdx % _clickPool.length];
+            _clickIdx++;
+            sound.currentTime = 0;
             sound.play().catch(() => {});
+        } else if (type === 'error' && _errorPool && _errorPool.length) {
+            const sound = _errorPool[_errorIdx % _errorPool.length];
+            _errorIdx++;
+            sound.currentTime = 0;
+            sound.play().catch(() => {});
+        } else if (type === 'correct' && audioClick) {
+            audioClick.currentTime = 0;
+            audioClick.play().catch(() => {});
         } else if (type === 'error' && audioError) {
-            const sound = audioError.cloneNode();
-            sound.volume = SFX_VOLUME;
-            sound.play().catch(() => {});
+            audioError.currentTime = 0;
+            audioError.play().catch(() => {});
         }
     } catch (e) {
         // Fallback to Web Audio API
@@ -3927,23 +3978,13 @@ function playSound(type) {
             const audioContext = new (window.AudioContext || window.webkitAudioContext)();
             const oscillator = audioContext.createOscillator();
             const gainNode = audioContext.createGain();
-            
             oscillator.connect(gainNode);
             gainNode.connect(audioContext.destination);
-            
-            if (type === 'correct') {
-                oscillator.frequency.value = 800;
-                gainNode.gain.value = SFX_VOLUME;
-            } else {
-                oscillator.frequency.value = 200;
-                gainNode.gain.value = SFX_VOLUME;
-            }
-            
+            oscillator.frequency.value = type === 'correct' ? 800 : 200;
+            gainNode.gain.value = SFX_VOLUME;
             oscillator.start();
             oscillator.stop(audioContext.currentTime + 0.05);
-        } catch (e2) {
-            // Audio not supported
-        }
+        } catch (e2) {}
     }
 }
 
@@ -4691,24 +4732,29 @@ function updateRoomSelectionUI() {
     setOptOn('digits', selectedTextOptDigits);
     setOptOn('mixCase', selectedTextOptMixCase);
 
-    // Summary
-    const themeTitles = {
-        random: 'Случайные',
-        anime: 'Аниме',
-        games: 'Игры',
-        animals: 'Животные',
-        space: 'Космос',
-        nature: 'Природа'
-    };
-    const langTitles = { ru: 'РУС', en: 'ENG', ua: 'УКР' };
+    // Summary — language-aware labels
+    const isEn = app.lang === 'en';
+    const isUa = app.lang === 'ua';
+
+    const themeTitles = isEn
+        ? { random: 'Random', anime: 'Anime', games: 'Games', animals: 'Animals', space: 'Space', nature: 'Nature' }
+        : isUa
+            ? { random: 'Випадкові', anime: 'Аніме', games: 'Ігри', animals: 'Тварини', space: 'Космос', nature: 'Природа' }
+            : { random: 'Случайные', anime: 'Аниме', games: 'Игры', animals: 'Животные', space: 'Космос', nature: 'Природа' };
+
+    const langTitles = { ru: 'RU', en: 'EN', ua: 'UA' };
+
+    const labelTheme = isEn ? 'THEME: ' : isUa ? 'ТЕМА: ' : 'ТЕМА: ';
+    const labelLang  = isEn ? 'LANG: '  : isUa ? 'МОВА: ' : 'ЯЗЫК: ';
+    const labelLen   = isEn ? 'LENGTH: ' : isUa ? 'ДОВЖИНА: ' : 'ДЛИНА: ';
 
     const themeEl = document.getElementById('mpRoomSummaryTheme');
     const langEl = document.getElementById('mpRoomSummaryLang');
     const lenEl = document.getElementById('mpRoomSummaryLen');
 
-    if (themeEl) themeEl.textContent = 'ТЕМА: ' + (themeTitles[selectedTheme] || 'RANDOM');
-    if (langEl) langEl.textContent = 'ЯЗЫК: ' + (langTitles[selectedMultiplayerLang] || selectedMultiplayerLang);
-    if (lenEl) lenEl.textContent = 'ДЛИНА: ' + String(selectedWordCount);
+    if (themeEl) themeEl.textContent = labelTheme + (themeTitles[selectedTheme] || 'RANDOM');
+    if (langEl) langEl.textContent = labelLang + (langTitles[selectedMultiplayerLang] || selectedMultiplayerLang.toUpperCase());
+    if (lenEl) lenEl.textContent = labelLen + String(selectedWordCount);
 }
 
 // Show join room dialog
@@ -4840,43 +4886,47 @@ function copyRoomCode() {
 function renderMultiplayerText() {
     const display = DOM.get('multiplayerTextDisplay');
     if (!display) return;
-    
+
     const WINDOW_SIZE = 60;
     const TYPED_VISIBLE = 10;
-    
+
     const startPos = Math.max(0, app.currentPosition - TYPED_VISIBLE);
     const endPos = Math.min(app.currentText.length, startPos + WINDOW_SIZE);
-    
-    const fragment = document.createDocumentFragment();
-    
-    for (let i = startPos; i < endPos; i++) {
-        const char = app.currentText[i];
-        const span = document.createElement('span');
-        
-        if (i < app.currentPosition) {
-            span.className = 'char-typed';
-            const distanceFromCurrent = app.currentPosition - i;
-            const opacity = Math.max(0.2, 1 - (distanceFromCurrent / TYPED_VISIBLE));
-            span.style.opacity = opacity;
-            span.style.fontSize = '0.9em';
-        } else if (i === app.currentPosition) {
-            span.className = 'char-current';
-        } else {
-            span.className = 'char-future';
-        }
-        
-        if (char === ' ') {
-            span.innerHTML = '&nbsp;';
-        } else {
-            span.textContent = char;
-        }
-        
-        fragment.appendChild(span);
+    const windowLen = endPos - startPos;
+
+    if (windowLen === 0) { display.innerHTML = ''; return; }
+
+    // Reuse existing spans — same strategy as single-player renderText.
+    while (display.childElementCount > windowLen) display.removeChild(display.lastChild);
+    if (display.childElementCount < windowLen) {
+        const frag = document.createDocumentFragment();
+        for (let i = display.childElementCount; i < windowLen; i++) frag.appendChild(document.createElement('span'));
+        display.appendChild(frag);
     }
-    
-    // Batch update
-    display.innerHTML = '';
-    display.appendChild(fragment);
+
+    const children = display.children;
+    for (let i = 0; i < windowLen; i++) {
+        const charIdx = startPos + i;
+        const char = app.currentText[charIdx];
+        const span = children[i];
+
+        let newClass;
+        if (charIdx < app.currentPosition) {
+            newClass = 'char-typed';
+            const dist = app.currentPosition - charIdx;
+            span.style.cssText = 'opacity:' + Math.max(0.2, 1 - (dist / TYPED_VISIBLE)) + ';font-size:0.9em';
+        } else {
+            if (span.style.cssText) span.style.cssText = '';
+            newClass = charIdx === app.currentPosition ? 'char-current' : 'char-future';
+        }
+
+        if (span.className !== newClass) span.className = newClass;
+        const content = char === ' ' ? '\u00A0' : char;
+        if (span.textContent !== content) span.textContent = content;
+    }
+
+    const cursorSpan = children[app.currentPosition - startPos];
+    if (cursorSpan) cursorSpan.scrollIntoView({ behavior: 'instant', block: 'nearest', inline: 'center' });
 }
 
 window.onMultiplayerUpdate = (data) => {
@@ -5670,3 +5720,5 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+
+

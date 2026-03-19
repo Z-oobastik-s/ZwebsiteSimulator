@@ -72,6 +72,32 @@ const keyFingerMap = {
     'p': 'rightPinky', '[': 'rightPinky', ']': 'rightPinky', '\\': 'rightPinky', ';': 'rightPinky', '\'': 'rightPinky', '/': 'rightPinky'
 };
 
+// Per-container caches: WeakMap keyed by the keyboard container DOM node.
+const _keyBtnCaches = new WeakMap();
+
+// Per-container highlight state (previous static/active key + active timeout).
+const _highlightState = new WeakMap();
+
+function _getState(container) {
+    if (!_highlightState.has(container)) {
+        _highlightState.set(container, { prevStatic: null, prevActive: null, prevActiveTimeout: null });
+    }
+    return _highlightState.get(container);
+}
+
+function _buildKeyCache(container) {
+    const map = new Map();
+    container.querySelectorAll('[data-key]').forEach(btn => {
+        map.set(btn.getAttribute('data-key'), btn);
+    });
+    _keyBtnCaches.set(container, map);
+    return map;
+}
+
+function _getCache(container) {
+    return _keyBtnCaches.get(container) || _buildKeyCache(container);
+}
+
 function renderKeyboard(layout = 'ru') {
     const container = document.getElementById('keyboardContainer');
     if (!container) return;
@@ -97,6 +123,10 @@ function renderKeyboard(layout = 'ru') {
     
     html += '</div>';
     container.innerHTML = html;
+
+    // Rebuild cache and reset state for this container after re-render.
+    _buildKeyCache(container);
+    _highlightState.set(container, { prevStatic: null, prevActive: null, prevActiveTimeout: null });
 }
 
 function getKeyWidth(key) {
@@ -112,60 +142,75 @@ function getKeyWidth(key) {
     }
 }
 
-function highlightKey(char) {
-    // Remove previous highlights
-    document.querySelectorAll('.key-btn').forEach(btn => {
-        btn.classList.remove('key-active');
-    });
-    
-    // Handle space specially
-    if (char === ' ') {
-        char = 'space';
+function highlightKey(char, container) {
+    if (!container) container = document.getElementById('keyboardContainer');
+    if (!container) return;
+
+    const key = (char === ' ' ? 'space' : char).toLowerCase();
+    const cache = _getCache(container);
+    const state = _getState(container);
+
+    // Cancel previous active-timeout (avoids overlapping class removal).
+    if (state.prevActiveTimeout) {
+        clearTimeout(state.prevActiveTimeout);
+        state.prevActiveTimeout = null;
     }
-    
-    // Highlight current key
-    const key = char.toLowerCase();
-    const keyBtn = document.querySelector(`[data-key="${key}"]`);
-    
-    if (keyBtn) {
-        keyBtn.classList.add('key-active');
-        
-        // Auto-remove highlight after animation
-        setTimeout(() => {
-            keyBtn.classList.remove('key-active');
+
+    // Remove active class from previous key (O(1)).
+    if (state.prevActive && state.prevActive !== key) {
+        const prev = cache.get(state.prevActive);
+        if (prev) prev.classList.remove('key-active');
+    }
+
+    // Add active class to new key (O(1)).
+    const btn = cache.get(key);
+    if (btn) {
+        btn.classList.add('key-active');
+        state.prevActive = key;
+        state.prevActiveTimeout = setTimeout(() => {
+            btn.classList.remove('key-active');
+            state.prevActive = null;
+            state.prevActiveTimeout = null;
         }, 300);
     }
 }
 
 function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
+    return String(text)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
 }
 
-function highlightKeyStatic(char) {
-    // Remove previous static highlights
-    document.querySelectorAll('.key-btn').forEach(btn => {
-        btn.classList.remove('key-static-highlight');
-    });
-    
-    // Handle space specially
-    if (char === ' ') {
-        char = 'space';
+function highlightKeyStatic(char, container) {
+    if (!container) container = document.getElementById('keyboardContainer');
+    if (!container) return;
+
+    const key = (char === ' ' ? 'space' : char).toLowerCase();
+    const cache = _getCache(container);
+    const state = _getState(container);
+
+    // Same key as before — nothing to do (O(1) early exit).
+    if (state.prevStatic === key) return;
+
+    // Remove static class from previous key (O(1)).
+    if (state.prevStatic) {
+        const prev = cache.get(state.prevStatic);
+        if (prev) prev.classList.remove('key-static-highlight');
     }
-    
-    // Add static highlight to current key
-    const key = char.toLowerCase();
-    const keyBtn = document.querySelector(`[data-key="${key}"]`);
-    
-    if (keyBtn) {
-        keyBtn.classList.add('key-static-highlight');
-    }
+
+    // Add static class to new key (O(1)).
+    const btn = cache.get(key);
+    if (btn) btn.classList.add('key-static-highlight');
+    state.prevStatic = key;
 }
 
 // Export functions
 window.keyboardModule = {
     render: renderKeyboard,
     highlight: highlightKey,
-    highlightStatic: highlightKeyStatic
+    highlightStatic: highlightKeyStatic,
+    buildCache: _buildKeyCache
 };
+
