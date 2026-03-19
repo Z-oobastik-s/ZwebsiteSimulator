@@ -2281,8 +2281,8 @@
             <button type="button" id="pwaInstallDismiss" class="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-colors" aria-label="Закрыть"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
         </div>
     </div>
-    <div id="mobilePcBanner" class="hidden" role="region" aria-label="Подсказка для мобильных">
-        <p class="text-sm text-cyan-200/95 flex-1 min-w-0" data-i18n="mobilePcHint">Для лучшего взаимодействия рекомендуем зайти с компьютера.</p>
+    <div id="mobilePcBanner" class="hidden" role="region" aria-label="Предупреждение для мобильных">
+        <p class="text-sm text-cyan-200/95 flex-1 min-w-0" data-i18n="mobilePcHint">Внимание: сайт создан под ПК. На телефонах интерфейс может быть неудобным — пожалуйста, используйте компьютер.</p>
         <button type="button" class="banner-close flex" onclick="document.getElementById('mobilePcBanner').classList.remove('show'); try { localStorage.setItem('zoob_mobile_banner_closed', '1'); } catch(e) {}" aria-label="Закрыть">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
         </button>
@@ -3545,4 +3545,3 @@
     </script>
 </body>
 </html>
-
