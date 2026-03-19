@@ -203,6 +203,18 @@
             #levelBlock { min-width: 0 !important; max-width: 120px !important; }
             #streakBadge { display: none !important; }
             header .shrink-0 { flex-shrink: 1 !important; }
+
+            /* Уроки: компактнее сайдбар слева, чтобы карточки не становились слишком узкими */
+            #lessonsScreen .sticky { position: relative !important; top: auto !important; }
+            #lessonsScreen .w-24 { width: 100% !important; min-width: 0 !important; }
+            #lessonsScreen .space-y-3 { display: grid !important; grid-template-columns: repeat(3, minmax(0, 1fr)) !important; gap: 0.5rem !important; }
+            #lessonsScreen [id^="lessonLang"] { padding: 0.65rem 0.25rem !important; font-size: 0.95rem !important; }
+            #lessonsScreen #lessonsList { gap: 1rem !important; }
+            #lessonsScreen .flex.gap-6 { flex-direction: column !important; gap: 1rem !important; }
+
+            /* Profile: топ-бар должен помещаться на маленьких экранах */
+            #profileScreen .profile-topbar { flex-wrap: wrap; gap: 0.75rem; }
+            #sitePortalWrap { display: none !important; }
             #keyboardContainer .w-10 { width: 1.5rem !important; min-width: 1.5rem !important; }
             #keyboardContainer .w-12 { width: 2rem !important; min-width: 2rem !important; }
             #keyboardContainer .w-16 { width: 2.5rem !important; min-width: 2.5rem !important; }
@@ -2162,7 +2174,7 @@
             </div>
             
             <!-- Справа: кнопки и элементы, уровень — в самом конце (край справа) -->
-            <div class="flex items-center gap-1.5 sm:gap-3 shrink-0 flex-wrap justify-end">
+            <div class="flex items-center gap-1.5 sm:gap-3 shrink-0 flex-nowrap justify-end">
                 <!-- Balance (only when logged in) -->
                 <div id="balanceDisplay" class="hidden header-action flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg glass border border-white/10 transition-colors" title="Баланс монет">
                     <img src="assets/images/money.png" alt="" class="w-5 h-5 shrink-0 object-contain" width="20" height="20" decoding="async" fetchpriority="low">
@@ -2423,6 +2435,14 @@
                 
                 <div class="w-32"></div> <!-- spacer -->
             </div>
+
+            <!-- Guaranteed mobile back button -->
+            <button id="mobileLessonsBackBtn" onclick="showHome()" class="sm:hidden fixed left-3 top-[6.5rem] z-[120] glass px-3 py-2 rounded-lg">
+                <span class="inline-flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                    <span data-i18n="back">Назад</span>
+                </span>
+            </button>
             
             <div class="max-w-7xl mx-auto">
                 <div class="flex gap-6">
@@ -3108,7 +3128,7 @@
     <div id="profileScreen" class="hidden fade-in">
         <div class="max-w-5xl mx-auto px-4">
             <!-- Top bar -->
-            <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center justify-between mb-4 profile-topbar">
                 <button onclick="showHome()" class="profile-quick-btn glass px-4 py-2 rounded-lg flex items-center gap-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
                     <span data-i18n="back">Назад</span>
@@ -3118,6 +3138,14 @@
                     <span data-i18n="logout">Выйти</span>
                 </button>
             </div>
+
+            <!-- Guaranteed mobile back button -->
+            <button id="mobileProfileBackBtn" onclick="showHome()" class="sm:hidden fixed left-3 top-[6.5rem] z-[200] glass px-3 py-2 rounded-lg">
+                <span class="inline-flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                    <span data-i18n="back">Назад</span>
+                </span>
+            </button>
             
             <!-- Hero panel: avatar + nickname + rank + level + balance + XP -->
             <div class="profile-hero-panel rounded-2xl p-6 mb-5 relative overflow-hidden">
@@ -3517,4 +3545,3 @@
     </script>
 </body>
 </html>
-
