@@ -2115,7 +2115,12 @@ function generateUaBeginnerLessonText(poolText, minChars = 100, maxChars = 200) 
         outLen = nextLen;
         if (outLen >= minChars) break;
     }
-    return outWords.join(' ').trim().replace(/\s+/g, ' ');
+    const outText = outWords.join(' ').trim().replace(/\s+/g, ' ');
+    // Ensure we never return empty string (UA lessons must always have a visible target).
+    if (!outText) {
+        return 'дім кіт мама тато вода рука нога день ніч стіл стілець вікно двері лампа книга';
+    }
+    return outText;
 }
 
 // More "sentence-like" UA beginner generator (still: only lowercase Ukrainian letters + spaces).
@@ -5749,3 +5754,4 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+
