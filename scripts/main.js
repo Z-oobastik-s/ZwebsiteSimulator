@@ -3152,6 +3152,21 @@ function startPractice(text, mode, lesson = null) {
         }
     }
 
+    // UA beginner hard validation: if we accidentally ended up with a non-UA string
+    // (e.g. due to rapid navigation and a wrong target), force a valid UA fallback.
+    if (
+        mode === 'lesson' &&
+        lesson &&
+        lesson.layout === 'ua' &&
+        (lesson.level === 'beginner' || lesson.difficulty === 'easy')
+    ) {
+        const uaAllowed = /^[абвгґдеєжзиіїйклмнопрстуфхцчшщьюя ]+$/i;
+        const s = String(effectiveText || '');
+        if (!s || !uaAllowed.test(s) || s.trim().length === 0) {
+            effectiveText = generateUaBeginnerLessonText(lesson.text || text, 100, 200);
+        }
+    }
+
     // Hard safety: never allow an empty target string.
     // When `app.currentText.length === 0`, the UI renders an empty field (no spans),
     // which looks like the practice is "broken".
@@ -5754,4 +5769,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-
