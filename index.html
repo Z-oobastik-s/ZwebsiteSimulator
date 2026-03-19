@@ -156,6 +156,8 @@
                поэтому увеличиваем отступ, чтобы контент не залезал под шапку. */
             header.glass { padding-top: max(0.4rem, env(safe-area-inset-top)) !important; }
             main { padding-top: 6.75rem; padding-left: 0.75rem; padding-right: 0.75rem; padding-bottom: 1.5rem; }
+            /* Чтобы правый блок в шапке не "вылезал" за экран и не обрезался справа */
+            header .shrink-0 { flex-shrink: 1 !important; }
             #textDisplay { font-size: 1.25rem; line-height: 1.6; min-height: 80px; }
             .glass.rounded-2xl.p-8 { padding: 1rem; }
             #keyboardContainer { padding: 0.5rem; overflow-x: auto; -webkit-overflow-scrolling: touch; }
@@ -192,6 +194,15 @@
         @media (max-width: 480px) {
             main { padding-top: 6.25rem; }
             img, video { max-width: 100%; height: auto; }
+            /* Компактнее шапка на самых маленьких экранах */
+            header .container {
+                padding-left: calc(0.5rem + env(safe-area-inset-left)) !important;
+                padding-right: calc(0.5rem + env(safe-area-inset-right)) !important;
+            }
+            .header-action { min-width: 36px; min-height: 40px; }
+            #levelBlock { min-width: 0 !important; max-width: 120px !important; }
+            #streakBadge { display: none !important; }
+            header .shrink-0 { flex-shrink: 1 !important; }
             #keyboardContainer .w-10 { width: 1.5rem !important; min-width: 1.5rem !important; }
             #keyboardContainer .w-12 { width: 2rem !important; min-width: 2rem !important; }
             #keyboardContainer .w-16 { width: 2.5rem !important; min-width: 2.5rem !important; }
@@ -3426,6 +3437,10 @@
                     window.removeEventListener('orientationchange', applyVideoFit);
                 } catch (e) {}
                 if (fitTimer) clearTimeout(fitTimer);
+                // Даже если сам оверлей не удалится по какой-то причине,
+                // отключаем перехват кликов сразу.
+                overlay.style.pointerEvents = 'none';
+                overlay.style.visibility = 'hidden';
                 overlay.style.transition = 'opacity 300ms ease';
                 overlay.style.opacity = '0';
                 setTimeout(function() {
@@ -3502,3 +3517,4 @@
     </script>
 </body>
 </html>
+
