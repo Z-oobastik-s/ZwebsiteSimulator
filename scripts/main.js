@@ -3492,7 +3492,13 @@ function togglePause() {
 
 // Restart practice
 function restartPractice() {
-    // For Ukrainian beginner lessons we keep lesson.text as a pool and generate a fresh target on each start/restart.
+    // Speed test: always generate a fresh random word set.
+    if (app.currentMode === 'speedtest') {
+        showSpeedTest();
+        return;
+    }
+
+    // Ukrainian beginner lessons: re-generate from the pool each time.
     if (
         app.currentLesson &&
         app.currentLesson.layout === 'ua' &&
@@ -3502,12 +3508,8 @@ function restartPractice() {
         startPractice(app.currentLesson.text, app.currentMode, app.currentLesson);
         return;
     }
-    // For Ukrainian beginner lessons we keep `lesson.text` as a pool and generate a fresh target each time.
-    if (app.currentLesson && app.currentLesson.layout === 'ua' && app.currentLesson.level === 'beginner' && app.currentMode === 'lesson') {
-        startPractice(app.currentLesson.text, app.currentMode, app.currentLesson);
-        return;
-    }
-    startPractice((app.currentLesson && app.currentLesson.layout === 'ua' && app.currentLesson.level === 'beginner' && app.currentMode === 'lesson') ? app.currentLesson.text : app.currentText, app.currentMode, app.currentLesson);
+
+    startPractice(app.currentText, app.currentMode, app.currentLesson);
 }
 
 // Exit practice - ОПТИМИЗИРОВАНА
@@ -5756,4 +5758,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-
