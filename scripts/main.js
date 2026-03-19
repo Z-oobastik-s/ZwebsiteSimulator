@@ -2220,6 +2220,7 @@ function generateUaBeginnerSentenceText(poolText, minChars = 100, maxChars = 200
 
     // Build: {time} я {verb} {obj1} і {obj2} щоб {goal} та {obj3} {adverb}
     // (word order is intentionally fixed for readability).
+    const templateTimeWords = ['сьогодні', 'щодня', 'зараз', 'рано', 'ввечері'];
     const timeCandidates = templateTimeWords.filter(w => !stopWordsUa.has(w));
     const time = timeCandidates.length
         ? timeCandidates[cryptoRandInt(timeCandidates.length)]
@@ -2267,7 +2268,7 @@ function generateUaBeginnerSentenceText(poolText, minChars = 100, maxChars = 200
 
     candidates = Array.from(new Set(candidates.concat(helpers)));
     const connectors = ['і', 'та', 'але', 'бо', 'тому', 'потім'];
-    const templateTimeWords = ['сьогодні', 'щодня', 'зараз', 'рано', 'ввечері'];
+    // templateTimeWords is already defined above (used by the coherent skeleton).
 
     const templates = [
         // Skeletons (fixed words + placeholders from candidates).
@@ -5785,4 +5786,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-
