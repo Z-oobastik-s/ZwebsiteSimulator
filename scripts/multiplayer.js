@@ -556,3 +556,4 @@ window.multiplayerModule = {
     getMultiplayerState,
     isMultiplayerActive
 };
+

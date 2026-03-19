@@ -3147,6 +3147,21 @@ function startPractice(text, mode, lesson = null) {
         }
     }
 
+    // Hard safety: never allow an empty target string.
+    // When `app.currentText.length === 0`, the UI renders an empty field (no spans),
+    // which looks like the practice is "broken".
+    if (typeof effectiveText !== 'string') effectiveText = String(effectiveText ?? '');
+    if (!effectiveText || effectiveText.trim().length === 0) {
+        const pool = (lesson && lesson.text) ? lesson.text : text;
+        if (lesson && lesson.layout === 'ua') {
+            effectiveText = generateUaBeginnerLessonText(pool, 100, 200);
+        } else {
+            // Best-effort fallback: use original pool (may still be generated elsewhere).
+            effectiveText = String(pool || '').trim();
+        }
+        if (!effectiveText) effectiveText = 'дім кіт мама тато вода рука нога день ніч стіл стілець вікно двері лампа книга';
+    }
+
     app.currentText = effectiveText;
     app.currentPosition = 0;
     app.startTime = Date.now();
@@ -3195,6 +3210,23 @@ function startPractice(text, mode, lesson = null) {
 function renderText() {
     const display = DOM.get('textDisplay');
     if (!display) return;
+
+    // Extra safety: if for any reason `app.currentText` becomes empty (UA bug),
+    // the UI would render nothing. Restore a valid fallback before drawing.
+    if (typeof app.currentText !== 'string' || app.currentText.length === 0) {
+        const lesson = app.currentLesson;
+        const pool = (lesson && lesson.text) ? lesson.text : '';
+        if (lesson && lesson.layout === 'ua') {
+            app.currentText = generateUaBeginnerLessonText(pool, 100, 200);
+            app.totalChars = app.currentText.length;
+            app.currentPosition = Math.min(app.currentPosition || 0, app.currentText.length);
+            app.typedText = '';
+        } else {
+            app.currentText = String(pool || '').trim() || ' ';
+            app.totalChars = app.currentText.length;
+            app.currentPosition = Math.min(app.currentPosition || 0, app.currentText.length);
+        }
+    }
     
     // Определяем окно видимости (сколько символов показывать)
     const WINDOW_SIZE = 60; // Показываем ~60 символов
@@ -5717,3 +5749,4 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+
