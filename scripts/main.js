@@ -399,7 +399,25 @@ const translations = {
         copyFailed: 'Не удалось скопировать',
         hotkeysHint: 'Esc — закрыть · Enter или R — повторить',
         streakDays: 'дней подряд',
-        streakHint: 'Серия дней с тренировкой'
+        streakHint: 'Серия дней с тренировкой',
+        // Multiplayer room settings
+        mpThemeRandom: 'Случайные',
+        mpThemeAnime: 'Аниме',
+        mpThemeGames: 'Игры',
+        mpThemeAnimals: 'Животные',
+        mpThemeSpace: 'Космос',
+        mpThemeNature: 'Природа',
+        mpTextLength: 'Длина текста (символы)',
+        mpChars: 'симв',
+        mpTextOptions: 'Параметры текста',
+        mpOptComma: 'Запятые',
+        mpOptPeriod: 'Точки',
+        mpOptDigits: 'Цифры',
+        mpOptMixCase: 'Микс',
+        mpAlwaysRandom: 'Текст генерируется случайно на лету.',
+        mpPlayers: 'Игроки',
+        mpDuelOnly: 'Сейчас доступна только дуэль:',
+        mp2Players: '2 игрока'
     },
     en: {
         welcome: 'Welcome to Zoobastiks',
@@ -600,7 +618,25 @@ const translations = {
         copyFailed: 'Copy failed',
         hotkeysHint: 'Esc — close · Enter or R — repeat',
         streakDays: 'day streak',
-        streakHint: 'Consecutive days with practice'
+        streakHint: 'Consecutive days with practice',
+        // Multiplayer room settings
+        mpThemeRandom: 'Random',
+        mpThemeAnime: 'Anime',
+        mpThemeGames: 'Games',
+        mpThemeAnimals: 'Animals',
+        mpThemeSpace: 'Space',
+        mpThemeNature: 'Nature',
+        mpTextLength: 'Text length (chars)',
+        mpChars: 'chars',
+        mpTextOptions: 'Text options',
+        mpOptComma: 'Commas',
+        mpOptPeriod: 'Periods',
+        mpOptDigits: 'Digits',
+        mpOptMixCase: 'Mix',
+        mpAlwaysRandom: 'Text is always generated randomly.',
+        mpPlayers: 'Players',
+        mpDuelOnly: 'Only duel available:',
+        mp2Players: '2 players'
     }
 };
 
@@ -5720,5 +5756,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-
-

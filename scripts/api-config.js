@@ -1,7 +1,15 @@
 /**
- * URL backend API для хранения пользователей и прогресса в MSSQL.
- * Оставьте пустым '', чтобы использовать локальное хранилище (localStorage).
- * Укажите адрес вашего API, например: 'https://ваш-сервер.com' (без слэша в конце).
+ * URL backend API.
+ * Локально (localhost / file://) → http://localhost:3000
+ * GitHub Pages / продакшен     → '' (localStorage-режим, пока нет задеплоенного API)
+ *
+ * Когда задеплоишь бэкенд на Railway/Render — замени '' на 'https://твой-апи.railway.app'
  */
-window.API_BASE_URL = '';
-
+(function () {
+    var host = window.location.hostname;
+    var isLocal = host === 'localhost' ||
+                  host === '127.0.0.1' ||
+                  host === '' ||
+                  window.location.protocol === 'file:';
+    window.API_BASE_URL = isLocal ? 'http://localhost:3000' : '';
+})();

@@ -1,46 +1,53 @@
-const sql = require('mssql');
-
-const config = {
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_DATABASE,
-    server: process.env.DB_SERVER,
-    options: {
-        encrypt: true,
-        trustServerCertificate: true,
-        enableArithAbort: true
-    },
-    pool: {
-        max: 10,
-        min: 0,
-        idleTimeoutMillis: 30000
-    }
-};
+const mysql = require('mysql2/promise');
 
 let pool = null;
 
-async function getPool() {
-    if (pool) return pool;
-    pool = await sql.connect(config);
+function getPool() {
+    if (!pool) {
+        pool = mysql.createPool({
+            host:              process.env.DB_HOST,
+            port:              parseInt(process.env.DB_PORT, 10) || 3306,
+            user:              process.env.DB_USER,
+            password:          process.env.DB_PASSWORD,
+            database:          process.env.DB_DATABASE,
+            charset:           'utf8mb4',
+            waitForConnections: true,
+            connectionLimit:   10,
+            queueLimit:        0,
+            // Keep idle connections alive
+            enableKeepAlive:   true,
+            keepAliveInitialDelay: 10000
+        });
+    }
     return pool;
 }
 
+/**
+ * Named-parameter query — keeps backward compatibility with all routes.
+ * SQL uses @paramName style; values are substituted in positional order.
+ *
+ * Examples:
+ *   query('SELECT * FROM Users WHERE Uid = @uid', { uid: '...' })
+ *   query('INSERT INTO Users (Uid, Username) VALUES (@uid, @username)', { uid, username })
+ */
 async function query(sqlQuery, params = {}) {
-    const p = await getPool();
-    const request = p.request();
-    Object.keys(params).forEach(key => {
-        const value = params[key];
-        request.input(key, value === undefined ? null : value);
+    const values = [];
+    const sql = sqlQuery.replace(/@(\w+)/g, (_, name) => {
+        values.push(params[name] !== undefined ? params[name] : null);
+        return '?';
     });
-    return request.query(sqlQuery);
+
+    const p = getPool();
+    const [rows] = await p.execute(sql, values);
+    // rows is an array for SELECT; ResultSetHeader for INSERT/UPDATE/DELETE
+    return { recordset: Array.isArray(rows) ? rows : [] };
 }
 
 async function close() {
     if (pool) {
-        await pool.close();
+        await pool.end();
         pool = null;
     }
 }
 
-module.exports = { getPool, query, sql, close };
-
+module.exports = { getPool, query, close };

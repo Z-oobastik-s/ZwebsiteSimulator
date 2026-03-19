@@ -2617,27 +2617,27 @@
                             <div class="grid grid-cols-3 gap-2">
                                 <button onclick="selectTheme('random')" class="theme-btn glass rounded-lg px-3 py-2 border-2 border-transparent" data-theme="random">
                                     <div class="text-2xl mb-0.5">🎲</div>
-                                    <div class="text-xs font-semibold">Случайные</div>
+                                    <div class="text-xs font-semibold" data-i18n="mpThemeRandom">Случайные</div>
                                 </button>
                                 <button onclick="selectTheme('anime')" class="theme-btn glass rounded-lg px-3 py-2 border-2 border-transparent" data-theme="anime">
                                     <div class="text-2xl mb-0.5">🎌</div>
-                                    <div class="text-xs font-semibold">Аниме</div>
+                                    <div class="text-xs font-semibold" data-i18n="mpThemeAnime">Аниме</div>
                                 </button>
                                 <button onclick="selectTheme('games')" class="theme-btn glass rounded-lg px-3 py-2 border-2 border-transparent" data-theme="games">
                                     <div class="text-2xl mb-0.5">🎮</div>
-                                    <div class="text-xs font-semibold">Игры</div>
+                                    <div class="text-xs font-semibold" data-i18n="mpThemeGames">Игры</div>
                                 </button>
                                 <button onclick="selectTheme('animals')" class="theme-btn glass rounded-lg px-3 py-2 border-2 border-transparent" data-theme="animals">
                                     <div class="text-2xl mb-0.5">🐾</div>
-                                    <div class="text-xs font-semibold">Животные</div>
+                                    <div class="text-xs font-semibold" data-i18n="mpThemeAnimals">Животные</div>
                                 </button>
                                 <button onclick="selectTheme('space')" class="theme-btn glass rounded-lg px-3 py-2 border-2 border-transparent" data-theme="space">
                                     <div class="text-2xl mb-0.5">🚀</div>
-                                    <div class="text-xs font-semibold">Космос</div>
+                                    <div class="text-xs font-semibold" data-i18n="mpThemeSpace">Космос</div>
                                 </button>
                                 <button onclick="selectTheme('nature')" class="theme-btn glass rounded-lg px-3 py-2 border-2 border-transparent" data-theme="nature">
                                     <div class="text-2xl mb-0.5">🌲</div>
-                                    <div class="text-xs font-semibold">Природа</div>
+                                    <div class="text-xs font-semibold" data-i18n="mpThemeNature">Природа</div>
                                 </button>
                             </div>
                         </div>
@@ -2663,58 +2663,58 @@
 
                         <!-- Length -->
                         <div class="mp-group">
-                            <h4 class="mp-group-title">Длина текста (символы)</h4>
+                            <h4 class="mp-group-title" data-i18n="mpTextLength">Длина текста (символы)</h4>
                             <div class="grid grid-cols-2 gap-2">
                                 <button onclick="selectWordCount(200)" class="room-setting-btn glass rounded-lg px-3 py-3 border-2 border-transparent" data-words="200">
                                     <div class="text-xl font-bold text-primary mb-0.5">200</div>
-                                    <div class="text-[10px]">симв</div>
+                                    <div class="text-[10px]" data-i18n="mpChars">симв</div>
                                 </button>
                                 <button onclick="selectWordCount(500)" class="room-setting-btn glass rounded-lg px-3 py-3 border-2 border-transparent" data-words="500">
                                     <div class="text-xl font-bold text-primary mb-0.5">500</div>
-                                    <div class="text-[10px]">симв</div>
+                                    <div class="text-[10px]" data-i18n="mpChars">симв</div>
                                 </button>
                                 <button onclick="selectWordCount(1000)" class="room-setting-btn glass rounded-lg px-3 py-3 border-2 border-transparent" data-words="1000">
                                     <div class="text-xl font-bold text-primary mb-0.5">1000</div>
-                                    <div class="text-[10px]">симв</div>
+                                    <div class="text-[10px]" data-i18n="mpChars">симв</div>
                                 </button>
                                 <button onclick="selectWordCount(1800)" class="room-setting-btn glass rounded-lg px-3 py-3 border-2 border-transparent" data-words="1800">
                                     <div class="text-xl font-bold text-primary mb-0.5">1800</div>
-                                    <div class="text-[10px]">симв</div>
+                                    <div class="text-[10px]" data-i18n="mpChars">симв</div>
                                 </button>
                             </div>
                         </div>
 
                         <!-- Text Options -->
                         <div class="mp-group">
-                            <h4 class="mp-group-title">Параметры текста</h4>
+                            <h4 class="mp-group-title" data-i18n="mpTextOptions">Параметры текста</h4>
                             <div class="grid grid-cols-2 gap-2">
                                 <label class="mp-opt glass rounded-lg px-3 py-2 cursor-pointer border border-white/10 hover:bg-white/10 flex items-center justify-between gap-2" data-opt="comma">
-                                    <span class="text-xs font-semibold">Запятые</span>
+                                    <span class="text-xs font-semibold" data-i18n="mpOptComma">Запятые</span>
                                     <input id="mpOptComma" type="checkbox" checked onchange="setMultiplayerTextOption('comma', this.checked)" />
                                 </label>
                                 <label class="mp-opt glass rounded-lg px-3 py-2 cursor-pointer border border-white/10 hover:bg-white/10 flex items-center justify-between gap-2" data-opt="period">
-                                    <span class="text-xs font-semibold">Точки</span>
+                                    <span class="text-xs font-semibold" data-i18n="mpOptPeriod">Точки</span>
                                     <input id="mpOptPeriod" type="checkbox" checked onchange="setMultiplayerTextOption('period', this.checked)" />
                                 </label>
                                 <label class="mp-opt glass rounded-lg px-3 py-2 cursor-pointer border border-white/10 hover:bg-white/10 flex items-center justify-between gap-2" data-opt="digits">
-                                    <span class="text-xs font-semibold">Цифры</span>
+                                    <span class="text-xs font-semibold" data-i18n="mpOptDigits">Цифры</span>
                                     <input id="mpOptDigits" type="checkbox" onchange="setMultiplayerTextOption('digits', this.checked)" />
                                 </label>
                                 <label class="mp-opt glass rounded-lg px-3 py-2 cursor-pointer border border-white/10 hover:bg-white/10 flex items-center justify-between gap-2" data-opt="mixCase">
-                                    <span class="text-xs font-semibold">Микс</span>
+                                    <span class="text-xs font-semibold" data-i18n="mpOptMixCase">Микс</span>
                                     <input id="mpOptMixCase" type="checkbox" onchange="setMultiplayerTextOption('mixCase', this.checked)" />
                                 </label>
                             </div>
-                            <div class="text-gray-400 text-[11px] mt-2 text-center">
-                                Текст всегда генерируется случайно на лету.
+                            <div class="text-gray-400 text-[11px] mt-2 text-center" data-i18n="mpAlwaysRandom">
+                                Текст генерируется случайно на лету.
                             </div>
                         </div>
 
                         <!-- Players -->
                         <div class="mp-group mp-group-wide">
-                            <h4 class="mp-group-title">Игроки</h4>
+                            <h4 class="mp-group-title" data-i18n="mpPlayers">Игроки</h4>
                             <div class="glass rounded-lg px-4 py-3 text-center border border-white/10">
-                                Сейчас доступна только дуэль: <span class="text-primary font-bold">2 игрока</span>.
+                                <span data-i18n="mpDuelOnly">Сейчас доступна только дуэль:</span> <span class="text-primary font-bold" data-i18n="mp2Players">2 игрока</span>.
                             </div>
                         </div>
                     </div>
@@ -3571,4 +3571,3 @@
     </script>
 </body>
 </html>
-

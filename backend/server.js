@@ -1,6 +1,6 @@
 require('dotenv').config();
 
-if (!process.env.DB_PASSWORD || !process.env.DB_SERVER) {
+if (!process.env.DB_PASSWORD || !process.env.DB_HOST) {
     console.error('Ошибка: не найден .env. Скопируйте backend/.env.example в backend/.env и заполните данные БД.');
     process.exit(1);
 }
@@ -32,6 +32,5 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`Zoobastiks API: port ${PORT}, DB: ${process.env.DB_SERVER}/${process.env.DB_DATABASE}`);
+    console.log(`Zoobastiks API: port ${PORT}, DB: ${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_DATABASE}`);
 });
-

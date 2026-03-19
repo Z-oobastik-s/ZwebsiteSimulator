@@ -1,54 +1,53 @@
--- Zoobastiks MSSQL Schema
--- Выполнить один раз на базе db_ac6b20_zoobastiks
+-- Zoobastiks MySQL Schema
+-- База: s238_Zwebsite
+-- Выполнить один раз через phpMyAdmin или mysql CLI
 
--- Пользователи
-IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Users')
-BEGIN
-    CREATE TABLE Users (
-        Uid NVARCHAR(64) PRIMARY KEY,
-        Username NVARCHAR(100) NOT NULL UNIQUE,
-        DisplayName NVARCHAR(100) NOT NULL,
-        PasswordHash NVARCHAR(256) NOT NULL,
-        Email NVARCHAR(255) NOT NULL DEFAULT '',
-        PhotoURL NVARCHAR(500) NOT NULL DEFAULT '',
-        AvatarIndex INT NOT NULL DEFAULT 0,
-        Bio NVARCHAR(MAX) NOT NULL DEFAULT '',
-        Balance INT NOT NULL DEFAULT 50,
-        CreatedAt BIGINT NOT NULL,
-        LastLogin BIGINT NOT NULL,
-        IsAdmin BIT NOT NULL DEFAULT 0,
-        Ip NVARCHAR(50) NULL,
-        Country NVARCHAR(100) NULL,
-        City NVARCHAR(100) NULL,
-        PurchasedLessonsJson NVARCHAR(MAX) NOT NULL DEFAULT '[]',
-        TotalSessions INT NOT NULL DEFAULT 0,
-        TotalTime BIGINT NOT NULL DEFAULT 0,
-        BestSpeed INT NOT NULL DEFAULT 0,
-        AverageAccuracy INT NOT NULL DEFAULT 0,
-        CompletedLessonsCount INT NOT NULL DEFAULT 0,
-        TotalErrors INT NOT NULL DEFAULT 0,
-        RecentSessionsJson NVARCHAR(MAX) NOT NULL DEFAULT '[]'
-    );
-    CREATE INDEX IX_Users_Username ON Users(Username);
-END
-GO
+SET NAMES utf8mb4;
 
--- Сессии пользователей (история для статистики)
-IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'UserSessions')
-BEGIN
-    CREATE TABLE UserSessions (
-        Id BIGINT IDENTITY(1,1) PRIMARY KEY,
-        UserId NVARCHAR(64) NOT NULL,
-        Speed INT NOT NULL DEFAULT 0,
-        Accuracy INT NOT NULL DEFAULT 0,
-        TimeSeconds INT NOT NULL DEFAULT 0,
-        Errors INT NOT NULL DEFAULT 0,
-        Mode NVARCHAR(50) NULL,
-        Layout NVARCHAR(10) NULL,
-        LessonKey NVARCHAR(128) NULL,
-        Timestamp BIGINT NOT NULL,
-        CONSTRAINT FK_UserSessions_UserId FOREIGN KEY (UserId) REFERENCES Users(Uid) ON DELETE CASCADE
-    );
-    CREATE INDEX IX_UserSessions_UserId ON UserSessions(UserId);
-END
-GO
+-- ── Пользователи ──────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS Users (
+    Uid                   VARCHAR(64)   NOT NULL,
+    Username              VARCHAR(100)  NOT NULL,
+    DisplayName           VARCHAR(100)  NOT NULL,
+    PasswordHash          VARCHAR(256)  NOT NULL,
+    Email                 VARCHAR(255)  NOT NULL DEFAULT '',
+    PhotoURL              VARCHAR(500)  NOT NULL DEFAULT '',
+    AvatarIndex           INT           NOT NULL DEFAULT 0,
+    Bio                   TEXT,
+    Balance               INT           NOT NULL DEFAULT 50,
+    CreatedAt             BIGINT        NOT NULL,
+    LastLogin             BIGINT        NOT NULL,
+    IsAdmin               TINYINT(1)    NOT NULL DEFAULT 0,
+    Ip                    VARCHAR(50)   NULL,
+    Country               VARCHAR(100)  NULL,
+    City                  VARCHAR(100)  NULL,
+    PurchasedLessonsJson  LONGTEXT,
+    TotalSessions         INT           NOT NULL DEFAULT 0,
+    TotalTime             BIGINT        NOT NULL DEFAULT 0,
+    BestSpeed             INT           NOT NULL DEFAULT 0,
+    AverageAccuracy       INT           NOT NULL DEFAULT 0,
+    CompletedLessonsCount INT           NOT NULL DEFAULT 0,
+    TotalErrors           INT           NOT NULL DEFAULT 0,
+    RecentSessionsJson    LONGTEXT,
+    PRIMARY KEY (Uid),
+    UNIQUE KEY UQ_Users_Username (Username),
+    INDEX IX_Users_Username (Username)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ── Сессии пользователей ──────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS UserSessions (
+    Id          BIGINT       NOT NULL AUTO_INCREMENT,
+    UserId      VARCHAR(64)  NOT NULL,
+    Speed       INT          NOT NULL DEFAULT 0,
+    Accuracy    INT          NOT NULL DEFAULT 0,
+    TimeSeconds INT          NOT NULL DEFAULT 0,
+    Errors      INT          NOT NULL DEFAULT 0,
+    Mode        VARCHAR(50)  NULL,
+    Layout      VARCHAR(10)  NULL,
+    LessonKey   VARCHAR(128) NULL,
+    Timestamp   BIGINT       NOT NULL,
+    PRIMARY KEY (Id),
+    INDEX IX_UserSessions_UserId (UserId),
+    CONSTRAINT FK_UserSessions_UserId
+        FOREIGN KEY (UserId) REFERENCES Users(Uid) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

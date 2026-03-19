@@ -1,7 +1,7 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { query, sql } = require('../db/connection');
+const { query } = require('../db/connection');
 
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'change-me-in-production';
@@ -176,4 +176,3 @@ router.get('/me', authMiddleware, async (req, res) => {
 });
 
 module.exports = { router, authMiddleware, getUserById, rowToUser };
-
