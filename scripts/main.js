@@ -1974,17 +1974,48 @@ function generateUaBeginnerLessonText(poolText, minChars = 100, maxChars = 200) 
         .map(s => sanitizeUaBeginnerWord(s))
         .filter(Boolean);
 
-    // Use unique words within a pool to avoid repeats in the target.
     let candidates = Array.from(new Set(rawWords));
-    if (candidates.length < 10) {
+
+    // Small pool (e.g. keyboard drills like "фіва олдж") — cycle through existing
+    // words with shuffle instead of polluting with unrelated fallback vocabulary.
+    const isSmallPool = candidates.length > 0 && candidates.length < 5;
+
+    if (candidates.length === 0) {
+        return 'дім кіт мама тато вода рука нога день ніч стіл стілець вікно двері лампа книга';
+    }
+
+    if (isSmallPool) {
+        // Allow repetition: shuffle the small set repeatedly until target length is reached.
+        const outWords = [];
+        let outLen = 0;
+        let pass = 0;
+        while (outLen < minChars) {
+            const shuffled = cryptoShuffle(candidates);
+            for (let i = 0; i < shuffled.length; i++) {
+                const w = shuffled[i];
+                const sep = outWords.length ? 1 : 0;
+                const nextLen = outLen + sep + w.length;
+                if (nextLen > maxChars) break;
+                outWords.push(w);
+                outLen = nextLen;
+                if (outLen >= minChars) break;
+            }
+            if (++pass > 50) break; // safety valve
+        }
+        const result = outWords.join(' ').trim();
+        if (result.length >= minChars) return result;
+        // If still short (unlikely), just repeat raw words
+        return (candidates.join(' ') + ' ').repeat(Math.ceil(minChars / (candidates.join(' ').length + 1))).trim().slice(0, maxChars);
+    }
+
+    // Normal path: enrich with fallback only when pool is very small (< 6 unique words)
+    // and didn't hit the isSmallPool cyclic path above. For 6-13 word pools (standard
+    // vocabulary lessons) we keep only the lesson's own vocabulary.
+    if (candidates.length < 6) {
         candidates = Array.from(new Set(candidates.concat(UA_BEGINNER_FALLBACK_WORDS)));
     }
 
-    // If still too small, just return a safe string (should not happen with decent fallback).
-    if (candidates.length === 0) return 'дім кіт мама тато вода рука нога день ніч стіл стілець вікно двері лампа книга';
-
     // Build targets without repeating words within a single output string.
-    // Multiple attempts in case of length constraints.
     const maxAttempts = 12;
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
         const shuffled = cryptoShuffle(candidates);
@@ -1993,14 +2024,11 @@ function generateUaBeginnerLessonText(poolText, minChars = 100, maxChars = 200) 
 
         for (let i = 0; i < shuffled.length; i++) {
             const w = shuffled[i];
-            const sep = outWords.length ? 1 : 0; // space adds 1 char
+            const sep = outWords.length ? 1 : 0;
             const nextLen = outLen + sep + w.length;
-
             if (nextLen > maxChars) continue;
-
             outWords.push(w);
             outLen = nextLen;
-
             if (outLen >= minChars) break;
         }
 
@@ -2010,8 +2038,31 @@ function generateUaBeginnerLessonText(poolText, minChars = 100, maxChars = 200) 
         }
     }
 
-    // Final fallback: best-effort length clamp (still keeps only allowed letters).
-    // Try to build with greedy selection until we reach min.
+    // Final fallback: if pool total chars are not enough to reach minChars without repetition,
+    // allow cyclic repetition (shuffle passes) to fill the required length.
+    const totalPoolChars = candidates.reduce((sum, w) => sum + w.length, 0) + Math.max(0, candidates.length - 1);
+    if (totalPoolChars < minChars) {
+        // Cyclic shuffle passes (same logic as isSmallPool but for larger constrained pools).
+        const outWords = [];
+        let outLen = 0;
+        let pass = 0;
+        while (outLen < minChars && pass < 50) {
+            const shuffled = cryptoShuffle(candidates);
+            for (let i = 0; i < shuffled.length; i++) {
+                const w = shuffled[i];
+                const sep = outWords.length ? 1 : 0;
+                const nextLen = outLen + sep + w.length;
+                if (nextLen > maxChars) break;
+                outWords.push(w);
+                outLen = nextLen;
+                if (outLen >= minChars) break;
+            }
+            pass++;
+        }
+        return outWords.join(' ').trim().replace(/\s+/g, ' ');
+    }
+
+    // Single-pass best-effort if total pool is large enough.
     const shuffled = cryptoShuffle(candidates);
     const outWords = [];
     let outLen = 0;
@@ -2027,106 +2078,6 @@ function generateUaBeginnerLessonText(poolText, minChars = 100, maxChars = 200) 
     return outWords.join(' ').trim().replace(/\s+/g, ' ');
 }
 
-// ------------------------------
-// Ukrainian beginner lesson generator
-// Goal: produce non-repetitive lesson targets (100-200 chars) consisting only of
-// lowercase Ukrainian letters and spaces (no punctuation, no apostrophes).
-// ------------------------------
-// (duplicate const declarations removed)
-
-function sanitizeUaBeginnerWord(word) {
-    if (!word) return '';
-    const lower = String(word).toLowerCase();
-    const stripped = lower.replace(UA_BEGINNER_WORD_STRIP_RE, '');
-    if (!stripped) return '';
-    if (!UA_BEGINNER_ALLOWED_LETTERS_RE.test(stripped)) return '';
-    return stripped;
-}
-
-function cryptoRandInt(max) {
-    if (max <= 0) return 0;
-    try {
-        if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
-            const arr = new Uint32Array(1);
-            crypto.getRandomValues(arr);
-            return arr[0] % max;
-        }
-    } catch (e) {}
-    return Math.floor(Math.random() * max);
-}
-
-function cryptoShuffle(array) {
-    const arr = array.slice();
-    for (let i = arr.length - 1; i > 0; i--) {
-        const j = cryptoRandInt(i + 1);
-        const tmp = arr[i];
-        arr[i] = arr[j];
-        arr[j] = tmp;
-    }
-    return arr;
-}
-
-function generateUaBeginnerLessonText(poolText, minChars = 100, maxChars = 200) {
-    const rawWords = String(poolText || '')
-        .split(/\s+/)
-        .map(s => sanitizeUaBeginnerWord(s))
-        .filter(Boolean);
-
-    let candidates = Array.from(new Set(rawWords));
-    if (candidates.length < 10) {
-        candidates = Array.from(new Set(candidates.concat(UA_BEGINNER_FALLBACK_WORDS)));
-    }
-
-    if (candidates.length === 0) {
-        return 'дім кіт мама тато вода рука нога день ніч стіл стілець вікно двері лампа книга';
-    }
-
-    const maxAttempts = 12;
-    for (let attempt = 0; attempt < maxAttempts; attempt++) {
-        const shuffled = cryptoShuffle(candidates);
-        const outWords = [];
-        let outLen = 0;
-
-        for (let i = 0; i < shuffled.length; i++) {
-            const w = shuffled[i];
-            const sepLen = outWords.length ? 1 : 0; // space adds 1 char
-            const nextLen = outLen + sepLen + w.length;
-
-            if (nextLen > maxChars) continue;
-
-            outWords.push(w);
-            outLen = nextLen;
-
-            if (outLen >= minChars) break;
-        }
-
-        const outText = outWords.join(' ').trim().replace(/\s+/g, ' ');
-        if (outText.length >= minChars && outText.length <= maxChars) {
-            return outText;
-        }
-    }
-
-    // Final fallback: best-effort build until we reach minChars.
-    const shuffled = cryptoShuffle(candidates);
-    const outWords = [];
-    let outLen = 0;
-    for (let i = 0; i < shuffled.length; i++) {
-        const w = shuffled[i];
-        const sepLen = outWords.length ? 1 : 0;
-        const nextLen = outLen + sepLen + w.length;
-        if (nextLen > maxChars) continue;
-        outWords.push(w);
-        outLen = nextLen;
-        if (outLen >= minChars) break;
-    }
-    const outText = outWords.join(' ').trim().replace(/\s+/g, ' ');
-    // Ensure we never return empty string (UA lessons must always have a visible target).
-    if (!outText) {
-        return 'дім кіт мама тато вода рука нога день ніч стіл стілець вікно двері лампа книга';
-    }
-    return outText;
-}
-
 // More "sentence-like" UA beginner generator (still: only lowercase Ukrainian letters + spaces).
 function generateUaBeginnerSentenceText(poolText, minChars = 100, maxChars = 200) {
     const poolLower = String(poolText || '').toLowerCase();
@@ -2136,12 +2087,20 @@ function generateUaBeginnerSentenceText(poolText, minChars = 100, maxChars = 200
         .filter(Boolean);
 
     let candidates = Array.from(new Set(rawWords));
-    if (candidates.length < 8) {
-        candidates = Array.from(new Set(candidates.concat(UA_BEGINNER_FALLBACK_WORDS)));
-    }
+
+    // Small/medium pool: delegate to the word-shuffler generator which handles
+    // repetition correctly without injecting unrelated fallback vocabulary.
+    // Threshold 14 covers: keyboard drills (2 words), standard vocabulary lessons (10-15 words).
+    // Only pools with 14+ unique words (shop lessons, rich themed texts) use the sentence builder.
     if (candidates.length === 0) {
         return generateUaBeginnerLessonText(poolText, minChars, maxChars);
     }
+    if (candidates.length < 14) {
+        return generateUaBeginnerLessonText(poolText, minChars, maxChars);
+    }
+
+    // Never add unrelated fallback words — the sentence builder works only with
+    // the lesson's own vocabulary so the output always matches the lesson topic.
 
     const helpers = [
         'я', 'ми', 'ти', 'він', 'вона', 'воно', 'це',
@@ -2966,103 +2925,6 @@ function generateUaBeginnerLessonTextUnique(poolText, lessonKey, minChars = 100,
     return fallback;
 }
 
-function generateUaBeginnerLessonTextUnique(poolText, lessonKey, minChars = 100, maxChars = 200) {
-    const storageKey = lessonKey ? `ua_beginner_lastText_${lessonKey}` : null;
-    let lastText = null;
-    if (storageKey) {
-        try { lastText = localStorage.getItem(storageKey); } catch (e) { lastText = null; }
-    }
-
-    const maxAttempts = 8;
-    for (let attempt = 0; attempt < maxAttempts; attempt++) {
-        const candidate = generateUaBeginnerLessonText(poolText, minChars, maxChars);
-        if (!storageKey || !lastText || candidate !== lastText) {
-            if (storageKey) {
-                try { localStorage.setItem(storageKey, candidate); } catch (e) {}
-            }
-            return candidate;
-        }
-    }
-
-    const fallback = generateUaBeginnerLessonText(poolText, minChars, maxChars);
-    if (storageKey) {
-        try { localStorage.setItem(storageKey, fallback); } catch (e) {}
-    }
-    return fallback;
-}
-
-function generateUaBeginnerLessonTextUnique(poolText, lessonKey, minChars = 100, maxChars = 200) {
-    var storageKey = lessonKey ? ('ua_beginner_lastText_' + lessonKey) : null;
-    var lastText = null;
-    if (storageKey) {
-        try { lastText = localStorage.getItem(storageKey); } catch (e) { lastText = null; }
-    }
-
-    var maxAttempts = 8;
-    for (var attempt = 0; attempt < maxAttempts; attempt++) {
-        var candidate = generateUaBeginnerLessonText(poolText, minChars, maxChars);
-        if (!storageKey || !lastText || candidate !== lastText) {
-            if (storageKey) {
-                try { localStorage.setItem(storageKey, candidate); } catch (e) {}
-            }
-            return candidate;
-        }
-    }
-
-    var fallback = generateUaBeginnerLessonText(poolText, minChars, maxChars);
-    if (storageKey) {
-        try { localStorage.setItem(storageKey, fallback); } catch (e) {}
-    }
-    return fallback;
-}
-
-function generateUaBeginnerLessonTextUnique(poolText, lessonKey, minChars = 100, maxChars = 200) {
-    var storageKey = lessonKey ? ('ua_beginner_lastText_' + lessonKey) : null;
-    var lastText = null;
-    if (storageKey) {
-        try { lastText = localStorage.getItem(storageKey); } catch (e) { lastText = null; }
-    }
-
-    var maxAttempts = 8;
-    for (var attempt = 0; attempt < maxAttempts; attempt++) {
-        var candidate = generateUaBeginnerLessonText(poolText, minChars, maxChars);
-        if (!storageKey || !lastText || candidate !== lastText) {
-            if (storageKey) {
-                try { localStorage.setItem(storageKey, candidate); } catch (e) {}
-            }
-            return candidate;
-        }
-    }
-
-    var fallback = generateUaBeginnerLessonText(poolText, minChars, maxChars);
-    if (storageKey) {
-        try { localStorage.setItem(storageKey, fallback); } catch (e) {}
-    }
-    return fallback;
-}
-
-function generateUaBeginnerLessonTextUnique(poolText, lessonKey, minChars = 100, maxChars = 200) {
-    var storageKey = lessonKey ? ('ua_beginner_lastText_' + lessonKey) : null;
-    var lastText = null;
-    if (storageKey) {
-        try { lastText = localStorage.getItem(storageKey); } catch (e) { lastText = null; }
-    }
-    var maxAttempts = 8;
-    for (var attempt = 0; attempt < maxAttempts; attempt++) {
-        var candidate = generateUaBeginnerLessonText(poolText, minChars, maxChars);
-        if (!storageKey || !lastText || candidate !== lastText) {
-            if (storageKey) {
-                try { localStorage.setItem(storageKey, candidate); } catch (e) {}
-            }
-            return candidate;
-        }
-    }
-    var fallback = generateUaBeginnerLessonText(poolText, minChars, maxChars);
-    if (storageKey) {
-        try { localStorage.setItem(storageKey, fallback); } catch (e) {}
-    }
-    return fallback;
-}
 // Start practice - ОПТИМИЗИРОВАНА
 function startPractice(text, mode, lesson = null) {
     toggleFooter(false); // Скрываем футер при начале практики
@@ -3319,12 +3181,11 @@ function handleKeyPress(e) {
     const validModes = ['practice', 'speedtest', 'lesson', 'free'];
     if (!validModes.includes(app.currentMode) || app.isPaused) return;
     
-    // Ignore special keys
-    if (e.key.length > 1 && e.key !== 'Backspace' && e.key !== 'Enter') return;
+    // Ignore special keys; allow Enter only when the expected character is '\n'
+    const expectedChar = app.currentText[app.currentPosition];
+    if (e.key.length > 1 && e.key !== 'Backspace' && !(e.key === 'Enter' && expectedChar === '\n')) return;
     
     e.preventDefault();
-    
-    const expectedChar = app.currentText[app.currentPosition];
     
     if (e.key === 'Backspace') {
         if (app.currentPosition > 0) {
@@ -3559,8 +3420,7 @@ function togglePause() {
             const span = pauseBtn.querySelector('span');
             if (span) {
                 const tr = window.translations && window.translations[app.lang] ? window.translations[app.lang] : null;
-                const resumeText = tr && tr.resume ? tr.resume : 'Продолжить';
-                span.textContent = resumeText;
+                span.textContent = (tr && tr.pause) ? tr.pause : 'Пауза';
             }
         }
     } else {
@@ -4034,7 +3894,7 @@ function fillLevelListModal() {
         var xpFrom = getXP(lvl);
         var xpTo = getXP(lvl + 1);
         var isCurrent = lvl === current;
-        var xpText = lvl === 1 ? '0 XP' : xpFrom + ' – ' + xpTo + ' XP';
+        var xpText = xpFrom + ' – ' + xpTo + ' XP';
         var cls = isCurrent ? 'bg-amber-500/25 border-amber-500/50 shadow-sm shadow-amber-500/10' : 'bg-white/5 border-white/10 hover:bg-white/8';
         var numCls = isCurrent ? 'text-amber-400' : 'text-gray-300 dark:text-gray-400';
         var tierCls = isCurrent ? 'text-amber-200' : 'text-gray-400 dark:text-gray-500';
@@ -4212,6 +4072,7 @@ function focusFirstInModal(modal) {
 // Show login modal
 function showLoginModal() {
     var modal = document.getElementById('loginModal');
+    if (!modal) return;
     modal.classList.remove('hidden');
     modal.classList.add('flex');
     switchToLogin();
@@ -4897,6 +4758,7 @@ async function joinMultiplayerRoom() {
     }
     
     try {
+        window.secondPlayerNotified = false;
         await window.multiplayerModule.joinRoom(roomCode);
         
         hideAllScreens();
@@ -4945,11 +4807,32 @@ async function leaveMultiplayerRoom(redirectTo = 'home') {
 // Copy room code to clipboard
 function copyRoomCode() {
     const roomCode = document.getElementById('multiplayerRoomCode').textContent;
-    navigator.clipboard.writeText(roomCode).then(() => {
-        showToast(`${t('codeCopied')}: ${roomCode}`, 'success');
-    }).catch(() => {
-        showToast('Ошибка копирования', 'error');
-    });
+    const onSuccess = () => showToast(`${t('codeCopied')}: ${roomCode}`, 'success');
+    const onFail = () => showToast(t('copyFailed') || 'Ошибка копирования', 'error');
+
+    if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+        navigator.clipboard.writeText(roomCode).then(onSuccess).catch(() => fallbackCopy());
+    } else {
+        fallbackCopy();
+    }
+
+    function fallbackCopy() {
+        var textarea = document.createElement('textarea');
+        textarea.value = roomCode;
+        textarea.setAttribute('readonly', '');
+        textarea.style.position = 'fixed';
+        textarea.style.left = '-9999px';
+        textarea.style.top = '0';
+        document.body.appendChild(textarea);
+        try {
+            textarea.select();
+            textarea.setSelectionRange(0, roomCode.length);
+            document.execCommand('copy') ? onSuccess() : onFail();
+        } catch (e) {
+            onFail();
+        }
+        document.body.removeChild(textarea);
+    }
 }
 
 // Multiplayer callbacks
@@ -5114,7 +4997,8 @@ window.onOpponentLeft = () => {
 function handleMultiplayerKeyPress(e) {
     if (app.currentMode !== 'multiplayer-game' || app.isPaused) return;
     
-    if (e.key.length > 1 && e.key !== 'Backspace' && e.key !== 'Enter') return;
+    const expectedCharForKey = app.currentText[app.currentPosition];
+    if (e.key.length > 1 && e.key !== 'Backspace' && !(e.key === 'Enter' && expectedCharForKey === '\n')) return;
     
     e.preventDefault();
     
@@ -5786,3 +5670,4 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+
