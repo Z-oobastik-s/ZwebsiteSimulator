@@ -114,4 +114,3 @@ window.levelModule = {
     getTierName: getTierName,
     getXPThreshold: getXPThreshold
 };
-

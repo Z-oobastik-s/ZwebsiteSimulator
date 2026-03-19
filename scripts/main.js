@@ -2170,6 +2170,92 @@ function generateUaBeginnerSentenceText(poolText, minChars = 100, maxChars = 200
     else fixedVerb = 'працюю';
     fixedVerb = sanitizeUaBeginnerWord(fixedVerb) || 'працюю';
 
+    // Coherent beginner sentence attempt (no punctuation, only words from pool).
+    // If we can fit 100-200 chars, return immediately to avoid "word salad".
+    // poolLower and has(...) are already defined above in this function.
+    const adverbsUa = ['акуратно', 'точно', 'спритно', 'швидко', 'повільно', 'уважно', 'спокійно', 'впевнено', 'чітко'].map(w => sanitizeUaBeginnerWord(w)).filter(Boolean);
+    let fixedAdverb = null;
+    if (has('акурат') || has('рівно') || has('безп') || has('помилка')) fixedAdverb = 'акуратно';
+    else if (has('швидко') || has('швид')) fixedAdverb = 'швидко';
+    else if (has('сприт')) fixedAdverb = 'спритно';
+    else if (has('повіль')) fixedAdverb = 'повільно';
+    else fixedAdverb = 'точно';
+    fixedAdverb = sanitizeUaBeginnerWord(fixedAdverb) || adverbsUa[0] || 'точно';
+
+    const goalWordsUa = ['порядок', 'точність', 'спокій', 'успіх', 'впевненість', 'увага', 'знання', 'радість', 'мрія', 'терпіння'].map(w => sanitizeUaBeginnerWord(w)).filter(Boolean);
+    let fixedGoal = null;
+    if (has('поряд') || has('склад') || has('комплект') || has('короб')) fixedGoal = 'порядок';
+    else if (has('етик') || has('стік') || has('клей')) fixedGoal = 'точність';
+    else if (has('вантаж') || has('вантаж')) fixedGoal = 'успіх';
+    else if (has('айті') || has('код') || has('тест')) fixedGoal = 'впевненість';
+    else if (has('вчитель') || has('урок') || has('знання')) fixedGoal = 'знання';
+    else fixedGoal = 'точність';
+    fixedGoal = sanitizeUaBeginnerWord(fixedGoal) || goalWordsUa[0] || 'точність';
+
+    const stopWordsUa = new Set([
+        'я', 'і', 'та', 'але', 'бо', 'тому', 'потім', 'завжди', 'це', 'щоб',
+        'сьогодні', 'щодня', 'зараз', 'рано', 'ввечері', 'вночі'
+    ].map(w => sanitizeUaBeginnerWord(w)).filter(Boolean));
+
+    const objCandidates = candidates
+        .filter(w => w && !stopWordsUa.has(w))
+        .filter(w => w !== fixedVerb && w !== fixedAdverb && w !== fixedGoal)
+        .slice();
+
+    const pickUnique = () => {
+        const available = objCandidates.filter(w => !used.has(w));
+        const w = available.length ? available[cryptoRandInt(available.length)] : null;
+        if (w) used.add(w);
+        return w;
+    };
+
+    // Build: {time} я {verb} {obj1} і {obj2} щоб {goal} та {obj3} {adverb}
+    // (word order is intentionally fixed for readability).
+    const timeCandidates = templateTimeWords.filter(w => !stopWordsUa.has(w));
+    const time = timeCandidates.length
+        ? timeCandidates[cryptoRandInt(timeCandidates.length)]
+        : (templateTimeWords.length ? templateTimeWords[cryptoRandInt(templateTimeWords.length)] : null);
+    const connectorI = sanitizeUaBeginnerWord('і') || 'і';
+    const connectorTa = sanitizeUaBeginnerWord('та') || 'та';
+    const wordShchob = sanitizeUaBeginnerWord('щоб') || 'щоб';
+
+    const used = new Set();
+    const obj1 = pickUnique();
+    const obj2 = pickUnique();
+    const obj3 = pickUnique();
+    const subj = sanitizeUaBeginnerWord('я') || 'я';
+    const verb = fixedVerb;
+    const adverb = fixedAdverb;
+    const goal = fixedGoal;
+
+    if (time && obj1 && obj2 && obj3) {
+        let attemptWords = [time, subj, verb, obj1, connectorI, obj2, wordShchob, goal, connectorTa, obj3, adverb]
+            .map(w => sanitizeUaBeginnerWord(w))
+            .filter(Boolean);
+
+        let attemptText = attemptWords.join(' ').replace(/\s+/g, ' ').trim();
+
+        // Extend until we hit 100-200 chars (still without changing the grammar skeleton too much).
+        const usedObjs = new Set([obj1, obj2, obj3].filter(Boolean));
+        let loops = 0;
+        while (attemptText.length < minChars && loops < 60) {
+            loops++;
+            const availableObjs = objCandidates.filter(w => w && !usedObjs.has(w));
+            const poolForPick = availableObjs.length ? availableObjs : objCandidates.filter(Boolean);
+            if (!poolForPick.length) break;
+            const nextObj = poolForPick[cryptoRandInt(poolForPick.length)];
+            const connector = cryptoRandInt(2) === 0 ? connectorI : connectorTa;
+            const candidateWords = attemptWords.concat([connector, nextObj]);
+            const candidateText = candidateWords.join(' ').replace(/\s+/g, ' ').trim();
+            if (candidateText.length > maxChars) break;
+            attemptWords = candidateWords;
+            attemptText = candidateText;
+            usedObjs.add(nextObj);
+        }
+
+        if (attemptText.length >= minChars && attemptText.length <= maxChars) return attemptText;
+    }
+
     candidates = Array.from(new Set(candidates.concat(helpers)));
     const connectors = ['і', 'та', 'але', 'бо', 'тому', 'потім'];
     const templateTimeWords = ['сьогодні', 'щодня', 'зараз', 'рано', 'ввечері'];
@@ -2353,6 +2439,85 @@ function generateRuBeginnerSentenceText(poolText, minChars = 100, maxChars = 200
     else fixedVerb = 'учусь';
     fixedVerb = sanitizeRuBeginnerWord(fixedVerb) || 'учусь';
 
+    // Coherent beginner sentence attempt to avoid "word salad".
+    // Pattern: {time} я {verb} {obj1} и {obj2} чтобы {goal} и {obj3} {adverb}
+    const adverbsRu = ['аккуратно', 'точно', 'спритно', 'быстро', 'внимательно', 'спокойно', 'уверенно', 'сосредоточенно', 'чётко']
+        .map(w => sanitizeRuBeginnerWord(w))
+        .filter(Boolean);
+    let fixedAdverb = 'точно';
+    if (has('аккурат') || has('ровн')) fixedAdverb = 'аккуратно';
+    else if (has('внимат')) fixedAdverb = 'внимательно';
+    else if (has('быстр') || has('швидк')) fixedAdverb = 'быстро';
+    else if (has('споко')) fixedAdverb = 'спокойно';
+    else if (has('увер')) fixedAdverb = 'уверенно';
+    fixedAdverb = sanitizeRuBeginnerWord(fixedAdverb) || adverbsRu[0] || 'точно';
+
+    const goalWordsRu = ['порядок', 'точность', 'спокойствие', 'успех', 'уверенность', 'внимание', 'знания', 'терпение', 'радость', 'мечта']
+        .map(w => sanitizeRuBeginnerWord(w))
+        .filter(Boolean);
+    let fixedGoal = 'точность';
+    if (has('склад') || has('поряд')) fixedGoal = 'порядок';
+    else if (has('клей') || has('стикер') || has('накле')) fixedGoal = 'точность';
+    else if (has('груз') || has('вантаж')) fixedGoal = 'успех';
+    else if (has('код') || has('тест') || has('программ')) fixedGoal = 'уверенность';
+    else if (has('вчитель') || has('урок') || has('знан')) fixedGoal = 'знания';
+    fixedGoal = sanitizeRuBeginnerWord(fixedGoal) || goalWordsRu[0] || 'точность';
+
+    const stopWordsRu = new Set([
+        'я', 'и', 'а', 'но', 'потом', 'снова', 'тогда',
+        'сегодня', 'вчера', 'завтра', 'утром', 'вечером', 'ночью', 'днем', 'теперь', 'всегда',
+        'чтобы'
+    ].map(w => sanitizeRuBeginnerWord(w)).filter(Boolean));
+
+    const objCandidates = candidates
+        .filter(w => w && !stopWordsRu.has(w))
+        .filter(w => w !== fixedVerb && w !== fixedAdverb && w !== fixedGoal)
+        .slice();
+
+    const timeCandidates = times.filter(w => !stopWordsRu.has(w));
+    const time = timeCandidates.length ? timeCandidates[cryptoRandInt(timeCandidates.length)] : (times.length ? times[cryptoRandInt(times.length)] : null);
+
+    const used = new Set();
+    [fixedVerb, fixedGoal, fixedAdverb].forEach(w => { if (w) used.add(w); });
+    const pickUnique = () => {
+        const available = objCandidates.filter(w => !used.has(w));
+        if (!available.length) return null;
+        const w = available[cryptoRandInt(available.length)];
+        used.add(w);
+        return w;
+    };
+
+    const obj1 = pickUnique();
+    const obj2 = pickUnique();
+    const obj3 = pickUnique();
+    const wordChToBy = sanitizeRuBeginnerWord('чтобы') || 'чтобы';
+
+    if (time && obj1 && obj2 && obj3) {
+        let attemptWords = [time, 'я', fixedVerb, obj1, 'и', obj2, wordChToBy, fixedGoal, 'и', obj3, fixedAdverb]
+            .map(w => sanitizeRuBeginnerWord(w))
+            .filter(Boolean);
+        let attemptText = attemptWords.join(' ').replace(/\s+/g, ' ').trim();
+
+        // Extend until we hit 100-200 chars.
+        const usedObjs = new Set([obj1, obj2, obj3].filter(Boolean));
+        let loops = 0;
+        while (attemptText.length < minChars && loops < 60) {
+            loops++;
+            const availableObjs = objCandidates.filter(w => w && !usedObjs.has(w));
+            const poolForPick = availableObjs.length ? availableObjs : objCandidates.filter(Boolean);
+            if (!poolForPick.length) break;
+            const nextObj = poolForPick[cryptoRandInt(poolForPick.length)];
+            const candidateWords = attemptWords.concat(['и', nextObj]);
+            const candidateText = candidateWords.join(' ').replace(/\s+/g, ' ').trim();
+            if (candidateText.length > maxChars) break;
+            attemptWords = candidateWords;
+            attemptText = candidateText;
+            usedObjs.add(nextObj);
+        }
+
+        if (attemptText.length >= minChars && attemptText.length <= maxChars) return attemptText;
+    }
+
     const templates = [
         ['{time}', '{subj}', '{verb}', '{w}', '{w}', '{c}', '{w}', '{w}'],
         ['{time}', '{subj}', '{verb}', '{w}', '{w}', 'и', '{w}', '{w}', '{c}'],
@@ -2496,6 +2661,82 @@ function generateEnBeginnerSentenceText(poolText, minChars = 100, maxChars = 200
     else if (has('read') || has('book') || has('words')) fixedVerb = 'read';
     else fixedVerb = 'type';
     fixedVerb = sanitizeEnBeginnerWord(fixedVerb) || 'type';
+
+    // Coherent beginner sentence attempt to avoid "word salad".
+    // Pattern: {time} i {verb} {obj1} and {obj2} so {goal} and {obj3} {adverb}
+    const adverbsEn = ['carefully', 'accurately', 'clearly', 'steadily', 'calmly', 'quickly', 'confidently', 'patiently']
+        .map(w => sanitizeEnBeginnerWord(w))
+        .filter(Boolean);
+    let fixedAdverb = 'clearly';
+    if (has('care') || has('accur')) fixedAdverb = 'carefully';
+    else if (has('fast') || has('quick')) fixedAdverb = 'quickly';
+    else if (has('calm') || has('quiet')) fixedAdverb = 'calmly';
+    fixedAdverb = sanitizeEnBeginnerWord(fixedAdverb) || adverbsEn[0] || 'clearly';
+
+    const goalWordsEn = ['order', 'accuracy', 'focus', 'progress', 'calm', 'confidence', 'knowledge', 'success', 'clarity']
+        .map(w => sanitizeEnBeginnerWord(w))
+        .filter(Boolean);
+    let fixedGoal = 'accuracy';
+    if (has('order') || has('warehouse') || has('pack')) fixedGoal = 'order';
+    else if (has('sticker') || has('label')) fixedGoal = 'accuracy';
+    else if (has('code') || has('test') || has('program')) fixedGoal = 'confidence';
+    else fixedGoal = 'focus';
+    fixedGoal = sanitizeEnBeginnerWord(fixedGoal) || goalWordsEn[0] || 'accuracy';
+
+    const stopWordsEn = new Set([
+        'i', 'we', 'you', 'he', 'she', 'it',
+        'and', 'but', 'then', 'because', 'so', 'always',
+        'today', 'now', 'morning', 'evening', 'night', 'then'
+    ].map(w => sanitizeEnBeginnerWord(w)).filter(Boolean));
+
+    const objCandidates = candidates
+        .filter(w => w && !stopWordsEn.has(w))
+        .filter(w => w !== fixedVerb && w !== fixedAdverb && w !== fixedGoal)
+        .slice();
+
+    const timeCandidates = times.filter(w => !stopWordsEn.has(w));
+    const time = timeCandidates.length ? timeCandidates[cryptoRandInt(timeCandidates.length)] : (times.length ? times[cryptoRandInt(times.length)] : null);
+
+    const used = new Set();
+    [fixedVerb, fixedGoal, fixedAdverb].forEach(w => { if (w) used.add(w); });
+    const pickUnique = () => {
+        const available = objCandidates.filter(w => !used.has(w));
+        if (!available.length) return null;
+        const w = available[cryptoRandInt(available.length)];
+        used.add(w);
+        return w;
+    };
+
+    const obj1 = pickUnique();
+    const obj2 = pickUnique();
+    const obj3 = pickUnique();
+    const wordSo = sanitizeEnBeginnerWord('so') || 'so';
+
+    if (time && obj1 && obj2 && obj3) {
+        const attemptWords = [time, 'i', fixedVerb, obj1, 'and', obj2, wordSo, fixedGoal, 'and', obj3, fixedAdverb]
+            .map(w => sanitizeEnBeginnerWord(w))
+            .filter(Boolean);
+        let attemptText = attemptWords.join(' ').replace(/\s+/g, ' ').trim();
+
+        // Extend with more objects if we ended up slightly too short.
+        const usedObjs = new Set([obj1, obj2, obj3].filter(Boolean));
+        let loops = 0;
+        while (attemptText.length < minChars && loops < 60) {
+            loops++;
+            const availableObjs = objCandidates.filter(w => w && !usedObjs.has(w));
+            const poolForPick = availableObjs.length ? availableObjs : objCandidates.filter(Boolean);
+            if (!poolForPick.length) break;
+            const nextObj = poolForPick[cryptoRandInt(poolForPick.length)];
+            const candidateWords = attemptWords.concat(['and', nextObj].filter(Boolean));
+            const candidateText = candidateWords.join(' ').replace(/\s+/g, ' ').trim();
+            if (candidateText.length > maxChars) break;
+            attemptWords.push('and', nextObj);
+            attemptText = candidateText;
+            usedObjs.add(nextObj);
+        }
+
+        if (attemptText.length >= minChars && attemptText.length <= maxChars) return attemptText;
+    }
 
     const templates = [
         ['{time}', '{subj}', '{verb}', '{w}', '{w}', '{c}', '{w}', '{w}'],
@@ -2650,12 +2891,20 @@ function generateRuEnShuffledUniqueText(poolText, lessonKey, layout, minChars, m
             const maxUse = Math.min(4, chunks.length);
             // Choose subset size 2..maxUse (prefer more when text is short).
             const useCount = Math.min(maxUse, Math.max(2, cryptoRandInt(maxUse - 1) + 2));
-            const picked = cryptoShuffle(chunks).slice(0, useCount);
+            // Pick consecutive sentence chunks (keeps readability).
+            const start = chunks.length - useCount > 0 ? cryptoRandInt(chunks.length - useCount + 1) : 0;
+            const picked = chunks.slice(start, start + useCount);
             candidate = picked.join(' ').replace(/\s+/g, ' ').trim();
         } else {
             // Fallback: shuffle word tokens if we don't have sentence boundaries.
             const tokens = poolTextStr.split(/\s+/).filter(Boolean);
-            candidate = cryptoShuffle(tokens).join(' ').replace(/\s+/g, ' ').trim();
+            // Fallback: take a contiguous token window (better readability than full shuffle).
+            if (tokens.length) {
+                const maxTokensUse = Math.min(80, tokens.length);
+                const window = Math.max(30, cryptoRandInt(maxTokensUse));
+                const start = tokens.length - window > 0 ? cryptoRandInt(tokens.length - window + 1) : 0;
+                candidate = tokens.slice(start, start + window).join(' ').replace(/\s+/g, ' ').trim();
+            }
         }
 
         if (!candidate) continue;
@@ -2668,7 +2917,14 @@ function generateRuEnShuffledUniqueText(poolText, lessonKey, layout, minChars, m
 
     // Final fallback: use simple sentence chunk reorder; may collide but still works.
     const chunks = splitIntoSentenceChunks(poolTextStr);
-    const fallback = chunks.length >= 2 ? cryptoShuffle(chunks).join(' ').replace(/\s+/g, ' ').trim() : cryptoShuffle(poolTextStr.split(/\s+/).filter(Boolean)).join(' ');
+    // Prefer consecutive sentences for final fallback too.
+    const fallback = chunks.length >= 2
+        ? (() => {
+            const useCount = Math.min(chunks.length, 3);
+            const start = chunks.length - useCount > 0 ? cryptoRandInt(chunks.length - useCount + 1) : 0;
+            return chunks.slice(start, start + useCount).join(' ').replace(/\s+/g, ' ').trim();
+        })()
+        : cryptoShuffle(poolTextStr.split(/\s+/).filter(Boolean)).join(' ');
     if (storageKey) saveRecentTexts(storageKey, recentTexts.concat([fallback]), 16);
     return fallback;
 }
@@ -5461,4 +5717,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-
