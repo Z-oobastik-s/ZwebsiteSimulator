@@ -593,6 +593,10 @@ const translations = {
     }
 };
 
+// Make translations accessible from inline handlers / other scripts.
+// (Also avoids rare cases where lexical bindings are not visible.)
+window.translations = window.translations || translations;
+
 // Speed test word lists (расширены для сильного разнообразия)
 const speedTestWords = {
     ru: [
@@ -3210,7 +3214,10 @@ function startPractice(text, mode, lesson = null) {
     if (pauseBtn) {
         const span = pauseBtn.querySelector('span');
         if (span) {
-            span.textContent = translations[app.lang].pause;
+            // Safety: translations might not be ready yet on very fast navigation.
+            const tr = window.translations && window.translations[app.lang] ? window.translations[app.lang] : null;
+            const pauseText = tr && tr.pause ? tr.pause : 'Пауза';
+            span.textContent = pauseText;
         }
     }
     
@@ -3549,7 +3556,11 @@ function togglePause() {
         const pauseBtn = DOM.get('pauseBtn');
         if (pauseBtn) {
             const span = pauseBtn.querySelector('span');
-            if (span) span.textContent = translations[app.lang].pause;
+            if (span) {
+                const tr = window.translations && window.translations[app.lang] ? window.translations[app.lang] : null;
+                const resumeText = tr && tr.resume ? tr.resume : 'Продолжить';
+                span.textContent = resumeText;
+            }
         }
     } else {
         // Ставим на паузу
@@ -3563,7 +3574,10 @@ function togglePause() {
         const pauseBtn = DOM.get('pauseBtn');
         if (pauseBtn) {
             const span = pauseBtn.querySelector('span');
-            if (span) span.textContent = translations[app.lang].resume;
+            if (span) {
+                const tr = window.translations && window.translations[app.lang] ? window.translations[app.lang] : null;
+                span.textContent = (tr && tr.resume) ? tr.resume : 'Продолжить';
+            }
         }
     }
 }
@@ -4128,7 +4142,9 @@ function showToast(message, type = 'info', title = '') {
 }
 
 function t(key) {
-    return translations[app.lang]?.[key] || key;
+    const tr = window.translations || {};
+    const langTable = tr[app.lang] || {};
+    return langTable[key] || key;
 }
 
 // ============================================
@@ -5769,3 +5785,4 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+
