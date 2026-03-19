@@ -2123,15 +2123,14 @@
 <body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen" tabindex="-1">
     <div id="rootScroll" class="min-h-screen">
     <!-- Intro video overlay (plays on each page load) -->
-    <div id="introOverlay" style="position:fixed; inset:0; z-index:99999; background:#000; display:flex; align-items:center; justify-content:center; pointer-events:auto;">
+    <div id="introOverlay" style="position:fixed; inset:0; z-index:99999; background:#000; display:flex; align-items:center; justify-content:center; pointer-events:auto; overflow:hidden;">
         <video
             id="introVideo"
             src="assets/video/intro.mp4"
             muted
-            autoplay
             playsinline
             preload="auto"
-            style="width:100%; height:100%; object-fit:cover; display:block;"
+            style="width:100vw; height:100vh; object-fit:cover; object-position:center; display:block;"
         ></video>
     </div>
     <!-- Header -->
@@ -3397,11 +3396,30 @@
             var video = document.getElementById('introVideo');
             if (!overlay || !video) return;
 
+            // Randomly choose one of the intro videos per page load.
+            var sources = ['assets/video/intro.mp4', 'assets/video/intro_1.mp4'];
+            var selectedSrc = sources[Math.floor(Math.random() * sources.length)] || sources[0];
+            video.src = selectedSrc;
+
+            // Mobile/portrait adaptation: reduce cropping by switching to `contain`.
+            var fitTimer = null;
+            function applyVideoFit() {
+                // Portrait: height dominates width -> better show whole frame.
+                var ratio = (window.innerHeight || 1) / (window.innerWidth || 1);
+                video.style.objectFit = ratio > 1.2 ? 'contain' : 'cover';
+                overlay.style.background = '#000';
+            }
+
             var removed = false;
             function cleanup() {
                 if (removed) return;
                 removed = true;
                 try { video.pause(); } catch (e) {}
+                try {
+                    window.removeEventListener('resize', applyVideoFit);
+                    window.removeEventListener('orientationchange', applyVideoFit);
+                } catch (e) {}
+                if (fitTimer) clearTimeout(fitTimer);
                 overlay.style.transition = 'opacity 300ms ease';
                 overlay.style.opacity = '0';
                 setTimeout(function() {
@@ -3415,10 +3433,22 @@
             video.addEventListener('ended', cleanup);
             video.addEventListener('error', cleanup);
 
+            // Initial fit + adapt on viewport changes.
+            applyVideoFit();
+            window.addEventListener('resize', function() {
+                if (fitTimer) clearTimeout(fitTimer);
+                fitTimer = setTimeout(applyVideoFit, 80);
+            });
+            window.addEventListener('orientationchange', applyVideoFit);
+
             // Autoplay is usually allowed when muted. Still try explicitly to start.
             var tryPlay = function() {
                 var p;
-                try { p = video.play(); } catch (e) { cleanup(); return; }
+                try {
+                    // Ensure the new src is loaded before playing.
+                    try { video.load(); } catch (e2) {}
+                    p = video.play();
+                } catch (e) { cleanup(); return; }
                 if (p && typeof p.catch === 'function') {
                     p.catch(function() { cleanup(); });
                 }
@@ -3466,3 +3496,4 @@
     </script>
 </body>
 </html>
+
