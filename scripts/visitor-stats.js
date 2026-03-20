@@ -195,27 +195,38 @@ var _visits     = 0;
 var _onlineData = {};
 var _dailyData  = {};
 
+var _firebaseError = null;
+
+function _onFirebaseError(err) {
+    _firebaseError = err && err.code ? err.code : 'permission-denied';
+    console.warn('[visitor-stats] Firebase read blocked:', _firebaseError,
+        '— check Realtime Database rules in Firebase Console.');
+    _refreshModal();
+}
+
 onValue(visitsRef, function (snap) {
+    _firebaseError = null;
     _visits = typeof snap.val() === 'number' ? snap.val() : 0;
     window.__siteStatsVisits = _visits;
     updateUI(_visits, Object.keys(_onlineData).length);
     _refreshModal();
-});
+}, _onFirebaseError);
 
 onValue(dailyRef, function (snap) {
     _dailyData = snap.val() || {};
     window.__siteStatsDailyData = _dailyData;
     _refreshModal();
-});
+}, _onFirebaseError);
 
 onValue(onlineRef, function (snap) {
+    _firebaseError = null;
     _onlineData = snap.val() || {};
     var count = Object.keys(_onlineData).length;
     window.__siteStatsOnline = count;
     window.__siteStatsOnlineData = _onlineData;
     updateUI(_visits, count);
     _refreshModal();
-});
+}, _onFirebaseError);
 
 // ── Visit recording ─────────────────────────────────────────────────────────
 
@@ -328,6 +339,21 @@ function _dayLabel(daysAgo) {
 function _buildContent() {
     var lang   = getStatsLang();
     var locale = lang === 'en' ? 'en-US' : lang === 'uk' ? 'uk-UA' : 'ru-RU';
+
+    // Firebase access error banner
+    if (_firebaseError) {
+        var errMsg = lang === 'en'
+            ? 'Firebase read access is blocked (' + _firebaseError + '). Update Realtime Database rules in Firebase Console.'
+            : lang === 'uk'
+            ? 'Firebase заблокував читання (' + _firebaseError + '). Оновіть правила Realtime Database у Firebase Console.'
+            : 'Firebase заблокировал чтение (' + _firebaseError + '). Обновите правила Realtime Database в Firebase Console.';
+        return '<div style="padding:20px">' +
+            '<div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:12px;padding:16px;text-align:center">' +
+                '<div style="font-size:28px;margin-bottom:8px">🔒</div>' +
+                '<p style="color:#fca5a5;font-size:13px;margin:0;line-height:1.5">' + errMsg + '</p>' +
+            '</div>' +
+        '</div>';
+    }
 
     // Last 7 days chart
     var days = [];
@@ -498,4 +524,3 @@ if (document.readyState === 'loading') {
 
 if (typeof window !== 'undefined') window.__siteStatsUpdateUI = updateUI;
 export { pluralPlayers, updateUI };
-
