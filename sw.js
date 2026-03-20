@@ -1,4 +1,4 @@
-const CACHE_NAME = 'zoobastiks-v6';
+const CACHE_NAME = 'zoobastiks-v7';
 
 self.addEventListener('install', function (event) {
   self.skipWaiting();
@@ -29,7 +29,16 @@ self.addEventListener('activate', function (event) {
       return Promise.all(
         keys.filter(function (k) { return k !== CACHE_NAME; }).map(function (k) { return caches.delete(k); })
       );
-    }).then(function () { return self.clients.claim(); })
+    }).then(function () {
+      return self.clients.claim();
+    }).then(function () {
+      // Notify all open tabs to reload so they get fresh files immediately
+      return self.clients.matchAll({ type: 'window' }).then(function (clients) {
+        clients.forEach(function (client) {
+          client.postMessage({ type: 'SW_UPDATED' });
+        });
+      });
+    })
   );
 });
 
@@ -44,6 +53,11 @@ function isStaticAsset(url) {
   return /\.(js|css|png|jpg|jpeg|webp|gif|svg|ico|woff2?|ttf|mp4|webm|ogg)$/.test(u) || u.indexOf('/scripts/') !== -1 || u.indexOf('/assets/') !== -1;
 }
 
+function isHtmlRequest(url) {
+  var u = url.toLowerCase();
+  return u.endsWith('/') || u.endsWith('.html') || u.indexOf('?') !== -1 && !isStaticAsset(u);
+}
+
 self.addEventListener('fetch', function (event) {
   if (event.request.method !== 'GET') return;
   var url = event.request.url;
@@ -51,22 +65,41 @@ self.addEventListener('fetch', function (event) {
   var sameOrigin = isSameOrigin(url);
   var staticAsset = isStaticAsset(url);
 
-  if (sameOrigin && staticAsset) {
+  // HTML pages: network-first — always try to get the latest version
+  if (sameOrigin && isHtmlRequest(url)) {
     event.respondWith(
-      caches.match(event.request).then(function (cached) {
-        if (cached) return cached;
-        return fetch(event.request).then(function (res) {
-          if (res.status === 200) {
-            var clone = res.clone();
-            caches.open(CACHE_NAME).then(function (cache) { cache.put(event.request, clone); });
-          }
-          return res;
+      fetch(event.request).then(function (res) {
+        if (res.status === 200) {
+          var clone = res.clone();
+          caches.open(CACHE_NAME).then(function (cache) { cache.put(event.request, clone); });
+        }
+        return res;
+      }).catch(function () {
+        return caches.match(event.request).then(function (cached) {
+          return cached || caches.match('./index.html');
         });
       })
     );
     return;
   }
 
+  // JS/CSS/images: stale-while-revalidate — serve cache instantly, update in background
+  if (sameOrigin && staticAsset) {
+    event.respondWith(
+      caches.open(CACHE_NAME).then(function (cache) {
+        return cache.match(event.request).then(function (cached) {
+          var fetchPromise = fetch(event.request).then(function (res) {
+            if (res.status === 200) cache.put(event.request, res.clone());
+            return res;
+          }).catch(function () { return cached; });
+          return cached || fetchPromise;
+        });
+      })
+    );
+    return;
+  }
+
+  // Everything else: network with cache fallback
   event.respondWith(
     fetch(event.request).then(function (res) {
       var clone = res.clone();
@@ -81,4 +114,3 @@ self.addEventListener('fetch', function (event) {
     })
   );
 });
-

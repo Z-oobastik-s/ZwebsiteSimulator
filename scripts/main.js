@@ -1083,6 +1083,13 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('sw.js').catch(function () {});
+        // Auto-reload when a new SW version activates so users always get fresh files
+        navigator.serviceWorker.addEventListener('message', function (e) {
+            if (e.data && e.data.type === 'SW_UPDATED') {
+                // Small delay so the SW finishes claiming before reload
+                setTimeout(function () { window.location.reload(); }, 150);
+            }
+        });
     }
     initPwaInstallBanner();
 
@@ -5758,4 +5765,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-
