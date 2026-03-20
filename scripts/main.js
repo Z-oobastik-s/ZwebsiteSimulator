@@ -5758,4 +5758,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-

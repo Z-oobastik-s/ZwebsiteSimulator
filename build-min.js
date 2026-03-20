@@ -32,7 +32,15 @@ async function run() {
                 format: { comments: false }
             });
 
-            fs.writeFileSync(outPath, result.code, 'utf8');
+            // Fix relative module import paths: ./foo.js → ./foo.min.js
+            // Needed because minified files live in assets/js/ but imports still reference scripts/
+            // Note: terser strips whitespace → from"./foo.js" (no space), so \s* not \s+
+            const patched = result.code.replace(
+                /from\s*["']\.\/([^"']+?)\.js["']/g,
+                (_, name) => `from "./${name}.min.js"`
+            );
+
+            fs.writeFileSync(outPath, patched, 'utf8');
 
             const origKB = (src.length / 1024).toFixed(1);
             const minKB  = (result.code.length / 1024).toFixed(1);
@@ -51,4 +59,3 @@ async function run() {
 }
 
 run().catch(console.error);
-
