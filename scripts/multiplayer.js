@@ -3,13 +3,14 @@
  * Uses Firebase Realtime Database
  */
 
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+import { initializeApp, getApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
 import { getDatabase, ref, set, onValue, onDisconnect, serverTimestamp, remove, get, update } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 import { firebaseConfig } from './firebase-config.js';
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const database = getDatabase(app);
+// Reuse existing Firebase app if already initialized (e.g. by visitor-stats.js)
+let fbApp;
+try { fbApp = getApp(); } catch (e) { fbApp = initializeApp(firebaseConfig); }
+const database = getDatabase(fbApp);
 
 // Multiplayer state
 const multiplayerState = {
@@ -556,3 +557,4 @@ window.multiplayerModule = {
     getMultiplayerState,
     isMultiplayerActive
 };
+

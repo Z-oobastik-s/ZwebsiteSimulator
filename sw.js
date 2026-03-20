@@ -1,4 +1,4 @@
-const CACHE_NAME = 'zoobastiks-v9';
+const CACHE_NAME = 'zoobastiks-v10';
 
 self.addEventListener('install', function (event) {
   self.skipWaiting();
@@ -32,10 +32,15 @@ self.addEventListener('activate', function (event) {
     }).then(function () {
       return self.clients.claim();
     }).then(function () {
-      // Notify all open tabs to reload so they get fresh files immediately
+      // Force all open tabs to reload with fresh files.
+      // client.navigate() works even if the page has no SW message listener
+      // (unlike postMessage which required a handler added only in recent builds).
       return self.clients.matchAll({ type: 'window' }).then(function (clients) {
         clients.forEach(function (client) {
-          client.postMessage({ type: 'SW_UPDATED' });
+          client.navigate(client.url).catch(function () {
+            // Fallback for older browsers that don't support client.navigate()
+            client.postMessage({ type: 'SW_UPDATED' });
+          });
         });
       });
     })
@@ -114,3 +119,4 @@ self.addEventListener('fetch', function (event) {
     })
   );
 });
+
