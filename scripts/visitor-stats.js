@@ -1,18 +1,20 @@
 /**
  * Статистика посещений и онлайн-пользователей через Firebase Realtime Database.
  * Пути:
- *   siteStats/visits        — общий счётчик
+ *   siteStats/visits          — общий счётчик
  *   siteStats/daily/YYYY-MM-DD — дневные посещения
- *   online/{visitorId}      — присутствие: lastSeen, countryCode, flag, device
+ *   online/{visitorId}        — присутствие: lastSeen, joinedAt, countryCode, flag, device,
+ *                               displayName, username, avatarIndex, level, tierName (если вошёл)
  */
 
 import { initializeApp, getApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-import { getDatabase, ref, set, onValue, onDisconnect, runTransaction, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+import { getDatabase, ref, set, update, onValue, onDisconnect, runTransaction, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 import { firebaseConfig } from './firebase-config.js';
 
 var VISITS_KEY     = 'zoob_visit_counted';
 var VISITOR_ID_KEY = 'zoob_visitor_id';
 var GEO_CACHE_KEY  = 'zoob_geo_v1';
+var XP_KEY         = 'zoobastiks_player_xp';
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -98,6 +100,44 @@ function updateUI(visits, onlineCount) {
     if (onlineEl) onlineEl.textContent = pluralPlayers(typeof onlineCount === 'number' ? onlineCount : 0, lang);
 }
 
+// Цвет аватара по нику (детерминированный)
+function nameToColor(name) {
+    var palette = ['#06b6d4','#8b5cf6','#ec4899','#f59e0b','#10b981','#3b82f6','#f97316','#84cc16'];
+    if (!name) return palette[0];
+    var hash = 0;
+    for (var i = 0; i < name.length; i++) hash = (hash * 31 + name.charCodeAt(i)) & 0xffff;
+    return palette[hash % palette.length];
+}
+
+// Цвет badge уровня
+function levelColor(lvl) {
+    if (!lvl) return '#475569';
+    if (lvl >= 30) return '#f59e0b';
+    if (lvl >= 20) return '#8b5cf6';
+    if (lvl >= 10) return '#06b6d4';
+    return '#64748b';
+}
+
+// Сколько времени прошло (joinedAt в мс)
+function timeAgo(ts, lang) {
+    if (!ts) return '';
+    var mins = Math.max(0, Math.floor((Date.now() - ts) / 60000));
+    if (lang === 'en') {
+        if (mins < 1) return 'just now';
+        if (mins === 1) return '1 min';
+        if (mins < 60) return mins + ' min';
+        return Math.floor(mins / 60) + ' h';
+    }
+    if (lang === 'uk') {
+        if (mins < 1) return 'щойно';
+        if (mins < 60) return mins + ' хв';
+        return Math.floor(mins / 60) + ' год';
+    }
+    if (mins < 1) return 'только что';
+    if (mins < 60) return mins + ' мин.';
+    return Math.floor(mins / 60) + ' ч.';
+}
+
 // ── Geo detection via Cloudflare trace ─────────────────────────────────────
 
 async function fetchGeo() {
@@ -114,6 +154,31 @@ async function fetchGeo() {
     } catch (e) {
         return { code: 'XX', flag: '🌍' };
     }
+}
+
+// ── Auth user info ──────────────────────────────────────────────────────────
+
+function _getCurrentUserInfo() {
+    try {
+        var auth = window.authModule;
+        if (!auth || !auth.getCurrentUser) return null;
+        var user = auth.getCurrentUser();
+        if (!user) return null;
+        var result = {
+            displayName: user.displayName || user.username || null,
+            username: user.username || null,
+            avatarIndex: typeof user.avatarIndex === 'number' ? user.avatarIndex : 0
+        };
+        try {
+            var xp = parseInt(localStorage.getItem(XP_KEY)) || 0;
+            if (window.levelModule && window.levelModule.getLevelInfo) {
+                var info = window.levelModule.getLevelInfo(xp);
+                result.level = info.level;
+                result.tierName = info.tierName;
+            }
+        } catch (e) {}
+        return result;
+    } catch (e) { return null; }
 }
 
 // ── Firebase setup ──────────────────────────────────────────────────────────
@@ -152,7 +217,7 @@ onValue(onlineRef, function (snap) {
     _refreshModal();
 });
 
-// ── Record visit (once per session) ────────────────────────────────────────
+// ── Visit recording ─────────────────────────────────────────────────────────
 
 function recordVisit() {
     try {
@@ -164,19 +229,64 @@ function recordVisit() {
     } catch (e) {}
 }
 
+var _myPresenceRef = null;
+var _geoData       = null;
+
 async function registerPresence() {
     var visitorId = getOrCreateVisitorId();
-    var myRef = ref(database, 'online/' + visitorId);
-    var geo = await fetchGeo();
-    set(myRef, {
-        lastSeen: serverTimestamp(),
-        countryCode: geo.code,
-        flag: geo.flag,
-        device: getDeviceType()
-    }).then(function () {
-        onDisconnect(myRef).remove().catch(function () {});
+    _myPresenceRef = ref(database, 'online/' + visitorId);
+    _geoData = await fetchGeo();
+
+    var data = {
+        lastSeen:    serverTimestamp(),
+        joinedAt:    Date.now(),
+        countryCode: _geoData.code,
+        flag:        _geoData.flag,
+        device:      getDeviceType()
+    };
+
+    // Если уже вошёл — добавляем данные аккаунта
+    var userInfo = _getCurrentUserInfo();
+    if (userInfo) {
+        data.displayName = userInfo.displayName;
+        data.username    = userInfo.username;
+        data.avatarIndex = userInfo.avatarIndex;
+        data.level       = userInfo.level || null;
+        data.tierName    = userInfo.tierName || null;
+    }
+
+    set(_myPresenceRef, data).then(function () {
+        onDisconnect(_myPresenceRef).remove().catch(function () {});
     }).catch(function () {});
 }
+
+// ── Public: обновить данные аккаунта в присутствии (вызывается из main.js) ─
+
+window.__updatePresenceUser = function (user) {
+    if (!_myPresenceRef) return;
+    var updates = {};
+    if (user) {
+        updates.displayName = user.displayName || user.username || null;
+        updates.username    = user.username || null;
+        updates.avatarIndex = typeof user.avatarIndex === 'number' ? user.avatarIndex : 0;
+        try {
+            var xp = parseInt(localStorage.getItem(XP_KEY)) || 0;
+            if (window.levelModule && window.levelModule.getLevelInfo) {
+                var info = window.levelModule.getLevelInfo(xp);
+                updates.level    = info.level;
+                updates.tierName = info.tierName;
+            }
+        } catch (e) {}
+    } else {
+        // Вышел — очищаем данные аккаунта
+        updates.displayName = null;
+        updates.username    = null;
+        updates.avatarIndex = null;
+        updates.level       = null;
+        updates.tierName    = null;
+    }
+    update(_myPresenceRef, updates).catch(function () {});
+};
 
 recordVisit();
 registerPresence();
@@ -189,17 +299,19 @@ var _modalWrap = null;
 function _t(key) {
     var lang = getStatsLang();
     var T = {
-        title:        { ru: 'Статистика сайта', en: 'Site Statistics', uk: 'Статистика сайту' },
-        totalVisits:  { ru: 'Всего посещений', en: 'Total visits', uk: 'Всього відвідувань' },
-        byDay:        { ru: 'Посещения по дням', en: 'Visits by day', uk: 'Відвідування по днях' },
-        onlineNow:    { ru: 'Онлайн сейчас', en: 'Online now', uk: 'Онлайн зараз' },
-        nobody:       { ru: 'Никого нет онлайн', en: 'No one online', uk: 'Нікого немає онлайн' },
-        visitor:      { ru: 'посетитель', en: 'visitor', uk: 'відвідувач' },
-        today:        { ru: 'Сегодня', en: 'Today', uk: 'Сьогодні' },
-        yesterday:    { ru: 'Вчера', en: 'Yesterday', uk: 'Вчора' },
-        dayBefore:    { ru: 'Позавчера', en: '2 days ago', uk: 'Позавчора' },
-        daysAgo:      { ru: ' дн. назад', en: ' days ago', uk: ' дн. тому' },
-        liveUpdates:  { ru: 'Обновляется в реальном времени', en: 'Updates in real time', uk: 'Оновлюється в реальному часі' }
+        title:       { ru: 'Статистика сайта',          en: 'Site Statistics',      uk: 'Статистика сайту' },
+        totalVisits: { ru: 'Всего посещений',             en: 'Total visits',         uk: 'Всього відвідувань' },
+        byDay:       { ru: 'Посещения по дням',           en: 'Visits by day',        uk: 'Відвідування по днях' },
+        onlineNow:   { ru: 'Онлайн сейчас',              en: 'Online now',            uk: 'Онлайн зараз' },
+        nobody:      { ru: 'Никого нет онлайн',           en: 'No one online',        uk: 'Нікого немає онлайн' },
+        visitor:     { ru: 'Гость',                       en: 'Guest',                uk: 'Гість' },
+        today:       { ru: 'Сегодня',                     en: 'Today',                uk: 'Сьогодні' },
+        yesterday:   { ru: 'Вчера',                       en: 'Yesterday',            uk: 'Вчора' },
+        dayBefore:   { ru: 'Позавчера',                   en: '2 days ago',           uk: 'Позавчора' },
+        daysAgo:     { ru: ' дн. назад',                  en: ' days ago',            uk: ' дн. тому' },
+        liveUpdates: { ru: 'Обновляется в реальном времени', en: 'Updates in real time', uk: 'Оновлюється в реальному часі' },
+        level:       { ru: 'Ур.',                         en: 'Lv.',                  uk: 'Рів.' },
+        onSite:      { ru: 'на сайте',                    en: 'on site',              uk: 'на сайті' }
     };
     var entry = T[key];
     if (!entry) return key;
@@ -214,10 +326,10 @@ function _dayLabel(daysAgo) {
 }
 
 function _buildContent() {
-    var lang  = getStatsLang();
+    var lang   = getStatsLang();
     var locale = lang === 'en' ? 'en-US' : lang === 'uk' ? 'uk-UA' : 'ru-RU';
 
-    // Collect last 7 days
+    // Last 7 days chart
     var days = [];
     var maxVal = 1;
     for (var i = 0; i < 7; i++) {
@@ -231,33 +343,63 @@ function _buildContent() {
         var pct = Math.max(Math.round((d.val / maxVal) * 100), d.val > 0 ? 2 : 0);
         var barColor = d.isToday
             ? 'linear-gradient(90deg,#06b6d4,#67e8f9)'
-            : 'linear-gradient(90deg,#1e40af,#3b82f6)';
+            : 'linear-gradient(90deg,#1e3a5f,#2563eb)';
         return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:7px">' +
             '<span style="width:88px;font-size:11px;color:' + (d.isToday ? '#e2e8f0' : '#94a3b8') + ';flex-shrink:0;font-weight:' + (d.isToday ? '600' : '400') + '">' + d.label + '</span>' +
             '<div style="flex:1;background:rgba(255,255,255,0.05);border-radius:4px;height:16px;overflow:hidden">' +
-            '<div style="height:100%;width:' + pct + '%;background:' + barColor + ';border-radius:4px;transition:width 0.5s ease"></div>' +
+            '<div style="height:100%;width:' + pct + '%;background:' + barColor + ';border-radius:4px;transition:width .5s ease"></div>' +
             '</div>' +
-            '<span style="width:30px;text-align:right;font-size:11px;color:' + (d.isToday ? '#22d3ee' : '#64748b') + ';font-variant-numeric:tabular-nums">' + d.val + '</span>' +
+            '<span style="width:30px;text-align:right;font-size:11px;color:' + (d.isToday ? '#22d3ee' : '#475569') + ';font-variant-numeric:tabular-nums">' + d.val + '</span>' +
         '</div>';
     }).join('');
 
     // Online users
     var users = Object.entries(_onlineData);
     var onlineCount = users.length;
+
     var onlineHTML = onlineCount === 0
         ? '<p style="color:#475569;font-size:12px;text-align:center;padding:10px 0">' + _t('nobody') + '</p>'
         : users.map(function (entry, i) {
-            var id  = entry[0];
-            var u   = entry[1] || {};
-            var flag   = u.flag || '🌍';
-            var device = deviceIcon(u.device || 'desktop');
-            var country = u.countryCode && u.countryCode !== 'XX' ? u.countryCode : '';
-            var label  = _t('visitor') + ' #' + (i + 1) + (country ? ' · ' + country : '');
-            return '<div style="display:flex;align-items:center;gap:10px;padding:7px 12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:10px;margin-bottom:5px">' +
-                '<span style="font-size:20px;line-height:1">' + flag + '</span>' +
-                '<span style="font-size:15px;line-height:1">' + device + '</span>' +
-                '<span style="font-size:12px;color:#94a3b8;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + label + '</span>' +
-                '<span style="width:8px;height:8px;border-radius:50%;background:#34d399;flex-shrink:0;box-shadow:0 0 8px #34d39988"></span>' +
+            var u = entry[1] || {};
+            var hasAccount  = !!(u.displayName || u.username);
+            var name        = u.displayName || u.username || (_t('visitor') + ' #' + (i + 1));
+            var initial     = name.charAt(0).toUpperCase();
+            var avatarColor = nameToColor(name);
+            var flag        = u.flag || '🌍';
+            var country     = (u.countryCode && u.countryCode !== 'XX') ? u.countryCode : '';
+            var device      = deviceIcon(u.device || 'desktop');
+            var lvl         = u.level || null;
+            var tier        = u.tierName || null;
+            var ago         = u.joinedAt ? timeAgo(u.joinedAt, lang) : '';
+
+            // Avatar circle
+            var avatarHTML = hasAccount
+                ? '<div style="width:38px;height:38px;border-radius:50%;background:' + avatarColor + ';display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#fff;flex-shrink:0;box-shadow:0 0 0 2px rgba(255,255,255,0.1)">' + initial + '</div>'
+                : '<div style="width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">👤</div>';
+
+            // Level badge
+            var levelHTML = lvl
+                ? '<span style="font-size:10px;background:' + levelColor(lvl) + '22;color:' + levelColor(lvl) + ';border:1px solid ' + levelColor(lvl) + '55;border-radius:4px;padding:1px 5px;font-weight:600;white-space:nowrap">' + _t('level') + ' ' + lvl + (tier ? ' · ' + tier : '') + '</span>'
+                : '';
+
+            // Name + meta row
+            var metaHTML = '<div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-top:3px">' +
+                '<span style="font-size:11px">' + flag + '</span>' +
+                '<span style="font-size:11px;color:#64748b">' + device + '</span>' +
+                (country ? '<span style="font-size:10px;color:#475569">' + country + '</span>' : '') +
+                (ago ? '<span style="font-size:10px;color:#334155;margin-left:auto">' + ago + ' ' + _t('onSite') + '</span>' : '') +
+            '</div>';
+
+            return '<div style="display:flex;align-items:center;gap:12px;padding:10px 12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,' + (hasAccount ? '0.1' : '0.05') + ');border-radius:12px;margin-bottom:6px' + (hasAccount ? ';box-shadow:0 0 0 1px ' + avatarColor + '22' : '') + '">' +
+                avatarHTML +
+                '<div style="flex:1;min-width:0">' +
+                    '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">' +
+                        '<span style="font-size:13px;font-weight:' + (hasAccount ? '600' : '400') + ';color:' + (hasAccount ? '#e2e8f0' : '#94a3b8') + ';white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px">' + name + '</span>' +
+                        levelHTML +
+                    '</div>' +
+                    metaHTML +
+                '</div>' +
+                '<span style="width:8px;height:8px;border-radius:50%;background:#34d399;flex-shrink:0;box-shadow:0 0 8px #34d39977"></span>' +
             '</div>';
         }).join('');
 
@@ -268,7 +410,7 @@ function _buildContent() {
                 '<p style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:0.08em;margin:0 0 4px">' + _t('totalVisits') + '</p>' +
                 '<p style="font-size:28px;font-weight:700;color:#22d3ee;font-variant-numeric:tabular-nums;margin:0;line-height:1">' + (_visits || 0).toLocaleString(locale) + '</p>' +
             '</div>' +
-            '<span style="font-size:36px;opacity:0.4">📈</span>' +
+            '<span style="font-size:36px;opacity:0.35">📈</span>' +
         '</div>' +
         // Daily chart
         '<p style="font-size:11px;color:#475569;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;margin:0 0 10px">' + _t('byDay') + '</p>' +
@@ -280,7 +422,7 @@ function _buildContent() {
         onlineHTML +
         // Live indicator
         '<div style="display:flex;align-items:center;gap:6px;justify-content:center;margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.06)">' +
-            '<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#34d399;animation:pulse 2s infinite"></span>' +
+            '<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#34d399;animation:_spulse 2s infinite"></span>' +
             '<span style="font-size:10px;color:#334155">' + _t('liveUpdates') + '</span>' +
         '</div>' +
     '</div>';
@@ -303,7 +445,7 @@ function _openModal() {
     _modalWrap.id = '_statsModalWrap';
     _modalWrap.innerHTML =
         '<div id="_statsOverlay" style="position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.75);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:16px;animation:_sfade .18s ease">' +
-            '<div style="background:linear-gradient(155deg,#0f172a 0%,#1e293b 100%);border:1px solid rgba(6,182,212,0.2);border-radius:18px;width:100%;max-width:420px;max-height:88vh;overflow-y:auto;box-shadow:0 30px 80px rgba(0,0,0,0.6),0 0 0 1px rgba(6,182,212,0.08)">' +
+            '<div style="background:linear-gradient(155deg,#0f172a 0%,#1e293b 100%);border:1px solid rgba(6,182,212,0.2);border-radius:18px;width:100%;max-width:440px;max-height:88vh;overflow-y:auto;box-shadow:0 30px 80px rgba(0,0,0,0.6),0 0 0 1px rgba(6,182,212,0.08)">' +
                 '<div style="display:flex;align-items:center;justify-content:space-between;padding:18px 20px 0;position:sticky;top:0;background:#0f172a;z-index:1;border-radius:18px 18px 0 0">' +
                     '<h2 style="font-size:15px;font-weight:700;color:#e2e8f0;margin:0;display:flex;align-items:center;gap:8px"><span>📊</span>' + _t('title') + '</h2>' +
                     '<button id="_statsClose" style="width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:background .15s" onmouseover="this.style.background=\'rgba(255,255,255,0.15)\'" onmouseout="this.style.background=\'rgba(255,255,255,0.08)\'">✕</button>' +
@@ -312,11 +454,10 @@ function _openModal() {
             '</div>' +
         '</div>';
 
-    // Inject keyframe for fade-in if not already there
     if (!document.getElementById('_statsStyle')) {
         var st = document.createElement('style');
-        st.id = '_statsStyle';
-        st.textContent = '@keyframes _sfade{from{opacity:0;transform:scale(0.97)}to{opacity:1;transform:scale(1)}}';
+        st.id  = '_statsStyle';
+        st.textContent = '@keyframes _sfade{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:scale(1)}}@keyframes _spulse{0%,100%{opacity:1}50%{opacity:.4}}';
         document.head.appendChild(st);
     }
 
@@ -357,4 +498,3 @@ if (document.readyState === 'loading') {
 
 if (typeof window !== 'undefined') window.__siteStatsUpdateUI = updateUI;
 export { pluralPlayers, updateUI };
-

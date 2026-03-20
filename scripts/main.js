@@ -1096,6 +1096,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize auth state listener
     if (window.authModule) {
         window.authModule.onAuthStateChange(async (user) => {
+            // Обновляем присутствие в Firebase (ник, уровень, аватар)
+            if (typeof window.__updatePresenceUser === 'function') {
+                window.__updatePresenceUser(user || null);
+            }
             if (user) {
                 // user уже полный объект из localStorage
                 currentUserProfile = user;
@@ -5765,4 +5769,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-
