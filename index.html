@@ -3424,7 +3424,7 @@
                 </div>
                 
                 <!-- Статистика: посещения и онлайн -->
-                <div class="flex flex-wrap items-center justify-center gap-x-4 gap-y-0.5 py-1.5 text-xs text-gray-400">
+                <div id="siteStatsBar" class="flex flex-wrap items-center justify-center gap-x-4 gap-y-0.5 py-1.5 text-xs text-gray-400 cursor-pointer select-none hover:text-gray-300 transition-colors rounded-lg px-2" title="Открыть статистику">
                     <span class="inline-flex items-center gap-1">
                         <span data-i18n="statsVisits">Посещений:</span>
                         <strong id="siteStatsVisits" class="text-cyan-400/90 tabular-nums">—</strong>
@@ -3433,6 +3433,7 @@
                         <span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true"></span>
                         <span id="siteStatsOnline" class="text-emerald-400/90">0 игроков</span>
                     </span>
+                    <span class="text-gray-600 text-[10px]">📊</span>
                 </div>
                 
                 <!-- Bottom: Copyright + searchable phrases (zoobastiks, клавиатура онлайн, для школьников) -->
@@ -3573,3 +3574,4 @@
     </script>
 </body>
 </html>
+
