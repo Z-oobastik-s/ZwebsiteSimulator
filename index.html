@@ -1920,9 +1920,19 @@
         html:not(.dark) .profile-bio-input { background:#ffffff; border:1px solid #e2e8f0; color:#0f172a; box-shadow:none; }
         html:not(.dark) .profile-bio-input:focus { border-color:#0e7490; box-shadow:0 0 0 3px rgba(14,116,144,0.10); }
         html:not(.dark) .profile-bio-input::placeholder { color:#94a3b8; }
-        html:not(.dark) .profile-section-title,
+        html:not(.dark) .profile-section-title {
+            color: #0f172a;
+            font-weight: 700;
+            text-shadow: none;
+            background: rgba(255,255,255,0.92);
+            display: inline-block;
+            padding: 2px 12px;
+            border-radius: 99px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+        }
         html:not(.dark) .profile-section-title::before,
-        html:not(.dark) .profile-section-title::after { color:#0e7490; text-shadow:none; }
+        html:not(.dark) .profile-section-title::after { color: #94a3b8; }
         
         /* Avatar Modal - гарантируем что оно поверх всего */
         #avatarSelectorModal {
