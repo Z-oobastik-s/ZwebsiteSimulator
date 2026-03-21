@@ -493,6 +493,7 @@ const translations = window.translations || {
         reviewsLink: 'Отзывы',
         allReviews: 'Все отзывы',
         copyResult: 'Скопировать результат',
+        copyResultShort: 'Копия',
         resultCopied: 'Результат скопирован в буфер обмена',
         copyFailed: 'Не удалось скопировать',
         hotkeysHint: 'Esc — закрыть · Enter или R — повторить',
@@ -726,6 +727,7 @@ const translations = window.translations || {
         reviewsLink: 'Reviews',
         allReviews: 'All reviews',
         copyResult: 'Copy result',
+        copyResultShort: 'Copy',
         resultCopied: 'Result copied to clipboard',
         copyFailed: 'Copy failed',
         hotkeysHint: 'Esc — close · Enter or R — repeat',
@@ -7562,3 +7564,4 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+

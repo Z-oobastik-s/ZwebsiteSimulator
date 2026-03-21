@@ -215,6 +215,7 @@ window.translations = {
         reviewsLink: 'Отзывы',
         allReviews: 'Все отзывы',
         copyResult: 'Скопировать результат',
+        copyResultShort: 'Копия',
         resultCopied: 'Результат скопирован в буфер обмена',
         copyFailed: 'Не удалось скопировать',
         hotkeysHint: 'Esc — закрыть · Enter или R — повторить',
@@ -464,6 +465,7 @@ window.translations = {
         reviewsLink: 'Reviews',
         allReviews: 'All reviews',
         copyResult: 'Copy result',
+        copyResultShort: 'Copy',
         resultCopied: 'Result copied to clipboard',
         copyFailed: 'Copy failed',
         hotkeysHint: 'Esc — close · Enter or R — repeat',
@@ -713,6 +715,7 @@ window.translations = {
         reviewsLink: 'Відгуки',
         allReviews: 'Усі відгуки',
         copyResult: 'Скопіювати результат',
+        copyResultShort: 'Копія',
         resultCopied: 'Результат скопійовано в буфер',
         copyFailed: 'Не вдалося скопіювати',
         hotkeysHint: 'Esc — закрити · Enter або R — повторити',
@@ -751,3 +754,4 @@ window.translations = {
         profileTabOnSite: 'на сайті'
     }
 };
+
