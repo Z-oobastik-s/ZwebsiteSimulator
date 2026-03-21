@@ -417,7 +417,21 @@ const translations = {
         mpAlwaysRandom: 'Текст генерируется случайно на лету.',
         mpPlayers: 'Игроки',
         mpDuelOnly: 'Сейчас доступна только дуэль:',
-        mp2Players: '2 игрока'
+        mp2Players: '2 игрока',
+        profileTabOverview: 'Обзор',
+        profileTabHistory: 'История',
+        profileTabErrors: 'Ошибки',
+        profileTabNoSessions: 'Пока нет сессий — пройди урок!',
+        profileTabNoAchiev: 'Достижений пока нет',
+        profileTabNoErrors: 'Пройди урок — и здесь появится аналитика ошибок',
+        profileTabNeedMore: 'Пройди хотя бы 2 сессии для динамики',
+        profileTabSessions: 'Последние сессии',
+        profileTabAchievements: 'Достижения',
+        profileTabMissedKeys: 'Проблемные клавиши',
+        profileTabAccTrend: 'Динамика точности',
+        profileTabSpeed: 'Скорость',
+        profileTabLocked: 'закрыто',
+        profileTabOnSite: 'на сайте'
     },
     en: {
         welcome: 'Welcome to Zoobastiks',
@@ -636,7 +650,21 @@ const translations = {
         mpAlwaysRandom: 'Text is always generated randomly.',
         mpPlayers: 'Players',
         mpDuelOnly: 'Only duel available:',
-        mp2Players: '2 players'
+        mp2Players: '2 players',
+        profileTabOverview: 'Overview',
+        profileTabHistory: 'History',
+        profileTabErrors: 'Errors',
+        profileTabNoSessions: 'No sessions yet — complete a lesson!',
+        profileTabNoAchiev: 'No achievements yet',
+        profileTabNoErrors: 'Complete a lesson to see key error analytics',
+        profileTabNeedMore: 'Complete at least 2 sessions to see trends',
+        profileTabSessions: 'Recent Sessions',
+        profileTabAchievements: 'Achievements',
+        profileTabMissedKeys: 'Most Missed Keys',
+        profileTabAccTrend: 'Accuracy Trend',
+        profileTabSpeed: 'Speed',
+        profileTabLocked: 'locked',
+        profileTabOnSite: 'on site'
     }
 };
 
@@ -3263,6 +3291,15 @@ function handleKeyPress(e) {
         // Неправильный символ - играем звук ошибки и НЕ двигаемся дальше
         playSound('error');
         app.errors++;
+        // Per-key error tracking (track which key was EXPECTED but missed)
+        try {
+            var _ec = app.currentText[app.currentPosition];
+            if (_ec && _ec.trim()) {
+                var _ke = JSON.parse(localStorage.getItem('zoob_key_errors') || '{}');
+                _ke[_ec] = (_ke[_ec] || 0) + 1;
+                localStorage.setItem('zoob_key_errors', JSON.stringify(_ke));
+            }
+        } catch (_e) {}
         highlightError();
         return;
     }
@@ -3587,7 +3624,9 @@ async function finishPractice() {
         errors: app.errors,
         mode: app.currentMode === 'practice' && app.currentLesson ? 'lesson' : app.currentMode,
         layout: app.currentLayout,
-        lessonKey: app.currentLesson?.key || null
+        lessonKey: app.currentLesson?.key || null,
+        lessonName: app.currentLesson?.name || null,
+        timestamp: Date.now()
     };
 
     // Сначала проверяем «первый проход» ДО сохранения сессии (иначе урок уже помечен пройденным и награда считается как за повтор)
@@ -4292,6 +4331,210 @@ async function logoutUser() {
     }
 }
 
+// ── Profile Tabs ──────────────────────────────────────────────────────────────
+
+function _t(key) {
+    var lang = (app && app.lang) || 'ru';
+    return (translations[lang] && translations[lang][key]) || (translations['ru'] && translations['ru'][key]) || key;
+}
+
+function _sessionTimeAgo(ts) {
+    if (!ts) return '';
+    var lang = (app && app.lang) || 'ru';
+    var mins = Math.max(0, Math.floor((Date.now() - ts) / 60000));
+    if (lang === 'en') {
+        if (mins < 1) return 'just now';
+        if (mins < 60) return mins + ' min ago';
+        if (mins < 1440) return Math.floor(mins / 60) + ' h ago';
+        return Math.floor(mins / 1440) + ' d ago';
+    }
+    if (mins < 1) return 'только что';
+    if (mins < 60) return mins + ' мин назад';
+    if (mins < 1440) return Math.floor(mins / 60) + ' ч назад';
+    return Math.floor(mins / 1440) + ' дн. назад';
+}
+
+function showProfileTab(tab) {
+    ['overview', 'history', 'errors'].forEach(function (t) {
+        var btn = document.getElementById('profileTab-' + t);
+        var panel = document.getElementById('profileTab' + t.charAt(0).toUpperCase() + t.slice(1));
+        if (btn) btn.classList.toggle('active', t === tab);
+        if (panel) panel.classList.toggle('hidden', t !== tab);
+    });
+    if (tab === 'history') renderProfileHistory();
+    if (tab === 'errors') renderProfileErrors();
+}
+
+function renderProfileHistory() {
+    var el = document.getElementById('profileHistoryContent');
+    if (!el) return;
+    var lang = (app && app.lang) || 'ru';
+
+    var sessions = (window.statsModule && window.statsModule.getRecentSessions) ? window.statsModule.getRecentSessions(15) : [];
+    var allAchiev = (window.achievementsModule && window.achievementsModule.getAchievements) ? window.achievementsModule.getAchievements() : [];
+    var unlockedIds = [];
+    try { unlockedIds = JSON.parse(localStorage.getItem('typeMasterAchievements') || '[]'); } catch (e) {}
+    var unlocked = allAchiev.filter(function (a) { return unlockedIds.indexOf(a.id) !== -1; });
+
+    var html = '';
+
+    // ── Recent Sessions ──
+    html += '<p class="profile-section-title mb-3">🕒 ' + _t('profileTabSessions') + '</p>';
+
+    if (sessions.length === 0) {
+        html += '<div class="profile-empty-hint"><div style="font-size:2.5rem;margin-bottom:8px">📭</div><div>' + _t('profileTabNoSessions') + '</div></div>';
+    } else {
+        html += '<div class="space-y-2">';
+        sessions.slice(0, 10).forEach(function (s) {
+            var speedColor = s.speed >= 300 ? '#f59e0b' : s.speed >= 200 ? '#22d3ee' : s.speed >= 150 ? '#10b981' : '#94a3b8';
+            var accColor = s.accuracy >= 95 ? '#10b981' : s.accuracy >= 80 ? '#22d3ee' : s.accuracy >= 60 ? '#f59e0b' : '#ef4444';
+            var modeIcon = s.mode === 'lesson' ? '📚' : s.mode === 'speedtest' ? '⚡' : s.mode === 'free' ? '✍️' : '🎯';
+            var layoutBadge = s.layout ? s.layout.toUpperCase() : '';
+            var lessonTitle = s.lessonName || (s.lessonKey ? s.lessonKey.replace(/_/g, ' ') : null) || (lang === 'en' ? 'Free Practice' : 'Свободная практика');
+            var timeStr = _sessionTimeAgo(s.timestamp);
+            var mins = s.time ? Math.floor(s.time / 60) + ':' + String(s.time % 60).padStart(2, '0') : '—';
+
+            html += '<div class="profile-history-card">' +
+                '<div style="display:flex;align-items:center;gap:12px">' +
+                    '<span style="font-size:22px;line-height:1;flex-shrink:0">' + modeIcon + '</span>' +
+                    '<div style="flex:1;min-width:0">' +
+                        '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">' +
+                            '<span style="font-size:13px;font-weight:600;color:#e2e8f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px">' + escapeHtml(lessonTitle) + '</span>' +
+                            (layoutBadge ? '<span style="font-size:9px;background:rgba(255,255,255,0.08);color:#64748b;padding:1px 6px;border-radius:4px">' + layoutBadge + '</span>' : '') +
+                        '</div>' +
+                        '<div style="font-size:10px;color:#475569;margin-top:2px">' + timeStr + (s.time ? ' · ' + mins + ' мин' : '') + '</div>' +
+                    '</div>' +
+                    '<div style="display:flex;align-items:center;gap:14px;flex-shrink:0">' +
+                        '<div style="text-align:center">' +
+                            '<div style="font-size:14px;font-weight:700;color:' + speedColor + '">' + s.speed + '</div>' +
+                            '<div style="font-size:9px;color:#475569">CPM</div>' +
+                        '</div>' +
+                        '<div style="text-align:center">' +
+                            '<div style="font-size:14px;font-weight:700;color:' + accColor + '">' + s.accuracy + '%</div>' +
+                            '<div style="font-size:9px;color:#475569">' + (lang === 'en' ? 'acc' : 'точн') + '</div>' +
+                        '</div>' +
+                        '<div style="text-align:center">' +
+                            '<div style="font-size:14px;font-weight:700;color:#f87171">' + (s.errors || 0) + '</div>' +
+                            '<div style="font-size:9px;color:#475569">' + (lang === 'en' ? 'err' : 'ош') + '</div>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>' +
+            '</div>';
+        });
+        html += '</div>';
+    }
+
+    // ── Achievements ──
+    html += '<p class="profile-section-title mt-6 mb-3">🏆 ' + _t('profileTabAchievements') + '</p>';
+    if (unlocked.length === 0) {
+        html += '<div class="profile-empty-hint"><div style="font-size:2.5rem;margin-bottom:8px">🔒</div><div>' + _t('profileTabNoAchiev') + '</div></div>';
+    } else {
+        html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px">';
+        unlocked.forEach(function (a) {
+            html += '<div class="profile-achiev-card">' +
+                '<div style="font-size:28px;margin-bottom:6px">' + (a.icon || '🎖️') + '</div>' +
+                '<div style="font-size:12px;font-weight:600;color:#e2e8f0;margin-bottom:3px">' + escapeHtml(a.title || '') + '</div>' +
+                '<div style="font-size:10px;color:#64748b">' + escapeHtml(a.description || '') + '</div>' +
+            '</div>';
+        });
+        var lockedCount = allAchiev.length - unlocked.length;
+        if (lockedCount > 0) {
+            html += '<div class="profile-achiev-card locked" style="display:flex;flex-direction:column;align-items:center;justify-content:center">' +
+                '<div style="font-size:28px;margin-bottom:6px">🔒</div>' +
+                '<div style="font-size:11px;color:#475569">+' + lockedCount + ' ' + _t('profileTabLocked') + '</div>' +
+            '</div>';
+        }
+        html += '</div>';
+    }
+
+    el.innerHTML = html;
+}
+
+function renderProfileErrors() {
+    var el = document.getElementById('profileErrorsContent');
+    if (!el) return;
+    var lang = (app && app.lang) || 'ru';
+
+    var keyErrors = {};
+    try { keyErrors = JSON.parse(localStorage.getItem('zoob_key_errors') || '{}'); } catch (e) {}
+
+    var sorted = Object.entries(keyErrors).sort(function (a, b) { return b[1] - a[1]; });
+    var maxErr = sorted.length > 0 ? sorted[0][1] : 1;
+    var totalKeyErr = sorted.reduce(function (s, e) { return s + e[1]; }, 0);
+
+    var sessions = (window.statsModule && window.statsModule.getRecentSessions) ? window.statsModule.getRecentSessions(10) : [];
+
+    var html = '';
+
+    // ── Most Missed Keys ──
+    html += '<p class="profile-section-title mb-3">⌨️ ' + _t('profileTabMissedKeys') + '</p>';
+
+    if (sorted.length === 0) {
+        html += '<div class="profile-empty-hint"><div style="font-size:2.5rem;margin-bottom:8px">🎯</div><div>' + _t('profileTabNoErrors') + '</div></div>';
+    } else {
+        var medals = ['🥇', '🥈', '🥉'];
+        html += '<div style="display:flex;flex-direction:column;gap:8px">';
+        sorted.slice(0, 12).forEach(function (entry, i) {
+            var ch = entry[0], cnt = entry[1];
+            var pct = Math.max(2, Math.round((cnt / maxErr) * 100));
+            var barColor = i === 0 ? '#ef4444' : i === 1 ? '#f97316' : i === 2 ? '#f59e0b' : i < 6 ? '#64748b' : '#334155';
+            html += '<div style="display:flex;align-items:center;gap:10px">' +
+                '<span style="font-size:14px;width:22px;text-align:center">' + (medals[i] || '') + '</span>' +
+                '<div class="profile-key-box">' + escapeHtml(ch === ' ' ? '␣' : ch) + '</div>' +
+                '<div style="flex:1;height:20px;background:rgba(255,255,255,0.05);border-radius:6px;overflow:hidden">' +
+                    '<div style="height:100%;width:' + pct + '%;background:' + barColor + ';border-radius:6px;transition:width 0.5s ease"></div>' +
+                '</div>' +
+                '<span style="font-size:13px;font-weight:700;color:#f87171;width:36px;text-align:right">' + cnt + '</span>' +
+            '</div>';
+        });
+        html += '</div>';
+        html += '<p style="font-size:10px;color:#334155;text-align:right;margin-top:8px">' + (lang === 'en' ? 'Total errors tracked: ' : 'Всего отслежено ошибок: ') + totalKeyErr + '</p>';
+    }
+
+    // ── Accuracy + Speed trend ──
+    html += '<p class="profile-section-title mt-6 mb-3">📈 ' + _t('profileTabAccTrend') + '</p>';
+
+    if (sessions.length < 2) {
+        html += '<div class="profile-empty-hint"><div style="font-size:2.5rem;margin-bottom:8px">📊</div><div>' + _t('profileTabNeedMore') + '</div></div>';
+    } else {
+        var rev = sessions.slice().reverse();
+        var maxSpd = Math.max.apply(null, rev.map(function (s) { return s.speed; }));
+        if (maxSpd < 1) maxSpd = 1;
+
+        // Accuracy bars
+        html += '<div style="display:flex;align-items:flex-end;gap:3px;height:72px;padding:0 4px">';
+        rev.forEach(function (s) {
+            var ac = s.accuracy || 0;
+            var h = Math.round(ac * 0.65);
+            var c = ac >= 95 ? '#10b981' : ac >= 80 ? '#22d3ee' : ac >= 60 ? '#f59e0b' : '#ef4444';
+            html += '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px">' +
+                '<span style="font-size:8px;color:#475569">' + ac + '%</span>' +
+                '<div style="width:100%;border-radius:4px 4px 0 0;background:' + c + ';opacity:0.8;min-height:3px;height:' + h + 'px"></div>' +
+            '</div>';
+        });
+        html += '</div>';
+
+        // Speed bars
+        html += '<p style="font-size:9px;color:#334155;text-align:right;margin:6px 4px 2px">CPM</p>';
+        html += '<div style="display:flex;align-items:flex-end;gap:3px;height:52px;padding:0 4px">';
+        rev.forEach(function (s) {
+            var sp = s.speed || 0;
+            var h = Math.max(2, Math.round((sp / maxSpd) * 46));
+            html += '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px">' +
+                '<span style="font-size:8px;color:#0e7490">' + sp + '</span>' +
+                '<div style="width:100%;border-radius:4px 4px 0 0;background:#06b6d4;opacity:0.6;min-height:2px;height:' + h + 'px"></div>' +
+            '</div>';
+        });
+        html += '</div>';
+        html += '<div style="display:flex;justify-content:space-between;font-size:9px;color:#334155;padding:4px 4px 0">' +
+            '<span>' + (lang === 'en' ? '← older' : '← старее') + '</span>' +
+            '<span>' + (lang === 'en' ? 'newer →' : 'новее →') + '</span>' +
+        '</div>';
+    }
+
+    el.innerHTML = html;
+}
+
 // Show profile screen
 async function showProfile() {
     toggleFooter(false); // Скрываем футер в профиле
@@ -4307,7 +4550,10 @@ async function showProfile() {
     hideAllScreens();
     const profileScreen = DOM.get('profileScreen');
     if (profileScreen) profileScreen.classList.remove('hidden');
-    
+
+    // Reset tabs to Overview on each profile open
+    showProfileTab('overview');
+
     // user уже полный объект из localStorage
     currentUserProfile = user;
     loadProfileData(user);
@@ -5769,3 +6015,4 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+
