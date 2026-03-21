@@ -4454,9 +4454,9 @@ function showResults(speed, accuracy, time, errors, rewardCoins) {
         if (top.length > 0 || canReplay) {
             if (top.length > 0) {
                 topErrorsList.innerHTML = top.map(function (e) {
-                    return '<span class="px-1.5 py-0.5 rounded-md bg-red-500/20 text-red-300 font-mono font-bold text-[10px] border border-red-500/30">' +
+                    return '<span class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-red-500/30 text-red-100 font-mono font-bold text-base sm:text-lg shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_4px_18px_rgba(220,38,38,0.35)]">' +
                         (e.key === ' ' ? '␣' : e.key) +
-                        ' <span class="text-[9px] font-normal text-red-400/70">×' + e.count + '</span></span>';
+                        '<span class="text-sm sm:text-base font-semibold text-red-200/95 tabular-nums">×' + e.count + '</span></span>';
                 }).join('');
                 topErrorsList.classList.remove('hidden');
             } else {
@@ -7537,4 +7537,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-

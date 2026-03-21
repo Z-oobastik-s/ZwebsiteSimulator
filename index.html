@@ -546,6 +546,14 @@
             background: #fff;
             border-color: rgba(0, 0, 0, 0.1);
         }
+        html:not(.dark) #resultsModal .results-modal-shell {
+            border: none !important;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(6, 182, 212, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.95) !important;
+        }
+        html:not(.dark) #resultsModal .results-panel-surface {
+            border: none !important;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 6px 24px rgba(0, 0, 0, 0.07) !important;
+        }
         html:not(.dark) .practice-stats-panel,
         html:not(.dark) [class*="bg-gray-800"][class*="rounded-2xl"][class*="p-3"] {
             background: rgba(255, 255, 255, 0.95);
@@ -577,9 +585,10 @@
         #resultsModal .results-modal-shell {
             width: 100% !important;
             max-width: min(100vw - 1rem, 38rem) !important;
+            border: none !important;
             box-shadow:
                 0 25px 50px -12px rgba(0, 0, 0, 0.55),
-                0 0 0 1px rgba(34, 211, 238, 0.14),
+                0 0 0 1px rgba(34, 211, 238, 0.22),
                 inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
             max-height: calc(100dvh - 1rem) !important;
             max-height: calc(100vh - 1rem) !important;
@@ -601,6 +610,23 @@
         }
         #resultsModal .results-stat-cell {
             min-width: 0;
+        }
+        /* Без светлых обводок у «коробок» — только мягкая тень и лёгкий внутренний блик */
+        #resultsModal .results-panel-surface {
+            border: none !important;
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.07),
+                0 6px 28px rgba(0, 0, 0, 0.45);
+        }
+        #resultsModal .results-modal-header-bar {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+        }
+        #resultsModal .results-footer-bar {
+            border-top: 1px solid rgba(255, 255, 255, 0.06) !important;
+        }
+        #resultsModal .results-action-btn {
+            border: none !important;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 4px 16px rgba(0, 0, 0, 0.35);
         }
         #resultsModal .results-modal-body {
             flex: 1 1 auto;
@@ -3245,8 +3271,8 @@
     
     <!-- Results Modal: компактная карточка по центру -->
     <div id="resultsModal" class="fixed inset-0 z-50 hidden items-center justify-center overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="resultsModalTitle">
-        <div class="results-modal-shell glass rounded-2xl w-full flex flex-col fade-in overscroll-contain border border-cyan-500/35 overflow-hidden ring-1 ring-cyan-400/15">
-            <div class="flex items-center justify-between gap-2 px-3 py-2 border-b border-white/10 shrink-0 bg-gradient-to-r from-black/35 via-black/25 to-cyan-950/20">
+        <div class="results-modal-shell glass rounded-2xl w-full flex flex-col fade-in overscroll-contain overflow-hidden">
+            <div class="results-modal-header-bar flex items-center justify-between gap-2 px-3 py-2 shrink-0 bg-gradient-to-r from-black/35 via-black/25 to-cyan-950/20">
                 <h3 id="resultsModalTitle" class="text-base font-bold leading-tight text-left flex-1 min-w-0 tracking-tight text-white" data-i18n="results">Результаты</h3>
             </div>
 
@@ -3255,32 +3281,34 @@
                 <div class="grid grid-cols-1 min-[420px]:grid-cols-12 gap-1.5 min-[420px]:gap-2 items-start min-w-0">
                     <div class="min-[420px]:col-span-4 min-w-0">
                         <div class="grid grid-cols-4 gap-1.5">
-                            <div class="results-stat-cell flex flex-col items-center justify-center py-1.5 px-1 bg-gradient-to-b from-white/12 to-white/[0.04] dark:from-white/10 dark:to-black/30 rounded-lg min-w-0 border border-white/10 shadow-inner">
-                                <span class="text-[8px] text-gray-300 mb-0.5 text-center leading-tight font-medium" data-i18n="speed">Скорость</span>
-                                <span class="text-lg sm:text-xl font-bold text-primary tabular-nums leading-none drop-shadow-sm" id="resultSpeed">0</span>
-                                <span class="text-[8px] text-gray-400 mt-0.5" data-i18n="cpm">зн/мин</span>
+                            <div class="results-stat-cell results-panel-surface flex flex-col items-center justify-center py-2 px-1 bg-gradient-to-b from-white/12 to-white/[0.04] dark:from-white/10 dark:to-black/30 rounded-xl min-w-0">
+                                <span class="text-[9px] text-gray-300 mb-0.5 text-center leading-tight font-medium" data-i18n="speed">Скорость</span>
+                                <div class="flex flex-row flex-nowrap items-baseline justify-center gap-1 leading-none whitespace-nowrap">
+                                    <span class="text-lg sm:text-xl font-bold text-primary tabular-nums drop-shadow-sm" id="resultSpeed">0</span>
+                                    <span class="text-[10px] sm:text-xs text-gray-300 font-semibold shrink-0" data-i18n="cpm">зн/мин</span>
+                                </div>
                                 <span id="resultPbBadge" class="hidden mt-0.5 text-[7px] font-semibold px-1 py-0.5 rounded-full text-center leading-tight max-w-full truncate"></span>
                             </div>
-                            <div class="results-stat-cell flex flex-col items-center justify-center py-1.5 px-1 bg-gradient-to-b from-white/12 to-white/[0.04] dark:from-white/10 dark:to-black/30 rounded-lg min-w-0 border border-white/10 shadow-inner">
-                                <span class="text-[8px] text-gray-300 mb-0.5 text-center leading-tight font-medium" data-i18n="accuracy">Точность</span>
+                            <div class="results-stat-cell results-panel-surface flex flex-col items-center justify-center py-2 px-1 bg-gradient-to-b from-white/12 to-white/[0.04] dark:from-white/10 dark:to-black/30 rounded-xl min-w-0">
+                                <span class="text-[9px] text-gray-300 mb-0.5 text-center leading-tight font-medium" data-i18n="accuracy">Точность</span>
                                 <div class="flex flex-row flex-nowrap items-baseline justify-center gap-0.5 leading-none whitespace-nowrap">
                                     <span class="text-lg sm:text-xl font-bold text-success tabular-nums" id="resultAccuracy">0</span>
                                     <span class="text-xs sm:text-sm text-gray-300 font-semibold shrink-0">%</span>
                                 </div>
                             </div>
-                            <div class="results-stat-cell flex flex-col items-center justify-center py-1.5 px-1 bg-gradient-to-b from-white/12 to-white/[0.04] dark:from-white/10 dark:to-black/30 rounded-lg min-w-0 border border-white/10 shadow-inner">
-                                <span class="text-[8px] text-gray-300 mb-0.5 text-center leading-tight font-medium" data-i18n="time">Время</span>
+                            <div class="results-stat-cell results-panel-surface flex flex-col items-center justify-center py-2 px-1 bg-gradient-to-b from-white/12 to-white/[0.04] dark:from-white/10 dark:to-black/30 rounded-xl min-w-0">
+                                <span class="text-[9px] text-gray-300 mb-0.5 text-center leading-tight font-medium" data-i18n="time">Время</span>
                                 <span class="text-base sm:text-lg font-bold text-warning tabular-nums leading-none" id="resultTime">0:00</span>
                             </div>
-                            <div class="results-stat-cell flex flex-col items-center justify-center py-1.5 px-1 bg-gradient-to-b from-white/12 to-white/[0.04] dark:from-white/10 dark:to-black/30 rounded-lg min-w-0 border border-white/10 shadow-inner">
-                                <span class="text-[8px] text-gray-300 mb-0.5 text-center leading-tight font-medium" data-i18n="errors">Ошибки</span>
+                            <div class="results-stat-cell results-panel-surface flex flex-col items-center justify-center py-2 px-1 bg-gradient-to-b from-white/12 to-white/[0.04] dark:from-white/10 dark:to-black/30 rounded-xl min-w-0">
+                                <span class="text-[9px] text-gray-300 mb-0.5 text-center leading-tight font-medium" data-i18n="errors">Ошибки</span>
                                 <span class="text-base sm:text-lg font-bold text-red-400 tabular-nums leading-none" id="resultErrors">0</span>
                             </div>
                         </div>
                     </div>
                     <div class="min-[420px]:col-span-8 min-w-0 min-h-0">
                         <p class="text-[9px] text-gray-300 mb-0.5 leading-none font-medium" data-i18n="resultChartTitle">Скорость по времени</p>
-                        <div class="results-chart-wrap rounded-lg bg-white/5 dark:bg-black/40 border border-white/10 p-0.5">
+                        <div class="results-chart-wrap results-panel-surface rounded-xl bg-white/5 dark:bg-black/40 p-1">
                             <canvas id="resultSpeedChart" class="w-full h-full block" style="display:block;"></canvas>
                         </div>
                     </div>
@@ -3288,35 +3316,35 @@
 
                 <!-- Вчера vs сейчас и совет тренера -->
                 <div class="grid grid-cols-1 min-[420px]:grid-cols-2 gap-1.5 min-w-0">
-                    <div id="resultSpeedInsight" class="hidden p-2 rounded-lg bg-slate-800/60 border border-slate-500/30 text-slate-100 min-w-0">
-                        <p id="resultSpeedInsightYesterday" class="text-[11px] sm:text-xs text-slate-100 leading-snug"></p>
+                    <div id="resultSpeedInsight" class="hidden results-panel-surface p-2.5 rounded-xl bg-slate-800/70 text-slate-100 min-w-0">
+                        <p id="resultSpeedInsightYesterday" class="text-xs sm:text-sm text-slate-100 leading-snug"></p>
                     </div>
-                    <div id="resultCoachTip" class="hidden p-2 rounded-lg bg-amber-950/40 border border-amber-500/30 min-w-0">
-                        <p class="text-[8px] font-bold text-amber-400/95 uppercase tracking-wide mb-0.5 leading-none" data-i18n="resultCoachTitle">Совет тренера</p>
-                        <p id="resultCoachTipText" class="text-[11px] sm:text-xs text-amber-50/95 leading-snug"></p>
+                    <div id="resultCoachTip" class="hidden results-panel-surface p-2.5 rounded-xl bg-amber-950/50 min-w-0">
+                        <p class="text-[9px] font-bold text-amber-400/95 uppercase tracking-wide mb-1 leading-none drop-shadow-sm" data-i18n="resultCoachTitle">Совет тренера</p>
+                        <p id="resultCoachTipText" class="text-xs sm:text-sm text-amber-50/95 leading-snug"></p>
                     </div>
                 </div>
 
-                <div id="resultReward" class="hidden flex justify-between items-center gap-2 px-2 py-1 bg-purple-600/20 rounded-md border border-purple-500/30 min-w-0">
-                    <span class="flex items-center gap-1 text-[10px] min-w-0">
-                        <svg class="w-3 h-3 text-purple-300 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.22-.071-.412-.164-.567-.267C8.07 11.66 8 11.434 8 11c0-.114.07-.34.433-.582A2.305 2.305 0 019 10.151V8.151c-.22.071-.412.164-.567.267C8.07 8.66 8 8.886 8 9c0 .114.07.34.433.582.155.103.346.196.567.267v1.698c-.22-.071-.412-.164-.567-.267C8.07 11.66 8 11.434 8 11c0-.114.07-.34.433-.582A2.305 2.305 0 019 10.151V8.151a4.535 4.535 0 011.676.662C11.398 9.234 12 9.009 12 9c0-.114-.07-.34-.433-.582A2.305 2.305 0 0110.567 8.151V6.453a4.535 4.535 0 001.676-.662C11.398 5.234 12 4.009 12 4c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 009 5.092V3.151a2.305 2.305 0 01.567.267C9.93 3.66 10 3.886 10 4c0 .114-.07.34-.433.582A2.305 2.305 0 019 4.849v1.698z" clip-rule="evenodd"/></svg>
+                <div id="resultReward" class="hidden results-panel-surface flex justify-between items-center gap-3 px-4 py-3 min-h-[3.25rem] bg-purple-600/25 rounded-xl min-w-0">
+                    <span class="flex items-center gap-2 text-sm text-purple-100 min-w-0 font-medium drop-shadow-sm">
+                        <svg class="w-4 h-4 text-purple-300 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.22-.071-.412-.164-.567-.267C8.07 11.66 8 11.434 8 11c0-.114.07-.34.433-.582A2.305 2.305 0 019 10.151V8.151c-.22.071-.412.164-.567.267C8.07 8.66 8 8.886 8 9c0 .114.07.34.433.582.155.103.346.196.567.267v1.698c-.22-.071-.412-.164-.567-.267C8.07 11.66 8 11.434 8 11c0-.114.07-.34.433-.582A2.305 2.305 0 019 10.151V8.151a4.535 4.535 0 011.676.662C11.398 9.234 12 9.009 12 9c0-.114-.07-.34-.433-.582A2.305 2.305 0 0110.567 8.151V6.453a4.535 4.535 0 001.676-.662C11.398 5.234 12 4.009 12 4c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 009 5.092V3.151a2.305 2.305 0 01.567.267C9.93 3.66 10 3.886 10 4c0 .114-.07.34-.433.582A2.305 2.305 0 019 4.849v1.698z" clip-rule="evenodd"/></svg>
                         <span data-i18n="reward">Награда</span>
                     </span>
-                    <span class="text-[11px] font-bold text-purple-300 shrink-0 tabular-nums" id="resultRewardAmount">+0 монет</span>
+                    <span class="text-sm sm:text-base font-bold text-purple-200 shrink-0 tabular-nums drop-shadow-sm" id="resultRewardAmount">+0 монет</span>
                 </div>
 
                 <!-- Проблемные клавиши + две кнопки в один ряд -->
-                <div id="resultTopErrors" class="hidden p-1.5 bg-white/5 dark:bg-black/25 rounded-md border border-white/5 min-w-0">
-                    <div class="flex flex-wrap items-center gap-x-2 gap-y-1 min-w-0">
-                        <p id="resultTopErrorsTitle" class="text-[8px] text-gray-400 leading-tight shrink-0" data-i18n="resultProblemKeysTitle">Проблемные клавиши этой сессии:</p>
-                        <div id="resultTopErrorsList" class="flex flex-wrap gap-1 flex-1 min-w-0 content-center"></div>
+                <div id="resultTopErrors" class="hidden results-panel-surface p-2.5 bg-white/[0.06] dark:bg-black/35 rounded-xl min-w-0">
+                    <div class="flex flex-wrap items-center gap-x-3 gap-y-2 min-w-0">
+                        <p id="resultTopErrorsTitle" class="text-xs sm:text-sm text-gray-300 leading-snug shrink-0 font-medium" data-i18n="resultProblemKeysTitle">Проблемные клавиши этой сессии:</p>
+                        <div id="resultTopErrorsList" class="flex flex-wrap gap-2 flex-1 min-w-0 content-center items-center"></div>
                     </div>
-                    <div class="mt-1 flex flex-col sm:flex-row gap-1 min-w-0">
-                        <button type="button" onclick="startAdaptivePractice()" class="flex-1 min-h-0 text-[9px] sm:text-[10px] py-1 px-1 rounded-md bg-indigo-600/35 hover:bg-indigo-600/55 text-indigo-200 font-semibold transition-colors border border-indigo-500/25 leading-tight" data-i18n="resultTrainWeakKeys">
-                            Тренировать слабые клавиши
+                    <div class="mt-2 flex flex-col sm:flex-row gap-2 min-w-0">
+                        <button type="button" onclick="startAdaptivePractice()" class="results-action-btn flex-1 min-h-[2.5rem] text-xs sm:text-sm py-2 px-2 rounded-xl bg-indigo-600/40 hover:bg-indigo-600/60 text-indigo-100 font-semibold transition-colors leading-tight">
+                            <span data-i18n="resultTrainWeakKeys">Тренировать слабые клавиши</span>
                         </button>
                         <div id="resultReplayErrorsWrap" class="hidden flex-1 min-w-0">
-                            <button type="button" id="resultReplayErrorsBtn" onclick="startErrorReplayPractice()" class="w-full text-[9px] sm:text-[10px] py-1 px-1 rounded-md bg-rose-600/25 hover:bg-rose-600/45 text-rose-200 font-semibold transition-colors border border-rose-500/30 leading-tight">
+                            <button type="button" id="resultReplayErrorsBtn" onclick="startErrorReplayPractice()" class="results-action-btn w-full min-h-[2.5rem] text-xs sm:text-sm py-2 px-2 rounded-xl bg-rose-600/35 hover:bg-rose-600/55 text-rose-100 font-semibold transition-colors leading-tight">
                                 Повторить проблемные места
                             </button>
                         </div>
@@ -3324,15 +3352,15 @@
                 </div>
             </div>
 
-            <div class="shrink-0 px-3 py-2 border-t border-white/10 bg-gradient-to-t from-black/40 to-black/20">
-                <div class="grid grid-cols-3 gap-1.5">
-                    <button onclick="repeatPractice()" class="min-h-[34px] bg-primary hover:bg-primary/80 text-white font-semibold py-1 rounded-md text-[10px] sm:text-[11px] px-1 leading-tight">
+            <div class="results-footer-bar shrink-0 px-3 py-2 bg-gradient-to-t from-black/40 to-black/20">
+                <div class="grid grid-cols-3 gap-2">
+                    <button onclick="repeatPractice()" class="results-action-btn min-h-[2.5rem] bg-primary hover:bg-primary/85 text-white font-semibold py-2 rounded-xl text-xs sm:text-sm px-2 leading-tight">
                         <span data-i18n="repeat">Повторить</span>
                     </button>
-                    <button onclick="closeResults()" class="min-h-[34px] glass hover:bg-white/20 dark:hover:bg-black/20 font-semibold py-1 rounded-md text-[10px] sm:text-[11px] px-1 leading-tight">
+                    <button onclick="closeResults()" class="results-action-btn min-h-[2.5rem] bg-white/12 hover:bg-white/18 dark:bg-white/10 dark:hover:bg-white/16 font-semibold py-2 rounded-xl text-xs sm:text-sm px-2 leading-tight">
                         <span data-i18n="close">Закрыть</span>
                     </button>
-                    <button type="button" onclick="copyResultsToClipboard()" class="min-h-[34px] glass hover:bg-white/20 dark:hover:bg-black/20 font-medium py-1 rounded-md flex items-center justify-center gap-0.5 text-[9px] sm:text-[10px] px-0.5 leading-tight">
+                    <button type="button" onclick="copyResultsToClipboard()" class="results-action-btn min-h-[2.5rem] bg-white/12 hover:bg-white/18 dark:bg-white/10 dark:hover:bg-white/16 font-medium py-2 rounded-xl flex items-center justify-center gap-1 text-[10px] sm:text-xs px-1 leading-tight">
                         <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
                         <span data-i18n="copyResult" class="hidden sm:inline">Скопировать результат</span>
                         <span class="sm:hidden" data-i18n="copyResultShort">Копія</span>
@@ -3920,4 +3948,3 @@
     </script>
 </body>
 </html>
-
