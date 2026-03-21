@@ -2011,4 +2011,3 @@ const LESSONS_DATA = {
         ]
     }
 };
-

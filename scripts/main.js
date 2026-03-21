@@ -4457,80 +4457,154 @@ function renderProfileErrors() {
 
     var keyErrors = {};
     try { keyErrors = JSON.parse(localStorage.getItem('zoob_key_errors') || '{}'); } catch (e) {}
-
     var sorted = Object.entries(keyErrors).sort(function (a, b) { return b[1] - a[1]; });
     var maxErr = sorted.length > 0 ? sorted[0][1] : 1;
     var totalKeyErr = sorted.reduce(function (s, e) { return s + e[1]; }, 0);
 
     var sessions = (window.statsModule && window.statsModule.getRecentSessions) ? window.statsModule.getRecentSessions(10) : [];
+    var avgAcc = sessions.length ? Math.round(sessions.reduce(function (s, x) { return s + (x.accuracy || 0); }, 0) / sessions.length) : 0;
 
     var html = '';
 
-    // ── Most Missed Keys ──
-    html += '<p class="profile-section-title mb-3">⌨️ ' + _t('profileTabMissedKeys') + '</p>';
-
-    if (sorted.length === 0) {
-        html += '<div class="profile-empty-hint"><div style="font-size:2.5rem;margin-bottom:8px">🎯</div><div>' + _t('profileTabNoErrors') + '</div></div>';
-    } else {
-        var medals = ['🥇', '🥈', '🥉'];
-        html += '<div style="display:flex;flex-direction:column;gap:8px">';
-        sorted.slice(0, 12).forEach(function (entry, i) {
-            var ch = entry[0], cnt = entry[1];
-            var pct = Math.max(2, Math.round((cnt / maxErr) * 100));
-            var barColor = i === 0 ? '#ef4444' : i === 1 ? '#f97316' : i === 2 ? '#f59e0b' : i < 6 ? '#64748b' : '#334155';
-            html += '<div style="display:flex;align-items:center;gap:10px">' +
-                '<span style="font-size:14px;width:22px;text-align:center">' + (medals[i] || '') + '</span>' +
-                '<div class="profile-key-box">' + escapeHtml(ch === ' ' ? '␣' : ch) + '</div>' +
-                '<div style="flex:1;height:20px;background:rgba(255,255,255,0.05);border-radius:6px;overflow:hidden">' +
-                    '<div style="height:100%;width:' + pct + '%;background:' + barColor + ';border-radius:6px;transition:width 0.5s ease"></div>' +
+    // ── Summary card ──
+    if (sorted.length > 0 || sessions.length > 0) {
+        var grade = avgAcc >= 95 ? { l: lang === 'en' ? 'PERFECT' : 'ОТЛИЧНО', c: '#10b981', icon: '🏆' }
+                  : avgAcc >= 85 ? { l: lang === 'en' ? 'GREAT'   : 'ХОРОШО',  c: '#22d3ee', icon: '⭐' }
+                  : avgAcc >= 70 ? { l: lang === 'en' ? 'GOOD'    : 'НЕПЛОХО', c: '#f59e0b', icon: '📈' }
+                  :                { l: lang === 'en' ? 'PRACTICE': 'ТРЕНИРУЙСЯ', c: '#ef4444', icon: '💪' };
+        html += '<div style="background:linear-gradient(135deg,rgba(0,0,0,0.5),rgba(15,23,42,0.8));border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;gap:16px">' +
+            '<div style="font-size:40px;line-height:1">' + grade.icon + '</div>' +
+            '<div style="flex:1">' +
+                '<div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px">' +
+                    '<span style="font-size:28px;font-weight:800;color:' + grade.c + ';text-shadow:0 0 20px ' + grade.c + '66">' + (avgAcc || '—') + (sessions.length ? '%' : '') + '</span>' +
+                    '<span style="font-size:11px;font-weight:700;color:' + grade.c + ';letter-spacing:.1em;opacity:.8">' + grade.l + '</span>' +
                 '</div>' +
-                '<span style="font-size:13px;font-weight:700;color:#f87171;width:36px;text-align:right">' + cnt + '</span>' +
-            '</div>';
-        });
-        html += '</div>';
-        html += '<p style="font-size:10px;color:#334155;text-align:right;margin-top:8px">' + (lang === 'en' ? 'Total errors tracked: ' : 'Всего отслежено ошибок: ') + totalKeyErr + '</p>';
-    }
-
-    // ── Accuracy + Speed trend ──
-    html += '<p class="profile-section-title mt-6 mb-3">📈 ' + _t('profileTabAccTrend') + '</p>';
-
-    if (sessions.length < 2) {
-        html += '<div class="profile-empty-hint"><div style="font-size:2.5rem;margin-bottom:8px">📊</div><div>' + _t('profileTabNeedMore') + '</div></div>';
-    } else {
-        var rev = sessions.slice().reverse();
-        var maxSpd = Math.max.apply(null, rev.map(function (s) { return s.speed; }));
-        if (maxSpd < 1) maxSpd = 1;
-
-        // Accuracy bars
-        html += '<div style="display:flex;align-items:flex-end;gap:3px;height:72px;padding:0 4px">';
-        rev.forEach(function (s) {
-            var ac = s.accuracy || 0;
-            var h = Math.round(ac * 0.65);
-            var c = ac >= 95 ? '#10b981' : ac >= 80 ? '#22d3ee' : ac >= 60 ? '#f59e0b' : '#ef4444';
-            html += '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px">' +
-                '<span style="font-size:8px;color:#475569">' + ac + '%</span>' +
-                '<div style="width:100%;border-radius:4px 4px 0 0;background:' + c + ';opacity:0.8;min-height:3px;height:' + h + 'px"></div>' +
-            '</div>';
-        });
-        html += '</div>';
-
-        // Speed bars
-        html += '<p style="font-size:9px;color:#334155;text-align:right;margin:6px 4px 2px">CPM</p>';
-        html += '<div style="display:flex;align-items:flex-end;gap:3px;height:52px;padding:0 4px">';
-        rev.forEach(function (s) {
-            var sp = s.speed || 0;
-            var h = Math.max(2, Math.round((sp / maxSpd) * 46));
-            html += '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px">' +
-                '<span style="font-size:8px;color:#0e7490">' + sp + '</span>' +
-                '<div style="width:100%;border-radius:4px 4px 0 0;background:#06b6d4;opacity:0.6;min-height:2px;height:' + h + 'px"></div>' +
-            '</div>';
-        });
-        html += '</div>';
-        html += '<div style="display:flex;justify-content:space-between;font-size:9px;color:#334155;padding:4px 4px 0">' +
-            '<span>' + (lang === 'en' ? '← older' : '← старее') + '</span>' +
-            '<span>' + (lang === 'en' ? 'newer →' : 'новее →') + '</span>' +
+                '<div style="height:6px;background:rgba(255,255,255,0.07);border-radius:99px;overflow:hidden;margin-bottom:6px">' +
+                    '<div style="height:100%;width:' + avgAcc + '%;background:linear-gradient(90deg,' + grade.c + '88,' + grade.c + ');border-radius:99px;transition:width 1s ease"></div>' +
+                '</div>' +
+                '<div style="display:flex;gap:16px">' +
+                    '<span style="font-size:11px;color:#64748b">' + (lang === 'en' ? '⌨️ Problem keys: ' : '⌨️ Проблемных: ') + '<b style="color:#f87171">' + sorted.length + '</b></span>' +
+                    '<span style="font-size:11px;color:#64748b">' + (lang === 'en' ? '❌ Total errors: ' : '❌ Всего ошибок: ') + '<b style="color:#f87171">' + totalKeyErr + '</b></span>' +
+                '</div>' +
+            '</div>' +
         '</div>';
     }
+
+    // ── Keyboard heatmap ──
+    html += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">' +
+        '<p class="profile-section-title mb-0">⌨️ ' + _t('profileTabMissedKeys') + '</p>' +
+        (sorted.length > 0 ? '<div style="display:flex;align-items:center;gap:6px;font-size:10px;color:#475569">' +
+            '<span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#ef4444"></span>' + (lang === 'en' ? 'Critical' : 'Критично') +
+            '<span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#f59e0b;margin-left:4px"></span>' + (lang === 'en' ? 'Watch' : 'Внимание') +
+            '<span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#475569;margin-left:4px"></span>' + (lang === 'en' ? 'Minor' : 'Мелкое') +
+        '</div>' : '') +
+    '</div>';
+
+    if (sorted.length === 0) {
+        html += '<div class="profile-empty-hint"><div style="font-size:3rem;margin-bottom:10px">🎯</div><div style="font-size:14px;font-weight:600;color:#334155;margin-bottom:4px">' + (lang === 'en' ? 'No errors tracked yet' : 'Ошибок пока не зафиксировано') + '</div><div style="font-size:12px;color:#475569">' + _t('profileTabNoErrors') + '</div></div>';
+    } else {
+        // 3D keyboard key cards
+        html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(70px,1fr));gap:8px;margin-bottom:12px">';
+        sorted.slice(0, 12).forEach(function (entry, i) {
+            var ch = entry[0], cnt = entry[1];
+            var pct = cnt / maxErr;
+            // Color interpolation: gray → orange → red
+            var keyColor  = pct > 0.75 ? '#ef4444' : pct > 0.45 ? '#f97316' : pct > 0.2 ? '#f59e0b' : '#475569';
+            var glowColor = pct > 0.75 ? 'rgba(239,68,68,0.35)' : pct > 0.45 ? 'rgba(249,115,22,0.3)' : pct > 0.2 ? 'rgba(245,158,11,0.25)' : 'rgba(255,255,255,0.04)';
+            var rank = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '';
+            var dispChar = ch === ' ' ? '␣' : ch;
+            html += '<div style="display:flex;flex-direction:column;align-items:center;gap:5px;padding:12px 8px 10px;' +
+                'background:linear-gradient(180deg,rgba(20,27,45,0.95),rgba(10,14,26,0.98));' +
+                'border:1px solid ' + keyColor + '55;' +
+                'border-bottom:3px solid ' + keyColor + ';' +
+                'border-radius:10px;' +
+                'box-shadow:0 4px 16px ' + glowColor + ',inset 0 1px 0 rgba(255,255,255,0.06);' +
+                'cursor:default;transition:transform .15s;position:relative">' +
+                (rank ? '<span style="position:absolute;top:4px;right:5px;font-size:10px;line-height:1">' + rank + '</span>' : '') +
+                '<span style="font-size:20px;font-weight:800;color:#f1f5f9;font-family:monospace;line-height:1;letter-spacing:0">' + escapeHtml(dispChar) + '</span>' +
+                '<div style="width:100%;height:3px;background:rgba(255,255,255,0.06);border-radius:99px;overflow:hidden">' +
+                    '<div style="height:100%;width:' + Math.round(pct * 100) + '%;background:' + keyColor + ';border-radius:99px"></div>' +
+                '</div>' +
+                '<span style="font-size:12px;font-weight:700;color:' + keyColor + '">' + cnt + ' ' + (lang === 'en' ? 'err' : 'ош') + '</span>' +
+            '</div>';
+        });
+        html += '</div>';
+        if (sorted.length > 12) {
+            html += '<p style="font-size:11px;color:#334155;text-align:center;margin-bottom:4px">' + (lang === 'en' ? '+ ' + (sorted.length - 12) + ' more keys' : '+ ещё ' + (sorted.length - 12) + ' клавиш') + '</p>';
+        }
+    }
+
+    // ── Trend charts ──
+    html += '<div style="margin-top:24px">';
+    html += '<p class="profile-section-title mb-3">📈 ' + _t('profileTabAccTrend') + '</p>';
+
+    if (sessions.length < 2) {
+        html += '<div class="profile-empty-hint"><div style="font-size:3rem;margin-bottom:10px">📊</div><div style="font-size:12px;color:#475569">' + _t('profileTabNeedMore') + '</div></div>';
+    } else {
+        var rev = sessions.slice().reverse();
+        var maxSpd = Math.max.apply(null, rev.map(function (s) { return s.speed || 0; })) || 1;
+        var minAcc = Math.min.apply(null, rev.map(function (s) { return s.accuracy || 0; }));
+
+        // Two-panel chart: accuracy top, speed bottom
+        html += '<div style="background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:16px">';
+
+        // Labels
+        html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">' +
+            '<span style="font-size:10px;color:#64748b;letter-spacing:.06em;text-transform:uppercase">' + (lang === 'en' ? 'Accuracy %' : 'Точность %') + '</span>' +
+            '<div style="display:flex;gap:10px">' +
+                '<span style="font-size:10px;color:#475569">min ' + minAcc + '%</span>' +
+                '<span style="font-size:10px;color:#475569">avg ' + avgAcc + '%</span>' +
+            '</div>' +
+        '</div>';
+
+        // Accuracy bars
+        html += '<div style="display:flex;align-items:flex-end;gap:4px;height:80px">';
+        rev.forEach(function (s, i) {
+            var ac = s.accuracy || 0;
+            var h = Math.max(4, Math.round(ac * 0.76));
+            var c = ac >= 95 ? '#10b981' : ac >= 85 ? '#22d3ee' : ac >= 70 ? '#f59e0b' : '#ef4444';
+            var isLast = i === rev.length - 1;
+            html += '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px">' +
+                '<span style="font-size:9px;color:' + c + ';font-weight:' + (isLast ? '700' : '400') + '">' + ac + '</span>' +
+                '<div style="width:100%;border-radius:4px 4px 0 0;background:' + c + (isLast ? '' : '99') + ';min-height:4px;height:' + h + 'px;' +
+                    (isLast ? 'box-shadow:0 0 12px ' + c + '66;' : '') + '"></div>' +
+            '</div>';
+        });
+        html += '</div>';
+
+        // Divider
+        html += '<div style="border-top:1px solid rgba(255,255,255,0.06);margin:10px 0 8px"></div>';
+
+        // Speed label
+        html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">' +
+            '<span style="font-size:10px;color:#64748b;letter-spacing:.06em;text-transform:uppercase">CPM</span>' +
+            '<span style="font-size:10px;color:#475569">max ' + maxSpd + '</span>' +
+        '</div>';
+
+        // Speed bars
+        html += '<div style="display:flex;align-items:flex-end;gap:4px;height:56px">';
+        rev.forEach(function (s, i) {
+            var sp = s.speed || 0;
+            var h = Math.max(3, Math.round((sp / maxSpd) * 50));
+            var isLast = i === rev.length - 1;
+            var sc = sp >= 300 ? '#f59e0b' : sp >= 200 ? '#22d3ee' : sp >= 150 ? '#10b981' : '#64748b';
+            html += '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px">' +
+                '<span style="font-size:9px;color:' + sc + ';font-weight:' + (isLast ? '700' : '400') + '">' + sp + '</span>' +
+                '<div style="width:100%;border-radius:4px 4px 0 0;background:' + sc + (isLast ? '' : '88') + ';min-height:3px;height:' + h + 'px;' +
+                    (isLast ? 'box-shadow:0 0 10px ' + sc + '55;' : '') + '"></div>' +
+            '</div>';
+        });
+        html += '</div>';
+
+        // X-axis labels
+        html += '<div style="display:flex;justify-content:space-between;font-size:9px;color:#334155;margin-top:6px;padding:0 2px">' +
+            '<span>' + (lang === 'en' ? '← older' : '← старее') + '</span>' +
+            '<span style="color:#94a3b8;font-weight:600">' + (lang === 'en' ? 'latest →' : 'последняя →') + '</span>' +
+        '</div>';
+
+        html += '</div>'; // end chart panel
+    }
+    html += '</div>'; // end trend section
 
     el.innerHTML = html;
 }
@@ -6015,4 +6089,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-
