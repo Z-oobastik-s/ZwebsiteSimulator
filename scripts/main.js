@@ -3317,7 +3317,7 @@ function renderText() {
 // Handle key press - ОПТИМИЗИРОВАНА
 function handleKeyPress(e) {
     // Разрешаем ввод во всех режимах практики
-    const validModes = ['practice', 'speedtest', 'lesson', 'free'];
+    const validModes = ['practice', 'speedtest', 'lesson', 'free', 'adaptive'];
     if (!validModes.includes(app.currentMode) || app.isPaused) return;
     
     // Ignore special keys; allow Enter only when the expected character is '\n'
@@ -6741,3 +6741,4 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+
