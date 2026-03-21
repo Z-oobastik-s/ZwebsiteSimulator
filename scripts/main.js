@@ -4403,11 +4403,11 @@ function showResults(speed, accuracy, time, errors, rewardCoins) {
             // Считаем: если speed >= bestSpeed — новый рекорд
             if (speed > 0 && speed >= bestSpeed && bestSpeed > 0) {
                 pbBadge.textContent = speed > bestSpeed ? '🏆 Новый рекорд!' : '🏆 Рекорд!';
-                pbBadge.className = 'mt-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-yellow-400/20 text-yellow-300';
+                pbBadge.className = 'mt-0.5 text-[8px] font-semibold px-1 py-0.5 rounded-full bg-yellow-400/20 text-yellow-300 leading-tight';
             } else if (bestSpeed > 0 && speed < bestSpeed) {
                 const diff = bestSpeed - speed;
                 pbBadge.textContent = '–' + diff + ' до рекорда';
-                pbBadge.className = 'mt-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-gray-500/20 text-gray-400';
+                pbBadge.className = 'mt-0.5 text-[8px] font-semibold px-1 py-0.5 rounded-full bg-gray-500/20 text-gray-400 leading-tight';
             } else {
                 pbBadge.className = 'hidden';
             }
@@ -4481,9 +4481,9 @@ function showResults(speed, accuracy, time, errors, rewardCoins) {
         if (top.length > 0 || canReplay) {
             if (top.length > 0) {
                 topErrorsList.innerHTML = top.map(function (e) {
-                    return '<span class="px-3 py-1 rounded-lg bg-red-500/20 text-red-300 font-mono font-bold text-sm border border-red-500/30">' +
+                    return '<span class="px-1.5 py-0.5 rounded-md bg-red-500/20 text-red-300 font-mono font-bold text-[10px] border border-red-500/30">' +
                         (e.key === ' ' ? '␣' : e.key) +
-                        ' <span class="text-xs font-normal text-red-400/70">×' + e.count + '</span></span>';
+                        ' <span class="text-[9px] font-normal text-red-400/70">×' + e.count + '</span></span>';
                 }).join('');
                 topErrorsList.classList.remove('hidden');
             } else {
@@ -7564,4 +7564,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-
