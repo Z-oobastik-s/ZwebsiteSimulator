@@ -576,7 +576,11 @@
         }
         #resultsModal .results-modal-shell {
             width: 100% !important;
-            max-width: min(100vw - 1rem, 32rem) !important;
+            max-width: min(100vw - 1rem, 38rem) !important;
+            box-shadow:
+                0 25px 50px -12px rgba(0, 0, 0, 0.55),
+                0 0 0 1px rgba(34, 211, 238, 0.14),
+                inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
             max-height: calc(100dvh - 1rem) !important;
             max-height: calc(100vh - 1rem) !important;
             margin: 0 auto !important;
@@ -587,13 +591,16 @@
         }
         @media (min-width: 640px) {
             #resultsModal .results-modal-shell {
-                max-width: min(100vw - 1.25rem, 44rem) !important;
+                max-width: min(100vw - 1.25rem, 50rem) !important;
             }
         }
         @media (min-width: 900px) {
             #resultsModal .results-modal-shell {
-                max-width: min(100vw - 1.5rem, 52rem) !important;
+                max-width: min(100vw - 1.5rem, 58rem) !important;
             }
+        }
+        #resultsModal .results-stat-cell {
+            min-width: 0;
         }
         #resultsModal .results-modal-body {
             flex: 1 1 auto;
@@ -3238,54 +3245,55 @@
     
     <!-- Results Modal: компактная карточка по центру -->
     <div id="resultsModal" class="fixed inset-0 z-50 hidden items-center justify-center overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="resultsModalTitle">
-        <div class="results-modal-shell glass rounded-2xl w-full flex flex-col fade-in overscroll-contain shadow-2xl border border-cyan-500/25 overflow-hidden">
-            <div class="flex items-center justify-between gap-2 px-2.5 py-1.5 border-b border-white/10 shrink-0 bg-black/20">
-                <h3 id="resultsModalTitle" class="text-sm font-bold leading-tight text-left flex-1 min-w-0" data-i18n="results">Результаты</h3>
+        <div class="results-modal-shell glass rounded-2xl w-full flex flex-col fade-in overscroll-contain border border-cyan-500/35 overflow-hidden ring-1 ring-cyan-400/15">
+            <div class="flex items-center justify-between gap-2 px-3 py-2 border-b border-white/10 shrink-0 bg-gradient-to-r from-black/35 via-black/25 to-cyan-950/20">
+                <h3 id="resultsModalTitle" class="text-base font-bold leading-tight text-left flex-1 min-w-0 tracking-tight text-white" data-i18n="results">Результаты</h3>
             </div>
 
             <div class="results-modal-body px-2.5 py-1.5 flex flex-col gap-1.5 min-w-0 flex-1 min-h-0">
                 <!-- Верх: метрики и график в одну линию (с sm), без лишней высоты -->
                 <div class="grid grid-cols-1 min-[420px]:grid-cols-12 gap-1.5 min-[420px]:gap-2 items-start min-w-0">
                     <div class="min-[420px]:col-span-4 min-w-0">
-                        <div class="grid grid-cols-4 gap-1">
-                            <div class="flex flex-col items-center py-1 px-0.5 bg-white/10 dark:bg-black/25 rounded-md min-w-0 border border-white/5">
-                                <span class="text-[7px] text-gray-400 mb-0.5 text-center leading-tight" data-i18n="speed">Скорость</span>
-                                <span class="text-base sm:text-lg font-bold text-primary tabular-nums leading-none" id="resultSpeed">0</span>
-                                <span class="text-[7px] text-gray-400 mt-0.5" data-i18n="cpm">зн/мин</span>
+                        <div class="grid grid-cols-4 gap-1.5">
+                            <div class="results-stat-cell flex flex-col items-center justify-center py-1.5 px-1 bg-gradient-to-b from-white/12 to-white/[0.04] dark:from-white/10 dark:to-black/30 rounded-lg min-w-0 border border-white/10 shadow-inner">
+                                <span class="text-[8px] text-gray-300 mb-0.5 text-center leading-tight font-medium" data-i18n="speed">Скорость</span>
+                                <span class="text-lg sm:text-xl font-bold text-primary tabular-nums leading-none drop-shadow-sm" id="resultSpeed">0</span>
+                                <span class="text-[8px] text-gray-400 mt-0.5" data-i18n="cpm">зн/мин</span>
                                 <span id="resultPbBadge" class="hidden mt-0.5 text-[7px] font-semibold px-1 py-0.5 rounded-full text-center leading-tight max-w-full truncate"></span>
                             </div>
-                            <div class="flex flex-col items-center py-1 px-0.5 bg-white/10 dark:bg-black/25 rounded-md min-w-0 border border-white/5">
-                                <span class="text-[7px] text-gray-400 mb-0.5" data-i18n="accuracy">Точность</span>
-                                <span class="text-base sm:text-lg font-bold text-success tabular-nums leading-none" id="resultAccuracy">0</span>
-                                <span class="text-[7px] text-gray-400 mt-0.5">%</span>
+                            <div class="results-stat-cell flex flex-col items-center justify-center py-1.5 px-1 bg-gradient-to-b from-white/12 to-white/[0.04] dark:from-white/10 dark:to-black/30 rounded-lg min-w-0 border border-white/10 shadow-inner">
+                                <span class="text-[8px] text-gray-300 mb-0.5 text-center leading-tight font-medium" data-i18n="accuracy">Точность</span>
+                                <div class="flex flex-row flex-nowrap items-baseline justify-center gap-0.5 leading-none whitespace-nowrap">
+                                    <span class="text-lg sm:text-xl font-bold text-success tabular-nums" id="resultAccuracy">0</span>
+                                    <span class="text-xs sm:text-sm text-gray-300 font-semibold shrink-0">%</span>
+                                </div>
                             </div>
-                            <div class="flex flex-col items-center py-1 px-0.5 bg-white/10 dark:bg-black/25 rounded-md min-w-0 border border-white/5">
-                                <span class="text-[7px] text-gray-400 mb-0.5" data-i18n="time">Время</span>
-                                <span class="text-sm sm:text-base font-bold text-warning tabular-nums leading-none" id="resultTime">0:00</span>
+                            <div class="results-stat-cell flex flex-col items-center justify-center py-1.5 px-1 bg-gradient-to-b from-white/12 to-white/[0.04] dark:from-white/10 dark:to-black/30 rounded-lg min-w-0 border border-white/10 shadow-inner">
+                                <span class="text-[8px] text-gray-300 mb-0.5 text-center leading-tight font-medium" data-i18n="time">Время</span>
+                                <span class="text-base sm:text-lg font-bold text-warning tabular-nums leading-none" id="resultTime">0:00</span>
                             </div>
-                            <div class="flex flex-col items-center py-1 px-0.5 bg-white/10 dark:bg-black/25 rounded-md min-w-0 border border-white/5">
-                                <span class="text-[7px] text-gray-400 mb-0.5" data-i18n="errors">Ошибки</span>
-                                <span class="text-sm sm:text-base font-bold text-red-400 tabular-nums leading-none" id="resultErrors">0</span>
+                            <div class="results-stat-cell flex flex-col items-center justify-center py-1.5 px-1 bg-gradient-to-b from-white/12 to-white/[0.04] dark:from-white/10 dark:to-black/30 rounded-lg min-w-0 border border-white/10 shadow-inner">
+                                <span class="text-[8px] text-gray-300 mb-0.5 text-center leading-tight font-medium" data-i18n="errors">Ошибки</span>
+                                <span class="text-base sm:text-lg font-bold text-red-400 tabular-nums leading-none" id="resultErrors">0</span>
                             </div>
                         </div>
                     </div>
                     <div class="min-[420px]:col-span-8 min-w-0 min-h-0">
-                        <p class="text-[8px] text-gray-400 mb-0.5 leading-none" data-i18n="resultChartTitle">Скорость по времени</p>
-                        <div class="results-chart-wrap rounded-md bg-white/5 dark:bg-black/30 border border-white/5 p-0.5">
+                        <p class="text-[9px] text-gray-300 mb-0.5 leading-none font-medium" data-i18n="resultChartTitle">Скорость по времени</p>
+                        <div class="results-chart-wrap rounded-lg bg-white/5 dark:bg-black/40 border border-white/10 p-0.5">
                             <canvas id="resultSpeedChart" class="w-full h-full block" style="display:block;"></canvas>
                         </div>
                     </div>
                 </div>
 
-                <!-- Медиана / вчера и совет в два столбца -->
+                <!-- Вчера vs сейчас и совет тренера -->
                 <div class="grid grid-cols-1 min-[420px]:grid-cols-2 gap-1.5 min-w-0">
-                    <div id="resultSpeedInsight" class="hidden p-1.5 rounded-md bg-cyan-500/10 border border-cyan-500/25 text-cyan-100/95 space-y-0.5 min-w-0">
-                        <p id="resultSpeedInsightMedian" class="text-[10px] leading-tight"></p>
-                        <p id="resultSpeedInsightYesterday" class="text-[10px] text-gray-400 leading-tight"></p>
+                    <div id="resultSpeedInsight" class="hidden p-2 rounded-lg bg-slate-800/60 border border-slate-500/30 text-slate-100 min-w-0">
+                        <p id="resultSpeedInsightYesterday" class="text-[11px] sm:text-xs text-slate-100 leading-snug"></p>
                     </div>
-                    <div id="resultCoachTip" class="hidden p-1.5 rounded-md bg-amber-500/10 border border-amber-500/25 min-w-0">
-                        <p class="text-[7px] font-bold text-amber-400/90 uppercase tracking-wide mb-0.5 leading-none" data-i18n="resultCoachTitle">Совет тренера</p>
-                        <p id="resultCoachTipText" class="text-[10px] sm:text-[11px] text-amber-100/90 leading-tight"></p>
+                    <div id="resultCoachTip" class="hidden p-2 rounded-lg bg-amber-950/40 border border-amber-500/30 min-w-0">
+                        <p class="text-[8px] font-bold text-amber-400/95 uppercase tracking-wide mb-0.5 leading-none" data-i18n="resultCoachTitle">Совет тренера</p>
+                        <p id="resultCoachTipText" class="text-[11px] sm:text-xs text-amber-50/95 leading-snug"></p>
                     </div>
                 </div>
 
@@ -3316,7 +3324,7 @@
                 </div>
             </div>
 
-            <div class="shrink-0 px-2.5 py-1.5 border-t border-white/10 bg-black/15">
+            <div class="shrink-0 px-3 py-2 border-t border-white/10 bg-gradient-to-t from-black/40 to-black/20">
                 <div class="grid grid-cols-3 gap-1.5">
                     <button onclick="repeatPractice()" class="min-h-[34px] bg-primary hover:bg-primary/80 text-white font-semibold py-1 rounded-md text-[10px] sm:text-[11px] px-1 leading-tight">
                         <span data-i18n="repeat">Повторить</span>
@@ -3912,3 +3920,4 @@
     </script>
 </body>
 </html>
+

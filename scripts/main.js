@@ -2270,15 +2270,10 @@ function updateLessonFilterBarStyles() {
     if (shBtn) shBtn.className = lessonDurationFilter === 'short' ? on : off;
 }
 
+/** Чекпоинты отключены: звук, тост и пульс прогресс-бара отвлекали во время набора. */
 function initLessonCheckpoints() {
-    if (app.currentMode === 'speedtest' || !app.totalChars || app.totalChars < 22) {
-        app._checkpointStep = 0;
-        app._checkpointNext = 0;
-        return;
-    }
-    var step = Math.max(14, Math.min(80, Math.floor(app.totalChars / 5)));
-    app._checkpointStep = step;
-    app._checkpointNext = Math.min(step, app.totalChars - 1);
+    app._checkpointStep = 0;
+    app._checkpointNext = 0;
 }
 
 function flashCheckpointBar() {
@@ -2311,12 +2306,12 @@ function updateCheckpointHintLine() {
     var modes = ['lesson', 'practice', 'free', 'adaptive', 'replay-errors'];
     if (modes.indexOf(app.currentMode) === -1 || !app._checkpointStep || app.totalChars < 22) {
         el.textContent = '';
-        el.classList.add('opacity-0');
+        el.classList.add('opacity-0', 'hidden');
         return;
     }
     var nextAt = app._checkpointNext || 0;
     var left = Math.max(0, nextAt - app.currentPosition);
-    el.classList.remove('opacity-0');
+    el.classList.remove('opacity-0', 'hidden');
     if (left <= 0 || app.currentPosition >= app.totalChars - 1) {
         el.textContent = t('checkpointAlmost');
     } else {
@@ -2405,31 +2400,12 @@ function buildCoachTipFromSession() {
 }
 
 function computeResultSpeedInsights(currentSpeed) {
-    var out = { medianLine: '', yesterdayLine: '' };
-    if (!window.statsModule || !window.statsModule.getRecentSessions) return out;
-    var all = window.statsModule.getRecentSessions(45);
-    if (!all.length) return out;
-    var now = Date.now();
-    var weekStart = now - 7 * 86400000;
-    var speeds = [];
-    for (var i = 1; i < all.length; i++) {
-        var s = all[i];
-        if (s.timestamp >= weekStart && s.speed > 0) speeds.push(s.speed);
-    }
-    speeds.sort(function (a, b) { return a - b; });
-    var median = 0;
-    if (speeds.length) {
-        var mid = Math.floor(speeds.length / 2);
-        median = speeds.length % 2 ? speeds[mid] : Math.round((speeds[mid - 1] + speeds[mid]) / 2);
-    }
-    if (median > 0 && currentSpeed > 0) {
-        var d = currentSpeed - median;
-        var sign = d > 0 ? '+' : '';
-        out.medianLine = trReplace('resultVsWeekMedian', { sign: sign, n: Math.abs(d), m: median });
-    }
+    var out = { yesterdayLine: '' };
+    if (!window.statsModule) return out;
+    var sessions = window.statsModule.data && window.statsModule.data.sessions ? window.statsModule.data.sessions : [];
+    if (!sessions.length) return out;
     var yStr = streakDateStr(new Date(Date.now() - 86400000));
     var yBest = 0;
-    var sessions = window.statsModule.data && window.statsModule.data.sessions ? window.statsModule.data.sessions : [];
     for (var j = 0; j < sessions.length; j++) {
         var ss = sessions[j];
         if (!ss || !ss.timestamp) continue;
@@ -4430,20 +4406,17 @@ function showResults(speed, accuracy, time, errors, rewardCoins) {
         }, 80);
     }
 
-    // === Сравнение скорости с медианой недели / вчера ===
+    // === Сравнение со вчерашним лучшим результатом (медиана за неделю убрана) ===
     var insightBox = document.getElementById('resultSpeedInsight');
-    var insightMed = document.getElementById('resultSpeedInsightMedian');
     var insightY = document.getElementById('resultSpeedInsightYesterday');
-    if (insightBox && insightMed && insightY) {
+    if (insightBox && insightY) {
         var ins = computeResultSpeedInsights(speed);
-        if (ins.medianLine || ins.yesterdayLine) {
+        if (ins.yesterdayLine) {
             insightBox.classList.remove('hidden');
-            insightMed.textContent = ins.medianLine || '';
-            insightY.textContent = ins.yesterdayLine || '';
-            insightMed.classList.toggle('hidden', !ins.medianLine);
-            insightY.classList.toggle('hidden', !ins.yesterdayLine);
+            insightY.textContent = ins.yesterdayLine;
         } else {
             insightBox.classList.add('hidden');
+            insightY.textContent = '';
         }
     }
 
@@ -7564,3 +7537,4 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+
