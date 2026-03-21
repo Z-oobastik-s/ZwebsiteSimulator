@@ -66,8 +66,11 @@ function deviceIcon(type) {
 }
 
 function getStatsLang() {
-    if (typeof window.app !== 'undefined' && window.app.lang) return window.app.lang;
+    if (typeof window.app !== 'undefined' && window.app.lang) {
+        return window.app.lang === 'ua' ? 'uk' : window.app.lang;
+    }
     var dl = document.documentElement && document.documentElement.getAttribute('data-lang');
+    if (dl === 'ua') return 'uk';
     if (dl) return dl;
     var hl = document.documentElement && document.documentElement.getAttribute('lang');
     if (hl === 'en') return 'en';
@@ -524,4 +527,3 @@ if (document.readyState === 'loading') {
 
 if (typeof window !== 'undefined') window.__siteStatsUpdateUI = updateUI;
 export { pluralPlayers, updateUI };
-

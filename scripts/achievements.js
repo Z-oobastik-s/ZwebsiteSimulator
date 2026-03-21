@@ -34,8 +34,11 @@ const ACHIEVEMENTS = [
 ];
 
 function getLang() {
-    if (typeof app !== 'undefined' && app.lang) return app.lang;
-    return (localStorage.getItem('lang') || 'ru').toLowerCase();
+    var l;
+    if (typeof app !== 'undefined' && app.lang) l = app.lang;
+    else l = (localStorage.getItem('lang') || 'ru').toLowerCase();
+    if (l === 'uk') l = 'ua';
+    return l;
 }
 
 function loadUnlocked() {
@@ -242,4 +245,3 @@ window.achievementsModule = {
     getAchievements: function () { return ACHIEVEMENTS; },
     COINS_PER_ACHIEVEMENT: COINS_PER_ACHIEVEMENT
 };
-

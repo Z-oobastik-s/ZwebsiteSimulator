@@ -1394,8 +1394,13 @@ function loadSettings() {
         // Футер и фон тела задаются в scheduleBackgroundAfterFirstPaint (после первого кадра, для LCP)
     }
     
-    if (savedLang) app.lang = savedLang;
-    try { document.documentElement.setAttribute('data-lang', app.lang || 'ru'); } catch (e) {}
+    if (savedLang) {
+        app.lang = normalizeSiteLangFromStorage(savedLang);
+        if (savedLang === 'uk') {
+            try { localStorage.setItem('lang', 'ua'); } catch (e) {}
+        }
+    }
+    syncSiteLanguageUI();
     
     if (savedLayout) {
         app.currentLayout = savedLayout;
@@ -1642,17 +1647,44 @@ function toggleTheme() {
     }
 }
 
-// Language toggle - ОПТИМИЗИРОВАНА
+/** localStorage мог хранить `uk` (ISO); в коде везде `ua` для украинского UI */
+function normalizeSiteLangFromStorage(savedLang) {
+    if (!savedLang) return 'ru';
+    if (savedLang === 'uk') return 'ua';
+    if (savedLang === 'ru' || savedLang === 'en' || savedLang === 'ua') return savedLang;
+    return 'ru';
+}
+
+/** Атрибут `lang` у &lt;html&gt;: для украинского — BCP47 `uk` */
+function siteLangHtmlAttr() {
+    if (app.lang === 'en') return 'en';
+    if (app.lang === 'ua') return 'uk';
+    return 'ru';
+}
+
+function syncSiteLanguageUI() {
+    try {
+        document.documentElement.setAttribute('data-lang', app.lang || 'ru');
+        document.documentElement.setAttribute('lang', siteLangHtmlAttr());
+    } catch (e) {}
+    const langEl = DOM.get('currentLang');
+    if (langEl) {
+        langEl.textContent = app.lang === 'ua' ? 'UA' : (app.lang || 'ru').toUpperCase();
+    }
+}
+
+// Language toggle: RU → EN → UA → RU
 function toggleLanguage() {
     if (app.soundEnabled && audioClickLanguage) {
         audioClickLanguage.currentTime = 0;
         audioClickLanguage.play().catch(() => {});
     }
-    app.lang = app.lang === 'ru' ? 'en' : 'ru';
+    const order = ['ru', 'en', 'ua'];
+    var idx = order.indexOf(app.lang);
+    if (idx < 0) idx = 0;
+    app.lang = order[(idx + 1) % order.length];
     localStorage.setItem('lang', app.lang);
-    try { document.documentElement.setAttribute('data-lang', app.lang); } catch (e) {}
-    const langEl = DOM.get('currentLang');
-    if (langEl) langEl.textContent = app.lang.toUpperCase();
+    syncSiteLanguageUI();
     updateTranslations();
     updateRoomSelectionUI();
 }
@@ -2285,6 +2317,27 @@ function buildErrorReplayTextFromSnippets(snippets) {
     var sp = text.lastIndexOf(' ');
     if (sp > 120) text = text.slice(0, sp);
     return text;
+}
+
+/** Оставшееся время дриля ошибок (на паузе — «заморожено», пока дедлайн не сдвинут) */
+function getReplaySecondsRemaining() {
+    if (!app._replayDeadline) return 0;
+    if (app.isPaused && app._replayPausedAt != null) {
+        return Math.max(0, Math.ceil((app._replayDeadline - app._replayPausedAt) / 1000));
+    }
+    return Math.max(0, Math.ceil((app._replayDeadline - Date.now()) / 1000));
+}
+
+function updateReplayDeadlineUI() {
+    var el = document.getElementById('replayDeadlineLine');
+    if (!el) return;
+    if (app.currentMode !== 'replay-errors' || !app._replayDeadline) {
+        el.classList.add('hidden');
+        el.textContent = '';
+        return;
+    }
+    el.textContent = trReplace('replayTimeLeft', { s: String(getReplaySecondsRemaining()) });
+    el.classList.remove('hidden');
 }
 
 function startErrorReplayPractice() {
@@ -3666,6 +3719,7 @@ function startPractice(text, mode, lesson = null) {
     renderText();
     updateStats();
     updateCheckpointHintLine();
+    updateReplayDeadlineUI();
     if (mode === 'replay-errors' && typeof showToast === 'function') {
         showToast(trReplace('replayModeBanner', { s: String(app._replayTimeLimitSec || 60) }), 'info', '⏱');
     }
@@ -3916,6 +3970,12 @@ function startStatsTimer() {
     
     let lastUpdate = 0;
     const update = (currentTime) => {
+        if (app.currentMode === 'replay-errors' && app._replayDeadline) {
+            if (currentTime - (app._lastReplayUiTs || 0) >= 250) {
+                app._lastReplayUiTs = currentTime;
+                updateReplayDeadlineUI();
+            }
+        }
         if (app.isPaused) {
             app.animationFrameId = requestAnimationFrame(update);
             return;
@@ -4043,6 +4103,7 @@ function togglePause() {
                 span.textContent = (tr && tr.pause) ? tr.pause : 'Пауза';
             }
         }
+        updateReplayDeadlineUI();
     } else {
         // Ставим на паузу
         app.isPaused = true;
@@ -4065,6 +4126,7 @@ function togglePause() {
                 span.textContent = (tr && tr.resume) ? tr.resume : 'Продолжить';
             }
         }
+        updateReplayDeadlineUI();
     }
 }
 
@@ -4094,6 +4156,15 @@ function restartPractice() {
 function exitPractice() {
     // Сбрасываем паузу при выходе
     app.isPaused = false;
+    app._replayDeadline = null;
+    app._replayPausedAt = null;
+    app._replayAutoFinishing = false;
+    app._lastReplayUiTs = 0;
+    var rdl = document.getElementById('replayDeadlineLine');
+    if (rdl) {
+        rdl.classList.add('hidden');
+        rdl.textContent = '';
+    }
     if (window.wpmChartModule) window.wpmChartModule.stopRecording();
     
     if (app.timerInterval) {
@@ -4132,6 +4203,16 @@ async function finishPractice() {
     if (app.animationFrameId) {
         cancelAnimationFrame(app.animationFrameId);
         app.animationFrameId = null;
+    }
+
+    app._replayDeadline = null;
+    app._replayPausedAt = null;
+    app._replayAutoFinishing = false;
+    app._lastReplayUiTs = 0;
+    var _replayLineEl = document.getElementById('replayDeadlineLine');
+    if (_replayLineEl) {
+        _replayLineEl.classList.add('hidden');
+        _replayLineEl.textContent = '';
     }
     
     // БЛОКИРУЕМ ДАЛЬНЕЙШИЙ ВВОД
@@ -4949,7 +5030,11 @@ function showToast(message, type = 'info', title = '') {
 function t(key) {
     const tr = window.translations || {};
     const langTable = tr[app.lang] || {};
-    return langTable[key] || key;
+    var val = langTable[key];
+    if ((val === undefined || val === '') && app.lang === 'ua' && tr.ru) {
+        val = tr.ru[key];
+    }
+    return (val !== undefined && val !== '') ? val : key;
 }
 
 function trReplace(key, map) {
@@ -7389,4 +7474,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-

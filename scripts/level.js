@@ -98,6 +98,7 @@ function calculateSessionXP(sessionData) {
     if (sessionData.mode === 'lesson') base += 15;
     else if (sessionData.mode === 'speedtest') base += 20;
     else if (sessionData.mode === 'free') base += 8;
+    else if (sessionData.mode === 'replay-errors') base += 10; // короткий дриль после сессии
     else base += 5;
     var acc = sessionData.accuracy || 0;
     var speed = sessionData.speed || 0;
@@ -114,4 +115,3 @@ window.levelModule = {
     getTierName: getTierName,
     getXPThreshold: getXPThreshold
 };
-

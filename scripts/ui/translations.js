@@ -188,6 +188,7 @@ window.translations = {
         resultVsWeekMedian: 'К медиане за 7 дней: {{sign}}{{n}} зн/мин (медиана {{m}})',
         resultVsYesterday: 'Вчера лучший заход: {{y}} зн/мин · сегодня {{sign}}{{d}}',
         replayModeBanner: 'Режим повтора ошибок · до {{s}} сек',
+        replayTimeLeft: 'Осталось: {{s}} с',
         tip: '💡 Совет:',
         freeModeTip: 'Можно вставить текст из любого источника. Нажмите Ctrl+Enter для быстрого старта',
         textByTheme: 'Текст по теме:',
@@ -430,6 +431,7 @@ window.translations = {
         resultVsWeekMedian: 'vs 7-day median: {{sign}}{{n}} cpm (median {{m}})',
         resultVsYesterday: 'Yesterday’s best: {{y}} cpm · today {{sign}}{{d}}',
         replayModeBanner: 'Error drill mode · {{s}}s max',
+        replayTimeLeft: 'Time left: {{s}}s',
         tip: '💡 Tip:',
         freeModeTip: 'You can paste text from any source. Press Ctrl+Enter to start quickly',
         textByTheme: 'Text by theme:',
@@ -488,4 +490,3 @@ window.translations = {
         profileTabOnSite: 'on site'
     }
 };
-
