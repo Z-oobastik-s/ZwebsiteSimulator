@@ -3218,6 +3218,16 @@ function startPractice(text, mode, lesson = null) {
     
     renderText();
     updateStats();
+
+    // Накладываем heatmap ошибок на клавиатуру
+    if (window.heatmapModule) {
+        setTimeout(function () {
+            var kbEl = document.getElementById('keyboardContainer');
+            if (kbEl) {
+                window.heatmapModule.renderHeatmap(kbEl, window.heatmapModule.getErrorMap());
+            }
+        }, 200);
+    }
     
     if (mode === 'speedtest') {
         startSpeedTestTimer();
@@ -3731,6 +3741,9 @@ async function finishPractice() {
     // that finished the lesson (prevents instant repeat-round trigger).
     app.practiceFinishedAt = Date.now();
 
+    // Сохраняем снимок ошибок сессии ДО flush (для показа в результатах)
+    app._lastSessionErrors = Object.assign({}, _keyErrorsCache);
+
     // Сохраняем накопленные ошибки по клавишам в localStorage
     _flushKeyErrors();
 
@@ -3777,42 +3790,52 @@ function showResults(speed, accuracy, time, errors, rewardCoins) {
     
     // === PB (личный рекорд) сравнение ===
     const pbBadge = document.getElementById('resultPbBadge');
-    if (pbBadge && window.statsModule) {
+    if (pbBadge) {
         try {
-            const bestSpeed = window.statsModule.data ? window.statsModule.data.bestSpeed : 0;
-            if (speed > 0 && bestSpeed > 0 && speed >= bestSpeed) {
-                pbBadge.textContent = speed > bestSpeed ? '🏆 Новый рекорд!' : '= Рекорд';
+            // Пробуем разные пути к bestSpeed
+            let bestSpeed = 0;
+            if (window.statsModule && window.statsModule.data) {
+                bestSpeed = window.statsModule.data.bestSpeed || 0;
+            } else {
+                try { bestSpeed = JSON.parse(localStorage.getItem('zoobastiks_stats') || '{}').bestSpeed || 0; } catch (_) {}
+            }
+            // Сравниваем ПРЕДЫДУЩИЙ рекорд (до этой сессии, он уже мог обновиться)
+            // Считаем: если speed >= bestSpeed — новый рекорд
+            if (speed > 0 && speed >= bestSpeed && bestSpeed > 0) {
+                pbBadge.textContent = speed > bestSpeed ? '🏆 Новый рекорд!' : '🏆 Рекорд!';
                 pbBadge.className = 'mt-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-yellow-400/20 text-yellow-300';
             } else if (bestSpeed > 0 && speed < bestSpeed) {
                 const diff = bestSpeed - speed;
                 pbBadge.textContent = '–' + diff + ' до рекорда';
                 pbBadge.className = 'mt-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-gray-500/20 text-gray-400';
             } else {
-                pbBadge.className = 'hidden mt-1 text-xs font-semibold px-2 py-0.5 rounded-full';
+                pbBadge.className = 'hidden';
             }
         } catch (_e) {
-            pbBadge.className = 'hidden mt-1 text-xs font-semibold px-2 py-0.5 rounded-full';
+            pbBadge.className = 'hidden';
         }
     }
 
     // === WPM-график ===
     const chartCanvas = document.getElementById('resultSpeedChart');
     if (chartCanvas && window.wpmChartModule) {
-        const history = (app.speedHistory && app.speedHistory.length) ? app.speedHistory : [];
-        // Добавляем финальную точку
-        if (history.length && speed > 0) {
+        const history = (app.speedHistory && app.speedHistory.length) ? app.speedHistory.slice() : [];
+        // Добавляем финальную точку с реальными данными
+        if (speed > 0) {
             history.push({ t: Math.round(time), cpm: speed });
         }
-        requestAnimationFrame(function () {
+        // Задержка: даём модалу стать visible до рендера (иначе canvas.offsetWidth = 0)
+        setTimeout(function () {
             window.wpmChartModule.renderChart(chartCanvas, history);
-        });
+        }, 80);
     }
 
     // === Топ-3 проблемных клавиши сессии ===
     const topErrorsBlock = document.getElementById('resultTopErrors');
     const topErrorsList = document.getElementById('resultTopErrorsList');
     if (topErrorsBlock && topErrorsList && window.heatmapModule) {
-        const sessionErrors = Object.assign({}, _keyErrorsCache);
+        // Используем снимок ошибок сессии (до flush), не опустевший _keyErrorsCache
+        const sessionErrors = app._lastSessionErrors || {};
         const top = window.heatmapModule.getTopErrors(sessionErrors, 3);
         if (top.length > 0) {
             topErrorsList.innerHTML = top.map(function (e) {
@@ -4609,7 +4632,11 @@ function showProfileTab(tab) {
         if (panel) panel.classList.toggle('hidden', t !== tab);
     });
     if (tab === 'overview') renderProfileOverview();
-    if (tab === 'history') { renderProfileHistory(); _renderProfileProgressChart(); }
+    if (tab === 'history') {
+        renderProfileHistory();
+        // Задержка: canvas нужен layout после DOM-рендера
+        setTimeout(_renderProfileProgressChart, 80);
+    }
     if (tab === 'errors') renderProfileErrors();
 }
 
@@ -6605,3 +6632,4 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+

@@ -151,3 +151,4 @@
         renderChart: renderChart
     };
 })();
+
