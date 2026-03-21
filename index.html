@@ -3271,41 +3271,7 @@
 
             <!-- Tab: Overview -->
             <div id="profileTabOverview" class="pt-5">
-                <p class="profile-section-title mb-3" data-i18n="statistics">Статистика</p>
-                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-                    <div class="profile-stat-tile rounded-xl p-4 text-center">
-                        <div id="profileBestSpeed" class="profile-stat-value text-2xl font-bold text-primary">0</div>
-                        <div class="text-xs text-gray-400 mt-1" data-i18n="bestSpeed">Лучший результат</div>
-                    </div>
-                    <div class="profile-stat-tile rounded-xl p-4 text-center">
-                        <div id="profileAvgAccuracy" class="profile-stat-value text-2xl font-bold text-success">0%</div>
-                        <div class="text-xs text-gray-400 mt-1" data-i18n="avgAccuracy">Средняя точность</div>
-                    </div>
-                    <div class="profile-stat-tile rounded-xl p-4 text-center">
-                        <div id="profileTotalSessions" class="profile-stat-value text-2xl font-bold text-white dark:text-gray-200">0</div>
-                        <div class="text-xs text-gray-400 mt-1" data-i18n="totalSessions">Всего сессий</div>
-                    </div>
-                    <div class="profile-stat-tile rounded-xl p-4 text-center">
-                        <div id="profileTotalTime" class="profile-stat-value text-2xl font-bold text-purple-400">0м</div>
-                        <div class="text-xs text-gray-400 mt-1" data-i18n="totalTime">Общее время</div>
-                    </div>
-                    <div class="profile-stat-tile rounded-xl p-4 text-center">
-                        <div id="profileCompletedLessons" class="profile-stat-value text-2xl font-bold text-cyan-400">0</div>
-                        <div class="text-xs text-gray-400 mt-1" data-i18n="completedLessons">Пройдено уроков</div>
-                    </div>
-                    <div class="profile-stat-tile rounded-xl p-4 text-center">
-                        <div id="profileTotalErrors" class="profile-stat-value text-2xl font-bold text-red-400">0</div>
-                        <div class="text-xs text-gray-400 mt-1" data-i18n="totalErrors">Всего ошибок</div>
-                    </div>
-                </div>
-                <!-- Фоны -->
-                <div class="mt-5 flex flex-wrap items-center gap-3">
-                    <p class="profile-section-title mb-0" data-i18n="backgrounds">Фоны</p>
-                    <div id="profileCurrentBgPreview" class="w-20 h-12 rounded-lg bg-cover bg-center border border-white/20 shrink-0" style="background-image: url('assets/images/background_black.jpg');"></div>
-                    <button type="button" onclick="openBackgroundSelectorModal()" class="profile-quick-btn glass px-4 py-2 rounded-lg text-sm text-cyan-400 border-cyan-500/40">
-                        <span data-i18n="chooseBackground">Выбрать фон</span>
-                    </button>
-                </div>
+                <div id="profileOverviewContent"></div>
             </div>
 
             <!-- Tab: History -->
@@ -3628,3 +3594,4 @@
     </script>
 </body>
 </html>
+

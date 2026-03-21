@@ -4361,6 +4361,7 @@ function showProfileTab(tab) {
         if (btn) btn.classList.toggle('active', t === tab);
         if (panel) panel.classList.toggle('hidden', t !== tab);
     });
+    if (tab === 'overview') renderProfileOverview();
     if (tab === 'history') renderProfileHistory();
     if (tab === 'errors') renderProfileErrors();
 }
@@ -4397,6 +4398,225 @@ function _resolveLessonName(session) {
         }
     } catch (e) {}
     return null;
+}
+
+function _calcStreak(sessions) {
+    if (!sessions || sessions.length === 0) return 0;
+    var dayMs = 86400000;
+    var now = new Date(); now.setHours(0,0,0,0);
+    var checkDay = now.getTime();
+    var todayEnd = checkDay + dayMs;
+    var hasToday = sessions.some(function(s) { return s.timestamp >= checkDay && s.timestamp < todayEnd; });
+    if (!hasToday) checkDay -= dayMs;
+    var streak = 0;
+    while (true) {
+        var dEnd = checkDay + dayMs;
+        var has = sessions.some(function(s) { return s.timestamp >= checkDay && s.timestamp < dEnd; });
+        if (!has) break;
+        streak++;
+        checkDay -= dayMs;
+    }
+    return streak;
+}
+
+function renderProfileOverview() {
+    var el = document.getElementById('profileOverviewContent');
+    if (!el) return;
+    var lang = (app && app.lang) || 'ru';
+    var en = lang === 'en';
+    var profile = currentUserProfile || {};
+    var stats = profile.stats || {};
+
+    var bestSpeed        = stats.bestSpeed || 0;
+    var avgAcc           = stats.averageAccuracy || 0;
+    var totalSessions    = stats.totalSessions || 0;
+    var completedLessons = stats.completedLessons || 0;
+    var totalErrors      = stats.totalErrors || 0;
+    var totalMinutes     = Math.floor((stats.totalTime || 0) / 60);
+    var totalHours       = Math.floor(totalMinutes / 60);
+    var timeLabel        = totalHours > 0 ? totalHours + (en ? 'h' : 'ч') : (totalMinutes > 0 ? totalMinutes + (en ? 'm' : 'м') : '0' + (en ? 'm' : 'м'));
+
+    var levelInfo = window.levelModule
+        ? window.levelModule.getLevelInfo(window.levelModule.getPlayerXP())
+        : { level: 1, tierName: '—', progressPct: 0, xpInLevel: 0, xpToNext: 100 };
+    var balance = profile.balance != null ? profile.balance : 0;
+
+    var sessions = (window.statsModule && window.statsModule.getRecentSessions) ? window.statsModule.getRecentSessions(30) : [];
+    var streak = _calcStreak(sessions);
+    var lastSession = sessions.length > 0 ? sessions[0] : null;
+    var lastSessionTime = lastSession && lastSession.timestamp ? _sessionTimeAgo(lastSession.timestamp) : null;
+
+    var allAchiev = (window.achievementsModule && window.achievementsModule.getAchievements) ? window.achievementsModule.getAchievements() : [];
+    var unlockedIds = new Set();
+    try { JSON.parse(localStorage.getItem('typeMasterAchievements') || '[]').forEach(function(id) { unlockedIds.add(id); }); } catch(e) {}
+    var unlocked = allAchiev.filter(function(a) { return unlockedIds.has(a.id); });
+    var lockedCount = allAchiev.length - unlocked.length;
+
+    var skillLevels = [
+        { min: 500, icon: '👑', title: en ? 'Master'    : 'Мастер',       color: '#f59e0b', sub: en ? 'Top 1% of all typists!'          : 'Ты в топ 1% всех печатающих!'     },
+        { min: 400, icon: '🚀', title: en ? 'Expert'    : 'Эксперт',      color: '#8b5cf6', sub: en ? 'Incredibly fast!'                 : 'Невероятная скорость!'             },
+        { min: 300, icon: '🔥', title: en ? 'Advanced'  : 'Продвинутый',  color: '#ef4444', sub: en ? 'Faster than most people!'         : 'Быстрее большинства людей!'        },
+        { min: 200, icon: '⚡', title: en ? 'Fast'      : 'Быстрый',      color: '#22d3ee', sub: en ? 'Great progress, keep going!'       : 'Отличный прогресс!'                },
+        { min: 100, icon: '💪', title: en ? 'Confident' : 'Уверенный',    color: '#10b981', sub: en ? 'On the right track!'              : 'Ты на правильном пути!'            },
+        { min: 50,  icon: '✏️', title: en ? 'Student'   : 'Ученик',       color: '#94a3b8', sub: en ? 'Keep practicing every day!'       : 'Практикуйся каждый день!'          },
+        { min: 0,   icon: '🐣', title: en ? 'Beginner'  : 'Новичок',      color: '#64748b', sub: en ? 'Every master was once a beginner!' : 'Каждый мастер когда-то был новичком!' }
+    ];
+    var skillIdx = skillLevels.findIndex(function(s) { return bestSpeed >= s.min; });
+    if (skillIdx < 0) skillIdx = skillLevels.length - 1;
+    var skill = skillLevels[skillIdx];
+    var nextSkill = skillIdx > 0 ? skillLevels[skillIdx - 1] : null;
+
+    var tierColors = {
+        'Первые шаги': '#94a3b8', 'Ученик': '#10b981', 'Практик': '#22d3ee',
+        'Профессионал': '#8b5cf6', 'Мастер': '#f59e0b', 'Легенда': '#ef4444',
+        'First Steps': '#94a3b8', 'Apprentice': '#10b981', 'Practitioner': '#22d3ee',
+        'Professional': '#8b5cf6', 'Master': '#f59e0b', 'Legend': '#ef4444'
+    };
+    var tierColor = tierColors[levelInfo.tierName] || '#22d3ee';
+
+    var html = '';
+
+    // ── 1. Hero stats (3 big cards) ─────────────────────────────────────────
+    var spdColor = bestSpeed >= 300 ? '#f59e0b' : bestSpeed >= 200 ? '#22d3ee' : bestSpeed >= 100 ? '#10b981' : '#94a3b8';
+    var accColor = avgAcc >= 95 ? '#10b981' : avgAcc >= 80 ? '#22d3ee' : avgAcc >= 60 ? '#f59e0b' : '#ef4444';
+
+    html += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px">';
+
+    html += '<div style="background:linear-gradient(135deg,rgba(8,14,28,0.95),rgba(15,25,50,0.9));border:1px solid ' + spdColor + '33;border-radius:16px;padding:16px;text-align:center;box-shadow:0 4px 16px rgba(0,0,0,0.4)">' +
+        '<div style="font-size:10px;color:#64748b;letter-spacing:.07em;text-transform:uppercase;margin-bottom:8px">🚀 ' + (en ? 'Best Speed' : 'Рекорд') + '</div>' +
+        '<div style="font-size:30px;font-weight:900;color:' + spdColor + ';line-height:1;text-shadow:0 0 18px ' + spdColor + '55">' + bestSpeed + '</div>' +
+        '<div style="font-size:10px;color:#475569;margin-top:4px">' + (en ? 'ch / min' : 'зн/мин') + '</div>' +
+    '</div>';
+
+    html += '<div style="background:linear-gradient(135deg,rgba(8,14,28,0.95),rgba(15,25,50,0.9));border:1px solid ' + accColor + '33;border-radius:16px;padding:16px;text-align:center;box-shadow:0 4px 16px rgba(0,0,0,0.4)">' +
+        '<div style="font-size:10px;color:#64748b;letter-spacing:.07em;text-transform:uppercase;margin-bottom:8px">🎯 ' + (en ? 'Avg Accuracy' : 'Точность') + '</div>' +
+        '<div style="font-size:30px;font-weight:900;color:' + accColor + ';line-height:1;text-shadow:0 0 18px ' + accColor + '55">' + avgAcc + '%</div>' +
+        '<div style="font-size:10px;color:#475569;margin-top:4px">' + (en ? 'on average' : 'в среднем') + '</div>' +
+    '</div>';
+
+    html += '<div style="background:linear-gradient(135deg,rgba(8,14,28,0.95),rgba(15,25,50,0.9));border:1px solid rgba(167,139,250,0.3);border-radius:16px;padding:16px;text-align:center;box-shadow:0 4px 16px rgba(0,0,0,0.4)">' +
+        '<div style="font-size:10px;color:#64748b;letter-spacing:.07em;text-transform:uppercase;margin-bottom:8px">⏱ ' + (en ? 'Total Time' : 'Время') + '</div>' +
+        '<div style="font-size:30px;font-weight:900;color:#a78bfa;line-height:1;text-shadow:0 0 18px rgba(167,139,250,0.4)">' + timeLabel + '</div>' +
+        '<div style="font-size:10px;color:#475569;margin-top:4px">' + (en ? 'practiced' : 'практики') + '</div>' +
+    '</div>';
+
+    html += '</div>';
+
+    // ── 2. Secondary stats (3 small cards) ──────────────────────────────────
+    html += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px">';
+    [
+        { v: totalSessions,    l: en ? 'Sessions'     : 'Сессий',          icon: '🎮', c: '#e2e8f0' },
+        { v: completedLessons, l: en ? 'Lessons Done' : 'Уроков пройдено', icon: '📚', c: '#22d3ee' },
+        { v: totalErrors,      l: en ? 'Total Errors' : 'Всего ошибок',    icon: '❌', c: '#f87171' }
+    ].forEach(function(m) {
+        html += '<div style="background:rgba(8,14,28,0.8);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:12px;text-align:center">' +
+            '<div style="font-size:10px;color:#475569;margin-bottom:5px">' + m.icon + ' ' + m.l + '</div>' +
+            '<div style="font-size:22px;font-weight:800;color:' + m.c + '">' + m.v + '</div>' +
+        '</div>';
+    });
+    html += '</div>';
+
+    // ── 3. Level progress card ────────────────────────────────────────────
+    html += '<div style="background:linear-gradient(135deg,rgba(8,14,28,0.97),rgba(20,30,60,0.95));border:1px solid ' + tierColor + '33;border-radius:18px;padding:18px 20px;margin-bottom:12px;box-shadow:0 4px 20px rgba(0,0,0,0.5),inset 0 1px 0 rgba(255,255,255,0.05)">' +
+        '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">' +
+            '<div>' +
+                '<div style="font-size:10px;color:#64748b;letter-spacing:.07em;text-transform:uppercase;margin-bottom:4px">' + (en ? 'Your Level' : 'Твой уровень') + '</div>' +
+                '<div style="display:flex;align-items:baseline;gap:8px">' +
+                    '<span style="font-size:26px;font-weight:900;color:' + tierColor + ';text-shadow:0 0 18px ' + tierColor + '55">' + (en ? 'LVL ' : 'Ур. ') + levelInfo.level + '</span>' +
+                    '<span style="font-size:14px;color:' + tierColor + ';opacity:.8;font-weight:700">' + levelInfo.tierName + '</span>' +
+                '</div>' +
+            '</div>' +
+            '<div style="text-align:right">' +
+                '<div style="font-size:10px;color:#64748b;margin-bottom:2px">' + (en ? '💰 Balance' : '💰 Монет') + '</div>' +
+                '<div style="font-size:22px;font-weight:800;color:#f59e0b">' + balance + '</div>' +
+            '</div>' +
+        '</div>' +
+        '<div style="height:10px;background:rgba(255,255,255,0.06);border-radius:99px;overflow:hidden;margin-bottom:6px">' +
+            '<div style="height:100%;width:' + (levelInfo.progressPct || 0) + '%;background:linear-gradient(90deg,' + tierColor + '88,' + tierColor + ');border-radius:99px"></div>' +
+        '</div>' +
+        '<div style="display:flex;justify-content:space-between;font-size:11px;color:#475569">' +
+            '<span>' + (levelInfo.xpInLevel || 0) + ' / ' + (levelInfo.xpToNext || 100) + ' XP</span>' +
+            '<span>' + (en ? '⬆️ To next level: ' : '⬆️ До след. уровня: ') + Math.max(0, (levelInfo.xpToNext || 100) - (levelInfo.xpInLevel || 0)) + ' XP</span>' +
+        '</div>' +
+    '</div>';
+
+    // ── 4. Typist skill class ────────────────────────────────────────────────
+    html += '<div style="background:linear-gradient(135deg,rgba(8,14,28,0.95),rgba(15,25,50,0.9));border:1px solid ' + skill.color + '33;border-radius:16px;padding:16px 18px;margin-bottom:12px;display:flex;align-items:center;gap:16px;box-shadow:0 4px 16px rgba(0,0,0,0.4)">' +
+        '<div style="font-size:40px;line-height:1;flex-shrink:0">' + skill.icon + '</div>' +
+        '<div style="flex:1">' +
+            '<div style="font-size:10px;color:#64748b;letter-spacing:.07em;text-transform:uppercase;margin-bottom:2px">' + (en ? 'Typist Class' : 'Класс печатника') + '</div>' +
+            '<div style="font-size:20px;font-weight:900;color:' + skill.color + ';text-shadow:0 0 14px ' + skill.color + '55;margin-bottom:2px">' + skill.title.toUpperCase() + '</div>' +
+            '<div style="font-size:12px;color:#94a3b8">' + skill.sub + '</div>' +
+            (nextSkill ? '<div style="font-size:11px;color:#475569;margin-top:5px">' +
+                (en ? 'Next: ' : 'Следующий: ') + '<span style="color:' + nextSkill.color + '">' + nextSkill.icon + ' ' + nextSkill.title + '</span>' +
+                (en ? ' — reach ' + nextSkill.min + ' ch/min' : ' — достигни ' + nextSkill.min + ' зн/мин') +
+            '</div>' : '<div style="font-size:11px;color:#f59e0b;margin-top:5px">🏆 ' + (en ? 'Maximum class reached!' : 'Максимальный класс достигнут!') + '</div>') +
+        '</div>' +
+    '</div>';
+
+    // ── 5. Streak + Last session ─────────────────────────────────────────────
+    html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">';
+
+    var streakColor = streak >= 7 ? '#f59e0b' : streak >= 3 ? '#f97316' : streak >= 1 ? '#10b981' : '#475569';
+    var streakIcon  = streak >= 7 ? '🔥' : streak >= 3 ? '⚡' : streak >= 1 ? '✅' : '💤';
+    var streakWord  = en ? (streak === 1 ? '1 day streak' : streak + ' day streak')
+        : (streak % 10 === 1 && streak !== 11 ? streak + ' день подряд'
+        : streak % 10 >= 2 && streak % 10 <= 4 && (streak < 10 || streak > 20) ? streak + ' дня подряд'
+        : streak + ' дней подряд');
+
+    html += '<div style="background:rgba(8,14,28,0.85);border:1px solid ' + streakColor + '33;border-radius:14px;padding:14px;text-align:center">' +
+        '<div style="font-size:30px;margin-bottom:6px">' + streakIcon + '</div>' +
+        '<div style="font-size:22px;font-weight:800;color:' + streakColor + ';line-height:1">' + (streak === 0 ? (en ? 'No streak' : 'Нет серии') : streakWord) + '</div>' +
+        '<div style="font-size:11px;color:#64748b;margin-top:4px">' + (en ? 'daily streak' : 'серия дней') + '</div>' +
+        (streak === 0 ? '<div style="font-size:10px;color:#334155;margin-top:4px">' + (en ? 'Practice today to start!' : 'Начни сегодня!') + '</div>' : '') +
+    '</div>';
+
+    html += '<div style="background:rgba(8,14,28,0.85);border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:14px;text-align:center">' +
+        '<div style="font-size:30px;margin-bottom:6px">🕒</div>' +
+        '<div style="font-size:14px;font-weight:700;color:#e2e8f0;line-height:1.3">' + (lastSessionTime || (en ? 'No sessions yet' : 'Сессий пока нет')) + '</div>' +
+        '<div style="font-size:11px;color:#64748b;margin-top:4px">' + (en ? 'last session' : 'последняя сессия') + '</div>' +
+        (lastSession ? '<div style="font-size:10px;color:#475569;margin-top:4px">' + Math.round(lastSession.accuracy || 0) + '% · ' + (lastSession.speed || 0) + (en ? ' ch/min' : ' зн/мин') + '</div>' : '') +
+    '</div>';
+
+    html += '</div>';
+
+    // ── 6. Achievements showcase ─────────────────────────────────────────────
+    html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">' +
+        '<p class="profile-section-title mb-0">🏆 ' + (en ? 'Achievements' : 'Достижения') + '</p>' +
+        '<span style="font-size:12px;color:#475569;font-weight:500">' + unlocked.length + ' / ' + allAchiev.length + '</span>' +
+        (unlocked.length > 0 ? '<div style="flex:1;height:4px;background:rgba(255,255,255,0.05);border-radius:99px;overflow:hidden;margin-left:4px"><div style="height:100%;width:' + Math.round(unlocked.length / Math.max(1,allAchiev.length) * 100) + '%;background:linear-gradient(90deg,#10b981,#22d3ee);border-radius:99px"></div></div>' : '') +
+    '</div>';
+
+    if (unlocked.length === 0) {
+        html += '<div style="background:rgba(8,14,28,0.7);border:1px dashed rgba(255,255,255,0.1);border-radius:14px;padding:20px;text-align:center;margin-bottom:16px">' +
+            '<div style="font-size:36px;margin-bottom:8px">🏅</div>' +
+            '<div style="font-size:13px;color:#64748b">' + (en ? 'Complete lessons to earn achievements!' : 'Проходи уроки — получай достижения!') + '</div>' +
+        '</div>';
+    } else {
+        html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-bottom:16px">';
+        unlocked.slice(-4).reverse().forEach(function(a) {
+            html += '<div style="background:rgba(8,14,28,0.9);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:12px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.3)">' +
+                '<div style="font-size:28px;margin-bottom:6px">' + (a.icon || '🎖️') + '</div>' +
+                '<div style="font-size:11px;font-weight:700;color:#f1f5f9;line-height:1.3">' + escapeHtml(a.title || '') + '</div>' +
+            '</div>';
+        });
+        if (lockedCount > 0) {
+            html += '<div style="background:rgba(8,14,28,0.5);border:1px dashed rgba(255,255,255,0.08);border-radius:12px;padding:12px;text-align:center">' +
+                '<div style="font-size:22px;margin-bottom:6px">🔒</div>' +
+                '<div style="font-size:11px;color:#334155">+ ' + lockedCount + ' ' + (en ? 'locked' : 'закрыто') + '</div>' +
+            '</div>';
+        }
+        html += '</div>';
+    }
+
+    // ── 7. Background selector ───────────────────────────────────────────────
+    html += '<div style="display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:14px 16px;background:rgba(8,14,28,0.6);border:1px solid rgba(255,255,255,0.07);border-radius:14px">' +
+        '<p class="profile-section-title mb-0" style="margin:0">🎨 ' + (en ? 'Background' : 'Фон') + '</p>' +
+        '<div id="profileCurrentBgPreview" style="width:72px;height:44px;border-radius:8px;background-size:cover;background-position:center;border:1px solid rgba(255,255,255,0.15);flex-shrink:0"></div>' +
+        '<button type="button" onclick="openBackgroundSelectorModal()" style="background:rgba(6,182,212,0.1);border:1px solid rgba(6,182,212,0.4);color:#22d3ee;padding:8px 16px;border-radius:8px;font-size:13px;cursor:pointer;font-weight:600">' + (en ? 'Choose Background' : 'Выбрать фон') + '</button>' +
+    '</div>';
+
+    el.innerHTML = html;
 }
 
 function renderProfileHistory() {
@@ -4742,7 +4962,7 @@ function loadProfileData(profile) {
     
     if (usernameEl) usernameEl.textContent = profile.username || profile.displayName || 'User';
     if (emailEl) emailEl.textContent = profile.email || '';
-    if (bioEl) bioEl.value = profile.bio || '';
+    if (bioEl) bioEl.value = (!profile.bio || profile.bio === 'null') ? '' : profile.bio;
     
     const photoEl = DOM.get('profilePhoto');
     const placeholderEl = DOM.get('profilePhotoPlaceholder');
@@ -4797,6 +5017,9 @@ function loadProfileData(profile) {
     if (balanceEl) balanceEl.innerHTML = (profile.balance != null ? profile.balance : 0) + ' ' + COIN_ICON_IMG;
     if (xpBarEl) xpBarEl.style.width = (levelInfo.progressPct != null ? levelInfo.progressPct : 0) + '%';
     if (xpLabelEl) xpLabelEl.textContent = (levelInfo.xpInLevel != null ? levelInfo.xpInLevel : 0) + ' / ' + (levelInfo.xpToNext != null ? levelInfo.xpToNext : 300) + ' XP';
+
+    // Re-render dynamic overview tab with fresh profile data
+    renderProfileOverview();
 }
 
 // Save profile
@@ -6189,3 +6412,4 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+
