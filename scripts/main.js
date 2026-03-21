@@ -1144,15 +1144,24 @@ document.addEventListener('DOMContentLoaded', function() {
     setTimeout(showOnboardingIfFirstVisit, 700);
     
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js').catch(function () {});
-        // Auto-reload when a new SW version activates so users always get fresh files
+        navigator.serviceWorker.register('sw.js').then(function (reg) {
+            if (reg) {
+                setInterval(function () { reg.update(); }, 5 * 60 * 1000);
+            }
+        }).catch(function () {});
+        window.addEventListener('focus', function () {
+            navigator.serviceWorker.getRegistration().then(function (reg) {
+                if (reg) reg.update();
+            }).catch(function () {});
+        });
+        // Новый SW: оверлей + жёсткая перезагрузка (как при смене version.json)
         navigator.serviceWorker.addEventListener('message', function (e) {
             if (e.data && e.data.type === 'SW_UPDATED') {
-                // Small delay so the SW finishes claiming before reload
-                setTimeout(function () { window.location.reload(); }, 150);
+                performAppHardReload();
             }
         });
     }
+    initDeployVersionCheck();
     initPwaInstallBanner();
 
     // Initialize auth state listener
@@ -1392,6 +1401,92 @@ function closeTopModal() {
     if (isModalVisible('resultsModal')) { closeResults(); return; }
     if (isModalVisible('freeModeModal')) { closeFreeModeModal(); return; }
     if (isModalVisible('loginModal')) { closeLoginModal(); return; }
+}
+
+// ── Автообновление при новом деплое (version.json + service worker) ─────────
+var __zoobDeployPollTimer = null;
+var __zoobDeployBaseline = null;
+
+function _parseDeployBuild(data) {
+    if (!data || data.build == null) return null;
+    var b = Number(data.build);
+    return isFinite(b) ? b : null;
+}
+
+function showAppUpdateOverlay() {
+    var el = document.getElementById('appUpdateOverlay');
+    if (!el) return;
+    var lang = (typeof localStorage !== 'undefined' && localStorage.getItem('lang')) || 'ru';
+    var title = el.querySelector('[data-update-title]');
+    var sub = el.querySelector('[data-update-sub]');
+    if (title) {
+        title.textContent = lang === 'en' ? 'Updating…' : 'Сайт обновляется';
+    }
+    if (sub) {
+        sub.textContent = lang === 'en'
+            ? 'Please wait — loading the new version.'
+            : 'Подождите, загружается новая версия…';
+    }
+    el.classList.add('is-visible');
+}
+
+/** Сброс кэшей SW и перезагрузка (после оверлея). */
+function performAppHardReload() {
+    if (window.__zoobUpdateReloading) return;
+    window.__zoobUpdateReloading = true;
+    showAppUpdateOverlay();
+    var go = function () {
+        window.location.reload();
+    };
+    setTimeout(function () {
+        if ('caches' in window) {
+            caches.keys().then(function (keys) {
+                return Promise.all(keys.map(function (k) { return caches.delete(k); }));
+            }).catch(function () {}).finally(function () {
+                if (navigator.serviceWorker && navigator.serviceWorker.getRegistrations) {
+                    navigator.serviceWorker.getRegistrations().then(function (regs) {
+                        return Promise.all(regs.map(function (r) { return r.unregister(); }));
+                    }).catch(function () {}).finally(go);
+                } else {
+                    go();
+                }
+            });
+        } else if (navigator.serviceWorker && navigator.serviceWorker.getRegistrations) {
+            navigator.serviceWorker.getRegistrations().then(function (regs) {
+                return Promise.all(regs.map(function (r) { return r.unregister(); }));
+            }).catch(function () {}).finally(go);
+        } else {
+            go();
+        }
+    }, 400);
+}
+
+function fetchDeployBuild() {
+    return fetch('./version.json?b=' + Date.now(), { cache: 'no-store' })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .catch(function () { return null; });
+}
+
+function initDeployVersionCheck() {
+    fetchDeployBuild().then(function (data) {
+        var b = _parseDeployBuild(data);
+        if (b == null) return;
+        __zoobDeployBaseline = b;
+        if (__zoobDeployPollTimer) clearInterval(__zoobDeployPollTimer);
+        // Первый опрос через 20 с, далее каждые 45 с (не мешает игре, ловит новый деплой)
+        setTimeout(function () {
+            __zoobDeployPollTimer = setInterval(function () {
+                if (window.__zoobUpdateReloading) return;
+                fetchDeployBuild().then(function (d) {
+                    var nb = _parseDeployBuild(d);
+                    if (nb == null || __zoobDeployBaseline == null) return;
+                    if (nb > __zoobDeployBaseline) {
+                        performAppHardReload();
+                    }
+                });
+            }, 45000);
+        }, 20000);
+    });
 }
 
 function handleGlobalHotkeys(e) {
@@ -6741,4 +6836,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-

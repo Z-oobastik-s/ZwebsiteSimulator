@@ -1,4 +1,4 @@
-const CACHE_NAME = 'zoobastiks-v25';
+const CACHE_NAME = 'zoobastiks-v26';
 
 self.addEventListener('install', function (event) {
   self.skipWaiting();
@@ -73,6 +73,15 @@ self.addEventListener('fetch', function (event) {
   var url = event.request.url;
   if (url.indexOf('http') !== 0) return;
   var sameOrigin = isSameOrigin(url);
+  // Всегда свежий version.json — проверка автообновления на клиенте
+  if (sameOrigin && url.indexOf('version.json') !== -1) {
+    event.respondWith(
+      fetch(event.request, { cache: 'no-store' }).catch(function () {
+        return new Response('{"build":0}', { status: 200, headers: { 'Content-Type': 'application/json' } });
+      })
+    );
+    return;
+  }
   var staticAsset = isStaticAsset(url);
 
   // HTML pages: network-first — always try to get the latest version
@@ -124,4 +133,3 @@ self.addEventListener('fetch', function (event) {
     })
   );
 });
-
