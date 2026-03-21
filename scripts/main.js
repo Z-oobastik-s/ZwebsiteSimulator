@@ -39,11 +39,30 @@ const app = {
     _pauseStartAt: null
 };
 
-// Streak (серия дней подряд с тренировкой)
+// Streak (серия дней) + «заморозка»: 1 раз за календарную неделю можно не сбросить серию при пропуске ровно одного дня
 const STREAK_KEY = 'zoobastiks_streak';
+/** Фильтр длительности на экране списка уроков: all | short */
+var lessonDurationFilter = 'all';
+
 function streakDateStr(d) {
     d = d || new Date();
     return d.toISOString().slice(0, 10);
+}
+function calendarDaysBetween(isoFrom, isoTo) {
+    if (!isoFrom || !isoTo) return 999;
+    var a = new Date(isoFrom + 'T12:00:00').getTime();
+    var b = new Date(isoTo + 'T12:00:00').getTime();
+    return Math.round((b - a) / 86400000);
+}
+/** Идентификатор ISO-недели для лимита заморозок (1 раз в неделю) */
+function streakWeekId(d) {
+    d = d ? new Date(d.getTime()) : new Date();
+    var t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    var dayNum = t.getUTCDay() || 7;
+    t.setUTCDate(t.getUTCDate() + 4 - dayNum);
+    var yearStart = new Date(Date.UTC(t.getUTCFullYear(), 0, 1));
+    var weekNo = Math.ceil((((t - yearStart) / 86400000) + 1) / 7);
+    return t.getUTCFullYear() + '-W' + weekNo;
 }
 function getStreak() {
     try {
@@ -61,7 +80,6 @@ function getStreak() {
 }
 function updateStreak() {
     var today = streakDateStr();
-    var yesterday = streakDateStr(new Date(Date.now() - 86400000));
     var data;
     try {
         var raw = localStorage.getItem(STREAK_KEY);
@@ -70,13 +88,24 @@ function updateStreak() {
         data = { lastDate: '', count: 0 };
     }
     if (data.lastDate === today) return;
-    if (data.lastDate === yesterday) {
+
+    var weekId = streakWeekId(new Date());
+    var gap = data.lastDate ? calendarDaysBetween(data.lastDate, today) : 999;
+
+    if (!data.lastDate) {
+        data.count = 1;
+    } else if (gap === 1) {
         data.count = (data.count || 0) + 1;
+    } else if (gap === 2 && data.freezeWeekUsed !== weekId) {
+        data.count = (data.count || 0) + 1;
+        data.freezeWeekUsed = weekId;
     } else {
         data.count = 1;
     }
     data.lastDate = today;
-    localStorage.setItem(STREAK_KEY, JSON.stringify(data));
+    try {
+        localStorage.setItem(STREAK_KEY, JSON.stringify(data));
+    } catch (_) {}
 }
 
 // DOM Cache - кэшируем часто используемые элементы
@@ -2107,6 +2136,8 @@ function loadLessons() {
     
     const titleEl = document.getElementById('lessonsScreenTitle');
     if (titleEl) titleEl.textContent = t('chooseDifficulty').toUpperCase();
+    var filterBar = document.getElementById('lessonDurationFilterBar');
+    if (filterBar) filterBar.classList.add('hidden');
     container.classList.add('difficulty-grid');
     container.innerHTML = '';
     container.appendChild(fragment);
@@ -2146,6 +2177,192 @@ function formatLessonCharCountLabel(lesson) {
     return '';
 }
 
+/** Средняя оценка длины урока в символах (для фильтра «короткие») */
+function estimateLessonCharMid(lesson) {
+    if (!lesson) return 9999;
+    var text = typeof lesson.text === 'string' ? lesson.text : String(lesson.text || '');
+    var layout = lesson.layout || 'ru';
+    var beg = _isLessonBeginnerish(lesson);
+    if (layout === 'ua' && beg) return 150;
+    if ((layout === 'ru' || layout === 'en') && beg) return 150;
+    if ((layout === 'ru' || layout === 'en') && text.length > 0 && !beg) {
+        var minC = Math.max(120, Math.round(text.length * 0.75));
+        var maxC = Math.min(4500, Math.max(minC + 40, Math.round(text.length * 1.08)));
+        return Math.round((minC + maxC) / 2);
+    }
+    return text.length || 9999;
+}
+
+var LESSON_SHORT_CHAR_MAX = 280;
+
+function setLessonDurationFilter(mode) {
+    lessonDurationFilter = mode === 'short' ? 'short' : 'all';
+    if (currentLevelData) showLessonList(currentLevelData);
+    updateLessonFilterBarStyles();
+}
+
+function updateLessonFilterBarStyles() {
+    var allBtn = document.getElementById('lessonFilterAll');
+    var shBtn = document.getElementById('lessonFilterShort');
+    var on = 'px-3 py-1.5 rounded-lg text-sm font-semibold border border-cyan-500/50 bg-cyan-500/20 text-cyan-200';
+    var off = 'px-3 py-1.5 rounded-lg text-sm font-semibold border border-gray-600 bg-gray-800/50 text-gray-300 hover:border-cyan-500/40';
+    if (allBtn) allBtn.className = lessonDurationFilter === 'all' ? on : off;
+    if (shBtn) shBtn.className = lessonDurationFilter === 'short' ? on : off;
+}
+
+function initLessonCheckpoints() {
+    if (app.currentMode === 'speedtest' || !app.totalChars || app.totalChars < 22) {
+        app._checkpointStep = 0;
+        app._checkpointNext = 0;
+        return;
+    }
+    var step = Math.max(14, Math.min(80, Math.floor(app.totalChars / 5)));
+    app._checkpointStep = step;
+    app._checkpointNext = Math.min(step, app.totalChars - 1);
+}
+
+function flashCheckpointBar() {
+    var wrap = document.getElementById('progressBarWrap');
+    if (!wrap) return;
+    wrap.classList.remove('checkpoint-pulse');
+    void wrap.offsetWidth;
+    wrap.classList.add('checkpoint-pulse');
+    setTimeout(function () { wrap.classList.remove('checkpoint-pulse'); }, 700);
+}
+
+function maybeTriggerTypingCheckpoint() {
+    var modes = ['lesson', 'practice', 'free', 'adaptive', 'replay-errors'];
+    if (modes.indexOf(app.currentMode) === -1 || !app._checkpointStep) return;
+    var total = app.totalChars || 0;
+    if (total < 22) return;
+    while (app._checkpointNext > 0 && app.currentPosition >= app._checkpointNext && app.currentPosition < total) {
+        playSound('checkpoint');
+        flashCheckpointBar();
+        if (typeof showToast === 'function') {
+            showToast(t('checkpointDone'), 'success', '✓');
+        }
+        app._checkpointNext = Math.min(app._checkpointNext + app._checkpointStep, total);
+    }
+}
+
+function updateCheckpointHintLine() {
+    var el = document.getElementById('checkpointHintLine');
+    if (!el) return;
+    var modes = ['lesson', 'practice', 'free', 'adaptive', 'replay-errors'];
+    if (modes.indexOf(app.currentMode) === -1 || !app._checkpointStep || app.totalChars < 22) {
+        el.textContent = '';
+        el.classList.add('opacity-0');
+        return;
+    }
+    var nextAt = app._checkpointNext || 0;
+    var left = Math.max(0, nextAt - app.currentPosition);
+    el.classList.remove('opacity-0');
+    if (left <= 0 || app.currentPosition >= app.totalChars - 1) {
+        el.textContent = t('checkpointAlmost');
+    } else {
+        el.textContent = t('checkpointNext') + ' ' + left;
+    }
+}
+
+function buildUniqueErrorSnippets() {
+    var list = app._errorSnippetList || [];
+    var seen = {};
+    var out = [];
+    list.forEach(function (s) {
+        var x = String(s || '').trim();
+        if (x.length < 2) return;
+        if (seen[x]) return;
+        seen[x] = 1;
+        out.push(x);
+    });
+    return out.slice(0, 14);
+}
+
+function buildErrorReplayTextFromSnippets(snippets) {
+    if (!snippets || !snippets.length) return '';
+    var text = snippets.join('  ');
+    if (text.length > 380) text = text.slice(0, 380);
+    var sp = text.lastIndexOf(' ');
+    if (sp > 120) text = text.slice(0, sp);
+    return text;
+}
+
+function startErrorReplayPractice() {
+    var modal = DOM.get('resultsModal');
+    if (modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); }
+    var profileScreen = document.getElementById('profileScreen');
+    if (profileScreen && !profileScreen.classList.contains('hidden')) profileScreen.classList.add('hidden');
+    var sn = app._lastErrorReplaySnippets && app._lastErrorReplaySnippets.length
+        ? app._lastErrorReplaySnippets
+        : buildUniqueErrorSnippets();
+    var text = buildErrorReplayTextFromSnippets(sn);
+    if (!text || text.length < 3) return;
+    app._replayTimeLimitSec = 60;
+    startPractice(text, 'replay-errors', null);
+}
+
+function buildCoachTipFromSession() {
+    var errN = app.errors || 0;
+    if (errN < 2) return '';
+    var afterSp = app._errorsAfterSpaceCount || 0;
+    var pairs = app._errorPairCounts || {};
+    var bestPair = '';
+    var bestN = 0;
+    Object.keys(pairs).forEach(function (p) {
+        if (pairs[p] > bestN) { bestN = pairs[p]; bestPair = p; }
+    });
+    if (afterSp >= 2 && afterSp >= bestN * 0.65) {
+        return t('coachAfterSpace');
+    }
+    if (bestPair.length === 2 && bestN >= 2) {
+        return trReplace('coachBigram', { pair: bestPair });
+    }
+    if (bestPair.length >= 1 && bestN >= 1) {
+        return trReplace('coachBigram', { pair: bestPair });
+    }
+    return '';
+}
+
+function computeResultSpeedInsights(currentSpeed) {
+    var out = { medianLine: '', yesterdayLine: '' };
+    if (!window.statsModule || !window.statsModule.getRecentSessions) return out;
+    var all = window.statsModule.getRecentSessions(45);
+    if (!all.length) return out;
+    var now = Date.now();
+    var weekStart = now - 7 * 86400000;
+    var speeds = [];
+    for (var i = 1; i < all.length; i++) {
+        var s = all[i];
+        if (s.timestamp >= weekStart && s.speed > 0) speeds.push(s.speed);
+    }
+    speeds.sort(function (a, b) { return a - b; });
+    var median = 0;
+    if (speeds.length) {
+        var mid = Math.floor(speeds.length / 2);
+        median = speeds.length % 2 ? speeds[mid] : Math.round((speeds[mid - 1] + speeds[mid]) / 2);
+    }
+    if (median > 0 && currentSpeed > 0) {
+        var d = currentSpeed - median;
+        var sign = d > 0 ? '+' : '';
+        out.medianLine = trReplace('resultVsWeekMedian', { sign: sign, n: Math.abs(d), m: median });
+    }
+    var yStr = streakDateStr(new Date(Date.now() - 86400000));
+    var yBest = 0;
+    var sessions = window.statsModule.data && window.statsModule.data.sessions ? window.statsModule.data.sessions : [];
+    for (var j = 0; j < sessions.length; j++) {
+        var ss = sessions[j];
+        if (!ss || !ss.timestamp) continue;
+        if (streakDateStr(new Date(ss.timestamp)) !== yStr) continue;
+        if (ss.speed > yBest) yBest = ss.speed;
+    }
+    if (yBest > 0 && currentSpeed > 0) {
+        var dy = currentSpeed - yBest;
+        var sg = dy > 0 ? '+' : '';
+        out.yesterdayLine = trReplace('resultVsYesterday', { y: yBest, sign: sg, d: Math.abs(dy) });
+    }
+    return out;
+}
+
 // Show lesson list - ОПТИМИЗИРОВАНА с DocumentFragment
 function showLessonList(levelData) {
     currentLevelData = levelData;
@@ -2155,12 +2372,33 @@ function showLessonList(levelData) {
     const levelDisplayName = app.lang === 'en' ? levelData.name_en : levelData.name_ru;
     const titleEl = document.getElementById('lessonsScreenTitle');
     if (titleEl) titleEl.textContent = levelDisplayName.toUpperCase();
+
+    var filterBar = document.getElementById('lessonDurationFilterBar');
+    if (filterBar) {
+        filterBar.classList.remove('hidden');
+        updateLessonFilterBarStyles();
+    }
     
     container.classList.remove('difficulty-grid');
     // Используем DocumentFragment для batch updates
     const fragment = document.createDocumentFragment();
+
+    var lessonsToShow = levelData.lessons.slice();
+    if (lessonDurationFilter === 'short') {
+        lessonsToShow = lessonsToShow.filter(function (l) { return estimateLessonCharMid(l) <= LESSON_SHORT_CHAR_MAX; });
+    }
+
+    if (lessonsToShow.length === 0) {
+        var empty = document.createElement('div');
+        empty.className = 'col-span-full text-center py-10 text-gray-400 text-sm px-4';
+        empty.textContent = t('lessonFilterEmpty');
+        fragment.appendChild(empty);
+        container.innerHTML = '';
+        container.appendChild(fragment);
+        return;
+    }
     
-    levelData.lessons.forEach((lesson, index) => {
+    lessonsToShow.forEach((lesson, index) => {
         // Для shop уроков используем другой ключ
         const lessonKey = lesson.isShopLesson 
             ? `shop_lesson_${lesson.id}` 
@@ -3387,6 +3625,17 @@ function startPractice(text, mode, lesson = null) {
     app.errors = 0;
     app.totalChars = effectiveText.length;
     app.typedText = '';
+
+    app._errorSnippetList = [];
+    app._errorPairCounts = {};
+    app._errorsAfterSpaceCount = 0;
+    app._replayAutoFinishing = false;
+    if (mode === 'replay-errors') {
+        app._replayDeadline = Date.now() + (app._replayTimeLimitSec || 60) * 1000;
+    } else {
+        app._replayDeadline = null;
+    }
+    initLessonCheckpoints();
     
     // Очищаем кэш DOM при смене экрана
     DOM.clear();
@@ -3416,6 +3665,10 @@ function startPractice(text, mode, lesson = null) {
     
     renderText();
     updateStats();
+    updateCheckpointHintLine();
+    if (mode === 'replay-errors' && typeof showToast === 'function') {
+        showToast(trReplace('replayModeBanner', { s: String(app._replayTimeLimitSec || 60) }), 'info', '⏱');
+    }
 
     // Накладываем heatmap ошибок на клавиатуру
     if (window.heatmapModule) {
@@ -3515,7 +3768,7 @@ function renderText() {
 // Handle key press - ОПТИМИЗИРОВАНА
 function handleKeyPress(e) {
     // Разрешаем ввод во всех режимах практики
-    const validModes = ['practice', 'speedtest', 'lesson', 'free', 'adaptive'];
+    const validModes = ['practice', 'speedtest', 'lesson', 'free', 'adaptive', 'replay-errors'];
     if (!validModes.includes(app.currentMode) || app.isPaused) return;
     
     // Ignore special keys; allow Enter only when the expected character is '\n'
@@ -3544,8 +3797,25 @@ function handleKeyPress(e) {
         app.errors++;
         // Per-key error tracking — in-memory, flush при finishPractice
         var _ec = app.currentText[app.currentPosition];
+        var _p = app.currentPosition;
+        var _t = app.currentText;
         if (_ec && _ec.trim()) {
             _keyErrorsCache[_ec] = (_keyErrorsCache[_ec] || 0) + 1;
+        }
+        if (_p > 0 && _t[_p - 1] === ' ') {
+            app._errorsAfterSpaceCount = (app._errorsAfterSpaceCount || 0) + 1;
+        }
+        if (_p > 0 && _t.length) {
+            var pair = _t[_p - 1] + (_t[_p] || '');
+            if (pair.length >= 2) {
+                app._errorPairCounts = app._errorPairCounts || {};
+                app._errorPairCounts[pair] = (app._errorPairCounts[pair] || 0) + 1;
+            }
+        }
+        var sn = _t.slice(Math.max(0, _p - 4), Math.min(_t.length, _p + 7)).replace(/\s+/g, ' ').trim();
+        if (sn.length >= 2) {
+            app._errorSnippetList = app._errorSnippetList || [];
+            app._errorSnippetList.push(sn);
         }
         highlightError();
         return;
@@ -3563,6 +3833,8 @@ function handleKeyPress(e) {
     
     renderText(); // Оптимизирован с DocumentFragment
     updateStats(); // Throttled - не обновляет DOM при каждом нажатии
+    maybeTriggerTypingCheckpoint();
+    updateCheckpointHintLine();
     
     // Check if finished
     if (app.currentPosition >= app.currentText.length) {
@@ -3629,6 +3901,8 @@ const updateStats = throttle(function() {
     if (progressBar.style.width !== progressWidth) {
         progressBar.style.width = progressWidth;
     }
+
+    updateCheckpointHintLine();
 }, 100); // Throttle to max 10 updates per second
 
 // Stats timer for regular lessons - ОПТИМИЗИРОВАН с requestAnimationFrame
@@ -3658,6 +3932,11 @@ function startStatsTimer() {
                 if (timeEl.textContent !== timeStr) {
                     timeEl.textContent = timeStr;
                 }
+            }
+            if (app.currentMode === 'replay-errors' && app._replayDeadline && Date.now() >= app._replayDeadline && !app._replayAutoFinishing) {
+                app._replayAutoFinishing = true;
+                finishPractice();
+                return;
             }
             lastUpdate = currentTime;
         }
@@ -3751,6 +4030,10 @@ function togglePause() {
             app.totalLessonPauseDuration += now - app._pauseStartAt;
             app._pauseStartAt = null;
         }
+        if (app._replayPausedAt && app._replayDeadline) {
+            app._replayDeadline += now - app._replayPausedAt;
+            app._replayPausedAt = null;
+        }
         
         const pauseBtn = DOM.get('pauseBtn');
         if (pauseBtn) {
@@ -3769,6 +4052,9 @@ function togglePause() {
         } else {
             // Для уроков — запоминаем момент начала паузы
             app._pauseStartAt = Date.now();
+        }
+        if (app.currentMode === 'replay-errors' && app._replayDeadline) {
+            app._replayPausedAt = Date.now();
         }
         
         const pauseBtn = DOM.get('pauseBtn');
@@ -3864,12 +4150,14 @@ async function finishPractice() {
         ? Math.round((app.currentPosition / totalAttempts) * 100) 
         : 100;
     
+    var _sessionMode = app.currentMode;
+    if (app.currentMode === 'practice' && app.currentLesson) _sessionMode = 'lesson';
     const sessionData = {
         speed,
         accuracy,
         time: Math.round(elapsed),
         errors: app.errors,
-        mode: app.currentMode === 'practice' && app.currentLesson ? 'lesson' : app.currentMode,
+        mode: _sessionMode,
         layout: app.currentLayout,
         lessonKey: app.currentLesson?.key || null,
         lessonName: app.currentLesson?.name || null,
@@ -3941,6 +4229,8 @@ async function finishPractice() {
 
     // Сохраняем снимок ошибок сессии ДО flush (для показа в результатах)
     app._lastSessionErrors = Object.assign({}, _keyErrorsCache);
+
+    app._lastErrorReplaySnippets = app.errors > 0 ? buildUniqueErrorSnippets() : [];
 
     // Сохраняем накопленные ошибки по клавишам в localStorage
     _flushKeyErrors();
@@ -4031,19 +4321,66 @@ function showResults(speed, accuracy, time, errors, rewardCoins) {
         }, 80);
     }
 
+    // === Сравнение скорости с медианой недели / вчера ===
+    var insightBox = document.getElementById('resultSpeedInsight');
+    var insightMed = document.getElementById('resultSpeedInsightMedian');
+    var insightY = document.getElementById('resultSpeedInsightYesterday');
+    if (insightBox && insightMed && insightY) {
+        var ins = computeResultSpeedInsights(speed);
+        if (ins.medianLine || ins.yesterdayLine) {
+            insightBox.classList.remove('hidden');
+            insightMed.textContent = ins.medianLine || '';
+            insightY.textContent = ins.yesterdayLine || '';
+            insightMed.classList.toggle('hidden', !ins.medianLine);
+            insightY.classList.toggle('hidden', !ins.yesterdayLine);
+        } else {
+            insightBox.classList.add('hidden');
+        }
+    }
+
+    // === Совет тренера (биграммы / пробел) ===
+    var coachBox = document.getElementById('resultCoachTip');
+    var coachTxt = document.getElementById('resultCoachTipText');
+    if (coachBox && coachTxt) {
+        var coach = buildCoachTipFromSession();
+        if (coach) {
+            coachTxt.textContent = coach;
+            coachBox.classList.remove('hidden');
+        } else {
+            coachBox.classList.add('hidden');
+        }
+    }
+
     // === Топ-3 проблемных клавиши сессии ===
     const topErrorsBlock = document.getElementById('resultTopErrors');
     const topErrorsList = document.getElementById('resultTopErrorsList');
+    var replayWrap = document.getElementById('resultReplayErrorsWrap');
+    var replayBtn = document.getElementById('resultReplayErrorsBtn');
+    var canReplay = errors > 0 && app._lastErrorReplaySnippets && app._lastErrorReplaySnippets.length > 0;
+    if (replayWrap) {
+        if (canReplay) {
+            replayWrap.classList.remove('hidden');
+            if (replayBtn) replayBtn.textContent = t('resultReplayErrors');
+        } else {
+            replayWrap.classList.add('hidden');
+        }
+    }
     if (topErrorsBlock && topErrorsList && window.heatmapModule) {
         // Используем снимок ошибок сессии (до flush), не опустевший _keyErrorsCache
         const sessionErrors = app._lastSessionErrors || {};
         const top = window.heatmapModule.getTopErrors(sessionErrors, 3);
-        if (top.length > 0) {
-            topErrorsList.innerHTML = top.map(function (e) {
-                return '<span class="px-3 py-1 rounded-lg bg-red-500/20 text-red-300 font-mono font-bold text-sm border border-red-500/30">' +
-                    (e.key === ' ' ? '␣' : e.key) +
-                    ' <span class="text-xs font-normal text-red-400/70">×' + e.count + '</span></span>';
-            }).join('');
+        if (top.length > 0 || canReplay) {
+            if (top.length > 0) {
+                topErrorsList.innerHTML = top.map(function (e) {
+                    return '<span class="px-3 py-1 rounded-lg bg-red-500/20 text-red-300 font-mono font-bold text-sm border border-red-500/30">' +
+                        (e.key === ' ' ? '␣' : e.key) +
+                        ' <span class="text-xs font-normal text-red-400/70">×' + e.count + '</span></span>';
+                }).join('');
+                topErrorsList.classList.remove('hidden');
+            } else {
+                topErrorsList.innerHTML = '';
+                topErrorsList.classList.add('hidden');
+            }
             topErrorsBlock.classList.remove('hidden');
         } else {
             topErrorsBlock.classList.add('hidden');
@@ -4322,7 +4659,10 @@ function renderLevelBlock() {
         var numEl = streakEl.querySelector ? streakEl.querySelector('.streak-number') : null;
         if (streak > 0) {
             if (numEl) numEl.textContent = streak; else streakEl.textContent = '\uD83D\uDD25 ' + streak;
-            streakEl.title = (translations[app.lang].streakHint || 'Серия дней с тренировкой') + ': ' + streak + ' ' + (translations[app.lang].streakDays || 'дней подряд');
+            var tr = translations[app.lang] || {};
+            var base = (tr.streakHint || 'Серия дней с тренировкой') + ': ' + streak + ' ' + (tr.streakDays || 'дней подряд');
+            var freeze = tr.streakFreezeHint || '';
+            streakEl.title = freeze ? base + '\n' + freeze : base;
             streakEl.classList.remove('hidden');
         } else {
             streakEl.classList.add('hidden');
@@ -4526,6 +4866,13 @@ function playSound(type) {
         } else if (type === 'error' && audioError) {
             audioError.currentTime = 0;
             audioError.play().catch(() => {});
+        } else if (type === 'checkpoint' && audioClick) {
+            try {
+                audioClick.volume = 0.45;
+                audioClick.currentTime = 0;
+                audioClick.play().catch(() => {});
+                setTimeout(function () { try { audioClick.volume = 1; } catch (_e) {} }, 120);
+            } catch (_e) {}
         }
     } catch (e) {
         // Fallback to Web Audio API
@@ -4535,10 +4882,11 @@ function playSound(type) {
             const gainNode = audioContext.createGain();
             oscillator.connect(gainNode);
             gainNode.connect(audioContext.destination);
-            oscillator.frequency.value = type === 'correct' ? 800 : 200;
-            gainNode.gain.value = SFX_VOLUME;
+            var fq = type === 'correct' ? 800 : type === 'checkpoint' ? 1100 : 200;
+            oscillator.frequency.value = fq;
+            gainNode.gain.value = type === 'checkpoint' ? SFX_VOLUME * 0.55 : SFX_VOLUME;
             oscillator.start();
-            oscillator.stop(audioContext.currentTime + 0.05);
+            oscillator.stop(audioContext.currentTime + (type === 'checkpoint' ? 0.07 : 0.05));
         } catch (e2) {}
     }
 }
@@ -4602,6 +4950,15 @@ function t(key) {
     const tr = window.translations || {};
     const langTable = tr[app.lang] || {};
     return langTable[key] || key;
+}
+
+function trReplace(key, map) {
+    var s = t(key);
+    if (!map) return s;
+    Object.keys(map).forEach(function (k) {
+        s = s.split('{{' + k + '}}').join(String(map[k]));
+    });
+    return s;
 }
 
 // ============================================
@@ -7032,3 +7389,4 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+
