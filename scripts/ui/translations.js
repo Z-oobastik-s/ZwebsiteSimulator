@@ -172,6 +172,7 @@ window.translations = {
         animationsOff: 'Анимации выключены',
         cancel: 'Отмена',
         characters: 'символов',
+        lessonCharsHint: 'Длина текста урока',
         tip: '💡 Совет:',
         freeModeTip: 'Можно вставить текст из любого источника. Нажмите Ctrl+Enter для быстрого старта',
         textByTheme: 'Текст по теме:',
@@ -398,6 +399,7 @@ window.translations = {
         animationsOff: 'Animations disabled',
         cancel: 'Cancel',
         characters: 'characters',
+        lessonCharsHint: 'Lesson text length',
         tip: '💡 Tip:',
         freeModeTip: 'You can paste text from any source. Press Ctrl+Enter to start quickly',
         textByTheme: 'Text by theme:',
@@ -456,4 +458,3 @@ window.translations = {
         profileTabOnSite: 'on site'
     }
 };
-

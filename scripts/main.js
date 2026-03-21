@@ -2112,6 +2112,40 @@ function loadLessons() {
     container.appendChild(fragment);
 }
 
+function _isLessonBeginnerish(lesson) {
+    return !!(lesson && (lesson.level === 'beginner' || lesson.difficulty === 'easy'));
+}
+
+/**
+ * Длина текста урока для карточки (совпадает с логикой startPractice).
+ */
+function formatLessonCharCountLabel(lesson) {
+    if (!lesson) return '';
+    var text = typeof lesson.text === 'string' ? lesson.text : String(lesson.text || '');
+    var layout = lesson.layout || 'ru';
+    var beg = _isLessonBeginnerish(lesson);
+    var sym = typeof t === 'function' ? t('characters') : 'символов';
+
+    if (layout === 'ua' && beg) {
+        return '~100–200 ' + sym;
+    }
+    if ((layout === 'ru' || layout === 'en') && beg) {
+        return '~100–200 ' + sym;
+    }
+    if ((layout === 'ru' || layout === 'en') && text.length > 0 && !beg) {
+        var minC = Math.max(120, Math.round(text.length * 0.75));
+        var maxC = Math.min(4500, Math.max(minC + 40, Math.round(text.length * 1.08)));
+        if (maxC - minC <= 100) {
+            return String(Math.round((minC + maxC) / 2)) + ' ' + sym;
+        }
+        return '~' + minC + '–' + maxC + ' ' + sym;
+    }
+    if (text.length > 0) {
+        return String(text.length) + ' ' + sym;
+    }
+    return '';
+}
+
 // Show lesson list - ОПТИМИЗИРОВАНА с DocumentFragment
 function showLessonList(levelData) {
     currentLevelData = levelData;
@@ -2170,6 +2204,11 @@ function showLessonList(levelData) {
                 : (app.lang === 'ru' ? 'легко' : app.lang === 'ua' ? 'легко' : 'easy');
         
         const missionNum = String(index + 1).padStart(2, '0');
+        const charLabel = formatLessonCharCountLabel(lesson);
+        const charHint = typeof t === 'function' ? t('lessonCharsHint') : '';
+        const charTagHtml = charLabel
+            ? `<span class="lesson-card__tag lesson-card__tag--chars" title="${escapeHtml(charHint)}">${escapeHtml(charLabel)}</span>`
+            : '';
         card.innerHTML = `
             ${topBadge}
             <div class="lesson-card__accent">
@@ -2181,6 +2220,7 @@ function showLessonList(levelData) {
                 <div class="lesson-card__tags">
                     <span class="lesson-card__tag lesson-card__tag--lang">${lesson.layout.toUpperCase()}</span>
                     <span class="lesson-card__tag lesson-card__tag--${difficultyClass}">${difficultyLabel}</span>
+                    ${charTagHtml}
                 </div>
                 <div class="lesson-card__reward">
                     <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941a2.305 2.305 0 01-.567-.267C8.07 11.66 8 11.434 8 11c0-.114.07-.34.433-.582A2.305 2.305 0 019 10.151V8.151c-.22.071-.412.164-.567.267C8.07 8.66 8 8.886 8 9c0 .114.07.34.433.582.155.103.346.196.567.267v1.698a2.305 2.305 0 01-.567-.267C8.07 11.66 8 11.434 8 11c0-.114.07-.34.433-.582A2.305 2.305 0 019 10.151V8.151c.22.071.412.164.567.267C9.93 8.66 10 8.886 10 9c0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267v1.941a4.535 4.535 0 001.676-.662C11.398 9.765 12 8.99 12 8c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 009 5.092V3.151a2.305 2.305 0 01.567.267C9.93 3.66 10 3.886 10 4c0 .114-.07.34-.433.582A2.305 2.305 0 019 4.849v1.698z" clip-rule="evenodd"/></svg>
@@ -6758,12 +6798,17 @@ function loadShopLessons() {
         wrap.className = 'shop-card-wrap';
         wrap.setAttribute('data-lesson-id', lesson.id);
         
+        const shopCharLabel = formatLessonCharCountLabel(lesson);
+        const shopCharLine = shopCharLabel
+            ? `<div class="text-xs text-slate-400 mt-1 font-medium" title="${escapeHtml(typeof t === 'function' ? t('lessonCharsHint') : '')}">${escapeHtml(shopCharLabel)}</div>`
+            : '';
         const frontContent = `
             <div class="flex justify-between items-start mb-2">
                 <div class="flex-1 min-w-0 pr-2">
                     <h3 class="text-base font-bold mb-1 text-gray-100 line-clamp-1">${escapeHtml(lesson.name)}</h3>
                     <p class="text-xs text-gray-400 mb-1 line-clamp-2">${escapeHtml(lesson.description)}</p>
                     <span class="text-xs ${difficultyColors[lesson.difficulty]} font-semibold">${difficultyNames[lesson.difficulty]}</span>
+                    ${shopCharLine}
                 </div>
                 ${isPurchased ? `
                     <div class="shop-card-owned bg-success/20 text-success px-2 py-1 rounded-full text-xs font-bold whitespace-nowrap">✓</div>
@@ -6987,4 +7032,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-
