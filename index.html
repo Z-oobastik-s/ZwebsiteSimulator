@@ -1513,10 +1513,9 @@
             opacity: 0.9;
         }
         
-        /* Heatmap overlay: --heat (0..1) задаётся heatmap.js */
-        .key-btn {
-            background-color: rgba(239, 68, 68, var(--heat, 0));
-            transition: background-color 0.3s;
+        /* Heatmap: box-shadow inset задаётся heatmap.js через inline style */
+        [data-heat] {
+            transition: box-shadow 0.35s ease, outline-color 0.35s ease;
         }
 
         /* Key highlight */
@@ -3765,4 +3764,3 @@
     </script>
 </body>
 </html>
-

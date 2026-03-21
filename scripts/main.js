@@ -3914,10 +3914,13 @@ function generateAdaptiveText(lang) {
 
 /** Запускает тренировку слабых клавиш из модала результатов. */
 function startAdaptivePractice() {
+    // Закрываем модал результатов если открыт
     var modal = DOM.get('resultsModal');
-    if (modal) {
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
+    if (modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); }
+    // Закрываем экран профиля если открыт
+    var profileScreen = document.getElementById('profileScreen');
+    if (profileScreen && !profileScreen.classList.contains('hidden')) {
+        profileScreen.classList.add('hidden');
     }
     var text = generateAdaptiveText(app.lang);
     startPractice(text, 'adaptive', null);
@@ -4535,64 +4538,87 @@ function _sessionTimeAgo(ts) {
 /**
  * Рисует Canvas line-chart скорости последних 20 сессий в профиле.
  */
+// Хранилище listeners профиль-чарта (чтобы не дублировать)
+var _profileChartListeners = null;
+
 function _renderProfileProgressChart() {
     var canvas = document.getElementById('profileProgressChart');
     if (!canvas) return;
+
     var sessions = (window.statsModule && window.statsModule.getRecentSessions) ? window.statsModule.getRecentSessions(20) : [];
-    if (!sessions || sessions.length < 2) {
-        var ctx0 = canvas.getContext('2d');
-        canvas.width = canvas.offsetWidth || 400;
-        canvas.height = 120;
-        ctx0.clearRect(0, 0, canvas.width, canvas.height);
-        ctx0.fillStyle = 'rgba(99,102,241,0.08)';
-        ctx0.fillRect(0, 0, canvas.width, canvas.height);
-        ctx0.fillStyle = 'rgba(148,163,184,0.5)';
-        ctx0.font = '12px monospace';
-        ctx0.textAlign = 'center';
-        ctx0.fillText('Нужно минимум 2 сессии', canvas.width / 2, canvas.height / 2);
-        return;
-    }
 
     var dpr = window.devicePixelRatio || 1;
     var W = canvas.offsetWidth || 400;
-    var H = 120;
+    var H = 140;
     canvas.width = W * dpr;
     canvas.height = H * dpr;
     var ctx = canvas.getContext('2d');
     ctx.scale(dpr, dpr);
 
-    var padL = 38, padR = 10, padT = 10, padB = 24;
+    if (!sessions || sessions.length < 2) {
+        ctx.fillStyle = 'rgba(99,102,241,0.08)';
+        ctx.fillRect(0, 0, W, H);
+        ctx.fillStyle = 'rgba(148,163,184,0.5)';
+        ctx.font = '12px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('Нужно минимум 2 сессии', W / 2, H / 2);
+        return;
+    }
+
+    var padL = 40, padR = 14, padT = 12, padB = 26;
     var cw = W - padL - padR;
     var ch = H - padT - padB;
 
-    var points = sessions.slice().reverse().map(function (s) { return { cpm: s.speed || 0, acc: s.accuracy || 0 }; });
+    var points = sessions.slice().reverse().map(function (s) {
+        return { cpm: s.speed || 0, acc: s.accuracy || 0, name: _resolveLessonName(s) || 'Свободная практика' };
+    });
     var maxCpm = Math.max.apply(null, points.map(function (p) { return p.cpm; }));
     maxCpm = Math.max(maxCpm, 60);
+
+    var step = cw / Math.max(points.length - 1, 1);
 
     // Фон
     ctx.fillStyle = 'rgba(99,102,241,0.06)';
     ctx.fillRect(padL, padT, cw, ch);
 
-    // Сетка
+    // Сетка Y
     ctx.strokeStyle = 'rgba(148,163,184,0.15)';
     ctx.lineWidth = 1;
-    [0, 0.5, 1].forEach(function (f) {
+    [0, 0.25, 0.5, 0.75, 1].forEach(function (f) {
         var gy = padT + ch - f * ch;
         ctx.beginPath(); ctx.moveTo(padL, gy); ctx.lineTo(padL + cw, gy); ctx.stroke();
-        ctx.fillStyle = 'rgba(148,163,184,0.6)';
-        ctx.font = '9px monospace';
-        ctx.textAlign = 'right';
-        ctx.fillText(Math.round(f * maxCpm), padL - 3, gy + 3);
+        if (f > 0) {
+            ctx.fillStyle = 'rgba(148,163,184,0.6)';
+            ctx.font = '9px monospace';
+            ctx.textAlign = 'right';
+            ctx.fillText(Math.round(f * maxCpm), padL - 4, gy + 3);
+        }
     });
 
-    // Линия
-    var step = cw / (points.length - 1);
+    // Заливка под линией
     ctx.beginPath();
-    ctx.lineWidth = 2;
+    points.forEach(function (p, i) {
+        var x = padL + i * step;
+        var y = padT + ch - (p.cpm / maxCpm) * ch;
+        if (i === 0) { ctx.moveTo(x, padT + ch); ctx.lineTo(x, y); }
+        else ctx.lineTo(x, y);
+    });
+    ctx.lineTo(padL + (points.length - 1) * step, padT + ch);
+    ctx.closePath();
+    var areaGrad = ctx.createLinearGradient(0, padT, 0, padT + ch);
+    areaGrad.addColorStop(0, 'rgba(99,102,241,0.22)');
+    areaGrad.addColorStop(1, 'rgba(99,102,241,0.02)');
+    ctx.fillStyle = areaGrad;
+    ctx.fill();
+
+    // Линия
+    ctx.beginPath();
+    ctx.lineWidth = 2.5;
     ctx.lineJoin = 'round';
-    var g = ctx.createLinearGradient(padL, 0, padL + cw, 0);
-    g.addColorStop(0, '#6366f1'); g.addColorStop(1, '#06b6d4');
-    ctx.strokeStyle = g;
+    var lineGrad = ctx.createLinearGradient(padL, 0, padL + cw, 0);
+    lineGrad.addColorStop(0, '#6366f1');
+    lineGrad.addColorStop(1, '#06b6d4');
+    ctx.strokeStyle = lineGrad;
     points.forEach(function (p, i) {
         var x = padL + i * step;
         var y = padT + ch - (p.cpm / maxCpm) * ch;
@@ -4600,17 +4626,17 @@ function _renderProfileProgressChart() {
     });
     ctx.stroke();
 
-    // Точки (цвет по точности)
+    // Точки
     points.forEach(function (p, i) {
         var x = padL + i * step;
         var y = padT + ch - (p.cpm / maxCpm) * ch;
         var color = p.acc >= 95 ? '#10b981' : p.acc >= 75 ? '#f59e0b' : '#ef4444';
         ctx.beginPath();
-        ctx.arc(x, y, 3.5, 0, Math.PI * 2);
+        ctx.arc(x, y, 4, 0, Math.PI * 2);
         ctx.fillStyle = color;
         ctx.fill();
-        ctx.strokeStyle = 'rgba(255,255,255,0.4)';
-        ctx.lineWidth = 1;
+        ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+        ctx.lineWidth = 1.5;
         ctx.stroke();
     });
 
@@ -4618,10 +4644,77 @@ function _renderProfileProgressChart() {
     ctx.fillStyle = 'rgba(148,163,184,0.6)';
     ctx.font = '9px monospace';
     ctx.textAlign = 'center';
-    [0, Math.floor(points.length / 2), points.length - 1].forEach(function (i) {
-        var x = padL + i * step;
-        ctx.fillText('#' + (i + 1), x, padT + ch + 15);
+    var showEvery = Math.max(1, Math.floor(points.length / 5));
+    points.forEach(function (p, i) {
+        if (i % showEvery === 0 || i === points.length - 1) {
+            ctx.fillText('#' + (i + 1), padL + i * step, padT + ch + 16);
+        }
     });
+
+    // ── Tooltip ──────────────────────────────────────────────────────────────
+    if (_profileChartListeners) {
+        canvas.removeEventListener('mousemove', _profileChartListeners.move);
+        canvas.removeEventListener('mouseleave', _profileChartListeners.leave);
+        if (_profileChartListeners.tip && _profileChartListeners.tip.parentNode) {
+            _profileChartListeners.tip.parentNode.removeChild(_profileChartListeners.tip);
+        }
+        _profileChartListeners = null;
+    }
+
+    var wrapper = canvas.parentElement;
+    if (!wrapper) return;
+    wrapper.style.position = 'relative';
+
+    var tip = document.createElement('div');
+    tip.style.cssText = [
+        'position:absolute;pointer-events:none;display:none;',
+        'background:rgba(15,23,42,0.96);color:#e2e8f0;',
+        'border:1px solid rgba(99,102,241,0.55);border-radius:9px;',
+        'padding:7px 12px;font-size:12px;font-family:monospace;',
+        'white-space:nowrap;z-index:9999;',
+        'box-shadow:0 4px 20px rgba(0,0,0,0.55);',
+        'line-height:1.6;'
+    ].join('');
+    wrapper.appendChild(tip);
+
+    function onMove(e) {
+        var rect = canvas.getBoundingClientRect();
+        var mx = e.clientX - rect.left;
+        var my = e.clientY - rect.top;
+
+        var closest = null, minDist = Infinity, closestIdx = -1;
+        points.forEach(function (p, i) {
+            var px = padL + i * step;
+            var py = padT + ch - (p.cpm / maxCpm) * ch;
+            var d = Math.abs(mx - px);
+            if (d < minDist) { minDist = d; closest = p; closestIdx = i; }
+        });
+
+        if (closest && minDist < step * 0.55) {
+            var color = closest.acc >= 95 ? '#10b981' : closest.acc >= 75 ? '#f59e0b' : '#ef4444';
+            tip.innerHTML =
+                '<b style="color:#6366f1">' + closest.cpm + '</b> зн/мин · ' +
+                '<b style="color:' + color + '">' + closest.acc + '%</b><br>' +
+                '<span style="color:#94a3b8;font-size:10px">#' + (closestIdx + 1) + ' · ' + escapeHtml(closest.name.slice(0, 28)) + '</span>';
+
+            var px = padL + closestIdx * step;
+            var tipW = 200;
+            var tipX = Math.max(2, Math.min(px - tipW / 2, W - tipW - 4));
+            var tipY = 4;
+            tip.style.left = tipX + 'px';
+            tip.style.top  = tipY + 'px';
+            tip.style.display = 'block';
+            canvas.style.cursor = 'crosshair';
+        } else {
+            tip.style.display = 'none';
+            canvas.style.cursor = '';
+        }
+    }
+    function onLeave() { tip.style.display = 'none'; canvas.style.cursor = ''; }
+
+    canvas.addEventListener('mousemove', onMove);
+    canvas.addEventListener('mouseleave', onLeave);
+    _profileChartListeners = { move: onMove, leave: onLeave, tip: tip };
 }
 
 function showProfileTab(tab) {
@@ -5113,6 +5206,22 @@ function renderProfileErrors() {
                 '<div class="pct2" style="font-size:14px;line-height:1.65">' + tipText + '</div>' +
             '</div>' +
         '</div>';
+    }
+
+    // ── 3.5 Кнопка тренировки слабых клавиш ─────────────────────────────────
+    if (sorted.length > 0) {
+        html += '<button onclick="startAdaptivePractice()" style="' +
+            'width:100%;margin:18px 0 6px;padding:14px;border-radius:12px;' +
+            'background:linear-gradient(135deg,rgba(99,102,241,0.25),rgba(6,182,212,0.2));' +
+            'border:1px solid rgba(99,102,241,0.45);color:#a5b4fc;' +
+            'font-size:14px;font-weight:700;cursor:pointer;' +
+            'display:flex;align-items:center;justify-content:center;gap:10px;' +
+            'transition:background 0.2s,border-color 0.2s;"' +
+            ' onmouseover="this.style.background=\'linear-gradient(135deg,rgba(99,102,241,0.45),rgba(6,182,212,0.35))\'"' +
+            ' onmouseout="this.style.background=\'linear-gradient(135deg,rgba(99,102,241,0.25),rgba(6,182,212,0.2))\'">' +
+            '<span style="font-size:20px">🎯</span>' +
+            '<span>' + (en ? 'Train Weak Keys' : 'Тренировать слабые клавиши') + '</span>' +
+        '</button>';
     }
 
     // ── 4. Recent attempts ───────────────────────────────────────────────────
@@ -6632,4 +6741,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-
