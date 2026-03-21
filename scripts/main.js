@@ -4546,6 +4546,7 @@ function renderProfileErrors() {
     var el = document.getElementById('profileErrorsContent');
     if (!el) return;
     var lang = (app && app.lang) || 'ru';
+    var en = lang === 'en';
 
     var keyErrors = {};
     try { keyErrors = JSON.parse(localStorage.getItem('zoob_key_errors') || '{}'); } catch (e) {}
@@ -4556,147 +4557,154 @@ function renderProfileErrors() {
     var sessions = (window.statsModule && window.statsModule.getRecentSessions) ? window.statsModule.getRecentSessions(10) : [];
     var avgAcc = sessions.length ? Math.round(sessions.reduce(function (s, x) { return s + (x.accuracy || 0); }, 0) / sessions.length) : 0;
 
+    var grade = avgAcc >= 95 ? { l: en ? 'PERFECT!' : 'ОТЛИЧНО!', c: '#10b981', icon: '🏆', sub: en ? 'Incredible typing! Keep it up!' : 'Невероятная точность! Так держать!' }
+              : avgAcc >= 85 ? { l: en ? 'GREAT!'   : 'ХОРОШО!',  c: '#22d3ee', icon: '⭐', sub: en ? 'Very good! Keep practicing!' : 'Очень хорошо! Продолжай тренироваться!' }
+              : avgAcc >= 70 ? { l: en ? 'NOT BAD!' : 'НЕПЛОХО!', c: '#f59e0b', icon: '📈', sub: en ? 'Getting better! Don\'t stop!' : 'Становится лучше! Не останавливайся!' }
+              : sessions.length > 0
+              ?               { l: en ? 'KEEP GOING!' : 'ТРЕНИРУЙСЯ!', c: '#ef4444', icon: '💪', sub: en ? 'More practice = fewer mistakes!' : 'Больше практики — меньше ошибок!' }
+              : null;
+
     var html = '';
 
-    // ── Summary card ──
-    if (sorted.length > 0 || sessions.length > 0) {
-        var grade = avgAcc >= 95 ? { l: lang === 'en' ? 'PERFECT' : 'ОТЛИЧНО', c: '#10b981', icon: '🏆' }
-                  : avgAcc >= 85 ? { l: lang === 'en' ? 'GREAT'   : 'ХОРОШО',  c: '#22d3ee', icon: '⭐' }
-                  : avgAcc >= 70 ? { l: lang === 'en' ? 'GOOD'    : 'НЕПЛОХО', c: '#f59e0b', icon: '📈' }
-                  :                { l: lang === 'en' ? 'PRACTICE': 'ТРЕНИРУЙСЯ', c: '#ef4444', icon: '💪' };
-        html += '<div style="background:linear-gradient(135deg,rgba(0,0,0,0.5),rgba(15,23,42,0.8));border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;gap:16px">' +
-            '<div style="font-size:40px;line-height:1">' + grade.icon + '</div>' +
-            '<div style="flex:1">' +
-                '<div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px">' +
-                    '<span style="font-size:28px;font-weight:800;color:' + grade.c + ';text-shadow:0 0 20px ' + grade.c + '66">' + (avgAcc || '—') + (sessions.length ? '%' : '') + '</span>' +
-                    '<span style="font-size:11px;font-weight:700;color:' + grade.c + ';letter-spacing:.1em;opacity:.8">' + grade.l + '</span>' +
+    // ── 1. Summary card ─────────────────────────────────────────────────────
+    if (grade) {
+        html += '<div style="' +
+            'background:linear-gradient(135deg,rgba(8,14,28,0.95),rgba(15,25,50,0.9));' +
+            'border:1px solid ' + grade.c + '33;border-radius:18px;padding:20px 22px;margin-bottom:22px;' +
+            'box-shadow:0 4px 24px rgba(0,0,0,0.5),inset 0 1px 0 rgba(255,255,255,0.05);' +
+        '">' +
+            '<div style="display:flex;align-items:center;gap:18px">' +
+                '<div style="font-size:52px;line-height:1;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.5))">' + grade.icon + '</div>' +
+                '<div style="flex:1">' +
+                    '<div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">' +
+                        '<span style="font-size:36px;font-weight:900;color:' + grade.c + ';text-shadow:0 0 24px ' + grade.c + '77;line-height:1">' + avgAcc + '%</span>' +
+                        '<span style="font-size:16px;font-weight:800;color:' + grade.c + ';opacity:.85;letter-spacing:.05em">' + grade.l + '</span>' +
+                    '</div>' +
+                    '<div style="height:8px;background:rgba(255,255,255,0.06);border-radius:99px;overflow:hidden;margin-bottom:8px">' +
+                        '<div style="height:100%;width:' + avgAcc + '%;background:linear-gradient(90deg,' + grade.c + '66,' + grade.c + ');border-radius:99px"></div>' +
+                    '</div>' +
+                    '<p style="font-size:13px;color:#94a3b8;margin:0">' + grade.sub + '</p>' +
                 '</div>' +
-                '<div style="height:6px;background:rgba(255,255,255,0.07);border-radius:99px;overflow:hidden;margin-bottom:6px">' +
-                    '<div style="height:100%;width:' + avgAcc + '%;background:linear-gradient(90deg,' + grade.c + '88,' + grade.c + ');border-radius:99px;transition:width 1s ease"></div>' +
+            '</div>' +
+            '<div style="display:flex;gap:12px;margin-top:14px;flex-wrap:wrap">' +
+                '<div style="flex:1;min-width:90px;background:rgba(255,255,255,0.04);border-radius:10px;padding:10px;text-align:center">' +
+                    '<div style="font-size:22px;font-weight:800;color:#f87171">' + totalKeyErr + '</div>' +
+                    '<div style="font-size:11px;color:#64748b;margin-top:2px">' + (en ? '❌ Total errors' : '❌ Всего ошибок') + '</div>' +
                 '</div>' +
-                '<div style="display:flex;gap:16px">' +
-                    '<span style="font-size:11px;color:#64748b">' + (lang === 'en' ? '⌨️ Problem keys: ' : '⌨️ Проблемных: ') + '<b style="color:#f87171">' + sorted.length + '</b></span>' +
-                    '<span style="font-size:11px;color:#64748b">' + (lang === 'en' ? '❌ Total errors: ' : '❌ Всего ошибок: ') + '<b style="color:#f87171">' + totalKeyErr + '</b></span>' +
+                '<div style="flex:1;min-width:90px;background:rgba(255,255,255,0.04);border-radius:10px;padding:10px;text-align:center">' +
+                    '<div style="font-size:22px;font-weight:800;color:#fb923c">' + sorted.length + '</div>' +
+                    '<div style="font-size:11px;color:#64748b;margin-top:2px">' + (en ? '⌨️ Hard keys' : '⌨️ Трудных букв') + '</div>' +
+                '</div>' +
+                '<div style="flex:1;min-width:90px;background:rgba(255,255,255,0.04);border-radius:10px;padding:10px;text-align:center">' +
+                    '<div style="font-size:22px;font-weight:800;color:#a3e635">' + sessions.length + '</div>' +
+                    '<div style="font-size:11px;color:#64748b;margin-top:2px">' + (en ? '🎯 Sessions' : '🎯 Уроков пройдено') + '</div>' +
                 '</div>' +
             '</div>' +
         '</div>';
     }
 
-    // ── Keyboard heatmap ──
-    html += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">' +
-        '<p class="profile-section-title mb-0">⌨️ ' + _t('profileTabMissedKeys') + '</p>' +
-        (sorted.length > 0 ? '<div style="display:flex;align-items:center;gap:6px;font-size:10px;color:#475569">' +
-            '<span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#ef4444"></span>' + (lang === 'en' ? 'Critical' : 'Критично') +
-            '<span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#f59e0b;margin-left:4px"></span>' + (lang === 'en' ? 'Watch' : 'Внимание') +
-            '<span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#475569;margin-left:4px"></span>' + (lang === 'en' ? 'Minor' : 'Мелкое') +
-        '</div>' : '') +
-    '</div>';
+    // ── 2. Problem key cards ─────────────────────────────────────────────────
+    html += '<p class="profile-section-title mb-4">⌨️ ' + (en ? 'Most Missed Keys' : 'Какие буквы даются труднее всего') + '</p>';
 
     if (sorted.length === 0) {
-        html += '<div class="profile-empty-hint"><div style="font-size:3rem;margin-bottom:10px">🎯</div><div style="font-size:14px;font-weight:600;color:#334155;margin-bottom:4px">' + (lang === 'en' ? 'No errors tracked yet' : 'Ошибок пока не зафиксировано') + '</div><div style="font-size:12px;color:#475569">' + _t('profileTabNoErrors') + '</div></div>';
+        html += '<div style="background:rgba(8,14,28,0.85);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:32px;text-align:center">' +
+            '<div style="font-size:48px;margin-bottom:12px">🎯</div>' +
+            '<div style="font-size:16px;font-weight:700;color:#e2e8f0;margin-bottom:6px">' + (en ? 'No mistakes yet!' : 'Ошибок пока нет!') + '</div>' +
+            '<div style="font-size:13px;color:#64748b">' + (en ? 'Complete a lesson — key stats will appear here.' : 'Пройди урок — и здесь появится статистика по буквам.') + '</div>' +
+        '</div>';
     } else {
-        // 3D keyboard key cards
-        html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(70px,1fr));gap:8px;margin-bottom:12px">';
-        sorted.slice(0, 12).forEach(function (entry, i) {
+        html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:10px;margin-bottom:6px">';
+        sorted.slice(0, 10).forEach(function (entry, i) {
             var ch = entry[0], cnt = entry[1];
             var pct = cnt / maxErr;
-            // Color interpolation: gray → orange → red
-            var keyColor  = pct > 0.75 ? '#ef4444' : pct > 0.45 ? '#f97316' : pct > 0.2 ? '#f59e0b' : '#475569';
-            var glowColor = pct > 0.75 ? 'rgba(239,68,68,0.35)' : pct > 0.45 ? 'rgba(249,115,22,0.3)' : pct > 0.2 ? 'rgba(245,158,11,0.25)' : 'rgba(255,255,255,0.04)';
-            var rank = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '';
+            var keyColor  = pct > 0.7 ? '#ef4444' : pct > 0.4 ? '#f97316' : pct > 0.15 ? '#f59e0b' : '#64748b';
+            var glowColor = pct > 0.7 ? 'rgba(239,68,68,0.4)' : pct > 0.4 ? 'rgba(249,115,22,0.35)' : pct > 0.15 ? 'rgba(245,158,11,0.3)' : 'rgba(255,255,255,0.04)';
+            var medals = ['🥇','🥈','🥉'];
             var dispChar = ch === ' ' ? '␣' : ch;
-            html += '<div style="display:flex;flex-direction:column;align-items:center;gap:5px;padding:12px 8px 10px;' +
-                'background:linear-gradient(180deg,rgba(20,27,45,0.95),rgba(10,14,26,0.98));' +
-                'border:1px solid ' + keyColor + '55;' +
-                'border-bottom:3px solid ' + keyColor + ';' +
-                'border-radius:10px;' +
-                'box-shadow:0 4px 16px ' + glowColor + ',inset 0 1px 0 rgba(255,255,255,0.06);' +
-                'cursor:default;transition:transform .15s;position:relative">' +
-                (rank ? '<span style="position:absolute;top:4px;right:5px;font-size:10px;line-height:1">' + rank + '</span>' : '') +
-                '<span style="font-size:20px;font-weight:800;color:#f1f5f9;font-family:monospace;line-height:1;letter-spacing:0">' + escapeHtml(dispChar) + '</span>' +
-                '<div style="width:100%;height:3px;background:rgba(255,255,255,0.06);border-radius:99px;overflow:hidden">' +
+            var timesLabel = en
+                ? (cnt === 1 ? '1 time' : cnt + ' times')
+                : (cnt + '\u00a0' + (cnt % 10 === 1 && cnt !== 11 ? 'раз' : cnt % 10 >= 2 && cnt % 10 <= 4 && (cnt < 10 || cnt > 20) ? 'раза' : 'раз'));
+
+            html += '<div style="' +
+                'display:flex;flex-direction:column;align-items:center;gap:6px;' +
+                'padding:14px 10px 12px;position:relative;' +
+                'background:linear-gradient(180deg,rgba(20,30,52,0.98),rgba(10,15,30,1));' +
+                'border:1px solid ' + keyColor + '44;border-bottom:4px solid ' + keyColor + ';' +
+                'border-radius:12px;' +
+                'box-shadow:0 6px 20px ' + glowColor + ',inset 0 1px 0 rgba(255,255,255,0.07);' +
+            '">' +
+                (medals[i] ? '<span style="position:absolute;top:5px;right:6px;font-size:13px">' + medals[i] + '</span>' : '') +
+                '<span style="font-size:30px;font-weight:900;color:#ffffff;font-family:monospace;line-height:1;text-shadow:0 0 16px rgba(255,255,255,0.25)">' + escapeHtml(dispChar) + '</span>' +
+                '<div style="width:85%;height:4px;background:rgba(255,255,255,0.07);border-radius:99px;overflow:hidden">' +
                     '<div style="height:100%;width:' + Math.round(pct * 100) + '%;background:' + keyColor + ';border-radius:99px"></div>' +
                 '</div>' +
-                '<span style="font-size:12px;font-weight:700;color:' + keyColor + '">' + cnt + ' ' + (lang === 'en' ? 'err' : 'ош') + '</span>' +
+                '<span style="font-size:11px;font-weight:700;color:' + keyColor + ';text-align:center;line-height:1.2">' + timesLabel + '</span>' +
             '</div>';
         });
         html += '</div>';
-        if (sorted.length > 12) {
-            html += '<p style="font-size:11px;color:#334155;text-align:center;margin-bottom:4px">' + (lang === 'en' ? '+ ' + (sorted.length - 12) + ' more keys' : '+ ещё ' + (sorted.length - 12) + ' клавиш') + '</p>';
+        if (sorted.length > 10) {
+            html += '<p style="font-size:11px;color:#334155;text-align:center;margin-top:4px">+ ' + (en ? (sorted.length - 10) + ' more keys' : 'ещё ' + (sorted.length - 10) + ' букв') + '</p>';
         }
     }
 
-    // ── Trend charts ──
-    html += '<div style="margin-top:24px">';
-    html += '<p class="profile-section-title mb-3">📈 ' + _t('profileTabAccTrend') + '</p>';
-
-    if (sessions.length < 2) {
-        html += '<div class="profile-empty-hint"><div style="font-size:3rem;margin-bottom:10px">📊</div><div style="font-size:12px;color:#475569">' + _t('profileTabNeedMore') + '</div></div>';
-    } else {
-        var rev = sessions.slice().reverse();
-        var maxSpd = Math.max.apply(null, rev.map(function (s) { return s.speed || 0; })) || 1;
-        var minAcc = Math.min.apply(null, rev.map(function (s) { return s.accuracy || 0; }));
-
-        // Two-panel chart: accuracy top, speed bottom
-        html += '<div style="background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:16px">';
-
-        // Labels
-        html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">' +
-            '<span style="font-size:10px;color:#64748b;letter-spacing:.06em;text-transform:uppercase">' + (lang === 'en' ? 'Accuracy %' : 'Точность %') + '</span>' +
-            '<div style="display:flex;gap:10px">' +
-                '<span style="font-size:10px;color:#475569">min ' + minAcc + '%</span>' +
-                '<span style="font-size:10px;color:#475569">avg ' + avgAcc + '%</span>' +
+    // ── 3. Personalized tip ─────────────────────────────────────────────────
+    if (sorted.length > 0) {
+        var worstChar = sorted[0][0];
+        var worstCnt  = sorted[0][1];
+        var dispWorst = worstChar === ' ' ? '␣' : worstChar;
+        var tipText = en
+            ? 'You miss the key <b style="color:#f59e0b;font-size:16px;font-family:monospace">' + escapeHtml(dispWorst) + '</b> most often — <b>' + worstCnt + ' time' + (worstCnt === 1 ? '' : 's') + '</b>. Try slowing down a little when you reach this key!'
+            : 'Чаще всего ты промахиваешься по клавише <b style="color:#f59e0b;font-size:18px;font-family:monospace">' + escapeHtml(dispWorst) + '</b> — уже <b>' + worstCnt + ' раз' + (worstCnt % 10 >= 2 && worstCnt % 10 <= 4 && (worstCnt < 10 || worstCnt > 20) ? 'а' : '') + '</b>. Попробуй немного притормозить, когда доходишь до этой буквы!';
+        html += '<div style="' +
+            'margin-top:20px;background:linear-gradient(135deg,rgba(245,158,11,0.1),rgba(234,88,12,0.08));' +
+            'border:1px solid rgba(245,158,11,0.3);border-radius:14px;padding:16px 18px;' +
+            'display:flex;align-items:flex-start;gap:14px;' +
+        '">' +
+            '<span style="font-size:30px;flex-shrink:0;line-height:1">💡</span>' +
+            '<div>' +
+                '<div style="font-size:12px;font-weight:800;color:#f59e0b;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px">' + (en ? 'Personal Tip' : 'Совет лично для тебя') + '</div>' +
+                '<div style="font-size:14px;color:#cbd5e1;line-height:1.65">' + tipText + '</div>' +
             '</div>' +
         '</div>';
-
-        // Accuracy bars
-        html += '<div style="display:flex;align-items:flex-end;gap:4px;height:80px">';
-        rev.forEach(function (s, i) {
-            var ac = s.accuracy || 0;
-            var h = Math.max(4, Math.round(ac * 0.76));
-            var c = ac >= 95 ? '#10b981' : ac >= 85 ? '#22d3ee' : ac >= 70 ? '#f59e0b' : '#ef4444';
-            var isLast = i === rev.length - 1;
-            html += '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px">' +
-                '<span style="font-size:9px;color:' + c + ';font-weight:' + (isLast ? '700' : '400') + '">' + ac + '</span>' +
-                '<div style="width:100%;border-radius:4px 4px 0 0;background:' + c + (isLast ? '' : '99') + ';min-height:4px;height:' + h + 'px;' +
-                    (isLast ? 'box-shadow:0 0 12px ' + c + '66;' : '') + '"></div>' +
-            '</div>';
-        });
-        html += '</div>';
-
-        // Divider
-        html += '<div style="border-top:1px solid rgba(255,255,255,0.06);margin:10px 0 8px"></div>';
-
-        // Speed label
-        html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">' +
-            '<span style="font-size:10px;color:#64748b;letter-spacing:.06em;text-transform:uppercase">CPM</span>' +
-            '<span style="font-size:10px;color:#475569">max ' + maxSpd + '</span>' +
-        '</div>';
-
-        // Speed bars
-        html += '<div style="display:flex;align-items:flex-end;gap:4px;height:56px">';
-        rev.forEach(function (s, i) {
-            var sp = s.speed || 0;
-            var h = Math.max(3, Math.round((sp / maxSpd) * 50));
-            var isLast = i === rev.length - 1;
-            var sc = sp >= 300 ? '#f59e0b' : sp >= 200 ? '#22d3ee' : sp >= 150 ? '#10b981' : '#64748b';
-            html += '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px">' +
-                '<span style="font-size:9px;color:' + sc + ';font-weight:' + (isLast ? '700' : '400') + '">' + sp + '</span>' +
-                '<div style="width:100%;border-radius:4px 4px 0 0;background:' + sc + (isLast ? '' : '88') + ';min-height:3px;height:' + h + 'px;' +
-                    (isLast ? 'box-shadow:0 0 10px ' + sc + '55;' : '') + '"></div>' +
-            '</div>';
-        });
-        html += '</div>';
-
-        // X-axis labels
-        html += '<div style="display:flex;justify-content:space-between;font-size:9px;color:#334155;margin-top:6px;padding:0 2px">' +
-            '<span>' + (lang === 'en' ? '← older' : '← старее') + '</span>' +
-            '<span style="color:#94a3b8;font-weight:600">' + (lang === 'en' ? 'latest →' : 'последняя →') + '</span>' +
-        '</div>';
-
-        html += '</div>'; // end chart panel
     }
-    html += '</div>'; // end trend section
+
+    // ── 4. Recent attempts as star ratings ──────────────────────────────────
+    if (sessions.length > 0) {
+        html += '<p class="profile-section-title mt-6 mb-3">🎮 ' + (en ? 'Recent Attempts' : 'Последние попытки') + '</p>';
+        html += '<div style="display:flex;flex-direction:column;gap:6px">';
+        sessions.slice(0, 6).forEach(function (s, i) {
+            var acc = s.accuracy || 0;
+            var stars = acc >= 95 ? '⭐⭐⭐' : acc >= 80 ? '⭐⭐' : acc >= 60 ? '⭐' : '';
+            var label = acc >= 95 ? (en ? 'Perfect!' : 'Отлично!')
+                      : acc >= 80 ? (en ? 'Good!' : 'Хорошо!')
+                      : acc >= 60 ? (en ? 'Keep going!' : 'Неплохо!')
+                      :             (en ? 'Need work' : 'Надо работать');
+            var labelColor = acc >= 95 ? '#10b981' : acc >= 80 ? '#22d3ee' : acc >= 60 ? '#f59e0b' : '#ef4444';
+            var resolved = _resolveLessonName(s);
+            var title = resolved || (en ? 'Free Practice' : 'Свободная практика');
+            var timeStr = _sessionTimeAgo(s.timestamp);
+            var isLatest = i === 0;
+
+            html += '<div style="' +
+                'display:flex;align-items:center;gap:12px;' +
+                'background:rgba(8,14,28,' + (isLatest ? '0.92' : '0.7') + ');' +
+                'border:1px solid rgba(255,255,255,' + (isLatest ? '0.12' : '0.06') + ');' +
+                'border-radius:12px;padding:12px 14px;' +
+                (isLatest ? 'box-shadow:0 2px 12px rgba(0,0,0,0.4);' : '') +
+            '">' +
+                '<div style="font-size:20px;line-height:1;flex-shrink:0;min-width:52px;text-align:center">' + (stars || '❌') + '</div>' +
+                '<div style="flex:1;min-width:0">' +
+                    '<div style="font-size:13px;font-weight:' + (isLatest ? '700' : '500') + ';color:' + (isLatest ? '#f1f5f9' : '#94a3b8') + ';white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + escapeHtml(title) + '</div>' +
+                    '<div style="font-size:10px;color:#475569;margin-top:1px">' + (timeStr || '') + '</div>' +
+                '</div>' +
+                '<div style="text-align:right;flex-shrink:0">' +
+                    '<div style="font-size:18px;font-weight:800;color:' + labelColor + '">' + acc + '%</div>' +
+                    '<div style="font-size:10px;color:' + labelColor + ';opacity:.75">' + label + '</div>' +
+                '</div>' +
+            '</div>';
+        });
+        html += '</div>';
+    }
 
     el.innerHTML = html;
 }
@@ -6181,4 +6189,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-
