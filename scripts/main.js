@@ -188,6 +188,48 @@ function _flushKeyErrors() {
     _keyErrorsCache = {};
 }
 
+/**
+ * После сессии без ошибок (100% точность) — уменьшаем «хвост» по буквам, которые реально печатали.
+ * Счётчики постепенно падают и ключи исчезают из профиля.
+ */
+function _decayKeyErrorsIfPerfect(accuracy, errors) {
+    if (errors !== 0 || accuracy !== 100) return;
+    var text = app.currentText;
+    if (!text || typeof text !== 'string' || text.length < 8) return;
+    var practiced = {};
+    for (var i = 0; i < text.length; i++) {
+        var ch = text[i];
+        if (ch === ' ' || ch === '\n' || ch === '\t' || ch === '\r') continue;
+        if (ch.length !== 1) continue;
+        practiced[ch] = 1;
+        if (ch.toLowerCase) practiced[ch.toLowerCase()] = 1;
+    }
+    try {
+        var raw = localStorage.getItem('zoob_key_errors');
+        var base = raw ? JSON.parse(raw) : {};
+        var changed = false;
+        for (var k in base) {
+            if (!Object.prototype.hasOwnProperty.call(base, k)) continue;
+            var cnt = Number(base[k]);
+            if (!isFinite(cnt) || cnt <= 0) continue;
+            if (k.length !== 1) continue;
+            var kl = k.toLowerCase();
+            if (!practiced[k] && !practiced[kl]) continue;
+            var drop = Math.max(1, Math.round(cnt * 0.2));
+            var next = cnt - drop;
+            if (next <= 0) {
+                delete base[k];
+            } else {
+                base[k] = next;
+            }
+            changed = true;
+        }
+        if (changed) {
+            localStorage.setItem('zoob_key_errors', JSON.stringify(base));
+        }
+    } catch (_e) {}
+}
+
 // Периодический flush раз в 5 секунд (страховка при внезапном закрытии)
 function _startKeyErrorsFlushTimer() {
     if (_keyErrorsFlushTimer) return;
@@ -748,7 +790,28 @@ const speedTestWords = {
         'акція', 'продаж', 'покупка', 'замовлення', 'доставка', 'оплата', 'повернення', 'гарантія', 'сервіс', 'підтримка',
         'пошта', 'телефон', 'месенджер', 'скайп', 'відео', 'аудіо', 'фото', 'текст', 'стиль', 'дизайн', 'верстка', 'розробка',
         'програмування', 'фронтенд', 'бекенд', 'алгоритм', 'база даних', 'сервер', 'хост', 'домен', 'хостинг', 'ампелологія',
-        'амбіція', 'завдання', 'мета', 'слово', 'мова', 'літера', 'звук', 'фраза', 'текст', 'рядок', 'сторінка', 'анімізм'
+        'амбіція', 'завдання', 'мета', 'слово', 'мова', 'літера', 'звук', 'фраза', 'текст', 'рядок', 'сторінка',         'анімізм'
+    ]
+};
+
+// Доп. слова для режима «слабые клавиши» (буквы ы ф г и т.д. в обычном списке реже)
+const adaptiveExtraWords = {
+    ru: [
+        'флаг', 'фраза', 'фронт', 'фонарь', 'фантазия', 'февраль', 'фасад', 'фильм', 'фигура', 'формат', 'футбол', 'фургон',
+        'функция', 'фактор', 'фокус', 'фирма', 'финал', 'физика', 'философ', 'фонтан', 'формула',
+        'мысль', 'мысли', 'мышь', 'мыть', 'вымысел', 'сыр', 'рыба', 'крыша', 'дым', 'лысый', 'жизнь',
+        'ты', 'мы', 'вы', 'был', 'стыл', 'рысь', 'дыра', 'слышать', 'ныть', 'грызть', 'крыса',
+        'гроза', 'гром', 'грусть', 'голос', 'глаз', 'горох', 'гигант', 'гладкий', 'граница', 'газета', 'герб',
+        'город', 'огонь', 'молоко', 'хорошо', 'молодость', 'огромный', 'дорога', 'корова', 'голова', 'уголь',
+        'фыркнуть', 'фальшь', 'фьорды', 'афиша', 'эфир', 'трофей', 'граф', 'гриф', 'груша'
+    ],
+    en: [
+        'fuzzy', 'fox', 'fix', 'flux', 'quartz', 'quiz', 'jazz', 'buzz', 'pizza', 'zephyr', 'galaxy', 'sphinx',
+        'oxygen', 'hyphen', 'rhythm', 'gazebo', 'jinx', 'queue', 'quiche', 'squid', 'text', 'next', 'vex'
+    ],
+    ua: [
+        'фраза', 'фронт', 'фільм', 'фантазія', 'фонтан', 'формат', 'функція', 'гроза', 'гром', 'гора', 'голос',
+        'газета', 'миготіти', 'миска', 'сир', 'риба', 'криша', 'дим', 'ти', 'ми', 'ви', 'фільтр'
     ]
 };
 
@@ -3842,6 +3905,9 @@ async function finishPractice() {
     // Сохраняем накопленные ошибки по клавишам в localStorage
     _flushKeyErrors();
 
+    // Идеальная сессия: уменьшаем исторические счётчики по напечатанным буквам
+    _decayKeyErrorsIfPerfect(accuracy, app.errors);
+
     // Останавливаем запись скорости
     if (window.wpmChartModule) window.wpmChartModule.stopRecording();
 
@@ -3961,48 +4027,133 @@ function showResults(speed, accuracy, time, errors, rewardCoins) {
     updateResultsModalHotkeysHint();
 }
 
+function _countCharInString(str, c) {
+    var s = str.toLowerCase();
+    var cl = c.toLowerCase();
+    var n = 0;
+    for (var i = 0; i < s.length; i++) {
+        if (s[i] === cl) n++;
+    }
+    return n;
+}
+
 /**
- * Генерирует адаптивный текст для тренировки слабых клавиш.
- * Читает zoob_key_errors + текущую сессию, выбирает топ-5 символов
- * и составляет 40-60 слов из speedTestWords, содержащих эти символы.
+ * Адаптивный текст: приоритет словам с редкими в словаре слабыми буквами (ф, ы, г…),
+ * а не только «о», плюс гарантированные вставки по каждой топ-букве.
  */
 function generateAdaptiveText(lang) {
-    lang = lang || app.lang || 'ru';
-    var errorMap = window.heatmapModule ? window.heatmapModule.getErrorMap() : {};
-    var top = window.heatmapModule ? window.heatmapModule.getTopErrors(errorMap, 5) : [];
-    var weakChars = top.map(function (e) { return e.key.toLowerCase(); }).filter(Boolean);
-
-    var words = (typeof speedTestWords !== 'undefined' && speedTestWords[lang]) ? speedTestWords[lang] : [];
-
-    var selected = [];
-    if (weakChars.length > 0) {
-        // Слова, содержащие хотя бы один слабый символ
-        var weak = words.filter(function (w) {
-            return weakChars.some(function (c) { return w.toLowerCase().indexOf(c) !== -1; });
-        });
-        // Перемешиваем
-        for (var i = weak.length - 1; i > 0; i--) {
-            var j = Math.floor(Math.random() * (i + 1));
-            var tmp = weak[i]; weak[i] = weak[j]; weak[j] = tmp;
-        }
-        selected = weak.slice(0, 30);
+    var layout = (app && app.currentLayout) || lang || 'ru';
+    if (typeof speedTestWords === 'undefined') layout = 'ru';
+    if (!speedTestWords[layout]) {
+        layout = speedTestWords[lang] ? lang : (speedTestWords.ru ? 'ru' : 'en');
     }
 
-    if (selected.length < 10) {
-        // Fallback — случайные слова
-        var all = words.slice();
-        for (var ii = all.length - 1; ii > 0; ii--) {
-            var jj = Math.floor(Math.random() * (ii + 1));
-            var ttmp = all[ii]; all[ii] = all[jj]; all[jj] = ttmp;
+    var errorMap = window.heatmapModule ? window.heatmapModule.getErrorMap() : {};
+    var top = window.heatmapModule ? window.heatmapModule.getTopErrors(errorMap, 8) : [];
+
+    var words = (speedTestWords[layout] || []).slice();
+    var extra = (typeof adaptiveExtraWords !== 'undefined' && adaptiveExtraWords[layout]) ? adaptiveExtraWords[layout] : [];
+    extra.forEach(function (w) {
+        if (words.indexOf(w) === -1) words.push(w);
+    });
+
+    if (top.length === 0) {
+        return shuffleArray(words).slice(0, 45).join(' ');
+    }
+
+    var weakChars = [];
+    var weight = {};
+    top.forEach(function (e) {
+        var raw = (e.key && String(e.key)) ? String(e.key) : '';
+        if (!raw || raw === ' ') return;
+        var k = raw.length === 1 ? raw.toLowerCase() : raw.toLowerCase().charAt(0);
+        if (!k || k === ' ') return;
+        if (weakChars.indexOf(k) === -1) weakChars.push(k);
+        weight[k] = Math.max(weight[k] || 0, Math.max(1, Math.round(Number(e.count) || 1)));
+    });
+
+    if (weakChars.length === 0) {
+        return shuffleArray(words).slice(0, 45).join(' ');
+    }
+
+    var corpFreq = {};
+    weakChars.forEach(function (c) { corpFreq[c] = 0; });
+    words.forEach(function (w) {
+        var wl = w.toLowerCase();
+        weakChars.forEach(function (c) {
+            corpFreq[c] += _countCharInString(wl, c);
+        });
+    });
+
+    function scoreWord(w) {
+        var wl = w.toLowerCase();
+        var s = 0;
+        var distinct = 0;
+        weakChars.forEach(function (c) {
+            var occ = _countCharInString(wl, c);
+            if (!occ) return;
+            distinct++;
+            var cf = corpFreq[c] || 0;
+            s += occ * weight[c] / Math.sqrt(0.75 + cf);
+        });
+        s += distinct * 12;
+        var len = wl.replace(/\s+/g, '').length || 1;
+        s += (distinct / len) * 30;
+        return s;
+    }
+
+    var scored = words.map(function (w) { return { w: w, s: scoreWord(w) }; });
+    scored.sort(function (a, b) { return b.s - a.s; });
+
+    var selected = [];
+    var used = {};
+    var i;
+    for (i = 0; i < scored.length && selected.length < 50; i++) {
+        if (scored[i].s <= 0) break;
+        if (!used[scored[i].w]) {
+            selected.push(scored[i].w);
+            used[scored[i].w] = 1;
         }
-        selected = all.slice(0, 40);
+    }
+
+    weakChars.slice(0, 6).forEach(function (c) {
+        var candidates = words
+            .filter(function (w) { return w.toLowerCase().indexOf(c) !== -1; })
+            .map(function (w) {
+                var wl = w.toLowerCase();
+                var occ = _countCharInString(wl, c);
+                return { w: w, ratio: occ / Math.max(1, wl.length) };
+            })
+            .sort(function (a, b) { return b.ratio - a.ratio || b.w.length - a.w.length; });
+        var added = 0;
+        for (var j = 0; j < candidates.length && added < 6; j++) {
+            var ww = candidates[j].w;
+            if (!used[ww]) {
+                selected.push(ww);
+                used[ww] = 1;
+                added++;
+            }
+        }
+    });
+
+    selected = shuffleArray(selected);
+
+    if (selected.length < 14) {
+        var fb = shuffleArray(words);
+        fb.forEach(function (w) {
+            if (selected.length >= 55) return;
+            if (!used[w]) {
+                selected.push(w);
+                used[w] = 1;
+            }
+        });
     }
 
     var text = selected.join(' ');
-    if (text.length > 300) {
-        var cut = text.slice(0, 300);
-        var last = cut.lastIndexOf(' ');
-        text = last > 0 ? cut.slice(0, last) : cut;
+    if (text.length > 520) {
+        var cut = text.slice(0, 520);
+        var lastSp = cut.lastIndexOf(' ');
+        text = lastSp > 0 ? cut.slice(0, lastSp) : cut;
     }
     return text;
 }
@@ -6836,3 +6987,4 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+

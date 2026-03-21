@@ -524,3 +524,4 @@ if (document.readyState === 'loading') {
 
 if (typeof window !== 'undefined') window.__siteStatsUpdateUI = updateUI;
 export { pluralPlayers, updateUI };
+
