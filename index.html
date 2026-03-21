@@ -1929,6 +1929,8 @@
         html:not(.dark) .pcAch-lock{ background:#f1f5f9; border:1.5px dashed #cbd5e1; }
         /* Keyboard keys: always dark (they are real keys!) */
         html:not(.dark) .pcKey  { background:linear-gradient(180deg,#1e293b,#0f172a); }
+        /* Letter inside key must always be white — dark key, white character */
+        html:not(.dark) .pcKey .pct1 { color:#ffffff !important; }
         /* Tip card: solid warm amber background — fully readable on white */
         html:not(.dark) .pcTip  { background:#fffbeb; border:1px solid #fcd34d; box-shadow:0 2px 8px rgba(245,158,11,0.10); }
         html:not(.dark) .pcTip .pct1,html:not(.dark) .pcTip .pct2,html:not(.dark) .pcTip .pct3 { color:#1c1917 !important; }
