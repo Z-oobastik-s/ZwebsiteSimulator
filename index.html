@@ -1853,22 +1853,22 @@
             --pchv:  rgba(255,255,255,0.04);
         }
         html:not(.dark) {
-            --pcb:   rgba(255,255,255,0.97);
-            --pcb2:  rgba(248,250,252,0.95);
-            --pcb3:  rgba(241,245,249,0.90);
-            --pcbr:  rgba(0,0,0,0.09);
-            --pcbrd: rgba(0,0,0,0.14);
+            --pcb:   #ffffff;
+            --pcb2:  #f8fafc;
+            --pcb3:  #f1f5f9;
+            --pcbr:  rgba(15,23,42,0.11);
+            --pcbrd: rgba(15,23,42,0.16);
             --pct1:  #0f172a;
             --pct2:  #1e293b;
             --pct3:  #374151;
             --pct4:  #4b5563;
-            --pct5:  #6b7280;
-            --pct6:  #9ca3af;
-            --pcs:   0 2px 10px rgba(0,0,0,0.10);
-            --pcs2:  0 4px 16px rgba(0,0,0,0.12);
-            --pcbar: rgba(0,0,0,0.08);
-            --pci:   rgba(255,255,255,0.80);
-            --pchv:  rgba(0,0,0,0.03);
+            --pct5:  #64748b;
+            --pct6:  #94a3b8;
+            --pcs:   0 4px 18px rgba(15,23,42,0.10), 0 1px 4px rgba(15,23,42,0.06);
+            --pcs2:  0 6px 28px rgba(15,23,42,0.13), 0 2px 6px rgba(15,23,42,0.07);
+            --pcbar: rgba(15,23,42,0.09);
+            --pci:   rgba(255,255,255,0.95);
+            --pchv:  rgba(15,23,42,0.04);
         }
         /* ── Profile tab utility classes ── */
         .pcA  { background:linear-gradient(135deg,var(--pcb),var(--pcb2));border:1px solid var(--pcbr);border-radius:16px;padding:16px;box-shadow:var(--pcs); }
@@ -1882,7 +1882,6 @@
         .pcAch-lock { background:var(--pcb3);border:1px dashed var(--pcbrd);border-radius:12px;padding:12px;text-align:center; }
         .pcKey  { background:linear-gradient(180deg,var(--pcb),var(--pcb2));border-radius:12px; }
         .pcTip  { background:linear-gradient(135deg,rgba(245,158,11,0.10),rgba(234,88,12,0.07));border:1px solid rgba(245,158,11,0.30);border-radius:14px;padding:16px 18px;display:flex;align-items:flex-start;gap:14px;margin-top:20px; }
-        html:not(.dark) .pcTip { background:linear-gradient(135deg,rgba(245,158,11,0.07),rgba(234,88,12,0.04)); }
         .pcBarTr { background:var(--pcbar);border-radius:99px;overflow:hidden; }
         .pcLbl { font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--pct4);margin-bottom:8px; }
         .pct1 { color:var(--pct1)!important; }
@@ -1891,6 +1890,126 @@
         .pct4 { color:var(--pct4)!important; }
         .pct5 { color:var(--pct5)!important; }
         .pct6 { color:var(--pct6)!important; }
+
+        /* ── Light theme: rich card overrides ── */
+        html:not(.dark) .pcA {
+            background: linear-gradient(145deg,#ffffff 0%,#f0f9ff 100%);
+            border: 1px solid rgba(14,116,144,0.15);
+            box-shadow: 0 4px 18px rgba(15,23,42,0.09), 0 1px 4px rgba(15,23,42,0.05);
+        }
+        html:not(.dark) .pcA-sm {
+            background: linear-gradient(145deg,#ffffff,#f0f9ff);
+            border-color: rgba(14,116,144,0.15);
+        }
+        html:not(.dark) .pcB {
+            background: linear-gradient(145deg,#f8fafc,#f0f9ff);
+            border: 1px solid rgba(14,116,144,0.12);
+            box-shadow: 0 2px 8px rgba(15,23,42,0.06);
+        }
+        html:not(.dark) .pcC {
+            background: linear-gradient(145deg,#ffffff,#f0f9ff);
+            border: 1px solid rgba(14,116,144,0.15);
+            box-shadow: 0 3px 12px rgba(15,23,42,0.08);
+        }
+        html:not(.dark) .pcD {
+            background: linear-gradient(145deg,#f8fafc,#f0f9ff);
+            border: 1.5px dashed rgba(14,116,144,0.25);
+        }
+        html:not(.dark) .pcLvl {
+            background: linear-gradient(135deg,#0c4a6e 0%,#0e7490 50%,#0369a1 100%);
+            box-shadow: 0 8px 28px rgba(14,116,144,0.35), 0 2px 8px rgba(15,23,42,0.15);
+        }
+        html:not(.dark) .pcSess {
+            background: #ffffff;
+            border: 1px solid rgba(14,116,144,0.14);
+            box-shadow: 0 2px 10px rgba(15,23,42,0.07);
+        }
+        html:not(.dark) .pcAch {
+            background: linear-gradient(145deg,#ffffff,#f0f9ff);
+            border: 1px solid rgba(14,116,144,0.15);
+            box-shadow: 0 3px 12px rgba(15,23,42,0.08);
+        }
+        html:not(.dark) .pcAch-lock {
+            background: #f1f5f9;
+            border: 1.5px dashed rgba(15,23,42,0.15);
+        }
+        html:not(.dark) .pcKey {
+            background: linear-gradient(180deg,#1e293b,#0f172a);
+        }
+        html:not(.dark) .pcTip {
+            background: linear-gradient(135deg,rgba(245,158,11,0.08),rgba(234,88,12,0.04));
+            border: 1px solid rgba(245,158,11,0.30);
+        }
+        html:not(.dark) .pcBarTr {
+            background: rgba(14,116,144,0.10);
+        }
+        html:not(.dark) .pcLbl { color: #0e7490; }
+        /* Level card text stays white in light mode (card is dark navy) */
+        html:not(.dark) .pcLvl .pct5,
+        html:not(.dark) .pcLvl .pcLbl { color: rgba(255,255,255,0.65) !important; }
+        /* ── Light theme: profile UI controls ── */
+        html:not(.dark) .profile-tab-btn { color: #64748b; }
+        html:not(.dark) .profile-tab-btn:hover:not(.active) { color: #0c4a6e; background: rgba(14,116,144,0.06); }
+        html:not(.dark) .profile-tab-btn.active { color: #0e7490; border-bottom-color: #0e7490; text-shadow: none; }
+        html:not(.dark) .profile-tab-nav { border-bottom-color: rgba(14,116,144,0.2); }
+        html:not(.dark) .profile-quick-btn {
+            background: rgba(255,255,255,0.9);
+            border: 1px solid rgba(15,23,42,0.15);
+            color: #1e293b;
+            box-shadow: 0 2px 6px rgba(15,23,42,0.08);
+        }
+        html:not(.dark) .profile-quick-btn:hover {
+            border-color: rgba(14,116,144,0.4);
+            background: rgba(14,116,144,0.06);
+            box-shadow: 0 4px 12px rgba(14,116,144,0.15);
+        }
+        html:not(.dark) .profile-quick-btn.text-cyan-400,
+        html:not(.dark) .profile-quick-btn [class*="text-cyan"] { color: #0e7490 !important; }
+        html:not(.dark) .profile-bio-input { background: rgba(255,255,255,0.95); border-color: rgba(14,116,144,0.2); color: #0f172a; box-shadow: 0 2px 6px rgba(15,23,42,0.05); }
+        html:not(.dark) .profile-bio-input:focus { border-color: rgba(14,116,144,0.5); box-shadow: 0 0 0 3px rgba(14,116,144,0.1); }
+        html:not(.dark) .profile-bio-input::placeholder { color: #64748b; }
+        /* ── Light theme: background selector button ── */
+        html:not(.dark) #profileScreen button[onclick*="BackgroundSelectorModal"],
+        html:not(.dark) #profileScreen button[onclick*="openBackground"] {
+            background: rgba(14,116,144,0.1);
+            border-color: rgba(14,116,144,0.4);
+            color: #0e7490;
+        }
+        /* ── Light theme: logout button ── */
+        html:not(.dark) #profileScreen button[onclick="logoutUser()"] {
+            background: rgba(255,255,255,0.9);
+            border: 1px solid rgba(220,38,38,0.35);
+            color: #dc2626;
+            box-shadow: 0 2px 6px rgba(15,23,42,0.08);
+        }
+        html:not(.dark) #profileScreen button[onclick="logoutUser()"]:hover {
+            background: rgba(220,38,38,0.06);
+            box-shadow: 0 4px 12px rgba(220,38,38,0.15);
+        }
+        /* ── Light theme: glass fix inside profile screen ── */
+        html:not(.dark) #profileScreen .glass {
+            background: rgba(255,255,255,0.88);
+            border: 1px solid rgba(15,23,42,0.13);
+        }
+        /* ── Light theme: mobile back button ── */
+        html:not(.dark) #mobileProfileBackBtn {
+            background: rgba(255,255,255,0.9);
+            border: 1px solid rgba(15,23,42,0.15);
+            color: #0f172a;
+            box-shadow: 0 2px 8px rgba(15,23,42,0.12);
+        }
+        /* ── Light theme: level card forced white text ── */
+        html:not(.dark) .pcLvl,
+        html:not(.dark) .pcLvl span,
+        html:not(.dark) .pcLvl div { color: inherit; }
+        html:not(.dark) .pcLvl { color: #ffffff; }
+        /* ── Light theme: "О себе" section title ── */
+        html:not(.dark) .profile-section-title {
+            color: #0e7490;
+            text-shadow: none;
+        }
+        html:not(.dark) .profile-section-title::before,
+        html:not(.dark) .profile-section-title::after { color: rgba(14,116,144,0.5); }
         
         /* Avatar Modal - гарантируем что оно поверх всего */
         #avatarSelectorModal {
@@ -3653,3 +3772,4 @@
     </script>
 </body>
 </html>
+
