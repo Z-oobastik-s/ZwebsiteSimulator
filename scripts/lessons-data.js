@@ -11,6 +11,7 @@ const LESSONS_DATA = {
         level: "beginner",
         name_ru: "Начинающий",
         name_en: "Beginner",
+        name_ua: "Початківець",
         description_ru: "Основные позиции и базовые упражнения",
         description_en: "Basic positions and exercises",
         lessons: [
@@ -860,6 +861,7 @@ const LESSONS_DATA = {
         level: "medium",
         name_ru: "Средний",
         name_en: "Medium",
+        name_ua: "Середній",
         description_ru: "Усложнённые упражнения с заглавными буквами",
         description_en: "Advanced exercises with capital letters",
         lessons: [
@@ -1405,6 +1407,7 @@ const LESSONS_DATA = {
         level: "advanced",
         name_ru: "Продвинутый",
         name_en: "Advanced",
+        name_ua: "Просунутий",
         description_ru: "Сложные тексты с заглавными буквами, запятыми и точками",
         description_en: "Complex texts with capital letters, commas and periods",
         lessons: [
@@ -2011,3 +2014,4 @@ const LESSONS_DATA = {
         ]
     }
 };
+

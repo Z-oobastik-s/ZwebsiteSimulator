@@ -1401,6 +1401,7 @@ function loadSettings() {
         }
     }
     syncSiteLanguageUI();
+    syncSelectedLessonLangWithSite();
     
     if (savedLayout) {
         app.currentLayout = savedLayout;
@@ -1685,8 +1686,10 @@ function toggleLanguage() {
     app.lang = order[(idx + 1) % order.length];
     localStorage.setItem('lang', app.lang);
     syncSiteLanguageUI();
+    syncSelectedLessonLangWithSite();
     updateTranslations();
     updateRoomSelectionUI();
+    if (app.currentMode === 'lessons') loadLessons();
 }
 
 // Layout toggle
@@ -1886,6 +1889,7 @@ function updateTranslations() {
     if (_lvlList && !_lvlList.classList.contains('hidden') && typeof fillLevelListModal === 'function') {
         fillLevelListModal();
     }
+    refreshLessonLangButtonStyles();
 }
 
 // Navigation functions
@@ -2093,19 +2097,26 @@ function hideAllScreens() {
     });
 }
 
-// Select lesson language
-function selectLessonLanguage(lang) {
-    selectedLessonLang = lang;
-    
-    // Update button styles
-    document.querySelectorAll('[id^="lessonLang"]').forEach(btn => {
+/** Мова пулу уроків (RU/EN/UA) узгоджується з мовою інтерфейсу, поки користувач не змінить уручну. */
+function syncSelectedLessonLangWithSite() {
+    selectedLessonLang = app.lang === 'ua' ? 'ua' : app.lang === 'en' ? 'en' : 'ru';
+}
+
+function refreshLessonLangButtonStyles() {
+    document.querySelectorAll('[id^="lessonLang"]').forEach(function (btn) {
         btn.className = 'w-full px-4 py-4 rounded-xl bg-gray-700/50 dark:bg-gray-800/50 hover:bg-gray-600/50 text-gray-300 font-bold text-lg transition-all transform hover:scale-105';
     });
-    const activeBtn = DOM.get(`lessonLang${lang.charAt(0).toUpperCase() + lang.slice(1)}`);
+    var cap = selectedLessonLang.charAt(0).toUpperCase() + selectedLessonLang.slice(1);
+    var activeBtn = DOM.get('lessonLang' + cap);
     if (activeBtn) {
         activeBtn.className = 'w-full px-4 py-4 rounded-xl bg-gradient-to-br from-primary to-cyan-500 text-white font-bold text-lg shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all transform hover:scale-105';
     }
-    
+}
+
+// Select lesson language
+function selectLessonLanguage(lang) {
+    selectedLessonLang = lang;
+    refreshLessonLangButtonStyles();
     loadLessons();
 }
 
@@ -2156,7 +2167,7 @@ function loadLessons() {
         card.className = `difficulty-card difficulty-card--${level}`;
         card.onclick = () => showLessonList({ ...data, lessons: lessonsForLang });
         
-        const levelName = app.lang === 'ru' ? data.name_ru : data.name_en;
+        const levelName = app.lang === 'en' ? data.name_en : (app.lang === 'ua' ? (data.name_ua || data.name_ru) : data.name_ru);
         const levelIcons = { beginner: '🌱', medium: '⚡', advanced: '🔥' };
         const levelNumbers = { beginner: '01', medium: '02', advanced: '03' };
         const lessonsLabel = app.lang === 'ru' ? 'уроков' : app.lang === 'en' ? 'lessons' : 'уроків';
@@ -2434,7 +2445,7 @@ function showLessonList(levelData) {
     const container = DOM.get('lessonsList');
     if (!container) return;
     
-    const levelDisplayName = app.lang === 'en' ? levelData.name_en : levelData.name_ru;
+    const levelDisplayName = app.lang === 'en' ? levelData.name_en : (app.lang === 'ua' ? (levelData.name_ua || levelData.name_ru) : levelData.name_ru);
     const titleEl = document.getElementById('lessonsScreenTitle');
     if (titleEl) titleEl.textContent = levelDisplayName.toUpperCase();
 
@@ -7548,3 +7559,4 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+
