@@ -1924,6 +1924,8 @@ function showLessons() {
     const lessonsScreen = DOM.get('lessonsScreen');
     if (lessonsScreen) lessonsScreen.classList.remove('hidden');
     app.currentMode = 'lessons';
+    syncSelectedLessonLangWithSite();
+    refreshLessonLangButtonStyles();
     loadLessons();
     toggleFooter(false); // Скрываем футер в разделе уроков
 }
@@ -2167,7 +2169,8 @@ function loadLessons() {
         card.className = `difficulty-card difficulty-card--${level}`;
         card.onclick = () => showLessonList({ ...data, lessons: lessonsForLang });
         
-        const levelName = app.lang === 'en' ? data.name_en : (app.lang === 'ua' ? (data.name_ua || data.name_ru) : data.name_ru);
+        var levelTitleKey = level === 'beginner' ? 'difficultyBeginner' : level === 'medium' ? 'difficultyMedium' : 'difficultyAdvanced';
+        const levelName = typeof t === 'function' ? t(levelTitleKey) : (app.lang === 'en' ? data.name_en : (app.lang === 'ua' ? (data.name_ua || data.name_ru) : data.name_ru));
         const levelIcons = { beginner: '🌱', medium: '⚡', advanced: '🔥' };
         const levelNumbers = { beginner: '01', medium: '02', advanced: '03' };
         const lessonsLabel = app.lang === 'ru' ? 'уроков' : app.lang === 'en' ? 'lessons' : 'уроків';
@@ -7559,4 +7562,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-

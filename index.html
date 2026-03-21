@@ -562,6 +562,23 @@
             color: #111827;
             background: rgba(0, 0, 0, 0.06);
         }
+
+        /* Модал результатів: компактна картка з прокруткою всередині (не на весь екран) */
+        #resultsModal .results-modal-panel {
+            max-height: min(76vh, 440px);
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        @media (min-width: 480px) {
+            #resultsModal .results-modal-panel {
+                max-height: min(80vh, 500px);
+            }
+        }
+        @media (min-width: 768px) {
+            #resultsModal .results-modal-panel {
+                max-height: min(86vh, 540px);
+            }
+        }
         
         /* Переход только у фона и оверлея — остальное меняется сразу, без тянучки */
         #themeIcon {
@@ -3185,12 +3202,12 @@
     
     <!-- Results Modal: з md (768px) — три колонки; компактніші відступи й графік -->
     <div id="resultsModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50 overflow-y-auto py-2 sm:py-3 px-2 sm:px-3" role="dialog" aria-modal="true" aria-labelledby="resultsModalTitle">
-        <div class="glass rounded-xl sm:rounded-2xl p-3 sm:p-4 w-full max-w-[min(100%,28rem)] sm:max-w-3xl md:max-w-5xl lg:max-w-6xl mx-auto fade-in my-auto max-h-[min(90vh,640px)] sm:max-h-[min(92vh,700px)] overflow-y-auto overscroll-contain results-modal-panel shadow-xl border border-white/10">
+        <div class="glass rounded-xl sm:rounded-2xl p-3 sm:p-4 w-full max-w-[min(100%,28rem)] sm:max-w-3xl md:max-w-5xl lg:max-w-6xl mx-auto fade-in my-auto overscroll-contain results-modal-panel shadow-xl border border-white/10">
             <h3 id="resultsModalTitle" class="text-lg sm:text-xl font-bold mb-2 text-center shrink-0" data-i18n="results">Результаты</h3>
 
             <div class="md:grid md:grid-cols-12 md:gap-x-3 md:gap-y-1.5 md:items-start">
                 <!-- Кол.1: основные цифры -->
-                <div class="md:col-span-3 mb-2 md:mb-0">
+                <div class="md:col-span-3 mb-2 md:mb-0 md:self-start">
                     <div class="grid grid-cols-2 gap-1.5 sm:gap-2">
                         <div class="flex flex-col items-center p-1.5 sm:p-2 bg-white/10 dark:bg-black/20 rounded-lg sm:rounded-xl min-w-0">
                             <span class="text-[9px] sm:text-[10px] text-gray-400 mb-0.5 text-center leading-tight" data-i18n="speed">Скорость</span>
@@ -3215,7 +3232,7 @@
                 </div>
 
                 <!-- Кол.2: график -->
-                <div class="md:col-span-5 mb-2 md:mb-0 rounded-lg sm:rounded-xl overflow-hidden bg-white/5 dark:bg-black/20 p-1.5 sm:p-2 min-w-0">
+                <div class="md:col-span-5 mb-2 md:mb-0 md:self-start rounded-lg sm:rounded-xl overflow-hidden bg-white/5 dark:bg-black/20 p-1.5 sm:p-2 min-w-0">
                     <p class="text-[9px] sm:text-[10px] text-gray-400 mb-0.5 ml-0.5" data-i18n="resultChartTitle">Скорость по времени</p>
                     <canvas id="resultSpeedChart" class="w-full block h-[64px] sm:h-[72px] md:h-[80px]" style="display:block;"></canvas>
                 </div>
@@ -3848,4 +3865,3 @@
     </script>
 </body>
 </html>
-

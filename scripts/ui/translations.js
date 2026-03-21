@@ -31,6 +31,9 @@ window.translations = {
         mobilePcHint: 'Для лучшего взаимодействия рекомендуем зайти с компьютера.',
         back: 'Назад',
         chooseDifficulty: 'Выберите уровень сложности',
+        difficultyBeginner: 'Начинающий',
+        difficultyMedium: 'Средний',
+        difficultyAdvanced: 'Продвинутый',
         exit: 'Выйти',
         restart: 'Заново',
         pause: 'Пауза',
@@ -277,6 +280,9 @@ window.translations = {
         mobilePcHint: 'For a better experience we recommend using a computer.',
         back: 'Back',
         chooseDifficulty: 'Choose Difficulty Level',
+        difficultyBeginner: 'Beginner',
+        difficultyMedium: 'Medium',
+        difficultyAdvanced: 'Advanced',
         exit: 'Exit',
         restart: 'Restart',
         pause: 'Pause',
@@ -523,6 +529,9 @@ window.translations = {
         mobilePcHint: 'Для зручності радимо зайти з комп’ютера.',
         back: 'Назад',
         chooseDifficulty: 'Оберіть рівень складності',
+        difficultyBeginner: 'Початківець',
+        difficultyMedium: 'Середній',
+        difficultyAdvanced: 'Просунутий',
         exit: 'Вийти',
         restart: 'Спочатку',
         pause: 'Пауза',
@@ -742,4 +751,3 @@ window.translations = {
         profileTabOnSite: 'на сайті'
     }
 };
-
