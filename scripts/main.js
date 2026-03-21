@@ -4632,7 +4632,8 @@ function startAdaptivePractice() {
 
 function updateResultsModalHotkeysHint() {
     const el = document.getElementById('resultsHotkeysHint');
-    if (el && translations[app.lang].hotkeysHint) el.textContent = translations[app.lang].hotkeysHint;
+    const row = translations[app.lang] || translations.ru;
+    if (el && row && row.hotkeysHint) el.textContent = row.hotkeysHint;
 }
 
 // Copy result to clipboard (for sharing). Используем Clipboard API с fallback на execCommand.
@@ -4644,7 +4645,9 @@ function copyResultsToClipboard() {
     const site = 'Zoobastiks';
     const text = app.lang === 'en'
         ? site + ' — ' + d.speed + ' cpm, ' + d.accuracy + '% accuracy, ' + timeStr + ', ' + d.errors + ' errors'
-        : site + ' — ' + d.speed + ' зн/мин, точность ' + d.accuracy + '%, время ' + timeStr + ', ошибок ' + d.errors;
+        : app.lang === 'ua'
+            ? site + ' — ' + d.speed + ' зн/хв, точність ' + d.accuracy + '%, час ' + timeStr + ', помилок ' + d.errors
+            : site + ' — ' + d.speed + ' зн/мин, точность ' + d.accuracy + '%, время ' + timeStr + ', ошибок ' + d.errors;
 
     function onSuccess() {
         showToast(t('resultCopied'), 'success', '');
@@ -7474,3 +7477,4 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+
