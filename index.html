@@ -46,41 +46,70 @@
     <!-- Canonical URL -->
     <link rel="canonical" href="https://zoobastik.me/">
     
-    <!-- Structured Data (JSON-LD) -->
+    <!-- Structured Data: WebSite (brand + search identity for Google) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Zoobastiks",
+      "alternateName": ["Zoobastik", "Zoob", "Z-тренажёр", "Зообастик", "Зубастик", "Zoobastiks typing trainer"],
+      "url": "https://zoobastik.me/",
+      "description": "Бесплатный тренажёр слепой печати онлайн — Zoobastiks. Уроки, тест скорости, мультиплеер. Русский, украинский, английский.",
+      "inLanguage": ["ru", "uk", "en"],
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://zoobastik.me/",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+    <!-- Structured Data: Organization (brand entity) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Zoobastiks",
+      "alternateName": ["Zoobastik", "Zoob тренажёр", "Z-тренажёр"],
+      "url": "https://zoobastik.me/",
+      "logo": "https://zoobastik.me/assets/favicon.svg",
+      "sameAs": [
+        "https://zoobastik.me/",
+        "https://z-oobastik-s.github.io/"
+      ]
+    }
+    </script>
+    <!-- Structured Data: WebApplication -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "WebApplication",
-      "name": "Zoobastiks",
-      "alternateName": ["Клавиатура онлайн Zoobastiks", "Zoobastiks клавиатура", "Zoobastik", "Zoobastik s", "Zoob тренажер", "Zoob печать", "Z тренажер", "Z тренажёр", "зообастикс", "зообастик", "зубастикс", "зубастик", "Zoobastiks Typing Trainer", "Zoobastiks — тренажёр слепой печати", "тренажёр для школьников", "тренажер для детей", "клавиатурный тренажёр онлайн", "keyboard trainer online", "тренажер друку", "Zoobastiks touch typing tutor"],
+      "name": "Zoobastiks — тренажёр слепой печати",
+      "alternateName": ["Клавиатура онлайн Zoobastiks", "Zoobastik клавиатура", "Zoob тренажер", "Z тренажёр", "Зообастикс", "Зубастикс", "keyboard trainer online", "тренажер друку онлайн"],
       "url": "https://zoobastik.me/",
-      "description": "Клавиатура онлайн Zoobastiks (Zoobastik, Zoob, Z-тренажер) — бесплатный тренажёр слепой печати для школьников и детей. Обучение на русском, украинском, английском. Touch typing tutor.",
+      "description": "Клавиатура онлайн Zoobastiks — бесплатный тренажёр слепой печати для школьников и детей. Уроки, тест скорости, мультиплеер. Русский, украинский, английский. Touch typing tutor.",
       "applicationCategory": "EducationalApplication",
       "operatingSystem": "Web Browser",
+      "isAccessibleForFree": true,
       "offers": {
         "@type": "Offer",
         "price": "0",
         "priceCurrency": "USD"
       },
-      "aggregateRating": {
-        "@type": "AggregateRating",
-        "ratingValue": "4.8",
-        "ratingCount": "150"
-      },
       "featureList": [
+        "Тренажёр слепой печати онлайн",
         "Уроки для начинающих, среднего и продвинутого уровня",
-        "Тест скорости печати",
+        "Тест скорости печати (CPM)",
         "Мультиплеер режим",
         "Система достижений и монет",
-        "Магазин уроков",
         "Статистика прогресса",
-        "Поддержка русской, английской и украинской раскладок"
+        "Русский, украинский, английский язык"
       ],
       "author": {
         "@type": "Organization",
-        "name": "Zoobastiks"
+        "name": "Zoobastiks",
+        "url": "https://zoobastik.me/"
       },
-      "inLanguage": ["ru", "en", "uk"]
+      "inLanguage": ["ru", "uk", "en"]
     }
     </script>
     

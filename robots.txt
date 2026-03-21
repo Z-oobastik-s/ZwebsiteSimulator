@@ -1,10 +1,4 @@
 User-agent: *
 Allow: /
 
-# Sitemap
 Sitemap: https://zoobastik.me/sitemap.xml
-
-# Disallow admin panel and other private areas
-Disallow: /admin
-Disallow: /api/
-
