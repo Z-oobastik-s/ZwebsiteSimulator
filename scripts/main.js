@@ -34,7 +34,9 @@ const app = {
     lastStatsUpdate: 0,
     cachedDOM: {},
     animationFrameId: null,
-    pendingLevelUp: null
+    pendingLevelUp: null,
+    totalLessonPauseDuration: 0,
+    _pauseStartAt: null
 };
 
 // Streak (серия дней подряд с тренировкой)
@@ -169,6 +171,29 @@ function initPwaInstallBanner() {
   }
 }
 
+// In-memory кэш ошибок по клавишам — flush в localStorage при finishPractice
+var _keyErrorsCache = {};
+var _keyErrorsFlushTimer = null;
+
+function _flushKeyErrors() {
+    if (!Object.keys(_keyErrorsCache).length) return;
+    try {
+        var stored = localStorage.getItem('zoob_key_errors');
+        var base = stored ? JSON.parse(stored) : {};
+        for (var k in _keyErrorsCache) {
+            base[k] = (base[k] || 0) + _keyErrorsCache[k];
+        }
+        localStorage.setItem('zoob_key_errors', JSON.stringify(base));
+    } catch (_e) {}
+    _keyErrorsCache = {};
+}
+
+// Периодический flush раз в 5 секунд (страховка при внезапном закрытии)
+function _startKeyErrorsFlushTimer() {
+    if (_keyErrorsFlushTimer) return;
+    _keyErrorsFlushTimer = setInterval(_flushKeyErrors, 5000);
+}
+
 // Translations
 // Audio elements
 let audioClick = null;
@@ -199,7 +224,9 @@ let audioClickMenu0 = null;
 let audioClickMenu1 = null;
 let welcomePlayed = false;
 
-const translations = {
+// translations extracted to scripts/ui/translations.js
+// Fallback: inline definition kept for builds that don't load the separate file first.
+const translations = window.translations || {
     ru: {
         welcome: 'Добро пожаловать в игру',
         subtitle: 'Научитесь печатать быстро и без ошибок',
@@ -668,9 +695,8 @@ const translations = {
     }
 };
 
-// Make translations accessible from inline handlers / other scripts.
-// (Also avoids rare cases where lexical bindings are not visible.)
-window.translations = window.translations || translations;
+// Ensure window.translations is always set (scripts/ui/translations.js may have pre-populated it)
+window.translations = translations;
 
 // Speed test word lists (расширены для сильного разнообразия)
 const speedTestWords = {
@@ -790,7 +816,9 @@ function calculateLessonRewardCoins(lesson, accuracy, isFirstTime) {
 }
 
 // ——————————————— Фоны (покупка/выбор) ———————————————
-var BACKGROUNDS = [
+// BACKGROUNDS extracted to scripts/ui/backgrounds.js
+// Fallback: inline definition kept for builds that don't load the separate file first.
+var BACKGROUNDS = window.BACKGROUNDS || [
     { id: 'bg_dark_1', path: 'assets/images/background_black.jpg', theme: 'dark', cost: 0, name: 'Тёмный 1' },
     { id: 'bg_dark_2', path: 'assets/images/background_black_1.jpg', theme: 'dark', cost: 0, name: 'Тёмный 2' },
     { id: 'bg_dark_3', path: 'assets/images/background_black_2.jpg', theme: 'dark', cost: 0, name: 'Тёмный 3' },
@@ -815,6 +843,8 @@ var BACKGROUNDS = [
     { id: 'bg_light_10', path: 'assets/images/Background/background_white_9.jpg', theme: 'light', cost: 30, name: 'Светлый 10' },
     { id: 'bg_light_11', path: 'assets/images/Background/background_white_10.jpg', theme: 'light', cost: 30, name: 'Светлый 11' }
 ];
+// Expose so other scripts can read it
+window.BACKGROUNDS = BACKGROUNDS;
 var BG_STORAGE_UNLOCKED = 'zoobastiks_unlocked_backgrounds';
 var BG_STORAGE_SELECTED_DARK = 'zoobastiks_selected_bg_dark';
 var BG_STORAGE_SELECTED_LIGHT = 'zoobastiks_selected_bg_light';
@@ -1000,17 +1030,20 @@ function buyProfileBackground(backgroundId) {
 
 // Create floating particles effect
 function createParticles() {
-    // Не создаём частицы если анимации отключены
     if (!app.animationsEnabled) return;
     
     const heroContainer = document.querySelector('.hero-container');
     if (!heroContainer) return;
     
-    // Удаляем старые частицы если есть
-    const oldParticles = heroContainer.querySelectorAll('.particle');
-    oldParticles.forEach(p => p.remove());
+    // Reuse: если частицы уже есть — не пересоздаём (только показываем)
+    const existing = heroContainer.querySelectorAll('.particle');
+    if (existing.length > 0) {
+        existing.forEach(p => { p.style.display = ''; });
+        return;
+    }
     
-    // Создаем 20 частиц
+    // Создаём 20 частиц один раз
+    const frag = document.createDocumentFragment();
     for (let i = 0; i < 20; i++) {
         const particle = document.createElement('div');
         particle.className = 'particle';
@@ -1018,8 +1051,9 @@ function createParticles() {
         particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
         particle.style.animationDelay = Math.random() * 5 + 's';
         particle.style.opacity = Math.random() * 0.5 + 0.3;
-        heroContainer.appendChild(particle);
+        frag.appendChild(particle);
     }
+    heroContainer.appendChild(frag);
 }
 
 // Onboarding (первый заход)
@@ -3036,10 +3070,19 @@ function startPractice(text, mode, lesson = null) {
         app.animationFrameId = null;
     }
     
-    // Очищаем переменные теста на скорость
+    // Очищаем переменные теста на скорость и паузы
     app.speedTestStartTime = null;
     app.speedTestEndTime = null;
     app.pauseStartTime = null;
+    app.totalLessonPauseDuration = 0;
+    app._pauseStartAt = null;
+
+    // Сбрасываем кэш ошибок текущей сессии и запускаем flush-таймер
+    _keyErrorsCache = {};
+    _startKeyErrorsFlushTimer();
+
+    // Запускаем запись истории скорости для WPM-графика
+    if (window.wpmChartModule) window.wpmChartModule.startRecording();
     
     app.currentMode = mode;
     app.currentLesson = lesson;
@@ -3291,15 +3334,11 @@ function handleKeyPress(e) {
         // Неправильный символ - играем звук ошибки и НЕ двигаемся дальше
         playSound('error');
         app.errors++;
-        // Per-key error tracking (track which key was EXPECTED but missed)
-        try {
-            var _ec = app.currentText[app.currentPosition];
-            if (_ec && _ec.trim()) {
-                var _ke = JSON.parse(localStorage.getItem('zoob_key_errors') || '{}');
-                _ke[_ec] = (_ke[_ec] || 0) + 1;
-                localStorage.setItem('zoob_key_errors', JSON.stringify(_ke));
-            }
-        } catch (_e) {}
+        // Per-key error tracking — in-memory, flush при finishPractice
+        var _ec = app.currentText[app.currentPosition];
+        if (_ec && _ec.trim()) {
+            _keyErrorsCache[_ec] = (_keyErrorsCache[_ec] || 0) + 1;
+        }
         highlightError();
         return;
     }
@@ -3338,7 +3377,7 @@ function highlightError() {
 
 // Update stats during practice - ОПТИМИЗИРОВАННАЯ с кэшированием DOM
 const updateStats = throttle(function() {
-    const elapsed = app.isPaused ? 0 : (Date.now() - app.startTime) / 1000;
+    const elapsed = app.isPaused ? 0 : Math.max(0, (Date.now() - app.startTime - (app.totalLessonPauseDuration || 0)) / 1000);
     const minutes = elapsed / 60;
     
     // Кэшируем элементы
@@ -3401,10 +3440,9 @@ function startStatsTimer() {
         }
         
         if (currentTime - lastUpdate >= 1000) {
-            const elapsed = (Date.now() - app.startTime) / 1000;
+            // startStatsTimer отвечает только за таймер; скорость/точность/прогресс — updateStats
+            const elapsed = Math.max(0, (Date.now() - app.startTime - (app.totalLessonPauseDuration || 0)) / 1000);
             const timeEl = DOM.get('currentTime');
-            const speedEl = DOM.get('currentSpeed');
-            
             if (timeEl) {
                 const mins = Math.floor(elapsed / 60);
                 const secs = Math.floor(elapsed % 60);
@@ -3413,15 +3451,6 @@ function startStatsTimer() {
                     timeEl.textContent = timeStr;
                 }
             }
-            
-            if (speedEl) {
-                const minutes = elapsed / 60;
-                const speed = minutes > 0 ? Math.round(app.currentPosition / minutes) : 0;
-                if (speedEl.textContent !== String(speed)) {
-                    speedEl.textContent = speed;
-                }
-            }
-            
             lastUpdate = currentTime;
         }
         
@@ -3503,11 +3532,16 @@ function togglePause() {
         // Снимаем паузу
         app.isPaused = false;
         
-        // Для теста на скорость корректируем время окончания
+        const now = Date.now();
         if (app.currentMode === 'speedtest' && app.pauseStartTime) {
-            const pauseDuration = Date.now() - app.pauseStartTime;
+            // Speed test: сдвигаем время окончания
+            const pauseDuration = now - app.pauseStartTime;
             app.speedTestEndTime += pauseDuration;
             app.pauseStartTime = null;
+        } else if (app._pauseStartAt) {
+            // Уроки/свободный режим: накапливаем общее время паузы
+            app.totalLessonPauseDuration += now - app._pauseStartAt;
+            app._pauseStartAt = null;
         }
         
         const pauseBtn = DOM.get('pauseBtn');
@@ -3522,9 +3556,11 @@ function togglePause() {
         // Ставим на паузу
         app.isPaused = true;
         
-        // Запоминаем время начала паузы для теста на скорость
         if (app.currentMode === 'speedtest') {
             app.pauseStartTime = Date.now();
+        } else {
+            // Для уроков — запоминаем момент начала паузы
+            app._pauseStartAt = Date.now();
         }
         
         const pauseBtn = DOM.get('pauseBtn');
@@ -3564,6 +3600,7 @@ function restartPractice() {
 function exitPractice() {
     // Сбрасываем паузу при выходе
     app.isPaused = false;
+    if (window.wpmChartModule) window.wpmChartModule.stopRecording();
     
     if (app.timerInterval) {
         clearInterval(app.timerInterval);
@@ -3607,7 +3644,9 @@ async function finishPractice() {
     app.isPaused = true;
     
     app.endTime = Date.now();
-    const elapsed = (app.endTime - app.startTime) / 1000;
+    // Вычитаем накопленное время пауз (для уроков/свободного режима)
+    const pauseOffset = app.currentMode === 'speedtest' ? 0 : (app.totalLessonPauseDuration || 0);
+    const elapsed = Math.max(1, (app.endTime - app.startTime - pauseOffset) / 1000);
     const minutes = elapsed / 60;
     const speed = Math.round(app.currentPosition / minutes);
     
@@ -3692,6 +3731,12 @@ async function finishPractice() {
     // that finished the lesson (prevents instant repeat-round trigger).
     app.practiceFinishedAt = Date.now();
 
+    // Сохраняем накопленные ошибки по клавишам в localStorage
+    _flushKeyErrors();
+
+    // Останавливаем запись скорости
+    if (window.wpmChartModule) window.wpmChartModule.stopRecording();
+
     showResults(speed, accuracy, elapsed, app.errors, rewardCoins);
 }
 
@@ -3730,6 +3775,59 @@ function showResults(speed, accuracy, time, errors, rewardCoins) {
         rewardEl.classList.add('hidden');
     }
     
+    // === PB (личный рекорд) сравнение ===
+    const pbBadge = document.getElementById('resultPbBadge');
+    if (pbBadge && window.statsModule) {
+        try {
+            const bestSpeed = window.statsModule.data ? window.statsModule.data.bestSpeed : 0;
+            if (speed > 0 && bestSpeed > 0 && speed >= bestSpeed) {
+                pbBadge.textContent = speed > bestSpeed ? '🏆 Новый рекорд!' : '= Рекорд';
+                pbBadge.className = 'mt-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-yellow-400/20 text-yellow-300';
+            } else if (bestSpeed > 0 && speed < bestSpeed) {
+                const diff = bestSpeed - speed;
+                pbBadge.textContent = '–' + diff + ' до рекорда';
+                pbBadge.className = 'mt-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-gray-500/20 text-gray-400';
+            } else {
+                pbBadge.className = 'hidden mt-1 text-xs font-semibold px-2 py-0.5 rounded-full';
+            }
+        } catch (_e) {
+            pbBadge.className = 'hidden mt-1 text-xs font-semibold px-2 py-0.5 rounded-full';
+        }
+    }
+
+    // === WPM-график ===
+    const chartCanvas = document.getElementById('resultSpeedChart');
+    if (chartCanvas && window.wpmChartModule) {
+        const history = (app.speedHistory && app.speedHistory.length) ? app.speedHistory : [];
+        // Добавляем финальную точку
+        if (history.length && speed > 0) {
+            history.push({ t: Math.round(time), cpm: speed });
+        }
+        requestAnimationFrame(function () {
+            window.wpmChartModule.renderChart(chartCanvas, history);
+        });
+    }
+
+    // === Топ-3 проблемных клавиши сессии ===
+    const topErrorsBlock = document.getElementById('resultTopErrors');
+    const topErrorsList = document.getElementById('resultTopErrorsList');
+    if (topErrorsBlock && topErrorsList && window.heatmapModule) {
+        const sessionErrors = Object.assign({}, _keyErrorsCache);
+        const top = window.heatmapModule.getTopErrors(sessionErrors, 3);
+        if (top.length > 0) {
+            topErrorsList.innerHTML = top.map(function (e) {
+                return '<span class="px-3 py-1 rounded-lg bg-red-500/20 text-red-300 font-mono font-bold text-sm border border-red-500/30">' +
+                    (e.key === ' ' ? '␣' : e.key) +
+                    ' <span class="text-xs font-normal text-red-400/70">×' + e.count + '</span></span>';
+            }).join('');
+            topErrorsBlock.classList.remove('hidden');
+        } else {
+            topErrorsBlock.classList.add('hidden');
+        }
+    } else if (topErrorsBlock) {
+        topErrorsBlock.classList.add('hidden');
+    }
+
     // Воспроизводим звук победы
     if (app.soundEnabled && audioVictory) {
         audioVictory.currentTime = 0;
@@ -3743,6 +3841,63 @@ function showResults(speed, accuracy, time, errors, rewardCoins) {
         focusFirstInModal(modal);
     }
     updateResultsModalHotkeysHint();
+}
+
+/**
+ * Генерирует адаптивный текст для тренировки слабых клавиш.
+ * Читает zoob_key_errors + текущую сессию, выбирает топ-5 символов
+ * и составляет 40-60 слов из speedTestWords, содержащих эти символы.
+ */
+function generateAdaptiveText(lang) {
+    lang = lang || app.lang || 'ru';
+    var errorMap = window.heatmapModule ? window.heatmapModule.getErrorMap() : {};
+    var top = window.heatmapModule ? window.heatmapModule.getTopErrors(errorMap, 5) : [];
+    var weakChars = top.map(function (e) { return e.key.toLowerCase(); }).filter(Boolean);
+
+    var words = (typeof speedTestWords !== 'undefined' && speedTestWords[lang]) ? speedTestWords[lang] : [];
+
+    var selected = [];
+    if (weakChars.length > 0) {
+        // Слова, содержащие хотя бы один слабый символ
+        var weak = words.filter(function (w) {
+            return weakChars.some(function (c) { return w.toLowerCase().indexOf(c) !== -1; });
+        });
+        // Перемешиваем
+        for (var i = weak.length - 1; i > 0; i--) {
+            var j = Math.floor(Math.random() * (i + 1));
+            var tmp = weak[i]; weak[i] = weak[j]; weak[j] = tmp;
+        }
+        selected = weak.slice(0, 30);
+    }
+
+    if (selected.length < 10) {
+        // Fallback — случайные слова
+        var all = words.slice();
+        for (var ii = all.length - 1; ii > 0; ii--) {
+            var jj = Math.floor(Math.random() * (ii + 1));
+            var ttmp = all[ii]; all[ii] = all[jj]; all[jj] = ttmp;
+        }
+        selected = all.slice(0, 40);
+    }
+
+    var text = selected.join(' ');
+    if (text.length > 300) {
+        var cut = text.slice(0, 300);
+        var last = cut.lastIndexOf(' ');
+        text = last > 0 ? cut.slice(0, last) : cut;
+    }
+    return text;
+}
+
+/** Запускает тренировку слабых клавиш из модала результатов. */
+function startAdaptivePractice() {
+    var modal = DOM.get('resultsModal');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+    var text = generateAdaptiveText(app.lang);
+    startPractice(text, 'adaptive', null);
 }
 
 function updateResultsModalHotkeysHint() {
@@ -4354,6 +4509,98 @@ function _sessionTimeAgo(ts) {
     return Math.floor(mins / 1440) + ' дн. назад';
 }
 
+/**
+ * Рисует Canvas line-chart скорости последних 20 сессий в профиле.
+ */
+function _renderProfileProgressChart() {
+    var canvas = document.getElementById('profileProgressChart');
+    if (!canvas) return;
+    var sessions = (window.statsModule && window.statsModule.getRecentSessions) ? window.statsModule.getRecentSessions(20) : [];
+    if (!sessions || sessions.length < 2) {
+        var ctx0 = canvas.getContext('2d');
+        canvas.width = canvas.offsetWidth || 400;
+        canvas.height = 120;
+        ctx0.clearRect(0, 0, canvas.width, canvas.height);
+        ctx0.fillStyle = 'rgba(99,102,241,0.08)';
+        ctx0.fillRect(0, 0, canvas.width, canvas.height);
+        ctx0.fillStyle = 'rgba(148,163,184,0.5)';
+        ctx0.font = '12px monospace';
+        ctx0.textAlign = 'center';
+        ctx0.fillText('Нужно минимум 2 сессии', canvas.width / 2, canvas.height / 2);
+        return;
+    }
+
+    var dpr = window.devicePixelRatio || 1;
+    var W = canvas.offsetWidth || 400;
+    var H = 120;
+    canvas.width = W * dpr;
+    canvas.height = H * dpr;
+    var ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+
+    var padL = 38, padR = 10, padT = 10, padB = 24;
+    var cw = W - padL - padR;
+    var ch = H - padT - padB;
+
+    var points = sessions.slice().reverse().map(function (s) { return { cpm: s.speed || 0, acc: s.accuracy || 0 }; });
+    var maxCpm = Math.max.apply(null, points.map(function (p) { return p.cpm; }));
+    maxCpm = Math.max(maxCpm, 60);
+
+    // Фон
+    ctx.fillStyle = 'rgba(99,102,241,0.06)';
+    ctx.fillRect(padL, padT, cw, ch);
+
+    // Сетка
+    ctx.strokeStyle = 'rgba(148,163,184,0.15)';
+    ctx.lineWidth = 1;
+    [0, 0.5, 1].forEach(function (f) {
+        var gy = padT + ch - f * ch;
+        ctx.beginPath(); ctx.moveTo(padL, gy); ctx.lineTo(padL + cw, gy); ctx.stroke();
+        ctx.fillStyle = 'rgba(148,163,184,0.6)';
+        ctx.font = '9px monospace';
+        ctx.textAlign = 'right';
+        ctx.fillText(Math.round(f * maxCpm), padL - 3, gy + 3);
+    });
+
+    // Линия
+    var step = cw / (points.length - 1);
+    ctx.beginPath();
+    ctx.lineWidth = 2;
+    ctx.lineJoin = 'round';
+    var g = ctx.createLinearGradient(padL, 0, padL + cw, 0);
+    g.addColorStop(0, '#6366f1'); g.addColorStop(1, '#06b6d4');
+    ctx.strokeStyle = g;
+    points.forEach(function (p, i) {
+        var x = padL + i * step;
+        var y = padT + ch - (p.cpm / maxCpm) * ch;
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+
+    // Точки (цвет по точности)
+    points.forEach(function (p, i) {
+        var x = padL + i * step;
+        var y = padT + ch - (p.cpm / maxCpm) * ch;
+        var color = p.acc >= 95 ? '#10b981' : p.acc >= 75 ? '#f59e0b' : '#ef4444';
+        ctx.beginPath();
+        ctx.arc(x, y, 3.5, 0, Math.PI * 2);
+        ctx.fillStyle = color;
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+    });
+
+    // Метки X
+    ctx.fillStyle = 'rgba(148,163,184,0.6)';
+    ctx.font = '9px monospace';
+    ctx.textAlign = 'center';
+    [0, Math.floor(points.length / 2), points.length - 1].forEach(function (i) {
+        var x = padL + i * step;
+        ctx.fillText('#' + (i + 1), x, padT + ch + 15);
+    });
+}
+
 function showProfileTab(tab) {
     ['overview', 'history', 'errors'].forEach(function (t) {
         var btn = document.getElementById('profileTab-' + t);
@@ -4362,7 +4609,7 @@ function showProfileTab(tab) {
         if (panel) panel.classList.toggle('hidden', t !== tab);
     });
     if (tab === 'overview') renderProfileOverview();
-    if (tab === 'history') renderProfileHistory();
+    if (tab === 'history') { renderProfileHistory(); _renderProfileProgressChart(); }
     if (tab === 'errors') renderProfileErrors();
 }
 
@@ -6358,4 +6605,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-

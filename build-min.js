@@ -1,5 +1,6 @@
 /**
- * Minify all scripts/*.js → assets/js/*.min.js
+ * Minify all scripts/**\/*.js → assets/js/**\/*.min.js
+ * Handles subdirectories: scripts/features/, scripts/ui/, etc.
  * Run: node build-min.js
  */
 const { minify } = require('terser');
@@ -11,16 +12,38 @@ const OUT_DIR = path.join(__dirname, 'assets', 'js');
 
 if (!fs.existsSync(OUT_DIR)) fs.mkdirSync(OUT_DIR, { recursive: true });
 
-const files = fs.readdirSync(SRC_DIR).filter(f => f.endsWith('.js'));
+/** Рекурсивно собирает все .js файлы из директории. */
+function collectJsFiles(dir, base) {
+    base = base || dir;
+    let results = [];
+    const entries = fs.readdirSync(dir, { withFileTypes: true });
+    for (const entry of entries) {
+        const fullPath = path.join(dir, entry.name);
+        if (entry.isDirectory()) {
+            results = results.concat(collectJsFiles(fullPath, base));
+        } else if (entry.name.endsWith('.js')) {
+            results.push(path.relative(base, fullPath));
+        }
+    }
+    return results;
+}
+
+const files = collectJsFiles(SRC_DIR);
 
 async function run() {
     let totalOrig = 0, totalMin = 0;
-    console.log('Minifying scripts...\n');
+    console.log('Minifying scripts (including subdirectories)...\n');
 
-    for (const file of files) {
-        const src = fs.readFileSync(path.join(SRC_DIR, file), 'utf8');
-        const outFile = file.replace('.js', '.min.js');
-        const outPath = path.join(OUT_DIR, outFile);
+    for (const relFile of files) {
+        const srcPath = path.join(SRC_DIR, relFile);
+        const outRelFile = relFile.replace('.js', '.min.js');
+        const outPath = path.join(OUT_DIR, outRelFile);
+
+        // Ensure output subdirectory exists
+        const outSubDir = path.dirname(outPath);
+        if (!fs.existsSync(outSubDir)) fs.mkdirSync(outSubDir, { recursive: true });
+
+        const src = fs.readFileSync(srcPath, 'utf8');
 
         try {
             const result = await minify(src, {
@@ -33,8 +56,6 @@ async function run() {
             });
 
             // Fix relative module import paths: ./foo.js → ./foo.min.js
-            // Needed because minified files live in assets/js/ but imports still reference scripts/
-            // Note: terser strips whitespace → from"./foo.js" (no space), so \s* not \s+
             const patched = result.code.replace(
                 /from\s*["']\.\/([^"']+?)\.js["']/g,
                 (_, name) => `from "./${name}.min.js"`
@@ -47,16 +68,15 @@ async function run() {
             const saved  = Math.round((1 - result.code.length / src.length) * 100);
             totalOrig += src.length;
             totalMin  += result.code.length;
-            console.log(`  ${file.padEnd(28)} ${origKB.padStart(7)} KB → ${minKB.padStart(6)} KB  (-${saved}%)`);
+            console.log(`  ${relFile.padEnd(35)} ${origKB.padStart(7)} KB → ${minKB.padStart(6)} KB  (-${saved}%)`);
         } catch (err) {
-            console.error(`  ERROR ${file}: ${err.message}`);
+            console.error(`  ERROR ${relFile}: ${err.message}`);
         }
     }
 
     const totalSaved = Math.round((1 - totalMin / totalOrig) * 100);
-    console.log(`\n${'TOTAL'.padEnd(28)} ${(totalOrig/1024).toFixed(1).padStart(7)} KB → ${(totalMin/1024).toFixed(1).padStart(6)} KB  (-${totalSaved}%)`);
-    console.log('\nMinified files saved to assets/js/');
+    console.log(`\n${'TOTAL'.padEnd(35)} ${(totalOrig/1024).toFixed(1).padStart(7)} KB → ${(totalMin/1024).toFixed(1).padStart(6)} KB  (-${totalSaved}%)`);
+    console.log('\nMinified files saved to assets/js/ (including subdirectories)');
 }
 
 run().catch(console.error);
-

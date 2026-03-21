@@ -1513,6 +1513,12 @@
             opacity: 0.9;
         }
         
+        /* Heatmap overlay: --heat (0..1) задаётся heatmap.js */
+        .key-btn {
+            background-color: rgba(239, 68, 68, var(--heat, 0));
+            transition: background-color 0.3s;
+        }
+
         /* Key highlight */
         .key-active {
             background: var(--primary) !important;
@@ -3111,49 +3117,69 @@
     </div>
     
     <!-- Results Modal -->
-    <div id="resultsModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50" role="dialog" aria-modal="true" aria-labelledby="resultsModalTitle">
-        <div class="glass rounded-2xl p-8 max-w-md w-full mx-4 fade-in">
-            <h3 id="resultsModalTitle" class="text-3xl font-bold mb-6 text-center" data-i18n="results">Результаты</h3>
-            
-            <div class="space-y-4 mb-6">
-                <div class="flex justify-between items-center p-4 bg-white/10 dark:bg-black/20 rounded-lg">
-                    <span data-i18n="speed">Скорость</span>
-                    <span class="text-2xl font-bold text-primary"><span id="resultSpeed">0</span> <span class="text-sm" data-i18n="cpm">зн/мин</span></span>
+    <div id="resultsModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50 overflow-y-auto py-4" role="dialog" aria-modal="true" aria-labelledby="resultsModalTitle">
+        <div class="glass rounded-2xl p-6 max-w-lg w-full mx-4 fade-in my-auto">
+            <h3 id="resultsModalTitle" class="text-2xl font-bold mb-4 text-center" data-i18n="results">Результаты</h3>
+
+            <!-- Основные цифры 2x2 -->
+            <div class="grid grid-cols-2 gap-3 mb-4">
+                <div class="flex flex-col items-center p-3 bg-white/10 dark:bg-black/20 rounded-xl">
+                    <span class="text-xs text-gray-400 mb-1" data-i18n="speed">Скорость</span>
+                    <span class="text-3xl font-bold text-primary" id="resultSpeed">0</span>
+                    <span class="text-xs text-gray-400 mt-0.5" data-i18n="cpm">зн/мин</span>
+                    <span id="resultPbBadge" class="hidden mt-1 text-xs font-semibold px-2 py-0.5 rounded-full"></span>
                 </div>
-                <div class="flex justify-between items-center p-4 bg-white/10 dark:bg-black/20 rounded-lg">
-                    <span data-i18n="accuracy">Точность</span>
-                    <span class="text-2xl font-bold text-success"><span id="resultAccuracy">0</span>%</span>
+                <div class="flex flex-col items-center p-3 bg-white/10 dark:bg-black/20 rounded-xl">
+                    <span class="text-xs text-gray-400 mb-1" data-i18n="accuracy">Точность</span>
+                    <span class="text-3xl font-bold text-success" id="resultAccuracy">0</span>
+                    <span class="text-xs text-gray-400 mt-0.5">%</span>
                 </div>
-                <div class="flex justify-between items-center p-4 bg-white/10 dark:bg-black/20 rounded-lg">
-                    <span data-i18n="time">Время</span>
+                <div class="flex flex-col items-center p-3 bg-white/10 dark:bg-black/20 rounded-xl">
+                    <span class="text-xs text-gray-400 mb-1" data-i18n="time">Время</span>
                     <span class="text-2xl font-bold text-warning" id="resultTime">0:00</span>
                 </div>
-                <div class="flex justify-between items-center p-4 bg-white/10 dark:bg-black/20 rounded-lg">
-                    <span data-i18n="errors">Ошибки</span>
-                    <span class="text-2xl font-bold text-red-500" id="resultErrors">0</span>
-                </div>
-                <div id="resultReward" class="hidden flex justify-between items-center p-4 bg-purple-600/20 dark:bg-purple-600/20 rounded-lg border border-purple-500/30">
-                    <span class="flex items-center space-x-2">
-                        <svg class="w-5 h-5 text-purple-300" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/>
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941a2.305 2.305 0 01-.567-.267C8.07 11.66 8 11.434 8 11c0-.114.07-.34.433-.582A2.305 2.305 0 019 10.151V8.151c-.22.071-.412.164-.567.267C8.07 8.66 8 8.886 8 9c0 .114.07.34.433.582.155.103.346.196.567.267v1.698a2.305 2.305 0 01-.567-.267C8.07 11.66 8 11.434 8 11c0-.114.07-.34.433-.582A2.305 2.305 0 019 10.151V8.151c.22.071.412.164.567.267C9.93 8.66 10 8.886 10 9c0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267v1.941a4.535 4.535 0 001.676-.662C11.398 9.765 12 8.99 12 8c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 009 5.092V3.151a2.305 2.305 0 01.567.267C9.93 3.66 10 3.886 10 4c0 .114-.07.34-.433.582A2.305 2.305 0 019 4.849v1.698z" clip-rule="evenodd"/>
-                        </svg>
-                        <span>Награда</span>
-                    </span>
-                    <span class="text-xl font-bold text-purple-300" id="resultRewardAmount">+0 монет</span>
+                <div class="flex flex-col items-center p-3 bg-white/10 dark:bg-black/20 rounded-xl">
+                    <span class="text-xs text-gray-400 mb-1" data-i18n="errors">Ошибки</span>
+                    <span class="text-2xl font-bold text-red-400" id="resultErrors">0</span>
                 </div>
             </div>
-            
-            <div class="flex flex-col gap-3">
-                <button type="button" onclick="copyResultsToClipboard()" class="w-full glass hover:bg-white/20 dark:hover:bg-black/20 font-medium py-2.5 rounded-lg flex items-center justify-center gap-2">
-                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+
+            <!-- WPM/CPM Chart -->
+            <div class="mb-4 rounded-xl overflow-hidden bg-white/5 dark:bg-black/20 p-2">
+                <p class="text-xs text-gray-400 mb-1 ml-1">Скорость по времени</p>
+                <canvas id="resultSpeedChart" style="width:100%;height:110px;display:block;"></canvas>
+            </div>
+
+            <!-- Топ ошибочных клавиш + кнопка тренировки -->
+            <div id="resultTopErrors" class="hidden mb-4 p-3 bg-white/5 dark:bg-black/20 rounded-xl">
+                <p class="text-xs text-gray-400 mb-2">Проблемные клавиши этой сессии:</p>
+                <div id="resultTopErrorsList" class="flex flex-wrap gap-2"></div>
+                <button type="button" onclick="startAdaptivePractice()" class="mt-3 w-full text-xs py-2 rounded-lg bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-300 font-semibold transition-colors">
+                    Тренировать слабые клавиши
+                </button>
+            </div>
+
+            <!-- СКРЫТЫЙ БЛОК: старые поля reward ниже — сохраняем ID для совместимости с JS -->
+            <!-- Reward block (keep IDs for JS compatibility) -->
+            <div id="resultReward" class="hidden flex justify-between items-center p-3 bg-purple-600/20 rounded-xl border border-purple-500/30 mb-4">
+                <span class="flex items-center gap-2 text-sm">
+                    <svg class="w-4 h-4 text-purple-300 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.22-.071-.412-.164-.567-.267C8.07 11.66 8 11.434 8 11c0-.114.07-.34.433-.582A2.305 2.305 0 019 10.151V8.151c-.22.071-.412.164-.567.267C8.07 8.66 8 8.886 8 9c0 .114.07.34.433.582.155.103.346.196.567.267v1.698c-.22-.071-.412-.164-.567-.267C8.07 11.66 8 11.434 8 11c0-.114.07-.34.433-.582A2.305 2.305 0 019 10.151V8.151a4.535 4.535 0 011.676.662C11.398 9.234 12 9.009 12 9c0-.114-.07-.34-.433-.582A2.305 2.305 0 0110.567 8.151V6.453a4.535 4.535 0 001.676-.662C11.398 5.234 12 4.009 12 4c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 009 5.092V3.151a2.305 2.305 0 01.567.267C9.93 3.66 10 3.886 10 4c0 .114-.07.34-.433.582A2.305 2.305 0 019 4.849v1.698z" clip-rule="evenodd"/></svg>
+                    <span>Награда</span>
+                </span>
+                <span class="text-lg font-bold text-purple-300" id="resultRewardAmount">+0 монет</span>
+            </div>
+
+            <!-- Кнопки -->
+            <div class="flex flex-col gap-2">
+                <button type="button" onclick="copyResultsToClipboard()" class="w-full glass hover:bg-white/20 dark:hover:bg-black/20 font-medium py-2.5 rounded-lg flex items-center justify-center gap-2 text-sm">
+                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
                     <span data-i18n="copyResult">Скопировать результат</span>
                 </button>
-                <div class="flex space-x-4">
-                    <button onclick="repeatPractice()" class="flex-1 bg-primary hover:bg-primary/80 text-white font-semibold py-3 rounded-lg">
+                <div class="flex gap-3">
+                    <button onclick="repeatPractice()" class="flex-1 bg-primary hover:bg-primary/80 text-white font-semibold py-3 rounded-lg text-sm">
                         <span data-i18n="repeat">Повторить</span>
                     </button>
-                    <button onclick="closeResults()" class="flex-1 glass hover:bg-white/20 dark:hover:bg-black/20 font-semibold py-3 rounded-lg">
+                    <button onclick="closeResults()" class="flex-1 glass hover:bg-white/20 dark:hover:bg-black/20 font-semibold py-3 rounded-lg text-sm">
                         <span data-i18n="close">Закрыть</span>
                     </button>
                 </div>
@@ -3408,6 +3434,11 @@
 
             <!-- Tab: History -->
             <div id="profileTabHistory" class="hidden pt-5">
+                <!-- График прогресса по сессиям -->
+                <div class="mb-5 rounded-xl bg-white/5 dark:bg-black/20 p-3">
+                    <p class="text-xs text-gray-400 mb-2">Скорость по последним сессиям</p>
+                    <canvas id="profileProgressChart" style="width:100%;height:120px;display:block;"></canvas>
+                </div>
                 <div id="profileHistoryContent"></div>
             </div>
 
@@ -3712,6 +3743,13 @@
     <script src="assets/js/achievements.min.js" defer></script>
     <script src="assets/js/level.min.js" defer></script>
     <script type="module" src="assets/js/auth.min.js"></script>
+    <!-- UI data modules (extracted from main.js; load before main) -->
+    <script src="scripts/ui/translations.js" defer></script>
+    <script src="scripts/ui/backgrounds.js" defer></script>
+    <!-- Feature modules -->
+    <script src="scripts/features/wpm-chart.js" defer></script>
+    <script src="scripts/features/heatmap.js" defer></script>
+    <script src="scripts/features/daily-challenge.js" defer></script>
     <script src="assets/js/main.min.js" defer></script>
     <script>
         (function(){
@@ -3726,4 +3764,3 @@
     </script>
 </body>
 </html>
-
