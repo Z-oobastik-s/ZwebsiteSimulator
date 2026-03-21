@@ -3822,9 +3822,9 @@
     <script src="assets/js/themed-texts.min.js" defer></script>
     <script src="assets/js/shop-data.min.js" defer></script>
     <script src="assets/js/keyboard.min.js" defer></script>
-    <script src="assets/js/stats.min.js" defer></script>
-    <script src="assets/js/achievements.min.js" defer></script>
-    <script src="assets/js/level.min.js" defer></script>
+    <script src="scripts/stats.js" defer></script>
+    <script src="scripts/achievements.js" defer></script>
+    <script src="scripts/level.js" defer></script>
     <script type="module" src="assets/js/auth.min.js"></script>
     <!-- UI data modules (extracted from main.js; load before main) -->
     <script src="scripts/ui/translations.js" defer></script>
@@ -3838,7 +3838,7 @@
     <script>
         (function(){
             function loadDeferredModules() {
-                ['assets/js/multiplayer.min.js','assets/js/visitor-stats.min.js'].forEach(function(src){
+                ['assets/js/multiplayer.min.js','scripts/visitor-stats.js'].forEach(function(src){
                     var s=document.createElement('script'); s.type='module'; s.src=src; document.body.appendChild(s);
                 });
             }
@@ -3848,4 +3848,3 @@
     </script>
 </body>
 </html>
-

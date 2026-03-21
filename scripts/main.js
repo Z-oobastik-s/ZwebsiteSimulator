@@ -1871,8 +1871,20 @@ function updateTranslations() {
     });
     updateResultsModalHotkeysHint();
     if (window.levelModule) renderLevelBlock();
+    if (window.achievementsModule && typeof window.achievementsModule.render === 'function') {
+        window.achievementsModule.render('achievementsBlock');
+    }
+    if (typeof window.__siteStatsRefreshModal === 'function') window.__siteStatsRefreshModal();
     if (typeof window.__siteStatsUpdateUI === 'function' && typeof window.__siteStatsVisits !== 'undefined') {
         window.__siteStatsUpdateUI(window.__siteStatsVisits, window.__siteStatsOnline);
+    }
+    var _ps = document.getElementById('profileScreen');
+    if (_ps && !_ps.classList.contains('hidden') && typeof showProfileTab === 'function') {
+        showProfileTab(_lastProfileTab);
+    }
+    var _lvlList = document.getElementById('levelListModal');
+    if (_lvlList && !_lvlList.classList.contains('hidden') && typeof fillLevelListModal === 'function') {
+        fillLevelListModal();
     }
 }
 
@@ -4731,10 +4743,17 @@ function renderLevelBlock() {
     }
     var levelBlock = DOM.get('levelBlock');
     if (levelBlock) {
-        var tip = app.lang === 'en'
-            ? 'Level ' + info.level + ' — ' + info.tierName + ' · ' + info.xpInLevel + '/' + info.xpToNext + ' XP to next'
-            : 'Уровень ' + info.level + ' — ' + info.tierName + ' · ' + info.xpInLevel + '/' + info.xpToNext + ' XP до следующего';
-        if (info.xpToNext <= 0) tip = app.lang === 'en' ? 'Level ' + info.level + ' — ' + info.tierName : 'Уровень ' + info.level + ' — ' + info.tierName;
+        var tip;
+        if (app.lang === 'en') {
+            tip = 'Level ' + info.level + ' — ' + info.tierName + ' · ' + info.xpInLevel + '/' + info.xpToNext + ' XP to next';
+            if (info.xpToNext <= 0) tip = 'Level ' + info.level + ' — ' + info.tierName;
+        } else if (app.lang === 'ua') {
+            tip = 'Рівень ' + info.level + ' — ' + info.tierName + ' · ' + info.xpInLevel + '/' + info.xpToNext + ' XP до наступного';
+            if (info.xpToNext <= 0) tip = 'Рівень ' + info.level + ' — ' + info.tierName;
+        } else {
+            tip = 'Уровень ' + info.level + ' — ' + info.tierName + ' · ' + info.xpInLevel + '/' + info.xpToNext + ' XP до следующего';
+            if (info.xpToNext <= 0) tip = 'Уровень ' + info.level + ' — ' + info.tierName;
+        }
         levelBlock.setAttribute('title', tip);
     }
     var streakEl = DOM.get('streakBadge');
@@ -4882,7 +4901,6 @@ function fillLevelListModal() {
     var current = window.levelModule.getLevelInfo(window.levelModule.getPlayerXP()).level;
     var getTier = window.levelModule.getTierName;
     var getXP = window.levelModule.getXPThreshold;
-    var lang = (typeof app !== 'undefined' && app.lang === 'en') ? 'en' : 'ru';
     var html = '<div class="level-list-scroll space-y-1.5 max-h-[60vh] pr-1">';
     for (var lvl = 1; lvl <= 50; lvl++) {
         var tier = getTier(lvl);
@@ -5260,6 +5278,12 @@ function _sessionTimeAgo(ts) {
         if (mins < 1440) return Math.floor(mins / 60) + ' h ago';
         return Math.floor(mins / 1440) + ' d ago';
     }
+    if (lang === 'ua') {
+        if (mins < 1) return 'щойно';
+        if (mins < 60) return mins + ' хв тому';
+        if (mins < 1440) return Math.floor(mins / 60) + ' год тому';
+        return Math.floor(mins / 1440) + ' дн. тому';
+    }
     if (mins < 1) return 'только что';
     if (mins < 60) return mins + ' мин назад';
     if (mins < 1440) return Math.floor(mins / 60) + ' ч назад';
@@ -5292,7 +5316,8 @@ function _renderProfileProgressChart() {
         ctx.fillStyle = 'rgba(148,163,184,0.5)';
         ctx.font = '12px monospace';
         ctx.textAlign = 'center';
-        ctx.fillText('Нужно минимум 2 сессии', W / 2, H / 2);
+        var need2 = (app.lang === 'en') ? 'Need at least 2 sessions' : (app.lang === 'ua') ? 'Потрібно щонайменше 2 сесії' : 'Нужно минимум 2 сессии';
+        ctx.fillText(need2, W / 2, H / 2);
         return;
     }
 
@@ -5300,8 +5325,9 @@ function _renderProfileProgressChart() {
     var cw = W - padL - padR;
     var ch = H - padT - padB;
 
+    var defPrac = (app.lang === 'en') ? 'Free Practice' : (app.lang === 'ua') ? 'Вільна практика' : 'Свободная практика';
     var points = sessions.slice().reverse().map(function (s) {
-        return { cpm: s.speed || 0, acc: s.accuracy || 0, name: _resolveLessonName(s) || 'Свободная практика' };
+        return { cpm: s.speed || 0, acc: s.accuracy || 0, name: _resolveLessonName(s) || defPrac };
     });
     var maxCpm = Math.max.apply(null, points.map(function (p) { return p.cpm; }));
     maxCpm = Math.max(maxCpm, 60);
@@ -5448,7 +5474,10 @@ function _renderProfileProgressChart() {
     _profileChartListeners = { move: onMove, leave: onLeave, tip: tip };
 }
 
+var _lastProfileTab = 'overview';
+
 function showProfileTab(tab) {
+    _lastProfileTab = tab || 'overview';
     ['overview', 'history', 'errors'].forEach(function (t) {
         var btn = document.getElementById('profileTab-' + t);
         var panel = document.getElementById('profileTab' + t.charAt(0).toUpperCase() + t.slice(1));
@@ -5522,6 +5551,13 @@ function renderProfileOverview() {
     if (!el) return;
     var lang = (app && app.lang) || 'ru';
     var en = lang === 'en';
+    var uk = lang === 'ua';
+    /** ru, en, ua — для текстів профілю */
+    function P(ru, enStr, uaStr) {
+        if (lang === 'en') return enStr;
+        if (lang === 'ua') return (uaStr != null && uaStr !== '') ? uaStr : ru;
+        return ru;
+    }
     var profile = currentUserProfile || {};
     var stats = profile.stats || {};
 
@@ -5532,7 +5568,7 @@ function renderProfileOverview() {
     var totalErrors      = stats.totalErrors || 0;
     var totalMinutes     = Math.floor((stats.totalTime || 0) / 60);
     var totalHours       = Math.floor(totalMinutes / 60);
-    var timeLabel        = totalHours > 0 ? totalHours + (en ? 'h' : 'ч') : (totalMinutes > 0 ? totalMinutes + (en ? 'm' : 'м') : '0' + (en ? 'm' : 'м'));
+    var timeLabel        = totalHours > 0 ? totalHours + P('ч', 'h', ' год') : (totalMinutes > 0 ? totalMinutes + P('м', 'm', ' хв') : '0' + P('м', 'm', ' хв'));
 
     var levelInfo = window.levelModule
         ? window.levelModule.getLevelInfo(window.levelModule.getPlayerXP())
@@ -5551,13 +5587,13 @@ function renderProfileOverview() {
     var lockedCount = allAchiev.length - unlocked.length;
 
     var skillLevels = [
-        { min: 500, icon: '👑', title: en ? 'Master'    : 'Мастер',       color: '#f59e0b', sub: en ? 'Top 1% of all typists!'          : 'Ты в топ 1% всех печатающих!'     },
-        { min: 400, icon: '🚀', title: en ? 'Expert'    : 'Эксперт',      color: '#8b5cf6', sub: en ? 'Incredibly fast!'                 : 'Невероятная скорость!'             },
-        { min: 300, icon: '🔥', title: en ? 'Advanced'  : 'Продвинутый',  color: '#ef4444', sub: en ? 'Faster than most people!'         : 'Быстрее большинства людей!'        },
-        { min: 200, icon: '⚡', title: en ? 'Fast'      : 'Быстрый',      color: '#22d3ee', sub: en ? 'Great progress, keep going!'       : 'Отличный прогресс!'                },
-        { min: 100, icon: '💪', title: en ? 'Confident' : 'Уверенный',    color: '#10b981', sub: en ? 'On the right track!'              : 'Ты на правильном пути!'            },
-        { min: 50,  icon: '✏️', title: en ? 'Student'   : 'Ученик',       color: '#94a3b8', sub: en ? 'Keep practicing every day!'       : 'Практикуйся каждый день!'          },
-        { min: 0,   icon: '🐣', title: en ? 'Beginner'  : 'Новичок',      color: '#64748b', sub: en ? 'Every master was once a beginner!' : 'Каждый мастер когда-то был новичком!' }
+        { min: 500, icon: '👑', title: P('Мастер', 'Master', 'Майстер'), color: '#f59e0b', sub: P('Ты в топ 1% всех печатающих!', 'Top 1% of all typists!', 'Ти в топ-1% усіх, хто друкує!') },
+        { min: 400, icon: '🚀', title: P('Эксперт', 'Expert', 'Експерт'), color: '#8b5cf6', sub: P('Невероятная скорость!', 'Incredibly fast!', 'Неймовірна швидкість!') },
+        { min: 300, icon: '🔥', title: P('Продвинутый', 'Advanced', 'Просунутий'), color: '#ef4444', sub: P('Быстрее большинства людей!', 'Faster than most people!', 'Швидше за більшість людей!') },
+        { min: 200, icon: '⚡', title: P('Быстрый', 'Fast', 'Швидкий'), color: '#22d3ee', sub: P('Отличный прогресс!', 'Great progress, keep going!', 'Чудовий прогрес!') },
+        { min: 100, icon: '💪', title: P('Уверенный', 'Confident', 'Впевнений'), color: '#10b981', sub: P('Ты на правильном пути!', 'On the right track!', 'Ти на правильному шляху!') },
+        { min: 50,  icon: '✏️', title: P('Ученик', 'Student', 'Учень'), color: '#94a3b8', sub: P('Практикуйся каждый день!', 'Keep practicing every day!', 'Практикуйся щодня!') },
+        { min: 0,   icon: '🐣', title: P('Новичок', 'Beginner', 'Новачок'), color: '#64748b', sub: P('Каждый мастер когда-то был новичком!', 'Every master was once a beginner!', 'Кожен майстер колись був новачком!') }
     ];
     var skillIdx = skillLevels.findIndex(function(s) { return bestSpeed >= s.min; });
     if (skillIdx < 0) skillIdx = skillLevels.length - 1;
@@ -5570,7 +5606,8 @@ function renderProfileOverview() {
         'First Steps': '#94a3b8', 'Apprentice': '#10b981', 'Practitioner': '#22d3ee',
         'Professional': '#8b5cf6', 'Master': '#f59e0b', 'Legend': '#ef4444'
     };
-    var tierColor = tierColors[levelInfo.tierName] || '#22d3ee';
+    var ruTierForColor = window.levelModule.getTierNameForLang ? window.levelModule.getTierNameForLang(levelInfo.level, 'ru') : levelInfo.tierName;
+    var tierColor = tierColors[ruTierForColor] || tierColors[levelInfo.tierName] || '#22d3ee';
 
     var html = '';
 
@@ -5580,28 +5617,28 @@ function renderProfileOverview() {
 
     html += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px">';
     html += '<div class="pcA" style="text-align:center;border-color:' + spdColor + '33">' +
-        '<div class="pcLbl">🚀 ' + (en ? 'Best Speed' : 'Рекорд') + '</div>' +
+        '<div class="pcLbl">🚀 ' + P('Рекорд', 'Best Speed', 'Рекорд') + '</div>' +
         '<div style="font-size:30px;font-weight:900;color:' + spdColor + ';line-height:1">' + bestSpeed + '</div>' +
-        '<div class="pct5" style="font-size:10px;margin-top:4px">' + (en ? 'ch / min' : 'зн/мин') + '</div>' +
+        '<div class="pct5" style="font-size:10px;margin-top:4px">' + P('зн/мин', 'ch / min', 'зн/хв') + '</div>' +
     '</div>';
     html += '<div class="pcA" style="text-align:center;border-color:' + accColor + '33">' +
-        '<div class="pcLbl">🎯 ' + (en ? 'Avg Accuracy' : 'Точность') + '</div>' +
+        '<div class="pcLbl">🎯 ' + P('Точность', 'Avg Accuracy', 'Точність') + '</div>' +
         '<div style="font-size:30px;font-weight:900;color:' + accColor + ';line-height:1">' + avgAcc + '%</div>' +
-        '<div class="pct5" style="font-size:10px;margin-top:4px">' + (en ? 'on average' : 'в среднем') + '</div>' +
+        '<div class="pct5" style="font-size:10px;margin-top:4px">' + P('в среднем', 'on average', 'у середньому') + '</div>' +
     '</div>';
     html += '<div class="pcA" style="text-align:center;border-color:rgba(167,139,250,0.3)">' +
-        '<div class="pcLbl">⏱ ' + (en ? 'Total Time' : 'Время') + '</div>' +
+        '<div class="pcLbl">⏱ ' + P('Время', 'Total Time', 'Час') + '</div>' +
         '<div style="font-size:30px;font-weight:900;color:#a78bfa;line-height:1">' + timeLabel + '</div>' +
-        '<div class="pct5" style="font-size:10px;margin-top:4px">' + (en ? 'practiced' : 'практики') + '</div>' +
+        '<div class="pct5" style="font-size:10px;margin-top:4px">' + P('практики', 'practiced', 'практики') + '</div>' +
     '</div>';
     html += '</div>';
 
     // ── 2. Secondary stats ───────────────────────────────────────────────────
     html += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px">';
     [
-        { v: totalSessions,    l: en ? 'Sessions'     : 'Сессий',          icon: '🎮', c: 'var(--pct2)' },
-        { v: completedLessons, l: en ? 'Lessons Done' : 'Уроков пройдено', icon: '📚', c: '#22d3ee' },
-        { v: totalErrors,      l: en ? 'Total Errors' : 'Всего ошибок',    icon: '❌', c: '#f87171' }
+        { v: totalSessions,    l: P('Сессий', 'Sessions', 'Сесій'),          icon: '🎮', c: 'var(--pct2)' },
+        { v: completedLessons, l: P('Уроков пройдено', 'Lessons Done', 'Уроків пройдено'), icon: '📚', c: '#22d3ee' },
+        { v: totalErrors,      l: P('Всего ошибок', 'Total Errors', 'Усього помилок'),    icon: '❌', c: '#f87171' }
     ].forEach(function(m) {
         html += '<div class="pcB" style="text-align:center">' +
             '<div class="pct5" style="font-size:10px;margin-bottom:5px">' + m.icon + ' ' + m.l + '</div>' +
@@ -5614,14 +5651,14 @@ function renderProfileOverview() {
     html += '<div class="pcLvl" style="border:1px solid ' + tierColor + '33;margin-bottom:12px">' +
         '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">' +
             '<div>' +
-                '<div class="pcLbl" style="margin-bottom:4px">' + (en ? 'Your Level' : 'Твой уровень') + '</div>' +
+                '<div class="pcLbl" style="margin-bottom:4px">' + P('Твой уровень', 'Your Level', 'Твій рівень') + '</div>' +
                 '<div style="display:flex;align-items:baseline;gap:8px">' +
-                    '<span style="font-size:26px;font-weight:900;color:' + tierColor + '">' + (en ? 'LVL ' : 'Ур. ') + levelInfo.level + '</span>' +
+                    '<span style="font-size:26px;font-weight:900;color:' + tierColor + '">' + P('Ур. ', 'LVL ', 'Рів. ') + levelInfo.level + '</span>' +
                     '<span style="font-size:14px;color:' + tierColor + ';opacity:.85;font-weight:700">' + levelInfo.tierName + '</span>' +
                 '</div>' +
             '</div>' +
             '<div style="text-align:right">' +
-                '<div class="pcLbl" style="margin-bottom:2px">💰 ' + (en ? 'Balance' : 'Монет') + '</div>' +
+                '<div class="pcLbl" style="margin-bottom:2px">💰 ' + P('Монет', 'Balance', 'Монет') + '</div>' +
                 '<div style="font-size:22px;font-weight:800;color:#f59e0b">' + balance + '</div>' +
             '</div>' +
         '</div>' +
@@ -5630,7 +5667,7 @@ function renderProfileOverview() {
         '</div>' +
         '<div style="display:flex;justify-content:space-between;font-size:11px" class="pct5">' +
             '<span>' + (levelInfo.xpInLevel || 0) + ' / ' + (levelInfo.xpToNext || 100) + ' XP</span>' +
-            '<span>' + (en ? '⬆️ To next level: ' : '⬆️ До след. уровня: ') + Math.max(0, (levelInfo.xpToNext || 100) - (levelInfo.xpInLevel || 0)) + ' XP</span>' +
+            '<span>' + P('⬆️ До след. уровня: ', '⬆️ To next level: ', '⬆️ До наступного рівня: ') + Math.max(0, (levelInfo.xpToNext || 100) - (levelInfo.xpInLevel || 0)) + ' XP</span>' +
         '</div>' +
     '</div>';
 
@@ -5638,12 +5675,12 @@ function renderProfileOverview() {
     html += '<div class="pcA" style="border-color:' + skill.color + '33;display:flex;align-items:center;gap:16px;margin-bottom:12px">' +
         '<div style="font-size:40px;line-height:1;flex-shrink:0">' + skill.icon + '</div>' +
         '<div style="flex:1">' +
-            '<div class="pcLbl" style="margin-bottom:2px">' + (en ? 'Typist Class' : 'Класс печатника') + '</div>' +
+            '<div class="pcLbl" style="margin-bottom:2px">' + P('Класс печатника', 'Typist Class', 'Клас друкаря') + '</div>' +
             '<div style="font-size:20px;font-weight:900;color:' + skill.color + ';margin-bottom:2px">' + skill.title.toUpperCase() + '</div>' +
             '<div class="pct3" style="font-size:12px">' + skill.sub + '</div>' +
             (nextSkill
-                ? '<div class="pct5" style="font-size:11px;margin-top:5px">' + (en ? 'Next: ' : 'Следующий: ') + '<span style="color:' + nextSkill.color + '">' + nextSkill.icon + ' ' + nextSkill.title + '</span>' + (en ? ' — reach ' + nextSkill.min + ' ch/min' : ' — достигни ' + nextSkill.min + ' зн/мин') + '</div>'
-                : '<div style="font-size:11px;color:#f59e0b;margin-top:5px">🏆 ' + (en ? 'Maximum class reached!' : 'Максимальный класс достигнут!') + '</div>') +
+                ? '<div class="pct5" style="font-size:11px;margin-top:5px">' + P('Следующий: ', 'Next: ', 'Далі: ') + '<span style="color:' + nextSkill.color + '">' + nextSkill.icon + ' ' + nextSkill.title + '</span>' + P(' — достигни ' + nextSkill.min + ' зн/мин', ' — reach ' + nextSkill.min + ' ch/min', ' — досягни ' + nextSkill.min + ' зн/хв') + '</div>'
+                : '<div style="font-size:11px;color:#f59e0b;margin-top:5px">🏆 ' + P('Максимальный класс достигнут!', 'Maximum class reached!', 'Максимальний клас досягнуто!') + '</div>') +
         '</div>' +
     '</div>';
 
@@ -5651,30 +5688,38 @@ function renderProfileOverview() {
     html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">';
     var streakColor = streak >= 7 ? '#f59e0b' : streak >= 3 ? '#f97316' : streak >= 1 ? '#10b981' : 'var(--pct5)';
     var streakIcon  = streak >= 7 ? '🔥' : streak >= 3 ? '⚡' : streak >= 1 ? '✅' : '💤';
-    var streakWord  = en
-        ? (streak + ' day' + (streak === 1 ? '' : 's') + ' in a row')
-        : (streak % 10 === 1 && streak !== 11 ? streak + ' день подряд'
+    var streakWord;
+    if (en) {
+        streakWord = streak + ' day' + (streak === 1 ? '' : 's') + ' in a row';
+    } else if (uk) {
+        var sm = streak % 10, sh = streak % 100;
+        if (sm === 1 && sh !== 11) streakWord = streak + ' день поспіль';
+        else if (sm >= 2 && sm <= 4 && (sh < 10 || sh >= 20)) streakWord = streak + ' дні поспіль';
+        else streakWord = streak + ' днів поспіль';
+    } else {
+        streakWord = streak % 10 === 1 && streak !== 11 ? streak + ' день подряд'
           : streak % 10 >= 2 && streak % 10 <= 4 && (streak < 10 || streak > 20) ? streak + ' дня подряд'
-          : streak + ' дней подряд');
+          : streak + ' дней подряд';
+    }
 
     html += '<div class="pcC" style="text-align:center;border-color:' + streakColor + '33">' +
         '<div style="font-size:30px;margin-bottom:6px">' + streakIcon + '</div>' +
-        '<div style="font-size:22px;font-weight:800;color:' + streakColor + ';line-height:1">' + (streak === 0 ? (en ? 'No streak' : 'Нет серии') : streakWord) + '</div>' +
-        '<div class="pct4" style="font-size:11px;margin-top:4px">' + (en ? 'daily streak' : 'серия дней') + '</div>' +
-        (streak === 0 ? '<div class="pct6" style="font-size:10px;margin-top:4px">' + (en ? 'Practice today to start!' : 'Начни сегодня!') + '</div>' : '') +
+        '<div style="font-size:22px;font-weight:800;color:' + streakColor + ';line-height:1">' + (streak === 0 ? P('Нет серии', 'No streak', 'Немає серії') : streakWord) + '</div>' +
+        '<div class="pct4" style="font-size:11px;margin-top:4px">' + P('серия дней', 'daily streak', 'серія днів') + '</div>' +
+        (streak === 0 ? '<div class="pct6" style="font-size:10px;margin-top:4px">' + P('Начни сегодня!', 'Practice today to start!', 'Почни сьогодні!') + '</div>' : '') +
     '</div>';
 
     html += '<div class="pcC" style="text-align:center">' +
         '<div style="font-size:30px;margin-bottom:6px">🕒</div>' +
-        '<div class="pct1" style="font-size:14px;font-weight:700;line-height:1.3">' + (lastSessionTime || (en ? 'No sessions yet' : 'Сессий пока нет')) + '</div>' +
-        '<div class="pct4" style="font-size:11px;margin-top:4px">' + (en ? 'last session' : 'последняя сессия') + '</div>' +
-        (lastSession ? '<div class="pct5" style="font-size:10px;margin-top:4px">' + Math.round(lastSession.accuracy || 0) + '% · ' + (lastSession.speed || 0) + (en ? ' ch/min' : ' зн/мин') + '</div>' : '') +
+        '<div class="pct1" style="font-size:14px;font-weight:700;line-height:1.3">' + (lastSessionTime || P('Сессий пока нет', 'No sessions yet', 'Сесій поки немає')) + '</div>' +
+        '<div class="pct4" style="font-size:11px;margin-top:4px">' + P('последняя сессия', 'last session', 'остання сесія') + '</div>' +
+        (lastSession ? '<div class="pct5" style="font-size:10px;margin-top:4px">' + Math.round(lastSession.accuracy || 0) + '% · ' + (lastSession.speed || 0) + P(' зн/мин', ' ch/min', ' зн/хв') + '</div>' : '') +
     '</div>';
     html += '</div>';
 
     // ── 6. Achievements ──────────────────────────────────────────────────────
     html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">' +
-        '<p class="profile-section-title mb-0">🏆 ' + (en ? 'Achievements' : 'Достижения') + '</p>' +
+        '<p class="profile-section-title mb-0">🏆 ' + P('Достижения', 'Achievements', 'Досягнення') + '</p>' +
         '<span class="pct5" style="font-size:12px;font-weight:500">' + unlocked.length + ' / ' + allAchiev.length + '</span>' +
         (unlocked.length > 0
             ? '<div style="flex:1;height:4px;margin-left:4px" class="pcBarTr"><div style="height:100%;width:' + Math.round(unlocked.length / Math.max(1,allAchiev.length) * 100) + '%;background:linear-gradient(90deg,#10b981,#22d3ee);border-radius:99px"></div></div>'
@@ -5684,20 +5729,21 @@ function renderProfileOverview() {
     if (unlocked.length === 0) {
         html += '<div class="pcD" style="margin-bottom:16px">' +
             '<div style="font-size:36px;margin-bottom:8px">🏅</div>' +
-            '<div class="pct4" style="font-size:13px">' + (en ? 'Complete lessons to earn achievements!' : 'Проходи уроки — получай достижения!') + '</div>' +
+            '<div class="pct4" style="font-size:13px">' + P('Проходи уроки — получай достижения!', 'Complete lessons to earn achievements!', 'Проходь уроки — отримуй досягнення!') + '</div>' +
         '</div>';
     } else {
         html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-bottom:16px">';
         unlocked.slice(-4).reverse().forEach(function(a) {
+            var aTitle = lang === 'en' ? a.titleEn : (lang === 'ua' ? a.titleUa : a.titleRu);
             html += '<div class="pcAch">' +
                 '<div style="font-size:28px;margin-bottom:6px">' + (a.icon || '🎖️') + '</div>' +
-                '<div class="pct1" style="font-size:11px;font-weight:700;line-height:1.3">' + escapeHtml(a.title || '') + '</div>' +
+                '<div class="pct1" style="font-size:11px;font-weight:700;line-height:1.3">' + escapeHtml(aTitle || a.titleRu || '') + '</div>' +
             '</div>';
         });
         if (lockedCount > 0) {
             html += '<div class="pcAch-lock">' +
                 '<div style="font-size:22px;margin-bottom:6px">🔒</div>' +
-                '<div class="pct6" style="font-size:11px">+ ' + lockedCount + ' ' + (en ? 'locked' : 'закрыто') + '</div>' +
+                '<div class="pct6" style="font-size:11px">+ ' + lockedCount + ' ' + P('закрыто', 'locked', 'закрито') + '</div>' +
             '</div>';
         }
         html += '</div>';
@@ -5705,9 +5751,9 @@ function renderProfileOverview() {
 
     // ── 7. Background ────────────────────────────────────────────────────────
     html += '<div class="pcC" style="display:flex;flex-wrap:wrap;align-items:center;gap:12px">' +
-        '<p class="profile-section-title mb-0" style="margin:0">🎨 ' + (en ? 'Background' : 'Фон') + '</p>' +
+        '<p class="profile-section-title mb-0" style="margin:0">🎨 ' + P('Фон', 'Background', 'Фон') + '</p>' +
         '<div id="profileCurrentBgPreview" style="width:72px;height:44px;border-radius:8px;background-size:cover;background-position:center;border:1px solid var(--pcbr);flex-shrink:0"></div>' +
-        '<button type="button" onclick="openBackgroundSelectorModal()" style="background:rgba(6,182,212,0.1);border:1px solid rgba(6,182,212,0.4);color:#22d3ee;padding:8px 16px;border-radius:8px;font-size:13px;cursor:pointer;font-weight:600">' + (en ? 'Choose Background' : 'Выбрать фон') + '</button>' +
+        '<button type="button" onclick="openBackgroundSelectorModal()" style="background:rgba(6,182,212,0.1);border:1px solid rgba(6,182,212,0.4);color:#22d3ee;padding:8px 16px;border-radius:8px;font-size:13px;cursor:pointer;font-weight:600">' + P('Выбрать фон', 'Choose Background', 'Обрати фон') + '</button>' +
     '</div>';
 
     el.innerHTML = html;
@@ -5717,6 +5763,11 @@ function renderProfileHistory() {
     var el = document.getElementById('profileHistoryContent');
     if (!el) return;
     var lang = (app && app.lang) || 'ru';
+    function P(ru, enStr, uaStr) {
+        if (lang === 'en') return enStr;
+        if (lang === 'ua') return (uaStr != null && uaStr !== '') ? uaStr : ru;
+        return ru;
+    }
 
     var sessions = (window.statsModule && window.statsModule.getRecentSessions) ? window.statsModule.getRecentSessions(15) : [];
     var allAchiev = (window.achievementsModule && window.achievementsModule.getAchievements) ? window.achievementsModule.getAchievements() : [];
@@ -5743,17 +5794,19 @@ function renderProfileHistory() {
 
             var spdColor = spd >= 300 ? '#f59e0b' : spd >= 200 ? '#22d3ee' : spd >= 100 ? '#10b981' : '#94a3b8';
             var spdIcon  = spd >= 300 ? '🔥' : spd >= 200 ? '⚡' : spd >= 100 ? '✅' : '🐌';
-            var spdLabel = lang === 'en'
-                ? (spd >= 300 ? 'Lightning' : spd >= 200 ? 'Fast' : spd >= 100 ? 'Good' : 'Training')
-                : (spd >= 300 ? 'Молния' : spd >= 200 ? 'Быстро' : spd >= 100 ? 'Хорошо' : 'Тренировка');
+            var spdLabel = P(
+                spd >= 300 ? 'Молния' : spd >= 200 ? 'Быстро' : spd >= 100 ? 'Хорошо' : 'Тренировка',
+                spd >= 300 ? 'Lightning' : spd >= 200 ? 'Fast' : spd >= 100 ? 'Good' : 'Training',
+                spd >= 300 ? 'Блискавка' : spd >= 200 ? 'Швидко' : spd >= 100 ? 'Добре' : 'Тренування'
+            );
             var accColor  = acc >= 95 ? '#10b981' : acc >= 80 ? '#22d3ee' : acc >= 60 ? '#f59e0b' : '#ef4444';
             var errColor  = err === 0 ? '#10b981' : err <= 5 ? '#f59e0b' : '#ef4444';
             var modeIcon  = s.mode === 'lesson' ? '📚' : s.mode === 'speedtest' ? '⚡' : '✍️';
-            var modeName  = s.mode === 'lesson' ? (lang === 'en' ? 'Lesson' : 'Урок')
-                          : s.mode === 'speedtest' ? (lang === 'en' ? 'Speed Test' : 'Тест скорости')
-                          : (lang === 'en' ? 'Practice' : 'Практика');
+            var modeName  = s.mode === 'lesson' ? P('Урок', 'Lesson', 'Урок')
+                          : s.mode === 'speedtest' ? P('Тест скорости', 'Speed Test', 'Тест швидкості')
+                          : P('Практика', 'Practice', 'Практика');
             var resolved    = _resolveLessonName(s);
-            var lessonTitle = resolved || (lang === 'en' ? 'Free Practice' : 'Свободная практика');
+            var lessonTitle = resolved || P('Свободная практика', 'Free Practice', 'Вільна практика');
             var layoutBadge = s.layout ? s.layout.toUpperCase() : '';
             var timeStr     = _sessionTimeAgo(s.timestamp);
             var dur         = s.time ? (Math.floor(s.time / 60) + ':' + String(s.time % 60).padStart(2, '0')) : null;
@@ -5777,15 +5830,15 @@ function renderProfileHistory() {
                 '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">' +
                     '<div style="background:var(--pchv);border-radius:8px;padding:8px;text-align:center">' +
                         '<div style="font-size:18px;font-weight:800;color:' + spdColor + ';line-height:1">' + spd + '</div>' +
-                        '<div class="pct5" style="font-size:9px;margin-top:2px;font-weight:600">' + (lang === 'en' ? 'ch/min' : 'зн/мин') + '</div>' +
+                        '<div class="pct5" style="font-size:9px;margin-top:2px;font-weight:600">' + P('зн/мин', 'ch/min', 'зн/хв') + '</div>' +
                     '</div>' +
                     '<div style="background:var(--pchv);border-radius:8px;padding:8px;text-align:center">' +
                         '<div style="font-size:18px;font-weight:800;color:' + accColor + ';line-height:1">' + acc + '%</div>' +
-                        '<div class="pct5" style="font-size:9px;margin-top:2px;font-weight:600">' + (lang === 'en' ? 'accuracy' : 'точность') + '</div>' +
+                        '<div class="pct5" style="font-size:9px;margin-top:2px;font-weight:600">' + P('точность', 'accuracy', 'точність') + '</div>' +
                     '</div>' +
                     '<div style="background:var(--pchv);border-radius:8px;padding:8px;text-align:center">' +
                         '<div style="font-size:18px;font-weight:800;color:' + errColor + ';line-height:1">' + err + '</div>' +
-                        '<div class="pct5" style="font-size:9px;margin-top:2px;font-weight:600">' + (lang === 'en' ? 'errors' : 'ошибок') + '</div>' +
+                        '<div class="pct5" style="font-size:9px;margin-top:2px;font-weight:600">' + P('ошибок', 'errors', 'помилок') + '</div>' +
                     '</div>' +
                 '</div>' +
             '</div>';
@@ -5804,10 +5857,12 @@ function renderProfileHistory() {
     } else {
         html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px">';
         unlocked.forEach(function (a) {
+            var aTitle = lang === 'en' ? a.titleEn : (lang === 'ua' ? a.titleUa : a.titleRu);
+            var aDesc = lang === 'en' ? a.descEn : (lang === 'ua' ? a.descUa : a.descRu);
             html += '<div class="pcAch" style="padding:16px 12px">' +
                 '<div style="font-size:32px;margin-bottom:8px;line-height:1">' + (a.icon || '🎖️') + '</div>' +
-                '<div class="pct1" style="font-size:12px;font-weight:700;margin-bottom:4px;line-height:1.3">' + escapeHtml(a.title || '') + '</div>' +
-                '<div class="pct4" style="font-size:10px;line-height:1.4">' + escapeHtml(a.description || '') + '</div>' +
+                '<div class="pct1" style="font-size:12px;font-weight:700;margin-bottom:4px;line-height:1.3">' + escapeHtml(aTitle || '') + '</div>' +
+                '<div class="pct4" style="font-size:10px;line-height:1.4">' + escapeHtml(aDesc || '') + '</div>' +
             '</div>';
         });
         var lockedCount = allAchiev.length - unlocked.length;
@@ -5828,6 +5883,12 @@ function renderProfileErrors() {
     if (!el) return;
     var lang = (app && app.lang) || 'ru';
     var en = lang === 'en';
+    var uk = lang === 'ua';
+    function P(ru, enStr, uaStr) {
+        if (lang === 'en') return enStr;
+        if (lang === 'ua') return (uaStr != null && uaStr !== '') ? uaStr : ru;
+        return ru;
+    }
 
     var keyErrors = {};
     try { keyErrors = JSON.parse(localStorage.getItem('zoob_key_errors') || '{}'); } catch (e) {}
@@ -5838,11 +5899,11 @@ function renderProfileErrors() {
     var sessions = (window.statsModule && window.statsModule.getRecentSessions) ? window.statsModule.getRecentSessions(10) : [];
     var avgAcc = sessions.length ? Math.round(sessions.reduce(function (s, x) { return s + (x.accuracy || 0); }, 0) / sessions.length) : 0;
 
-    var grade = avgAcc >= 95 ? { l: en ? 'PERFECT!' : 'ОТЛИЧНО!', c: '#10b981', icon: '🏆', sub: en ? 'Incredible typing! Keep it up!' : 'Невероятная точность! Так держать!' }
-              : avgAcc >= 85 ? { l: en ? 'GREAT!'   : 'ХОРОШО!',  c: '#22d3ee', icon: '⭐', sub: en ? 'Very good! Keep practicing!' : 'Очень хорошо! Продолжай тренироваться!' }
-              : avgAcc >= 70 ? { l: en ? 'NOT BAD!' : 'НЕПЛОХО!', c: '#f59e0b', icon: '📈', sub: en ? 'Getting better! Don\'t stop!' : 'Становится лучше! Не останавливайся!' }
+    var grade = avgAcc >= 95 ? { l: P('ОТЛИЧНО!', 'PERFECT!', 'ЧУДОВО!'), c: '#10b981', icon: '🏆', sub: P('Невероятная точность! Так держать!', 'Incredible typing! Keep it up!', 'Неймовірна точність! Так тримай!') }
+              : avgAcc >= 85 ? { l: P('ХОРОШО!', 'GREAT!', 'ДОБРЕ!'),  c: '#22d3ee', icon: '⭐', sub: P('Очень хорошо! Продолжай тренироваться!', 'Very good! Keep practicing!', 'Дуже добре! Продовжуй тренуватися!') }
+              : avgAcc >= 70 ? { l: P('НЕПЛОХО!', 'NOT BAD!', 'НЕПОГАНО!'), c: '#f59e0b', icon: '📈', sub: P('Становится лучше! Не останавливайся!', 'Getting better! Don\'t stop!', 'Стає краще! Не зупиняйся!') }
               : sessions.length > 0
-              ?               { l: en ? 'KEEP GOING!' : 'ТРЕНИРУЙСЯ!', c: '#ef4444', icon: '💪', sub: en ? 'More practice = fewer mistakes!' : 'Больше практики — меньше ошибок!' }
+              ?               { l: P('ТРЕНИРУЙСЯ!', 'KEEP GOING!', 'ТРЕНУЙСЯ!'), c: '#ef4444', icon: '💪', sub: P('Больше практики — меньше ошибок!', 'More practice = fewer mistakes!', 'Більше практики — менше помилок!') }
               : null;
 
     var html = '';
@@ -5866,28 +5927,28 @@ function renderProfileErrors() {
             '<div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">' +
                 '<div style="flex:1;min-width:80px;background:var(--pchv);border-radius:10px;padding:10px;text-align:center">' +
                     '<div style="font-size:22px;font-weight:800;color:#f87171">' + totalKeyErr + '</div>' +
-                    '<div class="pct4" style="font-size:11px;margin-top:2px">' + (en ? '❌ Total errors' : '❌ Всего ошибок') + '</div>' +
+                    '<div class="pct4" style="font-size:11px;margin-top:2px">' + P('❌ Всего ошибок', '❌ Total errors', '❌ Усього помилок') + '</div>' +
                 '</div>' +
                 '<div style="flex:1;min-width:80px;background:var(--pchv);border-radius:10px;padding:10px;text-align:center">' +
                     '<div style="font-size:22px;font-weight:800;color:#fb923c">' + sorted.length + '</div>' +
-                    '<div class="pct4" style="font-size:11px;margin-top:2px">' + (en ? '⌨️ Hard keys' : '⌨️ Трудных букв') + '</div>' +
+                    '<div class="pct4" style="font-size:11px;margin-top:2px">' + P('⌨️ Трудных букв', '⌨️ Hard keys', '⌨️ Складних літер') + '</div>' +
                 '</div>' +
                 '<div style="flex:1;min-width:80px;background:var(--pchv);border-radius:10px;padding:10px;text-align:center">' +
                     '<div style="font-size:22px;font-weight:800;color:#a3e635">' + sessions.length + '</div>' +
-                    '<div class="pct4" style="font-size:11px;margin-top:2px">' + (en ? '🎯 Sessions' : '🎯 Уроков') + '</div>' +
+                    '<div class="pct4" style="font-size:11px;margin-top:2px">' + P('🎯 Уроков', '🎯 Sessions', '🎯 Сесій') + '</div>' +
                 '</div>' +
             '</div>' +
         '</div>';
     }
 
     // ── 2. Problem key cards ─────────────────────────────────────────────────
-    html += '<p class="profile-section-title mb-4">⌨️ ' + (en ? 'Most Missed Keys' : 'Какие буквы даются труднее всего') + '</p>';
+    html += '<p class="profile-section-title mb-4">⌨️ ' + P('Какие буквы даются труднее всего', 'Most Missed Keys', 'Які літери даються найважче') + '</p>';
 
     if (sorted.length === 0) {
         html += '<div class="pcD" style="padding:32px">' +
             '<div style="font-size:48px;margin-bottom:12px">🎯</div>' +
-            '<div class="pct2" style="font-size:16px;font-weight:700;margin-bottom:6px">' + (en ? 'No mistakes yet!' : 'Ошибок пока нет!') + '</div>' +
-            '<div class="pct4" style="font-size:13px">' + (en ? 'Complete a lesson — key stats will appear here.' : 'Пройди урок — и здесь появится статистика по буквам.') + '</div>' +
+            '<div class="pct2" style="font-size:16px;font-weight:700;margin-bottom:6px">' + P('Ошибок пока нет!', 'No mistakes yet!', 'Помилок поки немає!') + '</div>' +
+            '<div class="pct4" style="font-size:13px">' + P('Пройди урок — и здесь появится статистика по буквам.', 'Complete a lesson — key stats will appear here.', 'Пройди урок — і тут з’явиться статистика по літерах.') + '</div>' +
         '</div>';
     } else {
         html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:10px;margin-bottom:6px">';
@@ -5898,9 +5959,17 @@ function renderProfileErrors() {
             var glowColor = pct > 0.7 ? 'rgba(239,68,68,0.35)' : pct > 0.4 ? 'rgba(249,115,22,0.3)' : pct > 0.15 ? 'rgba(245,158,11,0.25)' : 'transparent';
             var medals = ['🥇','🥈','🥉'];
             var dispChar = ch === ' ' ? '␣' : ch;
-            var timesLabel = en
-                ? (cnt === 1 ? '1 time' : cnt + ' times')
-                : (cnt + '\u00a0' + (cnt % 10 === 1 && cnt !== 11 ? 'раз' : cnt % 10 >= 2 && cnt % 10 <= 4 && (cnt < 10 || cnt > 20) ? 'раза' : 'раз'));
+            var timesLabel;
+            if (en) {
+                timesLabel = cnt === 1 ? '1 time' : cnt + ' times';
+            } else if (uk) {
+                var u10 = cnt % 10, u100 = cnt % 100;
+                if (u10 === 1 && u100 !== 11) timesLabel = cnt + '\u00a0раз';
+                else if (u10 >= 2 && u10 <= 4 && (u100 < 10 || u100 >= 20)) timesLabel = cnt + '\u00a0рази';
+                else timesLabel = cnt + '\u00a0разів';
+            } else {
+                timesLabel = cnt + '\u00a0' + (cnt % 10 === 1 && cnt !== 11 ? 'раз' : cnt % 10 >= 2 && cnt % 10 <= 4 && (cnt < 10 || cnt > 20) ? 'раза' : 'раз');
+            }
 
             html += '<div class="pcKey" style="' +
                 'display:flex;flex-direction:column;align-items:center;gap:6px;' +
@@ -5918,7 +5987,7 @@ function renderProfileErrors() {
         });
         html += '</div>';
         if (sorted.length > 10) {
-            html += '<p class="pct6" style="font-size:11px;text-align:center;margin-top:4px">+ ' + (en ? (sorted.length - 10) + ' more keys' : 'ещё ' + (sorted.length - 10) + ' букв') + '</p>';
+            html += '<p class="pct6" style="font-size:11px;text-align:center;margin-top:4px">+ ' + P('ещё ' + (sorted.length - 10) + ' букв', (sorted.length - 10) + ' more keys', 'ще ' + (sorted.length - 10) + ' літер') + '</p>';
         }
     }
 
@@ -5929,11 +5998,13 @@ function renderProfileErrors() {
         var dispWorst = worstChar === ' ' ? '␣' : worstChar;
         var tipText = en
             ? 'You miss the key <b style="color:#f59e0b;font-size:16px;font-family:monospace">' + escapeHtml(dispWorst) + '</b> most often — <b>' + worstCnt + ' time' + (worstCnt === 1 ? '' : 's') + '</b>. Try slowing down a little when you reach this key!'
+            : uk
+            ? 'Найчастіше ти промахуєшся по клавіші <b style="color:#f59e0b;font-size:18px;font-family:monospace">' + escapeHtml(dispWorst) + '</b> — уже <b>' + worstCnt + ' ' + (function () { var w = worstCnt % 10, wh = worstCnt % 100; if (w === 1 && wh !== 11) return 'раз'; if (w >= 2 && w <= 4 && (wh < 10 || wh >= 20)) return 'рази'; return 'разів'; })() + '</b>. Спробуй трохи сповільнитися, коли доходиш до цієї літери!'
             : 'Чаще всего ты промахиваешься по клавише <b style="color:#f59e0b;font-size:18px;font-family:monospace">' + escapeHtml(dispWorst) + '</b> — уже <b>' + worstCnt + ' раз' + (worstCnt % 10 >= 2 && worstCnt % 10 <= 4 && (worstCnt < 10 || worstCnt > 20) ? 'а' : '') + '</b>. Попробуй немного притормозить, когда доходишь до этой буквы!';
         html += '<div class="pcTip">' +
             '<span style="font-size:30px;flex-shrink:0;line-height:1">💡</span>' +
             '<div>' +
-                '<div style="font-size:12px;font-weight:800;color:#f59e0b;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px">' + (en ? 'Personal Tip' : 'Совет лично для тебя') + '</div>' +
+                '<div style="font-size:12px;font-weight:800;color:#f59e0b;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px">' + P('Совет лично для тебя', 'Personal Tip', 'Порада саме для тебе') + '</div>' +
                 '<div class="pct2" style="font-size:14px;line-height:1.65">' + tipText + '</div>' +
             '</div>' +
         '</div>';
@@ -7477,4 +7548,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-

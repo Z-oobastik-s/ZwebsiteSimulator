@@ -525,6 +525,8 @@ if (document.readyState === 'loading') {
     _initBar();
 }
 
-if (typeof window !== 'undefined') window.__siteStatsUpdateUI = updateUI;
+if (typeof window !== 'undefined') {
+    window.__siteStatsUpdateUI = updateUI;
+    window.__siteStatsRefreshModal = _refreshModal;
+}
 export { pluralPlayers, updateUI };
-

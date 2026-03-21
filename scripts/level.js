@@ -58,12 +58,29 @@ var TIER_NAMES_EN = [
     'Titan', 'Key Lord', 'Speed King', 'Ideal', 'The Great',
     'Keyboard God', 'Text Creator', 'Key Mage', 'Typing Star', 'The Peak'
 ];
+var TIER_NAMES_UA = [
+    'Новачок', 'Юний друкар', 'Початківець', 'Перші кроки', 'Впевнений старт',
+    'Учень', 'Грамотій', 'Успішний', 'Старанний', 'Відмінник',
+    'Практик', 'Наполегливий', 'Трудар', 'Досвідчений', 'Швидкі пальці',
+    'Знавець', 'Грамотій-про', 'Слідопит', 'Точний удар', 'Швидкісник',
+    'Майстер', 'Віртуоз клавіш', 'Влучний', 'Незупинний', 'Чемпіон ряду',
+    'Експерт', 'Ас набору', 'Блискавка', 'Безпомилковий', 'Еталон',
+    'Віртуоз', 'Снайпер літер', 'Турбо-друкар', 'Живі пальці', 'Гросмейстер',
+    'Легенда', 'Титан клавіатури', 'Безсмертний', 'Метр набору', 'Абсолют',
+    'Титан', 'Володар клавіш', 'Король швидкості', 'Ідеал', 'Великий',
+    'Бог клавіатури', 'Творець тексту', 'Маг клавіш', 'Зірка набору', 'Вершина'
+];
+
+function getTierNameForLang(level, lang) {
+    var index = Math.max(0, Math.min(level - 1, TIER_NAMES_RU.length - 1));
+    if (lang === 'en') return TIER_NAMES_EN[index] || TIER_NAMES_EN[TIER_NAMES_EN.length - 1];
+    if (lang === 'ua') return TIER_NAMES_UA[index] || TIER_NAMES_UA[TIER_NAMES_UA.length - 1];
+    return TIER_NAMES_RU[index] || TIER_NAMES_RU[TIER_NAMES_RU.length - 1];
+}
 
 function getTierName(level) {
-    var index = Math.max(0, Math.min(level - 1, TIER_NAMES_RU.length - 1));
-    var lang = (typeof app !== 'undefined' && app.lang === 'en') ? 'en' : 'ru';
-    var names = lang === 'en' ? TIER_NAMES_EN : TIER_NAMES_RU;
-    return names[index] || names[names.length - 1];
+    var l = (typeof app !== 'undefined' && app.lang === 'en') ? 'en' : (typeof app !== 'undefined' && app.lang === 'ua') ? 'ua' : 'ru';
+    return getTierNameForLang(level, l);
 }
 
 function getPlayerXP() {
@@ -113,6 +130,6 @@ window.levelModule = {
     addPlayerXP: addPlayerXP,
     calculateSessionXP: calculateSessionXP,
     getTierName: getTierName,
+    getTierNameForLang: getTierNameForLang,
     getXPThreshold: getXPThreshold
 };
-
