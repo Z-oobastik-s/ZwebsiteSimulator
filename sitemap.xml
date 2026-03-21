@@ -1,13 +1,63 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:xhtml="http://www.w3.org/1999/xhtml">
-  <url>
-    <loc>https://zoobastik.me/</loc>
-    <lastmod>2026-03-19</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>1.0</priority>
-    <xhtml:link rel="alternate" hreflang="ru" href="https://zoobastik.me/"/>
-    <xhtml:link rel="alternate" hreflang="uk" href="https://zoobastik.me/"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://zoobastik.me/"/>
-  </url>
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+
+    <!-- Main / Home -->
+    <url>
+        <loc>https://zoobastik.me/</loc>
+        <lastmod>2025-03-14</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>1.0</priority>
+    </url>
+
+    <!-- Lessons - uroki, obuchenie, klaviatura -->
+    <url>
+        <loc>https://zoobastik.me/#lessons</loc>
+        <lastmod>2025-03-14</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.95</priority>
+    </url>
+
+    <!-- Practice / Free typing -->
+    <url>
+        <loc>https://zoobastik.me/#practice</loc>
+        <lastmod>2025-03-14</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.9</priority>
+    </url>
+
+    <!-- Shop - magazin urokov -->
+    <url>
+        <loc>https://zoobastik.me/#shop</loc>
+        <lastmod>2025-03-14</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.85</priority>
+    </url>
+
+    <!-- Multiplayer -->
+    <url>
+        <loc>https://zoobastik.me/#multiplayer</loc>
+        <lastmod>2025-03-14</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.85</priority>
+    </url>
+
+    <!-- Profile / Stats -->
+    <url>
+        <loc>https://zoobastik.me/#profile</loc>
+        <lastmod>2025-03-14</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+
+    <!-- Cyberpunk trainer - otdelnaya stranica -->
+    <url>
+        <loc>https://zoobastik.me/cyberpunk/</loc>
+        <lastmod>2025-03-14</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+
 </urlset>
