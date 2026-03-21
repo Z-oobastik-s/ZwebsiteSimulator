@@ -4365,6 +4365,40 @@ function showProfileTab(tab) {
     if (tab === 'errors') renderProfileErrors();
 }
 
+// Lookup real lesson name from LESSONS_DATA by lessonKey + layout
+function _resolveLessonName(session) {
+    if (session.lessonName) return session.lessonName;
+    var key = session.lessonKey;
+    if (!key) return null;
+    // key format: lesson_beginner_2, lesson_medium_5, etc.
+    try {
+        if (typeof LESSONS_DATA !== 'undefined') {
+            var m = key.match(/^lesson_(beginner|medium|advanced)_(\d+)$/);
+            if (m) {
+                var lvl = m[1], id = parseInt(m[2]);
+                var lvlData = LESSONS_DATA[lvl];
+                if (lvlData && lvlData.lessons) {
+                    var found = lvlData.lessons.find(function (l) { return l.id === id; });
+                    if (found) return found.name;
+                }
+            }
+            // shop lesson: shop_lesson_3
+            var sm = key.match(/^shop_lesson_(\d+)$/);
+            if (sm) {
+                var sid = parseInt(sm[1]);
+                for (var lvlKey in LESSONS_DATA) {
+                    var lvData = LESSONS_DATA[lvlKey];
+                    if (lvData && lvData.lessons) {
+                        var sf = lvData.lessons.find(function (l) { return l.id === sid; });
+                        if (sf) return sf.name;
+                    }
+                }
+            }
+        }
+    } catch (e) {}
+    return null;
+}
+
 function renderProfileHistory() {
     var el = document.getElementById('profileHistoryContent');
     if (!el) return;
@@ -4382,41 +4416,86 @@ function renderProfileHistory() {
     html += '<p class="profile-section-title mb-3">🕒 ' + _t('profileTabSessions') + '</p>';
 
     if (sessions.length === 0) {
-        html += '<div class="profile-empty-hint"><div style="font-size:2.5rem;margin-bottom:8px">📭</div><div>' + _t('profileTabNoSessions') + '</div></div>';
+        html += '<div class="profile-empty-hint">' +
+            '<div style="font-size:3rem;margin-bottom:10px">📭</div>' +
+            '<div style="font-size:14px;font-weight:600;color:#475569;margin-bottom:4px">' + _t('profileTabNoSessions') + '</div>' +
+        '</div>';
     } else {
-        html += '<div class="space-y-2">';
+        html += '<div style="display:flex;flex-direction:column;gap:8px">';
         sessions.slice(0, 10).forEach(function (s) {
-            var speedColor = s.speed >= 300 ? '#f59e0b' : s.speed >= 200 ? '#22d3ee' : s.speed >= 150 ? '#10b981' : '#94a3b8';
-            var accColor = s.accuracy >= 95 ? '#10b981' : s.accuracy >= 80 ? '#22d3ee' : s.accuracy >= 60 ? '#f59e0b' : '#ef4444';
-            var modeIcon = s.mode === 'lesson' ? '📚' : s.mode === 'speedtest' ? '⚡' : s.mode === 'free' ? '✍️' : '🎯';
-            var layoutBadge = s.layout ? s.layout.toUpperCase() : '';
-            var lessonTitle = s.lessonName || (s.lessonKey ? s.lessonKey.replace(/_/g, ' ') : null) || (lang === 'en' ? 'Free Practice' : 'Свободная практика');
-            var timeStr = _sessionTimeAgo(s.timestamp);
-            var mins = s.time ? Math.floor(s.time / 60) + ':' + String(s.time % 60).padStart(2, '0') : '—';
+            var acc = s.accuracy || 0;
+            var spd = s.speed || 0;
+            var err = s.errors || 0;
 
-            html += '<div class="profile-history-card">' +
-                '<div style="display:flex;align-items:center;gap:12px">' +
-                    '<span style="font-size:22px;line-height:1;flex-shrink:0">' + modeIcon + '</span>' +
+            // Speed tier
+            var spdColor = spd >= 300 ? '#f59e0b' : spd >= 200 ? '#22d3ee' : spd >= 100 ? '#10b981' : '#94a3b8';
+            var spdIcon  = spd >= 300 ? '🔥' : spd >= 200 ? '⚡' : spd >= 100 ? '✅' : '🐌';
+            var spdLabel = lang === 'en'
+                ? (spd >= 300 ? 'Lightning' : spd >= 200 ? 'Fast' : spd >= 100 ? 'Good' : 'Training')
+                : (spd >= 300 ? 'Молния' : spd >= 200 ? 'Быстро' : spd >= 100 ? 'Хорошо' : 'Тренировка');
+
+            // Accuracy color
+            var accColor = acc >= 95 ? '#10b981' : acc >= 80 ? '#22d3ee' : acc >= 60 ? '#f59e0b' : '#ef4444';
+
+            // Mode
+            var modeIcon = s.mode === 'lesson' ? '📚' : s.mode === 'speedtest' ? '⚡' : s.mode === 'free' ? '✍️' : '🎯';
+            var modeName = s.mode === 'lesson'
+                ? (lang === 'en' ? 'Lesson' : 'Урок')
+                : s.mode === 'speedtest' ? (lang === 'en' ? 'Speed Test' : 'Тест скорости')
+                : (lang === 'en' ? 'Practice' : 'Практика');
+
+            // Lesson name
+            var resolved = _resolveLessonName(s);
+            var lessonTitle = resolved || (lang === 'en' ? 'Free Practice' : 'Свободная практика');
+            var layoutBadge = s.layout ? s.layout.toUpperCase() : '';
+            var timeStr = _sessionTimeAgo(s.timestamp);
+            var dur = s.time ? (Math.floor(s.time / 60) + ':' + String(s.time % 60).padStart(2, '0')) : null;
+
+            // Left accent bar color
+            var accentColor = acc >= 95 ? '#10b981' : acc >= 80 ? '#22d3ee' : acc >= 60 ? '#f59e0b' : '#ef4444';
+
+            html += '<div style="' +
+                'background:rgba(8,14,28,0.88);' +
+                'backdrop-filter:blur(8px);' +
+                'border:1px solid rgba(255,255,255,0.1);' +
+                'border-left:3px solid ' + accentColor + ';' +
+                'border-radius:12px;' +
+                'padding:14px 16px;' +
+                'box-shadow:0 2px 16px rgba(0,0,0,0.5);' +
+            '">' +
+                // Row 1: icon + title + layout badge + time
+                '<div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px">' +
+                    '<div style="width:36px;height:36px;border-radius:8px;background:rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">' + modeIcon + '</div>' +
                     '<div style="flex:1;min-width:0">' +
+                        '<div style="font-size:14px;font-weight:700;color:#f1f5f9;line-height:1.3;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + escapeHtml(lessonTitle) + '</div>' +
                         '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">' +
-                            '<span style="font-size:13px;font-weight:600;color:#e2e8f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px">' + escapeHtml(lessonTitle) + '</span>' +
-                            (layoutBadge ? '<span style="font-size:9px;background:rgba(255,255,255,0.08);color:#64748b;padding:1px 6px;border-radius:4px">' + layoutBadge + '</span>' : '') +
+                            '<span style="font-size:10px;color:#64748b">' + modeName + '</span>' +
+                            (layoutBadge ? '<span style="font-size:9px;background:rgba(255,255,255,0.1);color:#94a3b8;padding:1px 7px;border-radius:99px;font-weight:700">' + layoutBadge + '</span>' : '') +
+                            '<span style="font-size:10px;color:#334155">·</span>' +
+                            '<span style="font-size:10px;color:#475569">' + (timeStr || '') + (dur ? ' · ' + dur : '') + '</span>' +
                         '</div>' +
-                        '<div style="font-size:10px;color:#475569;margin-top:2px">' + timeStr + (s.time ? ' · ' + mins + ' мин' : '') + '</div>' +
                     '</div>' +
-                    '<div style="display:flex;align-items:center;gap:14px;flex-shrink:0">' +
-                        '<div style="text-align:center">' +
-                            '<div style="font-size:14px;font-weight:700;color:' + speedColor + '">' + s.speed + '</div>' +
-                            '<div style="font-size:9px;color:#475569">CPM</div>' +
-                        '</div>' +
-                        '<div style="text-align:center">' +
-                            '<div style="font-size:14px;font-weight:700;color:' + accColor + '">' + s.accuracy + '%</div>' +
-                            '<div style="font-size:9px;color:#475569">' + (lang === 'en' ? 'acc' : 'точн') + '</div>' +
-                        '</div>' +
-                        '<div style="text-align:center">' +
-                            '<div style="font-size:14px;font-weight:700;color:#f87171">' + (s.errors || 0) + '</div>' +
-                            '<div style="font-size:9px;color:#475569">' + (lang === 'en' ? 'err' : 'ош') + '</div>' +
-                        '</div>' +
+                    // Speed tier badge (top-right)
+                    '<div style="flex-shrink:0;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:4px 8px;text-align:center">' +
+                        '<div style="font-size:9px;font-weight:700;color:' + spdColor + ';letter-spacing:.06em">' + spdIcon + ' ' + spdLabel + '</div>' +
+                    '</div>' +
+                '</div>' +
+                // Row 2: stats bar
+                '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">' +
+                    // Speed
+                    '<div style="background:rgba(255,255,255,0.04);border-radius:8px;padding:8px;text-align:center">' +
+                        '<div style="font-size:18px;font-weight:800;color:' + spdColor + ';line-height:1;text-shadow:0 0 14px ' + spdColor + '55">' + spd + '</div>' +
+                        '<div style="font-size:9px;color:#475569;margin-top:2px;font-weight:600">' + (lang === 'en' ? 'ch/min' : 'зн/мин') + '</div>' +
+                    '</div>' +
+                    // Accuracy
+                    '<div style="background:rgba(255,255,255,0.04);border-radius:8px;padding:8px;text-align:center">' +
+                        '<div style="font-size:18px;font-weight:800;color:' + accColor + ';line-height:1;text-shadow:0 0 14px ' + accColor + '55">' + acc + '%</div>' +
+                        '<div style="font-size:9px;color:#475569;margin-top:2px;font-weight:600">' + (lang === 'en' ? 'accuracy' : 'точность') + '</div>' +
+                    '</div>' +
+                    // Errors
+                    '<div style="background:rgba(255,255,255,0.04);border-radius:8px;padding:8px;text-align:center">' +
+                        '<div style="font-size:18px;font-weight:800;color:' + (err === 0 ? '#10b981' : err <= 5 ? '#f59e0b' : '#ef4444') + ';line-height:1">' + err + '</div>' +
+                        '<div style="font-size:9px;color:#475569;margin-top:2px;font-weight:600">' + (lang === 'en' ? 'errors' : 'ошибок') + '</div>' +
                     '</div>' +
                 '</div>' +
             '</div>';
@@ -4426,22 +4505,35 @@ function renderProfileHistory() {
 
     // ── Achievements ──
     html += '<p class="profile-section-title mt-6 mb-3">🏆 ' + _t('profileTabAchievements') + '</p>';
+
     if (unlocked.length === 0) {
-        html += '<div class="profile-empty-hint"><div style="font-size:2.5rem;margin-bottom:8px">🔒</div><div>' + _t('profileTabNoAchiev') + '</div></div>';
+        html += '<div class="profile-empty-hint">' +
+            '<div style="font-size:3rem;margin-bottom:10px">🔒</div>' +
+            '<div style="font-size:13px;color:#475569">' + _t('profileTabNoAchiev') + '</div>' +
+        '</div>';
     } else {
-        html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px">';
+        html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px">';
         unlocked.forEach(function (a) {
-            html += '<div class="profile-achiev-card">' +
-                '<div style="font-size:28px;margin-bottom:6px">' + (a.icon || '🎖️') + '</div>' +
-                '<div style="font-size:12px;font-weight:600;color:#e2e8f0;margin-bottom:3px">' + escapeHtml(a.title || '') + '</div>' +
-                '<div style="font-size:10px;color:#64748b">' + escapeHtml(a.description || '') + '</div>' +
+            html += '<div style="' +
+                'background:rgba(8,14,28,0.85);backdrop-filter:blur(6px);' +
+                'border:1px solid rgba(255,255,255,0.1);border-radius:14px;' +
+                'padding:16px 12px;text-align:center;' +
+                'box-shadow:0 2px 14px rgba(0,0,0,0.4);' +
+                '">' +
+                '<div style="font-size:32px;margin-bottom:8px;line-height:1">' + (a.icon || '🎖️') + '</div>' +
+                '<div style="font-size:12px;font-weight:700;color:#f1f5f9;margin-bottom:4px;line-height:1.3">' + escapeHtml(a.title || '') + '</div>' +
+                '<div style="font-size:10px;color:#64748b;line-height:1.4">' + escapeHtml(a.description || '') + '</div>' +
             '</div>';
         });
         var lockedCount = allAchiev.length - unlocked.length;
         if (lockedCount > 0) {
-            html += '<div class="profile-achiev-card locked" style="display:flex;flex-direction:column;align-items:center;justify-content:center">' +
-                '<div style="font-size:28px;margin-bottom:6px">🔒</div>' +
-                '<div style="font-size:11px;color:#475569">+' + lockedCount + ' ' + _t('profileTabLocked') + '</div>' +
+            html += '<div style="' +
+                'background:rgba(8,14,28,0.5);' +
+                'border:1px dashed rgba(255,255,255,0.08);border-radius:14px;' +
+                'padding:16px 12px;text-align:center;opacity:0.5;' +
+                '">' +
+                '<div style="font-size:28px;margin-bottom:8px">🔒</div>' +
+                '<div style="font-size:11px;color:#475569">+ ' + lockedCount + ' ' + _t('profileTabLocked') + '</div>' +
             '</div>';
         }
         html += '</div>';
@@ -6089,3 +6181,4 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+
