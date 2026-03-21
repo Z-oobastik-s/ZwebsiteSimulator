@@ -4476,143 +4476,139 @@ function renderProfileOverview() {
 
     var html = '';
 
-    // ── 1. Hero stats (3 big cards) ─────────────────────────────────────────
+    // ── 1. Hero stats ────────────────────────────────────────────────────────
     var spdColor = bestSpeed >= 300 ? '#f59e0b' : bestSpeed >= 200 ? '#22d3ee' : bestSpeed >= 100 ? '#10b981' : '#94a3b8';
     var accColor = avgAcc >= 95 ? '#10b981' : avgAcc >= 80 ? '#22d3ee' : avgAcc >= 60 ? '#f59e0b' : '#ef4444';
 
     html += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px">';
-
-    html += '<div style="background:linear-gradient(135deg,rgba(8,14,28,0.95),rgba(15,25,50,0.9));border:1px solid ' + spdColor + '33;border-radius:16px;padding:16px;text-align:center;box-shadow:0 4px 16px rgba(0,0,0,0.4)">' +
-        '<div style="font-size:10px;color:#64748b;letter-spacing:.07em;text-transform:uppercase;margin-bottom:8px">🚀 ' + (en ? 'Best Speed' : 'Рекорд') + '</div>' +
-        '<div style="font-size:30px;font-weight:900;color:' + spdColor + ';line-height:1;text-shadow:0 0 18px ' + spdColor + '55">' + bestSpeed + '</div>' +
-        '<div style="font-size:10px;color:#475569;margin-top:4px">' + (en ? 'ch / min' : 'зн/мин') + '</div>' +
+    html += '<div class="pcA" style="text-align:center;border-color:' + spdColor + '33">' +
+        '<div class="pcLbl">🚀 ' + (en ? 'Best Speed' : 'Рекорд') + '</div>' +
+        '<div style="font-size:30px;font-weight:900;color:' + spdColor + ';line-height:1">' + bestSpeed + '</div>' +
+        '<div class="pct5" style="font-size:10px;margin-top:4px">' + (en ? 'ch / min' : 'зн/мин') + '</div>' +
     '</div>';
-
-    html += '<div style="background:linear-gradient(135deg,rgba(8,14,28,0.95),rgba(15,25,50,0.9));border:1px solid ' + accColor + '33;border-radius:16px;padding:16px;text-align:center;box-shadow:0 4px 16px rgba(0,0,0,0.4)">' +
-        '<div style="font-size:10px;color:#64748b;letter-spacing:.07em;text-transform:uppercase;margin-bottom:8px">🎯 ' + (en ? 'Avg Accuracy' : 'Точность') + '</div>' +
-        '<div style="font-size:30px;font-weight:900;color:' + accColor + ';line-height:1;text-shadow:0 0 18px ' + accColor + '55">' + avgAcc + '%</div>' +
-        '<div style="font-size:10px;color:#475569;margin-top:4px">' + (en ? 'on average' : 'в среднем') + '</div>' +
+    html += '<div class="pcA" style="text-align:center;border-color:' + accColor + '33">' +
+        '<div class="pcLbl">🎯 ' + (en ? 'Avg Accuracy' : 'Точность') + '</div>' +
+        '<div style="font-size:30px;font-weight:900;color:' + accColor + ';line-height:1">' + avgAcc + '%</div>' +
+        '<div class="pct5" style="font-size:10px;margin-top:4px">' + (en ? 'on average' : 'в среднем') + '</div>' +
     '</div>';
-
-    html += '<div style="background:linear-gradient(135deg,rgba(8,14,28,0.95),rgba(15,25,50,0.9));border:1px solid rgba(167,139,250,0.3);border-radius:16px;padding:16px;text-align:center;box-shadow:0 4px 16px rgba(0,0,0,0.4)">' +
-        '<div style="font-size:10px;color:#64748b;letter-spacing:.07em;text-transform:uppercase;margin-bottom:8px">⏱ ' + (en ? 'Total Time' : 'Время') + '</div>' +
-        '<div style="font-size:30px;font-weight:900;color:#a78bfa;line-height:1;text-shadow:0 0 18px rgba(167,139,250,0.4)">' + timeLabel + '</div>' +
-        '<div style="font-size:10px;color:#475569;margin-top:4px">' + (en ? 'practiced' : 'практики') + '</div>' +
+    html += '<div class="pcA" style="text-align:center;border-color:rgba(167,139,250,0.3)">' +
+        '<div class="pcLbl">⏱ ' + (en ? 'Total Time' : 'Время') + '</div>' +
+        '<div style="font-size:30px;font-weight:900;color:#a78bfa;line-height:1">' + timeLabel + '</div>' +
+        '<div class="pct5" style="font-size:10px;margin-top:4px">' + (en ? 'practiced' : 'практики') + '</div>' +
     '</div>';
-
     html += '</div>';
 
-    // ── 2. Secondary stats (3 small cards) ──────────────────────────────────
+    // ── 2. Secondary stats ───────────────────────────────────────────────────
     html += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px">';
     [
-        { v: totalSessions,    l: en ? 'Sessions'     : 'Сессий',          icon: '🎮', c: '#e2e8f0' },
+        { v: totalSessions,    l: en ? 'Sessions'     : 'Сессий',          icon: '🎮', c: 'var(--pct2)' },
         { v: completedLessons, l: en ? 'Lessons Done' : 'Уроков пройдено', icon: '📚', c: '#22d3ee' },
         { v: totalErrors,      l: en ? 'Total Errors' : 'Всего ошибок',    icon: '❌', c: '#f87171' }
     ].forEach(function(m) {
-        html += '<div style="background:rgba(8,14,28,0.8);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:12px;text-align:center">' +
-            '<div style="font-size:10px;color:#475569;margin-bottom:5px">' + m.icon + ' ' + m.l + '</div>' +
+        html += '<div class="pcB" style="text-align:center">' +
+            '<div class="pct5" style="font-size:10px;margin-bottom:5px">' + m.icon + ' ' + m.l + '</div>' +
             '<div style="font-size:22px;font-weight:800;color:' + m.c + '">' + m.v + '</div>' +
         '</div>';
     });
     html += '</div>';
 
-    // ── 3. Level progress card ────────────────────────────────────────────
-    html += '<div style="background:linear-gradient(135deg,rgba(8,14,28,0.97),rgba(20,30,60,0.95));border:1px solid ' + tierColor + '33;border-radius:18px;padding:18px 20px;margin-bottom:12px;box-shadow:0 4px 20px rgba(0,0,0,0.5),inset 0 1px 0 rgba(255,255,255,0.05)">' +
+    // ── 3. Level card ────────────────────────────────────────────────────────
+    html += '<div class="pcLvl" style="border:1px solid ' + tierColor + '33;margin-bottom:12px">' +
         '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">' +
             '<div>' +
-                '<div style="font-size:10px;color:#64748b;letter-spacing:.07em;text-transform:uppercase;margin-bottom:4px">' + (en ? 'Your Level' : 'Твой уровень') + '</div>' +
+                '<div class="pcLbl" style="margin-bottom:4px">' + (en ? 'Your Level' : 'Твой уровень') + '</div>' +
                 '<div style="display:flex;align-items:baseline;gap:8px">' +
-                    '<span style="font-size:26px;font-weight:900;color:' + tierColor + ';text-shadow:0 0 18px ' + tierColor + '55">' + (en ? 'LVL ' : 'Ур. ') + levelInfo.level + '</span>' +
-                    '<span style="font-size:14px;color:' + tierColor + ';opacity:.8;font-weight:700">' + levelInfo.tierName + '</span>' +
+                    '<span style="font-size:26px;font-weight:900;color:' + tierColor + '">' + (en ? 'LVL ' : 'Ур. ') + levelInfo.level + '</span>' +
+                    '<span style="font-size:14px;color:' + tierColor + ';opacity:.85;font-weight:700">' + levelInfo.tierName + '</span>' +
                 '</div>' +
             '</div>' +
             '<div style="text-align:right">' +
-                '<div style="font-size:10px;color:#64748b;margin-bottom:2px">' + (en ? '💰 Balance' : '💰 Монет') + '</div>' +
+                '<div class="pcLbl" style="margin-bottom:2px">💰 ' + (en ? 'Balance' : 'Монет') + '</div>' +
                 '<div style="font-size:22px;font-weight:800;color:#f59e0b">' + balance + '</div>' +
             '</div>' +
         '</div>' +
-        '<div style="height:10px;background:rgba(255,255,255,0.06);border-radius:99px;overflow:hidden;margin-bottom:6px">' +
+        '<div class="pcBarTr" style="height:10px;margin-bottom:6px">' +
             '<div style="height:100%;width:' + (levelInfo.progressPct || 0) + '%;background:linear-gradient(90deg,' + tierColor + '88,' + tierColor + ');border-radius:99px"></div>' +
         '</div>' +
-        '<div style="display:flex;justify-content:space-between;font-size:11px;color:#475569">' +
+        '<div style="display:flex;justify-content:space-between;font-size:11px" class="pct5">' +
             '<span>' + (levelInfo.xpInLevel || 0) + ' / ' + (levelInfo.xpToNext || 100) + ' XP</span>' +
             '<span>' + (en ? '⬆️ To next level: ' : '⬆️ До след. уровня: ') + Math.max(0, (levelInfo.xpToNext || 100) - (levelInfo.xpInLevel || 0)) + ' XP</span>' +
         '</div>' +
     '</div>';
 
-    // ── 4. Typist skill class ────────────────────────────────────────────────
-    html += '<div style="background:linear-gradient(135deg,rgba(8,14,28,0.95),rgba(15,25,50,0.9));border:1px solid ' + skill.color + '33;border-radius:16px;padding:16px 18px;margin-bottom:12px;display:flex;align-items:center;gap:16px;box-shadow:0 4px 16px rgba(0,0,0,0.4)">' +
+    // ── 4. Typist skill ──────────────────────────────────────────────────────
+    html += '<div class="pcA" style="border-color:' + skill.color + '33;display:flex;align-items:center;gap:16px;margin-bottom:12px">' +
         '<div style="font-size:40px;line-height:1;flex-shrink:0">' + skill.icon + '</div>' +
         '<div style="flex:1">' +
-            '<div style="font-size:10px;color:#64748b;letter-spacing:.07em;text-transform:uppercase;margin-bottom:2px">' + (en ? 'Typist Class' : 'Класс печатника') + '</div>' +
-            '<div style="font-size:20px;font-weight:900;color:' + skill.color + ';text-shadow:0 0 14px ' + skill.color + '55;margin-bottom:2px">' + skill.title.toUpperCase() + '</div>' +
-            '<div style="font-size:12px;color:#94a3b8">' + skill.sub + '</div>' +
-            (nextSkill ? '<div style="font-size:11px;color:#475569;margin-top:5px">' +
-                (en ? 'Next: ' : 'Следующий: ') + '<span style="color:' + nextSkill.color + '">' + nextSkill.icon + ' ' + nextSkill.title + '</span>' +
-                (en ? ' — reach ' + nextSkill.min + ' ch/min' : ' — достигни ' + nextSkill.min + ' зн/мин') +
-            '</div>' : '<div style="font-size:11px;color:#f59e0b;margin-top:5px">🏆 ' + (en ? 'Maximum class reached!' : 'Максимальный класс достигнут!') + '</div>') +
+            '<div class="pcLbl" style="margin-bottom:2px">' + (en ? 'Typist Class' : 'Класс печатника') + '</div>' +
+            '<div style="font-size:20px;font-weight:900;color:' + skill.color + ';margin-bottom:2px">' + skill.title.toUpperCase() + '</div>' +
+            '<div class="pct3" style="font-size:12px">' + skill.sub + '</div>' +
+            (nextSkill
+                ? '<div class="pct5" style="font-size:11px;margin-top:5px">' + (en ? 'Next: ' : 'Следующий: ') + '<span style="color:' + nextSkill.color + '">' + nextSkill.icon + ' ' + nextSkill.title + '</span>' + (en ? ' — reach ' + nextSkill.min + ' ch/min' : ' — достигни ' + nextSkill.min + ' зн/мин') + '</div>'
+                : '<div style="font-size:11px;color:#f59e0b;margin-top:5px">🏆 ' + (en ? 'Maximum class reached!' : 'Максимальный класс достигнут!') + '</div>') +
         '</div>' +
     '</div>';
 
     // ── 5. Streak + Last session ─────────────────────────────────────────────
     html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">';
-
-    var streakColor = streak >= 7 ? '#f59e0b' : streak >= 3 ? '#f97316' : streak >= 1 ? '#10b981' : '#475569';
+    var streakColor = streak >= 7 ? '#f59e0b' : streak >= 3 ? '#f97316' : streak >= 1 ? '#10b981' : 'var(--pct5)';
     var streakIcon  = streak >= 7 ? '🔥' : streak >= 3 ? '⚡' : streak >= 1 ? '✅' : '💤';
-    var streakWord  = en ? (streak === 1 ? '1 day streak' : streak + ' day streak')
+    var streakWord  = en
+        ? (streak + ' day' + (streak === 1 ? '' : 's') + ' in a row')
         : (streak % 10 === 1 && streak !== 11 ? streak + ' день подряд'
-        : streak % 10 >= 2 && streak % 10 <= 4 && (streak < 10 || streak > 20) ? streak + ' дня подряд'
-        : streak + ' дней подряд');
+          : streak % 10 >= 2 && streak % 10 <= 4 && (streak < 10 || streak > 20) ? streak + ' дня подряд'
+          : streak + ' дней подряд');
 
-    html += '<div style="background:rgba(8,14,28,0.85);border:1px solid ' + streakColor + '33;border-radius:14px;padding:14px;text-align:center">' +
+    html += '<div class="pcC" style="text-align:center;border-color:' + streakColor + '33">' +
         '<div style="font-size:30px;margin-bottom:6px">' + streakIcon + '</div>' +
         '<div style="font-size:22px;font-weight:800;color:' + streakColor + ';line-height:1">' + (streak === 0 ? (en ? 'No streak' : 'Нет серии') : streakWord) + '</div>' +
-        '<div style="font-size:11px;color:#64748b;margin-top:4px">' + (en ? 'daily streak' : 'серия дней') + '</div>' +
-        (streak === 0 ? '<div style="font-size:10px;color:#334155;margin-top:4px">' + (en ? 'Practice today to start!' : 'Начни сегодня!') + '</div>' : '') +
+        '<div class="pct4" style="font-size:11px;margin-top:4px">' + (en ? 'daily streak' : 'серия дней') + '</div>' +
+        (streak === 0 ? '<div class="pct6" style="font-size:10px;margin-top:4px">' + (en ? 'Practice today to start!' : 'Начни сегодня!') + '</div>' : '') +
     '</div>';
 
-    html += '<div style="background:rgba(8,14,28,0.85);border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:14px;text-align:center">' +
+    html += '<div class="pcC" style="text-align:center">' +
         '<div style="font-size:30px;margin-bottom:6px">🕒</div>' +
-        '<div style="font-size:14px;font-weight:700;color:#e2e8f0;line-height:1.3">' + (lastSessionTime || (en ? 'No sessions yet' : 'Сессий пока нет')) + '</div>' +
-        '<div style="font-size:11px;color:#64748b;margin-top:4px">' + (en ? 'last session' : 'последняя сессия') + '</div>' +
-        (lastSession ? '<div style="font-size:10px;color:#475569;margin-top:4px">' + Math.round(lastSession.accuracy || 0) + '% · ' + (lastSession.speed || 0) + (en ? ' ch/min' : ' зн/мин') + '</div>' : '') +
+        '<div class="pct1" style="font-size:14px;font-weight:700;line-height:1.3">' + (lastSessionTime || (en ? 'No sessions yet' : 'Сессий пока нет')) + '</div>' +
+        '<div class="pct4" style="font-size:11px;margin-top:4px">' + (en ? 'last session' : 'последняя сессия') + '</div>' +
+        (lastSession ? '<div class="pct5" style="font-size:10px;margin-top:4px">' + Math.round(lastSession.accuracy || 0) + '% · ' + (lastSession.speed || 0) + (en ? ' ch/min' : ' зн/мин') + '</div>' : '') +
     '</div>';
-
     html += '</div>';
 
-    // ── 6. Achievements showcase ─────────────────────────────────────────────
+    // ── 6. Achievements ──────────────────────────────────────────────────────
     html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">' +
         '<p class="profile-section-title mb-0">🏆 ' + (en ? 'Achievements' : 'Достижения') + '</p>' +
-        '<span style="font-size:12px;color:#475569;font-weight:500">' + unlocked.length + ' / ' + allAchiev.length + '</span>' +
-        (unlocked.length > 0 ? '<div style="flex:1;height:4px;background:rgba(255,255,255,0.05);border-radius:99px;overflow:hidden;margin-left:4px"><div style="height:100%;width:' + Math.round(unlocked.length / Math.max(1,allAchiev.length) * 100) + '%;background:linear-gradient(90deg,#10b981,#22d3ee);border-radius:99px"></div></div>' : '') +
+        '<span class="pct5" style="font-size:12px;font-weight:500">' + unlocked.length + ' / ' + allAchiev.length + '</span>' +
+        (unlocked.length > 0
+            ? '<div style="flex:1;height:4px;margin-left:4px" class="pcBarTr"><div style="height:100%;width:' + Math.round(unlocked.length / Math.max(1,allAchiev.length) * 100) + '%;background:linear-gradient(90deg,#10b981,#22d3ee);border-radius:99px"></div></div>'
+            : '') +
     '</div>';
 
     if (unlocked.length === 0) {
-        html += '<div style="background:rgba(8,14,28,0.7);border:1px dashed rgba(255,255,255,0.1);border-radius:14px;padding:20px;text-align:center;margin-bottom:16px">' +
+        html += '<div class="pcD" style="margin-bottom:16px">' +
             '<div style="font-size:36px;margin-bottom:8px">🏅</div>' +
-            '<div style="font-size:13px;color:#64748b">' + (en ? 'Complete lessons to earn achievements!' : 'Проходи уроки — получай достижения!') + '</div>' +
+            '<div class="pct4" style="font-size:13px">' + (en ? 'Complete lessons to earn achievements!' : 'Проходи уроки — получай достижения!') + '</div>' +
         '</div>';
     } else {
         html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-bottom:16px">';
         unlocked.slice(-4).reverse().forEach(function(a) {
-            html += '<div style="background:rgba(8,14,28,0.9);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:12px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.3)">' +
+            html += '<div class="pcAch">' +
                 '<div style="font-size:28px;margin-bottom:6px">' + (a.icon || '🎖️') + '</div>' +
-                '<div style="font-size:11px;font-weight:700;color:#f1f5f9;line-height:1.3">' + escapeHtml(a.title || '') + '</div>' +
+                '<div class="pct1" style="font-size:11px;font-weight:700;line-height:1.3">' + escapeHtml(a.title || '') + '</div>' +
             '</div>';
         });
         if (lockedCount > 0) {
-            html += '<div style="background:rgba(8,14,28,0.5);border:1px dashed rgba(255,255,255,0.08);border-radius:12px;padding:12px;text-align:center">' +
+            html += '<div class="pcAch-lock">' +
                 '<div style="font-size:22px;margin-bottom:6px">🔒</div>' +
-                '<div style="font-size:11px;color:#334155">+ ' + lockedCount + ' ' + (en ? 'locked' : 'закрыто') + '</div>' +
+                '<div class="pct6" style="font-size:11px">+ ' + lockedCount + ' ' + (en ? 'locked' : 'закрыто') + '</div>' +
             '</div>';
         }
         html += '</div>';
     }
 
-    // ── 7. Background selector ───────────────────────────────────────────────
-    html += '<div style="display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:14px 16px;background:rgba(8,14,28,0.6);border:1px solid rgba(255,255,255,0.07);border-radius:14px">' +
+    // ── 7. Background ────────────────────────────────────────────────────────
+    html += '<div class="pcC" style="display:flex;flex-wrap:wrap;align-items:center;gap:12px">' +
         '<p class="profile-section-title mb-0" style="margin:0">🎨 ' + (en ? 'Background' : 'Фон') + '</p>' +
-        '<div id="profileCurrentBgPreview" style="width:72px;height:44px;border-radius:8px;background-size:cover;background-position:center;border:1px solid rgba(255,255,255,0.15);flex-shrink:0"></div>' +
+        '<div id="profileCurrentBgPreview" style="width:72px;height:44px;border-radius:8px;background-size:cover;background-position:center;border:1px solid var(--pcbr);flex-shrink:0"></div>' +
         '<button type="button" onclick="openBackgroundSelectorModal()" style="background:rgba(6,182,212,0.1);border:1px solid rgba(6,182,212,0.4);color:#22d3ee;padding:8px 16px;border-radius:8px;font-size:13px;cursor:pointer;font-weight:600">' + (en ? 'Choose Background' : 'Выбрать фон') + '</button>' +
     '</div>';
 
@@ -4636,9 +4632,9 @@ function renderProfileHistory() {
     html += '<p class="profile-section-title mb-3">🕒 ' + _t('profileTabSessions') + '</p>';
 
     if (sessions.length === 0) {
-        html += '<div class="profile-empty-hint">' +
+        html += '<div class="pcD">' +
             '<div style="font-size:3rem;margin-bottom:10px">📭</div>' +
-            '<div style="font-size:14px;font-weight:600;color:#475569;margin-bottom:4px">' + _t('profileTabNoSessions') + '</div>' +
+            '<div class="pct5" style="font-size:14px;font-weight:600;margin-bottom:4px">' + _t('profileTabNoSessions') + '</div>' +
         '</div>';
     } else {
         html += '<div style="display:flex;flex-direction:column;gap:8px">';
@@ -4647,75 +4643,51 @@ function renderProfileHistory() {
             var spd = s.speed || 0;
             var err = s.errors || 0;
 
-            // Speed tier
             var spdColor = spd >= 300 ? '#f59e0b' : spd >= 200 ? '#22d3ee' : spd >= 100 ? '#10b981' : '#94a3b8';
             var spdIcon  = spd >= 300 ? '🔥' : spd >= 200 ? '⚡' : spd >= 100 ? '✅' : '🐌';
             var spdLabel = lang === 'en'
                 ? (spd >= 300 ? 'Lightning' : spd >= 200 ? 'Fast' : spd >= 100 ? 'Good' : 'Training')
                 : (spd >= 300 ? 'Молния' : spd >= 200 ? 'Быстро' : spd >= 100 ? 'Хорошо' : 'Тренировка');
-
-            // Accuracy color
-            var accColor = acc >= 95 ? '#10b981' : acc >= 80 ? '#22d3ee' : acc >= 60 ? '#f59e0b' : '#ef4444';
-
-            // Mode
-            var modeIcon = s.mode === 'lesson' ? '📚' : s.mode === 'speedtest' ? '⚡' : s.mode === 'free' ? '✍️' : '🎯';
-            var modeName = s.mode === 'lesson'
-                ? (lang === 'en' ? 'Lesson' : 'Урок')
-                : s.mode === 'speedtest' ? (lang === 'en' ? 'Speed Test' : 'Тест скорости')
-                : (lang === 'en' ? 'Practice' : 'Практика');
-
-            // Lesson name
-            var resolved = _resolveLessonName(s);
+            var accColor  = acc >= 95 ? '#10b981' : acc >= 80 ? '#22d3ee' : acc >= 60 ? '#f59e0b' : '#ef4444';
+            var errColor  = err === 0 ? '#10b981' : err <= 5 ? '#f59e0b' : '#ef4444';
+            var modeIcon  = s.mode === 'lesson' ? '📚' : s.mode === 'speedtest' ? '⚡' : '✍️';
+            var modeName  = s.mode === 'lesson' ? (lang === 'en' ? 'Lesson' : 'Урок')
+                          : s.mode === 'speedtest' ? (lang === 'en' ? 'Speed Test' : 'Тест скорости')
+                          : (lang === 'en' ? 'Practice' : 'Практика');
+            var resolved    = _resolveLessonName(s);
             var lessonTitle = resolved || (lang === 'en' ? 'Free Practice' : 'Свободная практика');
             var layoutBadge = s.layout ? s.layout.toUpperCase() : '';
-            var timeStr = _sessionTimeAgo(s.timestamp);
-            var dur = s.time ? (Math.floor(s.time / 60) + ':' + String(s.time % 60).padStart(2, '0')) : null;
+            var timeStr     = _sessionTimeAgo(s.timestamp);
+            var dur         = s.time ? (Math.floor(s.time / 60) + ':' + String(s.time % 60).padStart(2, '0')) : null;
 
-            // Left accent bar color
-            var accentColor = acc >= 95 ? '#10b981' : acc >= 80 ? '#22d3ee' : acc >= 60 ? '#f59e0b' : '#ef4444';
-
-            html += '<div style="' +
-                'background:rgba(8,14,28,0.88);' +
-                'backdrop-filter:blur(8px);' +
-                'border:1px solid rgba(255,255,255,0.1);' +
-                'border-left:3px solid ' + accentColor + ';' +
-                'border-radius:12px;' +
-                'padding:14px 16px;' +
-                'box-shadow:0 2px 16px rgba(0,0,0,0.5);' +
-            '">' +
-                // Row 1: icon + title + layout badge + time
+            html += '<div class="pcSess" style="border-left:3px solid ' + accColor + '">' +
                 '<div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px">' +
-                    '<div style="width:36px;height:36px;border-radius:8px;background:rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">' + modeIcon + '</div>' +
+                    '<div style="width:36px;height:36px;border-radius:8px;background:var(--pchv);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">' + modeIcon + '</div>' +
                     '<div style="flex:1;min-width:0">' +
-                        '<div style="font-size:14px;font-weight:700;color:#f1f5f9;line-height:1.3;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + escapeHtml(lessonTitle) + '</div>' +
+                        '<div class="pct1" style="font-size:14px;font-weight:700;line-height:1.3;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + escapeHtml(lessonTitle) + '</div>' +
                         '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">' +
-                            '<span style="font-size:10px;color:#64748b">' + modeName + '</span>' +
-                            (layoutBadge ? '<span style="font-size:9px;background:rgba(255,255,255,0.1);color:#94a3b8;padding:1px 7px;border-radius:99px;font-weight:700">' + layoutBadge + '</span>' : '') +
-                            '<span style="font-size:10px;color:#334155">·</span>' +
-                            '<span style="font-size:10px;color:#475569">' + (timeStr || '') + (dur ? ' · ' + dur : '') + '</span>' +
+                            '<span class="pct4" style="font-size:10px">' + modeName + '</span>' +
+                            (layoutBadge ? '<span class="pct3" style="font-size:9px;background:var(--pchv);padding:1px 7px;border-radius:99px;font-weight:700">' + layoutBadge + '</span>' : '') +
+                            '<span class="pct6" style="font-size:10px">·</span>' +
+                            '<span class="pct5" style="font-size:10px">' + (timeStr || '') + (dur ? ' · ' + dur : '') + '</span>' +
                         '</div>' +
                     '</div>' +
-                    // Speed tier badge (top-right)
-                    '<div style="flex-shrink:0;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:4px 8px;text-align:center">' +
+                    '<div style="flex-shrink:0;background:var(--pchv);border:1px solid var(--pcbr);border-radius:8px;padding:4px 8px;text-align:center">' +
                         '<div style="font-size:9px;font-weight:700;color:' + spdColor + ';letter-spacing:.06em">' + spdIcon + ' ' + spdLabel + '</div>' +
                     '</div>' +
                 '</div>' +
-                // Row 2: stats bar
                 '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">' +
-                    // Speed
-                    '<div style="background:rgba(255,255,255,0.04);border-radius:8px;padding:8px;text-align:center">' +
-                        '<div style="font-size:18px;font-weight:800;color:' + spdColor + ';line-height:1;text-shadow:0 0 14px ' + spdColor + '55">' + spd + '</div>' +
-                        '<div style="font-size:9px;color:#475569;margin-top:2px;font-weight:600">' + (lang === 'en' ? 'ch/min' : 'зн/мин') + '</div>' +
+                    '<div style="background:var(--pchv);border-radius:8px;padding:8px;text-align:center">' +
+                        '<div style="font-size:18px;font-weight:800;color:' + spdColor + ';line-height:1">' + spd + '</div>' +
+                        '<div class="pct5" style="font-size:9px;margin-top:2px;font-weight:600">' + (lang === 'en' ? 'ch/min' : 'зн/мин') + '</div>' +
                     '</div>' +
-                    // Accuracy
-                    '<div style="background:rgba(255,255,255,0.04);border-radius:8px;padding:8px;text-align:center">' +
-                        '<div style="font-size:18px;font-weight:800;color:' + accColor + ';line-height:1;text-shadow:0 0 14px ' + accColor + '55">' + acc + '%</div>' +
-                        '<div style="font-size:9px;color:#475569;margin-top:2px;font-weight:600">' + (lang === 'en' ? 'accuracy' : 'точность') + '</div>' +
+                    '<div style="background:var(--pchv);border-radius:8px;padding:8px;text-align:center">' +
+                        '<div style="font-size:18px;font-weight:800;color:' + accColor + ';line-height:1">' + acc + '%</div>' +
+                        '<div class="pct5" style="font-size:9px;margin-top:2px;font-weight:600">' + (lang === 'en' ? 'accuracy' : 'точность') + '</div>' +
                     '</div>' +
-                    // Errors
-                    '<div style="background:rgba(255,255,255,0.04);border-radius:8px;padding:8px;text-align:center">' +
-                        '<div style="font-size:18px;font-weight:800;color:' + (err === 0 ? '#10b981' : err <= 5 ? '#f59e0b' : '#ef4444') + ';line-height:1">' + err + '</div>' +
-                        '<div style="font-size:9px;color:#475569;margin-top:2px;font-weight:600">' + (lang === 'en' ? 'errors' : 'ошибок') + '</div>' +
+                    '<div style="background:var(--pchv);border-radius:8px;padding:8px;text-align:center">' +
+                        '<div style="font-size:18px;font-weight:800;color:' + errColor + ';line-height:1">' + err + '</div>' +
+                        '<div class="pct5" style="font-size:9px;margin-top:2px;font-weight:600">' + (lang === 'en' ? 'errors' : 'ошибок') + '</div>' +
                     '</div>' +
                 '</div>' +
             '</div>';
@@ -4727,33 +4699,24 @@ function renderProfileHistory() {
     html += '<p class="profile-section-title mt-6 mb-3">🏆 ' + _t('profileTabAchievements') + '</p>';
 
     if (unlocked.length === 0) {
-        html += '<div class="profile-empty-hint">' +
+        html += '<div class="pcD">' +
             '<div style="font-size:3rem;margin-bottom:10px">🔒</div>' +
-            '<div style="font-size:13px;color:#475569">' + _t('profileTabNoAchiev') + '</div>' +
+            '<div class="pct4" style="font-size:13px">' + _t('profileTabNoAchiev') + '</div>' +
         '</div>';
     } else {
         html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px">';
         unlocked.forEach(function (a) {
-            html += '<div style="' +
-                'background:rgba(8,14,28,0.85);backdrop-filter:blur(6px);' +
-                'border:1px solid rgba(255,255,255,0.1);border-radius:14px;' +
-                'padding:16px 12px;text-align:center;' +
-                'box-shadow:0 2px 14px rgba(0,0,0,0.4);' +
-                '">' +
+            html += '<div class="pcAch" style="padding:16px 12px">' +
                 '<div style="font-size:32px;margin-bottom:8px;line-height:1">' + (a.icon || '🎖️') + '</div>' +
-                '<div style="font-size:12px;font-weight:700;color:#f1f5f9;margin-bottom:4px;line-height:1.3">' + escapeHtml(a.title || '') + '</div>' +
-                '<div style="font-size:10px;color:#64748b;line-height:1.4">' + escapeHtml(a.description || '') + '</div>' +
+                '<div class="pct1" style="font-size:12px;font-weight:700;margin-bottom:4px;line-height:1.3">' + escapeHtml(a.title || '') + '</div>' +
+                '<div class="pct4" style="font-size:10px;line-height:1.4">' + escapeHtml(a.description || '') + '</div>' +
             '</div>';
         });
         var lockedCount = allAchiev.length - unlocked.length;
         if (lockedCount > 0) {
-            html += '<div style="' +
-                'background:rgba(8,14,28,0.5);' +
-                'border:1px dashed rgba(255,255,255,0.08);border-radius:14px;' +
-                'padding:16px 12px;text-align:center;opacity:0.5;' +
-                '">' +
+            html += '<div class="pcAch-lock" style="padding:16px 12px;opacity:.6">' +
                 '<div style="font-size:28px;margin-bottom:8px">🔒</div>' +
-                '<div style="font-size:11px;color:#475569">+ ' + lockedCount + ' ' + _t('profileTabLocked') + '</div>' +
+                '<div class="pct5" style="font-size:11px">+ ' + lockedCount + ' ' + _t('profileTabLocked') + '</div>' +
             '</div>';
         }
         html += '</div>';
@@ -4786,38 +4749,34 @@ function renderProfileErrors() {
 
     var html = '';
 
-    // ── 1. Summary card ─────────────────────────────────────────────────────
+    // ── 1. Summary card ──────────────────────────────────────────────────────
     if (grade) {
-        html += '<div style="' +
-            'background:linear-gradient(135deg,rgba(8,14,28,0.95),rgba(15,25,50,0.9));' +
-            'border:1px solid ' + grade.c + '33;border-radius:18px;padding:20px 22px;margin-bottom:22px;' +
-            'box-shadow:0 4px 24px rgba(0,0,0,0.5),inset 0 1px 0 rgba(255,255,255,0.05);' +
-        '">' +
+        html += '<div class="pcLvl" style="border:1px solid ' + grade.c + '33;margin-bottom:22px">' +
             '<div style="display:flex;align-items:center;gap:18px">' +
-                '<div style="font-size:52px;line-height:1;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.5))">' + grade.icon + '</div>' +
+                '<div style="font-size:48px;line-height:1">' + grade.icon + '</div>' +
                 '<div style="flex:1">' +
                     '<div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">' +
-                        '<span style="font-size:36px;font-weight:900;color:' + grade.c + ';text-shadow:0 0 24px ' + grade.c + '77;line-height:1">' + avgAcc + '%</span>' +
-                        '<span style="font-size:16px;font-weight:800;color:' + grade.c + ';opacity:.85;letter-spacing:.05em">' + grade.l + '</span>' +
+                        '<span style="font-size:34px;font-weight:900;color:' + grade.c + ';line-height:1">' + avgAcc + '%</span>' +
+                        '<span style="font-size:15px;font-weight:800;color:' + grade.c + ';opacity:.85;letter-spacing:.04em">' + grade.l + '</span>' +
                     '</div>' +
-                    '<div style="height:8px;background:rgba(255,255,255,0.06);border-radius:99px;overflow:hidden;margin-bottom:8px">' +
+                    '<div class="pcBarTr" style="height:8px;margin-bottom:8px">' +
                         '<div style="height:100%;width:' + avgAcc + '%;background:linear-gradient(90deg,' + grade.c + '66,' + grade.c + ');border-radius:99px"></div>' +
                     '</div>' +
-                    '<p style="font-size:13px;color:#94a3b8;margin:0">' + grade.sub + '</p>' +
+                    '<p class="pct3" style="font-size:13px;margin:0">' + grade.sub + '</p>' +
                 '</div>' +
             '</div>' +
-            '<div style="display:flex;gap:12px;margin-top:14px;flex-wrap:wrap">' +
-                '<div style="flex:1;min-width:90px;background:rgba(255,255,255,0.04);border-radius:10px;padding:10px;text-align:center">' +
+            '<div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">' +
+                '<div style="flex:1;min-width:80px;background:var(--pchv);border-radius:10px;padding:10px;text-align:center">' +
                     '<div style="font-size:22px;font-weight:800;color:#f87171">' + totalKeyErr + '</div>' +
-                    '<div style="font-size:11px;color:#64748b;margin-top:2px">' + (en ? '❌ Total errors' : '❌ Всего ошибок') + '</div>' +
+                    '<div class="pct4" style="font-size:11px;margin-top:2px">' + (en ? '❌ Total errors' : '❌ Всего ошибок') + '</div>' +
                 '</div>' +
-                '<div style="flex:1;min-width:90px;background:rgba(255,255,255,0.04);border-radius:10px;padding:10px;text-align:center">' +
+                '<div style="flex:1;min-width:80px;background:var(--pchv);border-radius:10px;padding:10px;text-align:center">' +
                     '<div style="font-size:22px;font-weight:800;color:#fb923c">' + sorted.length + '</div>' +
-                    '<div style="font-size:11px;color:#64748b;margin-top:2px">' + (en ? '⌨️ Hard keys' : '⌨️ Трудных букв') + '</div>' +
+                    '<div class="pct4" style="font-size:11px;margin-top:2px">' + (en ? '⌨️ Hard keys' : '⌨️ Трудных букв') + '</div>' +
                 '</div>' +
-                '<div style="flex:1;min-width:90px;background:rgba(255,255,255,0.04);border-radius:10px;padding:10px;text-align:center">' +
+                '<div style="flex:1;min-width:80px;background:var(--pchv);border-radius:10px;padding:10px;text-align:center">' +
                     '<div style="font-size:22px;font-weight:800;color:#a3e635">' + sessions.length + '</div>' +
-                    '<div style="font-size:11px;color:#64748b;margin-top:2px">' + (en ? '🎯 Sessions' : '🎯 Уроков пройдено') + '</div>' +
+                    '<div class="pct4" style="font-size:11px;margin-top:2px">' + (en ? '🎯 Sessions' : '🎯 Уроков') + '</div>' +
                 '</div>' +
             '</div>' +
         '</div>';
@@ -4827,10 +4786,10 @@ function renderProfileErrors() {
     html += '<p class="profile-section-title mb-4">⌨️ ' + (en ? 'Most Missed Keys' : 'Какие буквы даются труднее всего') + '</p>';
 
     if (sorted.length === 0) {
-        html += '<div style="background:rgba(8,14,28,0.85);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:32px;text-align:center">' +
+        html += '<div class="pcD" style="padding:32px">' +
             '<div style="font-size:48px;margin-bottom:12px">🎯</div>' +
-            '<div style="font-size:16px;font-weight:700;color:#e2e8f0;margin-bottom:6px">' + (en ? 'No mistakes yet!' : 'Ошибок пока нет!') + '</div>' +
-            '<div style="font-size:13px;color:#64748b">' + (en ? 'Complete a lesson — key stats will appear here.' : 'Пройди урок — и здесь появится статистика по буквам.') + '</div>' +
+            '<div class="pct2" style="font-size:16px;font-weight:700;margin-bottom:6px">' + (en ? 'No mistakes yet!' : 'Ошибок пока нет!') + '</div>' +
+            '<div class="pct4" style="font-size:13px">' + (en ? 'Complete a lesson — key stats will appear here.' : 'Пройди урок — и здесь появится статистика по буквам.') + '</div>' +
         '</div>';
     } else {
         html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:10px;margin-bottom:6px">';
@@ -4838,24 +4797,22 @@ function renderProfileErrors() {
             var ch = entry[0], cnt = entry[1];
             var pct = cnt / maxErr;
             var keyColor  = pct > 0.7 ? '#ef4444' : pct > 0.4 ? '#f97316' : pct > 0.15 ? '#f59e0b' : '#64748b';
-            var glowColor = pct > 0.7 ? 'rgba(239,68,68,0.4)' : pct > 0.4 ? 'rgba(249,115,22,0.35)' : pct > 0.15 ? 'rgba(245,158,11,0.3)' : 'rgba(255,255,255,0.04)';
+            var glowColor = pct > 0.7 ? 'rgba(239,68,68,0.35)' : pct > 0.4 ? 'rgba(249,115,22,0.3)' : pct > 0.15 ? 'rgba(245,158,11,0.25)' : 'transparent';
             var medals = ['🥇','🥈','🥉'];
             var dispChar = ch === ' ' ? '␣' : ch;
             var timesLabel = en
                 ? (cnt === 1 ? '1 time' : cnt + ' times')
                 : (cnt + '\u00a0' + (cnt % 10 === 1 && cnt !== 11 ? 'раз' : cnt % 10 >= 2 && cnt % 10 <= 4 && (cnt < 10 || cnt > 20) ? 'раза' : 'раз'));
 
-            html += '<div style="' +
+            html += '<div class="pcKey" style="' +
                 'display:flex;flex-direction:column;align-items:center;gap:6px;' +
                 'padding:14px 10px 12px;position:relative;' +
-                'background:linear-gradient(180deg,rgba(20,30,52,0.98),rgba(10,15,30,1));' +
                 'border:1px solid ' + keyColor + '44;border-bottom:4px solid ' + keyColor + ';' +
-                'border-radius:12px;' +
-                'box-shadow:0 6px 20px ' + glowColor + ',inset 0 1px 0 rgba(255,255,255,0.07);' +
+                'box-shadow:0 4px 16px ' + glowColor + ';' +
             '">' +
                 (medals[i] ? '<span style="position:absolute;top:5px;right:6px;font-size:13px">' + medals[i] + '</span>' : '') +
-                '<span style="font-size:30px;font-weight:900;color:#ffffff;font-family:monospace;line-height:1;text-shadow:0 0 16px rgba(255,255,255,0.25)">' + escapeHtml(dispChar) + '</span>' +
-                '<div style="width:85%;height:4px;background:rgba(255,255,255,0.07);border-radius:99px;overflow:hidden">' +
+                '<span class="pct1" style="font-size:30px;font-weight:900;font-family:monospace;line-height:1">' + escapeHtml(dispChar) + '</span>' +
+                '<div class="pcBarTr" style="width:85%;height:4px">' +
                     '<div style="height:100%;width:' + Math.round(pct * 100) + '%;background:' + keyColor + ';border-radius:99px"></div>' +
                 '</div>' +
                 '<span style="font-size:11px;font-weight:700;color:' + keyColor + ';text-align:center;line-height:1.2">' + timesLabel + '</span>' +
@@ -4863,11 +4820,11 @@ function renderProfileErrors() {
         });
         html += '</div>';
         if (sorted.length > 10) {
-            html += '<p style="font-size:11px;color:#334155;text-align:center;margin-top:4px">+ ' + (en ? (sorted.length - 10) + ' more keys' : 'ещё ' + (sorted.length - 10) + ' букв') + '</p>';
+            html += '<p class="pct6" style="font-size:11px;text-align:center;margin-top:4px">+ ' + (en ? (sorted.length - 10) + ' more keys' : 'ещё ' + (sorted.length - 10) + ' букв') + '</p>';
         }
     }
 
-    // ── 3. Personalized tip ─────────────────────────────────────────────────
+    // ── 3. Tip ───────────────────────────────────────────────────────────────
     if (sorted.length > 0) {
         var worstChar = sorted[0][0];
         var worstCnt  = sorted[0][1];
@@ -4875,20 +4832,16 @@ function renderProfileErrors() {
         var tipText = en
             ? 'You miss the key <b style="color:#f59e0b;font-size:16px;font-family:monospace">' + escapeHtml(dispWorst) + '</b> most often — <b>' + worstCnt + ' time' + (worstCnt === 1 ? '' : 's') + '</b>. Try slowing down a little when you reach this key!'
             : 'Чаще всего ты промахиваешься по клавише <b style="color:#f59e0b;font-size:18px;font-family:monospace">' + escapeHtml(dispWorst) + '</b> — уже <b>' + worstCnt + ' раз' + (worstCnt % 10 >= 2 && worstCnt % 10 <= 4 && (worstCnt < 10 || worstCnt > 20) ? 'а' : '') + '</b>. Попробуй немного притормозить, когда доходишь до этой буквы!';
-        html += '<div style="' +
-            'margin-top:20px;background:linear-gradient(135deg,rgba(245,158,11,0.1),rgba(234,88,12,0.08));' +
-            'border:1px solid rgba(245,158,11,0.3);border-radius:14px;padding:16px 18px;' +
-            'display:flex;align-items:flex-start;gap:14px;' +
-        '">' +
+        html += '<div class="pcTip">' +
             '<span style="font-size:30px;flex-shrink:0;line-height:1">💡</span>' +
             '<div>' +
                 '<div style="font-size:12px;font-weight:800;color:#f59e0b;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px">' + (en ? 'Personal Tip' : 'Совет лично для тебя') + '</div>' +
-                '<div style="font-size:14px;color:#cbd5e1;line-height:1.65">' + tipText + '</div>' +
+                '<div class="pct2" style="font-size:14px;line-height:1.65">' + tipText + '</div>' +
             '</div>' +
         '</div>';
     }
 
-    // ── 4. Recent attempts as star ratings ──────────────────────────────────
+    // ── 4. Recent attempts ───────────────────────────────────────────────────
     if (sessions.length > 0) {
         html += '<p class="profile-section-title mt-6 mb-3">🎮 ' + (en ? 'Recent Attempts' : 'Последние попытки') + '</p>';
         html += '<div style="display:flex;flex-direction:column;gap:6px">';
@@ -4903,23 +4856,16 @@ function renderProfileErrors() {
             var resolved = _resolveLessonName(s);
             var title = resolved || (en ? 'Free Practice' : 'Свободная практика');
             var timeStr = _sessionTimeAgo(s.timestamp);
-            var isLatest = i === 0;
 
-            html += '<div style="' +
-                'display:flex;align-items:center;gap:12px;' +
-                'background:rgba(8,14,28,' + (isLatest ? '0.92' : '0.7') + ');' +
-                'border:1px solid rgba(255,255,255,' + (isLatest ? '0.12' : '0.06') + ');' +
-                'border-radius:12px;padding:12px 14px;' +
-                (isLatest ? 'box-shadow:0 2px 12px rgba(0,0,0,0.4);' : '') +
-            '">' +
+            html += '<div class="pcSess" style="display:flex;align-items:center;gap:12px">' +
                 '<div style="font-size:20px;line-height:1;flex-shrink:0;min-width:52px;text-align:center">' + (stars || '❌') + '</div>' +
                 '<div style="flex:1;min-width:0">' +
-                    '<div style="font-size:13px;font-weight:' + (isLatest ? '700' : '500') + ';color:' + (isLatest ? '#f1f5f9' : '#94a3b8') + ';white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + escapeHtml(title) + '</div>' +
-                    '<div style="font-size:10px;color:#475569;margin-top:1px">' + (timeStr || '') + '</div>' +
+                    '<div class="pct1" style="font-size:13px;font-weight:' + (i === 0 ? '700' : '500') + ';white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + escapeHtml(title) + '</div>' +
+                    '<div class="pct5" style="font-size:10px;margin-top:1px">' + (timeStr || '') + '</div>' +
                 '</div>' +
                 '<div style="text-align:right;flex-shrink:0">' +
                     '<div style="font-size:18px;font-weight:800;color:' + labelColor + '">' + acc + '%</div>' +
-                    '<div style="font-size:10px;color:' + labelColor + ';opacity:.75">' + label + '</div>' +
+                    '<div style="font-size:10px;color:' + labelColor + ';opacity:.8">' + label + '</div>' +
                 '</div>' +
             '</div>';
         });
@@ -6412,4 +6358,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-

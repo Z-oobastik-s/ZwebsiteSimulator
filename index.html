@@ -1832,6 +1832,65 @@
         html:not(.dark) .profile-hero-panel .text-gray-500 { color: #374151 !important; text-shadow: 0 0 1px rgba(255,255,255,0.5), 0 1px 1px rgba(0,0,0,0.05); }
         html:not(.dark) .profile-quick-btn.text-cyan-400,
         html:not(.dark) .profile-quick-btn [class*="text-cyan"] { color: #0e7490 !important; }
+
+        /* ── Profile tab CSS variables ── */
+        :root {
+            --pcb:   rgba(8,14,28,0.95);
+            --pcb2:  rgba(8,14,28,0.82);
+            --pcb3:  rgba(8,14,28,0.65);
+            --pcbr:  rgba(255,255,255,0.07);
+            --pcbrd: rgba(255,255,255,0.12);
+            --pct1:  #f1f5f9;
+            --pct2:  #e2e8f0;
+            --pct3:  #94a3b8;
+            --pct4:  #64748b;
+            --pct5:  #475569;
+            --pct6:  #334155;
+            --pcs:   0 4px 16px rgba(0,0,0,0.4);
+            --pcs2:  0 4px 20px rgba(0,0,0,0.5);
+            --pcbar: rgba(255,255,255,0.06);
+            --pci:   rgba(255,255,255,0.05);
+            --pchv:  rgba(255,255,255,0.04);
+        }
+        html:not(.dark) {
+            --pcb:   rgba(255,255,255,0.97);
+            --pcb2:  rgba(248,250,252,0.95);
+            --pcb3:  rgba(241,245,249,0.90);
+            --pcbr:  rgba(0,0,0,0.09);
+            --pcbrd: rgba(0,0,0,0.14);
+            --pct1:  #0f172a;
+            --pct2:  #1e293b;
+            --pct3:  #374151;
+            --pct4:  #4b5563;
+            --pct5:  #6b7280;
+            --pct6:  #9ca3af;
+            --pcs:   0 2px 10px rgba(0,0,0,0.10);
+            --pcs2:  0 4px 16px rgba(0,0,0,0.12);
+            --pcbar: rgba(0,0,0,0.08);
+            --pci:   rgba(255,255,255,0.80);
+            --pchv:  rgba(0,0,0,0.03);
+        }
+        /* ── Profile tab utility classes ── */
+        .pcA  { background:linear-gradient(135deg,var(--pcb),var(--pcb2));border:1px solid var(--pcbr);border-radius:16px;padding:16px;box-shadow:var(--pcs); }
+        .pcA-sm { background:linear-gradient(135deg,var(--pcb),var(--pcb2));border:1px solid var(--pcbr);border-radius:12px;padding:12px; }
+        .pcB  { background:var(--pcb2);border:1px solid var(--pcbr);border-radius:12px;padding:12px; }
+        .pcC  { background:var(--pcb2);border:1px solid var(--pcbr);border-radius:14px;padding:14px; }
+        .pcD  { background:var(--pcb3);border:1px dashed var(--pcbrd);border-radius:14px;padding:24px 16px;text-align:center; }
+        .pcLvl { background:linear-gradient(135deg,var(--pcb),var(--pcb2));border-radius:18px;padding:18px 20px;box-shadow:var(--pcs2),inset 0 1px 0 var(--pci); }
+        .pcSess { background:var(--pcb2);border:1px solid var(--pcbr);border-radius:12px;padding:12px 14px; }
+        .pcAch  { background:var(--pcb2);border:1px solid var(--pcbr);border-radius:12px;padding:12px;text-align:center; }
+        .pcAch-lock { background:var(--pcb3);border:1px dashed var(--pcbrd);border-radius:12px;padding:12px;text-align:center; }
+        .pcKey  { background:linear-gradient(180deg,var(--pcb),var(--pcb2));border-radius:12px; }
+        .pcTip  { background:linear-gradient(135deg,rgba(245,158,11,0.10),rgba(234,88,12,0.07));border:1px solid rgba(245,158,11,0.30);border-radius:14px;padding:16px 18px;display:flex;align-items:flex-start;gap:14px;margin-top:20px; }
+        html:not(.dark) .pcTip { background:linear-gradient(135deg,rgba(245,158,11,0.07),rgba(234,88,12,0.04)); }
+        .pcBarTr { background:var(--pcbar);border-radius:99px;overflow:hidden; }
+        .pcLbl { font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--pct4);margin-bottom:8px; }
+        .pct1 { color:var(--pct1)!important; }
+        .pct2 { color:var(--pct2)!important; }
+        .pct3 { color:var(--pct3)!important; }
+        .pct4 { color:var(--pct4)!important; }
+        .pct5 { color:var(--pct5)!important; }
+        .pct6 { color:var(--pct6)!important; }
         
         /* Avatar Modal - гарантируем что оно поверх всего */
         #avatarSelectorModal {
@@ -3594,4 +3653,3 @@
     </script>
 </body>
 </html>
-
