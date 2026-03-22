@@ -3572,6 +3572,8 @@ function startPractice(text, mode, lesson = null) {
 
     // Сбрасываем кэш ошибок текущей сессии и запускаем flush-таймер
     _keyErrorsCache = {};
+    /** Накопление по клавишам за всю сессию (не обнуляется периодическим flush в LS — иначе «проблемные клавиши» в результатах терялись) */
+    app._sessionKeyErrors = {};
     _startKeyErrorsFlushTimer();
 
     // Запускаем запись истории скорости для WPM-графика
@@ -3857,9 +3859,11 @@ function handleKeyPress(e) {
         var _ec = app.currentText[app.currentPosition];
         var _p = app.currentPosition;
         var _t = app.currentText;
-        /* Одна позиция = один символ ожидания (включая пробел — раньше trim() обнулял пробел и клавиши не попадали в статистику) */
+        /* Одна позиция = один символ ожидания (включая пробел) */
         if (typeof _ec === 'string' && _ec.length === 1) {
             _keyErrorsCache[_ec] = (_keyErrorsCache[_ec] || 0) + 1;
+            if (!app._sessionKeyErrors) app._sessionKeyErrors = {};
+            app._sessionKeyErrors[_ec] = (app._sessionKeyErrors[_ec] || 0) + 1;
         }
         if (_p > 0 && _t[_p - 1] === ' ') {
             app._errorsAfterSpaceCount = (app._errorsAfterSpaceCount || 0) + 1;
@@ -4313,8 +4317,8 @@ async function finishPractice() {
     // that finished the lesson (prevents instant repeat-round trigger).
     app.practiceFinishedAt = Date.now();
 
-    // Сохраняем снимок ошибок сессии ДО flush (для показа в результатах)
-    app._lastSessionErrors = Object.assign({}, _keyErrorsCache);
+    // Снимок по клавишам за всю сессию (см. app._sessionKeyErrors — не сбрасывается таймером flush)
+    app._lastSessionErrors = Object.assign({}, app._sessionKeyErrors || {});
 
     app._lastErrorReplaySnippets = app.errors > 0 ? buildUniqueErrorSnippets() : [];
 
@@ -4459,12 +4463,6 @@ function showResults(speed, accuracy, time, errors, rewardCoins) {
                         (e.key === ' ' ? '␣' : e.key) +
                         '<span class="results-error-pill-count">×' + e.count + '</span></span>';
                 }).join('');
-                topErrorsList.classList.remove('hidden');
-            } else if (errors > 0) {
-                /* Снимок пуст (напр. только что исправили учёт пробела) — показываем суммарно */
-                topErrorsList.innerHTML = '<span class="results-error-pill results-error-pill-fallback">' +
-                    '<span class="results-error-pill-fallback-text">' + (typeof t === 'function' ? t('resultErrorsTotalHint') : 'Всего ошибок:') + '</span>' +
-                    '<span class="results-error-pill-count">' + errors + '</span></span>';
                 topErrorsList.classList.remove('hidden');
             } else {
                 topErrorsList.innerHTML = '';
@@ -7544,3 +7542,4 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+
