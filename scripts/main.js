@@ -4454,9 +4454,9 @@ function showResults(speed, accuracy, time, errors, rewardCoins) {
         if (top.length > 0 || canReplay) {
             if (top.length > 0) {
                 topErrorsList.innerHTML = top.map(function (e) {
-                    return '<span class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-red-500/30 text-red-100 font-mono font-bold text-base sm:text-lg shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_4px_18px_rgba(220,38,38,0.35)]">' +
+                    return '<span class="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-red-500/35 text-red-50 font-mono font-bold text-lg sm:text-xl shadow-[inset_0_1px_0_rgba(255,255,255,0.14),0_8px_28px_rgba(220,38,38,0.4)]">' +
                         (e.key === ' ' ? '␣' : e.key) +
-                        '<span class="text-sm sm:text-base font-semibold text-red-200/95 tabular-nums">×' + e.count + '</span></span>';
+                        '<span class="text-base sm:text-lg font-bold text-red-100 tabular-nums">×' + e.count + '</span></span>';
                 }).join('');
                 topErrorsList.classList.remove('hidden');
             } else {
@@ -7537,3 +7537,4 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+

@@ -575,7 +575,7 @@
         #resultsModal {
             align-items: center !important;
             justify-content: center !important;
-            padding: 0.5rem !important;
+            padding: 0.75rem !important;
             background: rgba(0, 0, 0, 0.55) !important;
             backdrop-filter: blur(10px);
             overflow-x: hidden !important;
@@ -584,14 +584,14 @@
         }
         #resultsModal .results-modal-shell {
             width: 100% !important;
-            max-width: min(100vw - 1rem, 38rem) !important;
+            max-width: min(100vw - 1rem, 42rem) !important;
             border: none !important;
             box-shadow:
                 0 25px 50px -12px rgba(0, 0, 0, 0.55),
                 0 0 0 1px rgba(34, 211, 238, 0.22),
                 inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
-            max-height: calc(100dvh - 1rem) !important;
-            max-height: calc(100vh - 1rem) !important;
+            max-height: calc(100dvh - 1.25rem) !important;
+            max-height: calc(100vh - 1.25rem) !important;
             margin: 0 auto !important;
             display: flex !important;
             flex-direction: column !important;
@@ -600,12 +600,12 @@
         }
         @media (min-width: 640px) {
             #resultsModal .results-modal-shell {
-                max-width: min(100vw - 1.25rem, 50rem) !important;
+                max-width: min(100vw - 1.25rem, 54rem) !important;
             }
         }
         @media (min-width: 900px) {
             #resultsModal .results-modal-shell {
-                max-width: min(100vw - 1.5rem, 58rem) !important;
+                max-width: min(100vw - 1.5rem, 62rem) !important;
             }
         }
         #resultsModal .results-stat-cell {
@@ -615,8 +615,8 @@
         #resultsModal .results-panel-surface {
             border: none !important;
             box-shadow:
-                inset 0 1px 0 rgba(255, 255, 255, 0.07),
-                0 6px 28px rgba(0, 0, 0, 0.45);
+                inset 0 1px 0 rgba(255, 255, 255, 0.09),
+                0 10px 36px rgba(0, 0, 0, 0.5);
         }
         #resultsModal .results-modal-header-bar {
             border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
@@ -636,16 +636,16 @@
             -webkit-overflow-scrolling: touch;
         }
         #resultsModal .results-chart-wrap {
-            height: 4.25rem;
-            min-height: 4.25rem;
-            max-height: 4.25rem;
+            height: 5.5rem;
+            min-height: 5.5rem;
+            max-height: 5.5rem;
             overflow: hidden;
         }
         @media (max-height: 520px) {
             #resultsModal .results-chart-wrap {
-                height: 3.25rem;
-                min-height: 3.25rem;
-                max-height: 3.25rem;
+                height: 4rem;
+                min-height: 4rem;
+                max-height: 4rem;
             }
         }
         
@@ -3271,80 +3271,80 @@
     
     <!-- Results Modal: компактная карточка по центру -->
     <div id="resultsModal" class="fixed inset-0 z-50 hidden items-center justify-center overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="resultsModalTitle">
-        <div class="results-modal-shell glass rounded-2xl w-full flex flex-col fade-in overscroll-contain overflow-hidden">
-            <div class="results-modal-header-bar flex items-center justify-between gap-2 px-3 py-2 shrink-0 bg-gradient-to-r from-black/35 via-black/25 to-cyan-950/20">
-                <h3 id="resultsModalTitle" class="text-base font-bold leading-tight text-left flex-1 min-w-0 tracking-tight text-white" data-i18n="results">Результаты</h3>
+        <div class="results-modal-shell glass rounded-3xl w-full flex flex-col fade-in overscroll-contain overflow-hidden">
+            <div class="results-modal-header-bar flex items-center justify-between gap-2 px-4 py-3 shrink-0 bg-gradient-to-r from-black/40 via-black/30 to-cyan-950/25">
+                <h3 id="resultsModalTitle" class="text-lg font-bold leading-tight text-left flex-1 min-w-0 tracking-tight text-white drop-shadow-sm" data-i18n="results">Результаты</h3>
             </div>
 
-            <div class="results-modal-body px-2.5 py-1.5 flex flex-col gap-1.5 min-w-0 flex-1 min-h-0">
-                <!-- Верх: метрики и график в одну линию (с sm), без лишней высоты -->
-                <div class="grid grid-cols-1 min-[420px]:grid-cols-12 gap-1.5 min-[420px]:gap-2 items-start min-w-0">
+            <div class="results-modal-body px-4 py-3 sm:px-5 sm:py-4 flex flex-col gap-3 sm:gap-4 min-w-0 flex-1 min-h-0">
+                <!-- Верх: метрики и график -->
+                <div class="grid grid-cols-1 min-[420px]:grid-cols-12 gap-3 min-[420px]:gap-4 items-start min-w-0">
                     <div class="min-[420px]:col-span-4 min-w-0">
-                        <div class="grid grid-cols-4 gap-1.5">
-                            <div class="results-stat-cell results-panel-surface flex flex-col items-center justify-center py-2 px-1 bg-gradient-to-b from-white/12 to-white/[0.04] dark:from-white/10 dark:to-black/30 rounded-xl min-w-0">
-                                <span class="text-[9px] text-gray-300 mb-0.5 text-center leading-tight font-medium" data-i18n="speed">Скорость</span>
+                        <div class="grid grid-cols-4 gap-2">
+                            <div class="results-stat-cell results-panel-surface flex flex-col items-center justify-center py-3 px-1.5 min-h-[5.25rem] bg-gradient-to-b from-white/14 to-white/[0.05] dark:from-white/12 dark:to-black/35 rounded-2xl min-w-0">
+                                <span class="text-[10px] text-gray-200 mb-1 text-center leading-tight font-medium" data-i18n="speed">Скорость</span>
                                 <div class="flex flex-row flex-nowrap items-baseline justify-center gap-1 leading-none whitespace-nowrap">
-                                    <span class="text-lg sm:text-xl font-bold text-primary tabular-nums drop-shadow-sm" id="resultSpeed">0</span>
-                                    <span class="text-[10px] sm:text-xs text-gray-300 font-semibold shrink-0" data-i18n="cpm">зн/мин</span>
+                                    <span class="text-xl sm:text-2xl font-bold text-primary tabular-nums drop-shadow-sm" id="resultSpeed">0</span>
+                                    <span class="text-[11px] sm:text-xs text-gray-200 font-semibold shrink-0" data-i18n="cpm">зн/мин</span>
                                 </div>
-                                <span id="resultPbBadge" class="hidden mt-0.5 text-[7px] font-semibold px-1 py-0.5 rounded-full text-center leading-tight max-w-full truncate"></span>
+                                <span id="resultPbBadge" class="hidden mt-1 text-[8px] font-semibold px-1.5 py-0.5 rounded-full text-center leading-tight max-w-full truncate"></span>
                             </div>
-                            <div class="results-stat-cell results-panel-surface flex flex-col items-center justify-center py-2 px-1 bg-gradient-to-b from-white/12 to-white/[0.04] dark:from-white/10 dark:to-black/30 rounded-xl min-w-0">
-                                <span class="text-[9px] text-gray-300 mb-0.5 text-center leading-tight font-medium" data-i18n="accuracy">Точность</span>
+                            <div class="results-stat-cell results-panel-surface flex flex-col items-center justify-center py-3 px-1.5 min-h-[5.25rem] bg-gradient-to-b from-white/14 to-white/[0.05] dark:from-white/12 dark:to-black/35 rounded-2xl min-w-0">
+                                <span class="text-[10px] text-gray-200 mb-1 text-center leading-tight font-medium" data-i18n="accuracy">Точность</span>
                                 <div class="flex flex-row flex-nowrap items-baseline justify-center gap-0.5 leading-none whitespace-nowrap">
-                                    <span class="text-lg sm:text-xl font-bold text-success tabular-nums" id="resultAccuracy">0</span>
-                                    <span class="text-xs sm:text-sm text-gray-300 font-semibold shrink-0">%</span>
+                                    <span class="text-xl sm:text-2xl font-bold text-success tabular-nums" id="resultAccuracy">0</span>
+                                    <span class="text-sm text-gray-200 font-semibold shrink-0">%</span>
                                 </div>
                             </div>
-                            <div class="results-stat-cell results-panel-surface flex flex-col items-center justify-center py-2 px-1 bg-gradient-to-b from-white/12 to-white/[0.04] dark:from-white/10 dark:to-black/30 rounded-xl min-w-0">
-                                <span class="text-[9px] text-gray-300 mb-0.5 text-center leading-tight font-medium" data-i18n="time">Время</span>
-                                <span class="text-base sm:text-lg font-bold text-warning tabular-nums leading-none" id="resultTime">0:00</span>
+                            <div class="results-stat-cell results-panel-surface flex flex-col items-center justify-center py-3 px-1.5 min-h-[5.25rem] bg-gradient-to-b from-white/14 to-white/[0.05] dark:from-white/12 dark:to-black/35 rounded-2xl min-w-0">
+                                <span class="text-[10px] text-gray-200 mb-1 text-center leading-tight font-medium" data-i18n="time">Время</span>
+                                <span class="text-lg sm:text-xl font-bold text-warning tabular-nums leading-none" id="resultTime">0:00</span>
                             </div>
-                            <div class="results-stat-cell results-panel-surface flex flex-col items-center justify-center py-2 px-1 bg-gradient-to-b from-white/12 to-white/[0.04] dark:from-white/10 dark:to-black/30 rounded-xl min-w-0">
-                                <span class="text-[9px] text-gray-300 mb-0.5 text-center leading-tight font-medium" data-i18n="errors">Ошибки</span>
-                                <span class="text-base sm:text-lg font-bold text-red-400 tabular-nums leading-none" id="resultErrors">0</span>
+                            <div class="results-stat-cell results-panel-surface flex flex-col items-center justify-center py-3 px-1.5 min-h-[5.25rem] bg-gradient-to-b from-white/14 to-white/[0.05] dark:from-white/12 dark:to-black/35 rounded-2xl min-w-0">
+                                <span class="text-[10px] text-gray-200 mb-1 text-center leading-tight font-medium" data-i18n="errors">Ошибки</span>
+                                <span class="text-lg sm:text-xl font-bold text-red-400 tabular-nums leading-none" id="resultErrors">0</span>
                             </div>
                         </div>
                     </div>
                     <div class="min-[420px]:col-span-8 min-w-0 min-h-0">
-                        <p class="text-[9px] text-gray-300 mb-0.5 leading-none font-medium" data-i18n="resultChartTitle">Скорость по времени</p>
-                        <div class="results-chart-wrap results-panel-surface rounded-xl bg-white/5 dark:bg-black/40 p-1">
+                        <p class="text-[10px] sm:text-xs text-gray-200 mb-1 leading-none font-semibold tracking-wide" data-i18n="resultChartTitle">Скорость по времени</p>
+                        <div class="results-chart-wrap results-panel-surface rounded-2xl bg-white/[0.06] dark:bg-black/45 p-1.5">
                             <canvas id="resultSpeedChart" class="w-full h-full block" style="display:block;"></canvas>
                         </div>
                     </div>
                 </div>
 
-                <!-- Вчера vs сейчас и совет тренера -->
-                <div class="grid grid-cols-1 min-[420px]:grid-cols-2 gap-1.5 min-w-0">
-                    <div id="resultSpeedInsight" class="hidden results-panel-surface p-2.5 rounded-xl bg-slate-800/70 text-slate-100 min-w-0">
-                        <p id="resultSpeedInsightYesterday" class="text-xs sm:text-sm text-slate-100 leading-snug"></p>
+                <!-- Вчера и совет тренера -->
+                <div class="grid grid-cols-1 min-[420px]:grid-cols-2 gap-3 min-w-0">
+                    <div id="resultSpeedInsight" class="hidden results-panel-surface p-3 sm:p-3.5 rounded-2xl bg-slate-800/75 text-slate-100 min-w-0">
+                        <p id="resultSpeedInsightYesterday" class="text-sm text-slate-100 leading-relaxed"></p>
                     </div>
-                    <div id="resultCoachTip" class="hidden results-panel-surface p-2.5 rounded-xl bg-amber-950/50 min-w-0">
-                        <p class="text-[9px] font-bold text-amber-400/95 uppercase tracking-wide mb-1 leading-none drop-shadow-sm" data-i18n="resultCoachTitle">Совет тренера</p>
-                        <p id="resultCoachTipText" class="text-xs sm:text-sm text-amber-50/95 leading-snug"></p>
+                    <div id="resultCoachTip" class="hidden results-panel-surface p-3 sm:p-3.5 rounded-2xl bg-amber-950/55 min-w-0">
+                        <p class="text-[10px] font-bold text-amber-400/95 uppercase tracking-wide mb-1.5 leading-none drop-shadow-sm" data-i18n="resultCoachTitle">Совет тренера</p>
+                        <p id="resultCoachTipText" class="text-sm text-amber-50/95 leading-relaxed"></p>
                     </div>
                 </div>
 
-                <div id="resultReward" class="hidden results-panel-surface flex justify-between items-center gap-3 px-4 py-3 min-h-[3.25rem] bg-purple-600/25 rounded-xl min-w-0">
-                    <span class="flex items-center gap-2 text-sm text-purple-100 min-w-0 font-medium drop-shadow-sm">
-                        <svg class="w-4 h-4 text-purple-300 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.22-.071-.412-.164-.567-.267C8.07 11.66 8 11.434 8 11c0-.114.07-.34.433-.582A2.305 2.305 0 019 10.151V8.151c-.22.071-.412.164-.567.267C8.07 8.66 8 8.886 8 9c0 .114.07.34.433.582.155.103.346.196.567.267v1.698c-.22-.071-.412-.164-.567-.267C8.07 11.66 8 11.434 8 11c0-.114.07-.34.433-.582A2.305 2.305 0 019 10.151V8.151a4.535 4.535 0 011.676.662C11.398 9.234 12 9.009 12 9c0-.114-.07-.34-.433-.582A2.305 2.305 0 0110.567 8.151V6.453a4.535 4.535 0 001.676-.662C11.398 5.234 12 4.009 12 4c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 009 5.092V3.151a2.305 2.305 0 01.567.267C9.93 3.66 10 3.886 10 4c0 .114-.07.34-.433.582A2.305 2.305 0 019 4.849v1.698z" clip-rule="evenodd"/></svg>
+                <div id="resultReward" class="hidden results-panel-surface flex justify-between items-center gap-4 px-5 py-4 min-h-[4rem] bg-purple-600/28 rounded-2xl min-w-0">
+                    <span class="flex items-center gap-2.5 text-base text-purple-50 min-w-0 font-semibold drop-shadow-sm">
+                        <svg class="w-5 h-5 text-purple-300 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.22-.071-.412-.164-.567-.267C8.07 11.66 8 11.434 8 11c0-.114.07-.34.433-.582A2.305 2.305 0 019 10.151V8.151c-.22.071-.412.164-.567.267C8.07 8.66 8 8.886 8 9c0 .114.07.34.433.582.155.103.346.196.567.267v1.698c-.22-.071-.412-.164-.567-.267C8.07 11.66 8 11.434 8 11c0-.114.07-.34.433-.582A2.305 2.305 0 019 10.151V8.151a4.535 4.535 0 011.676.662C11.398 9.234 12 9.009 12 9c0-.114-.07-.34-.433-.582A2.305 2.305 0 0110.567 8.151V6.453a4.535 4.535 0 001.676-.662C11.398 5.234 12 4.009 12 4c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 009 5.092V3.151a2.305 2.305 0 01.567.267C9.93 3.66 10 3.886 10 4c0 .114-.07.34-.433.582A2.305 2.305 0 019 4.849v1.698z" clip-rule="evenodd"/></svg>
                         <span data-i18n="reward">Награда</span>
                     </span>
-                    <span class="text-sm sm:text-base font-bold text-purple-200 shrink-0 tabular-nums drop-shadow-sm" id="resultRewardAmount">+0 монет</span>
+                    <span class="text-base sm:text-lg font-bold text-purple-100 shrink-0 tabular-nums drop-shadow-sm" id="resultRewardAmount">+0 монет</span>
                 </div>
 
-                <!-- Проблемные клавиши + две кнопки в один ряд -->
-                <div id="resultTopErrors" class="hidden results-panel-surface p-2.5 bg-white/[0.06] dark:bg-black/35 rounded-xl min-w-0">
-                    <div class="flex flex-wrap items-center gap-x-3 gap-y-2 min-w-0">
-                        <p id="resultTopErrorsTitle" class="text-xs sm:text-sm text-gray-300 leading-snug shrink-0 font-medium" data-i18n="resultProblemKeysTitle">Проблемные клавиши этой сессии:</p>
-                        <div id="resultTopErrorsList" class="flex flex-wrap gap-2 flex-1 min-w-0 content-center items-center"></div>
+                <!-- Проблемные клавиши -->
+                <div id="resultTopErrors" class="hidden results-panel-surface p-4 sm:p-4 bg-white/[0.07] dark:bg-black/40 rounded-2xl min-w-0">
+                    <div class="flex flex-wrap items-center gap-x-4 gap-y-3 min-w-0">
+                        <p id="resultTopErrorsTitle" class="text-sm text-gray-200 leading-snug shrink-0 font-semibold" data-i18n="resultProblemKeysTitle">Проблемные клавиши этой сессии:</p>
+                        <div id="resultTopErrorsList" class="flex flex-wrap gap-2.5 flex-1 min-w-0 content-center items-center"></div>
                     </div>
-                    <div class="mt-2 flex flex-col sm:flex-row gap-2 min-w-0">
-                        <button type="button" onclick="startAdaptivePractice()" class="results-action-btn flex-1 min-h-[2.5rem] text-xs sm:text-sm py-2 px-2 rounded-xl bg-indigo-600/40 hover:bg-indigo-600/60 text-indigo-100 font-semibold transition-colors leading-tight">
+                    <div class="mt-3 flex flex-col sm:flex-row gap-3 min-w-0">
+                        <button type="button" onclick="startAdaptivePractice()" class="results-action-btn flex-1 min-h-[2.75rem] text-sm py-2.5 px-3 rounded-2xl bg-indigo-600/45 hover:bg-indigo-600/65 text-indigo-50 font-semibold transition-colors leading-snug">
                             <span data-i18n="resultTrainWeakKeys">Тренировать слабые клавиши</span>
                         </button>
                         <div id="resultReplayErrorsWrap" class="hidden flex-1 min-w-0">
-                            <button type="button" id="resultReplayErrorsBtn" onclick="startErrorReplayPractice()" class="results-action-btn w-full min-h-[2.5rem] text-xs sm:text-sm py-2 px-2 rounded-xl bg-rose-600/35 hover:bg-rose-600/55 text-rose-100 font-semibold transition-colors leading-tight">
+                            <button type="button" id="resultReplayErrorsBtn" onclick="startErrorReplayPractice()" class="results-action-btn w-full min-h-[2.75rem] text-sm py-2.5 px-3 rounded-2xl bg-rose-600/40 hover:bg-rose-600/58 text-rose-50 font-semibold transition-colors leading-snug">
                                 Повторить проблемные места
                             </button>
                         </div>
@@ -3352,21 +3352,21 @@
                 </div>
             </div>
 
-            <div class="results-footer-bar shrink-0 px-3 py-2 bg-gradient-to-t from-black/40 to-black/20">
-                <div class="grid grid-cols-3 gap-2">
-                    <button onclick="repeatPractice()" class="results-action-btn min-h-[2.5rem] bg-primary hover:bg-primary/85 text-white font-semibold py-2 rounded-xl text-xs sm:text-sm px-2 leading-tight">
+            <div class="results-footer-bar shrink-0 px-4 py-3 sm:px-5 bg-gradient-to-t from-black/45 to-black/25">
+                <div class="grid grid-cols-3 gap-2.5">
+                    <button onclick="repeatPractice()" class="results-action-btn min-h-[2.75rem] bg-primary hover:bg-primary/88 text-white font-semibold py-2.5 rounded-2xl text-sm px-3 leading-snug">
                         <span data-i18n="repeat">Повторить</span>
                     </button>
-                    <button onclick="closeResults()" class="results-action-btn min-h-[2.5rem] bg-white/12 hover:bg-white/18 dark:bg-white/10 dark:hover:bg-white/16 font-semibold py-2 rounded-xl text-xs sm:text-sm px-2 leading-tight">
+                    <button onclick="closeResults()" class="results-action-btn min-h-[2.75rem] bg-white/14 hover:bg-white/22 dark:bg-white/12 dark:hover:bg-white/18 font-semibold py-2.5 rounded-2xl text-sm px-3 leading-snug">
                         <span data-i18n="close">Закрыть</span>
                     </button>
-                    <button type="button" onclick="copyResultsToClipboard()" class="results-action-btn min-h-[2.5rem] bg-white/12 hover:bg-white/18 dark:bg-white/10 dark:hover:bg-white/16 font-medium py-2 rounded-xl flex items-center justify-center gap-1 text-[10px] sm:text-xs px-1 leading-tight">
+                    <button type="button" onclick="copyResultsToClipboard()" class="results-action-btn min-h-[2.75rem] bg-white/14 hover:bg-white/22 dark:bg-white/12 dark:hover:bg-white/18 font-medium py-2.5 rounded-2xl flex items-center justify-center gap-1.5 text-xs sm:text-sm px-2 leading-snug">
                         <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
                         <span data-i18n="copyResult" class="hidden sm:inline">Скопировать результат</span>
                         <span class="sm:hidden" data-i18n="copyResultShort">Копія</span>
                     </button>
                 </div>
-                <p id="resultsHotkeysHint" class="text-[8px] text-gray-500 dark:text-gray-400 text-center mt-1 leading-tight">Esc — закрыть · Enter или R — повторить</p>
+                <p id="resultsHotkeysHint" class="text-[10px] text-gray-500 dark:text-gray-400 text-center mt-2 leading-relaxed">Esc — закрыть · Enter или R — повторить</p>
             </div>
         </div>
     </div>
@@ -3948,3 +3948,4 @@
     </script>
 </body>
 </html>
+
