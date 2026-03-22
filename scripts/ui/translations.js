@@ -188,6 +188,7 @@ window.translations = {
         resultCoachTitle: 'Совет тренера',
         resultChartTitle: 'Скорость по времени',
         resultProblemKeysTitle: 'Проблемные клавиши этой сессии:',
+        resultErrorsTotalHint: 'Всего ошибок в сессии',
         resultTrainWeakKeys: 'Тренировать слабые клавиши',
         coachAfterSpace: 'Частые ошибки после пробела — сделай чуть длиннее паузу перед следующей буквой.',
         coachBigram: 'Замедляйся на сочетании «{{pair}}» — оно чаще всего сбивало в этой сессии.',
@@ -438,6 +439,7 @@ window.translations = {
         resultCoachTitle: 'Coach tip',
         resultChartTitle: 'Speed over time',
         resultProblemKeysTitle: 'Problem keys this session:',
+        resultErrorsTotalHint: 'Total errors this session',
         resultTrainWeakKeys: 'Train weak keys',
         coachAfterSpace: 'Many mistakes after space — pause a bit longer before the next letter.',
         coachBigram: 'Slow down on “{{pair}}” — it tripped you up most this session.',
@@ -688,6 +690,7 @@ window.translations = {
         resultCoachTitle: 'Порада тренера',
         resultChartTitle: 'Швидкість з часом',
         resultProblemKeysTitle: 'Проблемні клавіші цієї сесії:',
+        resultErrorsTotalHint: 'Усього помилок за сесію',
         resultTrainWeakKeys: 'Тренувати слабкі клавіші',
         coachAfterSpace: 'Часті помилки після пробілу — зроби трохи довшу паузу перед наступною літерою.',
         coachBigram: 'Сповільнюйся на сполученні «{{pair}}» — воно найчастіше збивало в цій сесії.',
@@ -754,4 +757,3 @@ window.translations = {
         profileTabOnSite: 'на сайті'
     }
 };
-

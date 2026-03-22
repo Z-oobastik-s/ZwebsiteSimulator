@@ -3857,7 +3857,8 @@ function handleKeyPress(e) {
         var _ec = app.currentText[app.currentPosition];
         var _p = app.currentPosition;
         var _t = app.currentText;
-        if (_ec && _ec.trim()) {
+        /* Одна позиция = один символ ожидания (включая пробел — раньше trim() обнулял пробел и клавиши не попадали в статистику) */
+        if (typeof _ec === 'string' && _ec.length === 1) {
             _keyErrorsCache[_ec] = (_keyErrorsCache[_ec] || 0) + 1;
         }
         if (_p > 0 && _t[_p - 1] === ' ') {
@@ -4454,10 +4455,16 @@ function showResults(speed, accuracy, time, errors, rewardCoins) {
         if (top.length > 0 || canReplay) {
             if (top.length > 0) {
                 topErrorsList.innerHTML = top.map(function (e) {
-                    return '<span class="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-red-500/35 text-red-50 font-mono font-bold text-lg sm:text-xl shadow-[inset_0_1px_0_rgba(255,255,255,0.14),0_8px_28px_rgba(220,38,38,0.4)]">' +
+                    return '<span class="results-error-pill">' +
                         (e.key === ' ' ? '␣' : e.key) +
-                        '<span class="text-base sm:text-lg font-bold text-red-100 tabular-nums">×' + e.count + '</span></span>';
+                        '<span class="results-error-pill-count">×' + e.count + '</span></span>';
                 }).join('');
+                topErrorsList.classList.remove('hidden');
+            } else if (errors > 0) {
+                /* Снимок пуст (напр. только что исправили учёт пробела) — показываем суммарно */
+                topErrorsList.innerHTML = '<span class="results-error-pill results-error-pill-fallback">' +
+                    '<span class="results-error-pill-fallback-text">' + (typeof t === 'function' ? t('resultErrorsTotalHint') : 'Всего ошибок:') + '</span>' +
+                    '<span class="results-error-pill-count">' + errors + '</span></span>';
                 topErrorsList.classList.remove('hidden');
             } else {
                 topErrorsList.innerHTML = '';
@@ -7537,4 +7544,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-
