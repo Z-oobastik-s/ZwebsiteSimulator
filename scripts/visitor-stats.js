@@ -1,9 +1,9 @@
 /**
  * Статистика посещений и онлайн-пользователей через Firebase Realtime Database.
  * Пути:
- *   siteStats/visits          — общий счётчик
- *   siteStats/daily/YYYY-MM-DD — дневные посещения
- *   online/{visitorId}        — присутствие: lastSeen, joinedAt, countryCode, flag, device,
+ *   siteStats/visits          - общий счётчик
+ *   siteStats/daily/YYYY-MM-DD - дневные посещения
+ *   online/{visitorId}        - присутствие: lastSeen, joinedAt, countryCode, flag, device,
  *                               displayName, username, avatarIndex, level, tierName (если вошёл)
  */
 
@@ -203,7 +203,7 @@ var _firebaseError = null;
 function _onFirebaseError(err) {
     _firebaseError = err && err.code ? err.code : 'permission-denied';
     console.warn('[visitor-stats] Firebase read blocked:', _firebaseError,
-        '— check Realtime Database rules in Firebase Console.');
+        '- check Realtime Database rules in Firebase Console.');
     _refreshModal();
 }
 
@@ -259,7 +259,7 @@ async function registerPresence() {
         device:      getDeviceType()
     };
 
-    // Если уже вошёл — добавляем данные аккаунта
+    // Если уже вошёл - добавляем данные аккаунта
     var userInfo = _getCurrentUserInfo();
     if (userInfo) {
         data.displayName = userInfo.displayName;
@@ -292,7 +292,7 @@ window.__updatePresenceUser = function (user) {
             }
         } catch (e) {}
     } else {
-        // Вышел — очищаем данные аккаунта
+        // Вышел - очищаем данные аккаунта
         updates.displayName = null;
         updates.username    = null;
         updates.avatarIndex = null;
@@ -530,4 +530,3 @@ if (typeof window !== 'undefined') {
     window.__siteStatsRefreshModal = _refreshModal;
 }
 export { pluralPlayers, updateUI };
-

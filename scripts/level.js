@@ -1,5 +1,5 @@
 /**
- * Player level and XP system — игровая прокачка
+ * Player level and XP system - игровая прокачка
  */
 
 const PLAYER_XP_KEY = 'zoobastiks_player_xp';
@@ -133,4 +133,3 @@ window.levelModule = {
     getTierNameForLang: getTierNameForLang,
     getXPThreshold: getXPThreshold
 };
-

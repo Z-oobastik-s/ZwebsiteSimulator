@@ -163,7 +163,7 @@ function authMiddleware(req, res, next) {
     }
 }
 
-// GET /api/auth/me — текущий пользователь по токену
+// GET /api/auth/me - текущий пользователь по токену
 router.get('/me', authMiddleware, async (req, res) => {
     try {
         const user = await getUserById(req.uid);
@@ -176,4 +176,3 @@ router.get('/me', authMiddleware, async (req, res) => {
 });
 
 module.exports = { router, authMiddleware, getUserById, rowToUser };
-

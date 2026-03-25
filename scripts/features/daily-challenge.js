@@ -14,7 +14,7 @@
 
     /**
      * Простой линейный конгруэнтный генератор (LCG) на основе seed.
-     * Детерминированный — одна и та же дата даёт одинаковые числа.
+     * Детерминированный - одна и та же дата даёт одинаковые числа.
      */
     function makePrng(seed) {
         var s = seed | 0;
@@ -48,7 +48,7 @@
     /**
      * Возвращает текст дня для заданного языка.
      * Текст фиксирован на сутки и меняется каждый день.
-     * @param {string} lang — 'ru' | 'en' | 'ua'
+     * @param {string} lang - 'ru' | 'en' | 'ua'
      * @returns {string}
      */
     function getDailyText(lang) {
@@ -126,8 +126,8 @@
 
     /**
      * Запускает обновление countdown-таймера в элементе с id.
-     * @param {string} elId — id элемента для вставки таймера
-     * @returns {function} stopFn — вызвать для остановки
+     * @param {string} elId - id элемента для вставки таймера
+     * @returns {function} stopFn - вызвать для остановки
      */
     function startCountdownTimer(elId) {
         var el = document.getElementById(elId);
@@ -151,4 +151,3 @@
         startCountdownTimer: startCountdownTimer
     };
 })();
-

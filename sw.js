@@ -4,7 +4,7 @@ self.addEventListener('install', function (event) {
   self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then(function (cache) {
-      // Precache only small critical assets — NO videos (they cache on first view)
+      // Precache only small critical assets - NO videos (they cache on first view)
       return cache.addAll([
         './',
         './index.html',
@@ -73,7 +73,7 @@ self.addEventListener('fetch', function (event) {
   var url = event.request.url;
   if (url.indexOf('http') !== 0) return;
   var sameOrigin = isSameOrigin(url);
-  // Всегда свежий version.json — проверка автообновления на клиенте
+  // Всегда свежий version.json - проверка автообновления на клиенте
   if (sameOrigin && url.indexOf('version.json') !== -1) {
     event.respondWith(
       fetch(event.request, { cache: 'no-store' }).catch(function () {
@@ -84,7 +84,7 @@ self.addEventListener('fetch', function (event) {
   }
   var staticAsset = isStaticAsset(url);
 
-  // HTML pages: network-first — always try to get the latest version
+  // HTML pages: network-first - always try to get the latest version
   if (sameOrigin && isHtmlRequest(url)) {
     event.respondWith(
       fetch(event.request).then(function (res) {
@@ -102,7 +102,7 @@ self.addEventListener('fetch', function (event) {
     return;
   }
 
-  // JS/CSS/images: stale-while-revalidate — serve cache instantly, update in background
+  // JS/CSS/images: stale-while-revalidate - serve cache instantly, update in background
   if (sameOrigin && staticAsset) {
     event.respondWith(
       caches.open(CACHE_NAME).then(function (cache) {
@@ -133,4 +133,3 @@ self.addEventListener('fetch', function (event) {
     })
   );
 });
-

@@ -23,7 +23,7 @@ function getPool() {
 }
 
 /**
- * Named-parameter query — keeps backward compatibility with all routes.
+ * Named-parameter query - keeps backward compatibility with all routes.
  * SQL uses @paramName style; values are substituted in positional order.
  *
  * Examples:
@@ -51,4 +51,3 @@ async function close() {
 }
 
 module.exports = { getPool, query, close };
-

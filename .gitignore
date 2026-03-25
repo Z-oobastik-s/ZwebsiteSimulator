@@ -21,7 +21,7 @@ github-token.txt
 .env.*
 !.env.example
 
-# Backend — никогда не пушить
+# Backend - никогда не пушить
 backend/.env
 backend/.env.*
 backend/node_modules/
@@ -34,4 +34,3 @@ scripts/*.sh
 serve.bat
 serve.sh
 SEO_SETUP.md
-

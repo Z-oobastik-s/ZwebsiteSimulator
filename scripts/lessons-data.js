@@ -962,6 +962,60 @@ const LESSONS_DATA = {
                 text: "127 256 384 512 640 768 896 135 246 357 468 579 680 791 802 913 024 142 253 364 475 586 697 708 819 920 037 148 259 370 481 592 603 714 825 936 047 158 269 370",
                 difficulty: "easy",
                 digitsOnly: true
+            },
+            {
+                id: 223,
+                name: "Микро: домашний ряд (фикс)",
+                description: "Короткая линия без генерации текста",
+                layout: "ru",
+                text: "фыва олдж фыва олдж фыва олдж фыва олдж фыва олдж фыва олдж фыва олдж фыва олдж",
+                difficulty: "easy",
+                fixedText: true
+            },
+            {
+                id: 224,
+                name: "Micro: home row (fixed)",
+                description: "Short line, exact text you see",
+                layout: "en",
+                text: "asdf jkl asdf jkl asdf jkl asdf jkl asdf jkl asdf jkl asdf jkl asdf jkl",
+                difficulty: "easy",
+                fixedText: true
+            },
+            {
+                id: 225,
+                name: "Мікро: домашній ряд (фікс)",
+                description: "Короткий рядок без генерації",
+                layout: "ua",
+                text: "фіва олдж фіва олдж фіва олдж фіва олдж фіва олдж фіва олдж фіва олдж фіва олдж",
+                difficulty: "easy",
+                fixedText: true
+            },
+            {
+                id: 226,
+                name: "Цифры: короткий поток",
+                description: "Компактный набор для фильтра до 100 символов",
+                layout: "ru",
+                text: "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 30 40 50 60 70 80 90 99 100",
+                difficulty: "easy",
+                digitsOnly: true
+            },
+            {
+                id: 227,
+                name: "Numbers: short stream",
+                description: "Compact digits for quick drills",
+                layout: "en",
+                text: "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 30 40 50 60 70 80 90 99 100",
+                difficulty: "easy",
+                digitsOnly: true
+            },
+            {
+                id: 228,
+                name: "Цифри: короткий потік",
+                description: "Компактний набір цифр",
+                layout: "ua",
+                text: "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 30 40 50 60 70 80 90 99 100",
+                difficulty: "easy",
+                digitsOnly: true
             }
         ]
     },
@@ -2365,4 +2419,3 @@ const LESSONS_DATA = {
         ]
     }
 };
-

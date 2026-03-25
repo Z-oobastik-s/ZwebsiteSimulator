@@ -8,7 +8,7 @@
     /**
      * Рендерит тепловую карту на контейнере клавиатуры.
      * @param {HTMLElement|string} container
-     * @param {Object} errorMap — { 'а': 12, 'в': 3, ... }
+     * @param {Object} errorMap - { 'а': 12, 'в': 3, ... }
      */
     function renderHeatmap(container, errorMap) {
         var el = typeof container === 'string' ? document.getElementById(container) : container;
@@ -35,7 +35,7 @@
 
             if (count > 0) {
                 var intensity = Math.min(1, count / maxErr);
-                // Красный inset box-shadow — не перебивает background, виден поверх любого фона
+                // Красный inset box-shadow - не перебивает background, виден поверх любого фона
                 var alpha = Math.round(intensity * 0.85 * 255).toString(16).padStart(2, '0');
                 var spread = Math.round(intensity * 3);
                 btn.style.boxShadow = 'inset 0 0 8px ' + spread + 'px rgba(239,68,68,' + (intensity * 0.75).toFixed(2) + ')';
@@ -94,4 +94,3 @@
         getTopErrors: getTopErrors
     };
 })();
-

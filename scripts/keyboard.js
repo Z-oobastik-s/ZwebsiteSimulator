@@ -191,7 +191,7 @@ function highlightKeyStatic(char, container) {
     const cache = _getCache(container);
     const state = _getState(container);
 
-    // Same key as before — nothing to do (O(1) early exit).
+    // Same key as before - nothing to do (O(1) early exit).
     if (state.prevStatic === key) return;
 
     // Remove static class from previous key (O(1)).
@@ -213,4 +213,3 @@ window.keyboardModule = {
     highlightStatic: highlightKeyStatic,
     buildCache: _buildKeyCache
 };
-

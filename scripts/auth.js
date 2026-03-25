@@ -1,7 +1,7 @@
 /**
  * Authentication Module
- * Режим 1: window.API_BASE_URL задан — данные в MSSQL через backend API.
- * Режим 2: API_BASE_URL пустой — данные в localStorage (как раньше).
+ * Режим 1: window.API_BASE_URL задан - данные в MSSQL через backend API.
+ * Режим 2: API_BASE_URL пустой - данные в localStorage (как раньше).
  */
 
 export const AVAILABLE_AVATARS = [
@@ -141,7 +141,7 @@ function generateUserId() {
     return 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
 }
 
-// ——————————————— Регистрация ———————————————
+// --------------- Регистрация ---------------
 export async function registerUser(username, password, email = '') {
     if (!username || !password) {
         return { success: false, error: 'Логин и пароль обязательны' };
@@ -187,7 +187,7 @@ export async function registerUser(username, password, email = '') {
     return { success: true, user };
 }
 
-// ——————————————— Вход ———————————————
+// --------------- Вход ---------------
 export async function loginUser(username, password) {
     if (!username || !password) {
         return { success: false, error: 'Введите логин и пароль' };
@@ -221,7 +221,7 @@ export async function loginUser(username, password) {
     return { success: true, user };
 }
 
-// ——————————————— Выход ———————————————
+// --------------- Выход ---------------
 export async function logoutUser() {
     if (useApi()) {
         try {
@@ -238,12 +238,12 @@ export async function logoutUser() {
     return { success: true };
 }
 
-// ——————————————— Текущий пользователь ———————————————
+// --------------- Текущий пользователь ---------------
 export function getCurrentUser() {
     return getCurrentUserFromStorage();
 }
 
-// ——————————————— Профиль ———————————————
+// --------------- Профиль ---------------
 export async function getUserProfile(uid) {
     if (useApi()) {
         try {
@@ -309,7 +309,7 @@ export async function updateProfileAvatar(uid, avatarIndex) {
     return updateUserProfile(uid, { photoURL, avatarIndex }).then(r => r.success ? { success: true, photoURL } : r);
 }
 
-// ——————————————— Сессии (прогресс) ———————————————
+// --------------- Сессии (прогресс) ---------------
 let sessionQueue = [];
 let sessionUpdateTimeout = null;
 
@@ -371,7 +371,7 @@ export async function addUserSession(uid, sessionData) {
     return { success: true };
 }
 
-// ——————————————— Админ ———————————————
+// --------------- Админ ---------------
 export async function isAdmin(uid) {
     if (useApi()) {
         const user = getCurrentUserFromStorage();
@@ -410,7 +410,7 @@ export async function deleteUser(uid) {
     return { success: true };
 }
 
-// ——————————————— Слушатель авторизации ———————————————
+// --------------- Слушатель авторизации ---------------
 let authStateListeners = [];
 let currentAuthUser = null;
 
@@ -428,7 +428,7 @@ function checkAuthState() {
 
 checkAuthState();
 
-// При использовании API: если есть токен, но нет пользователя в кэше — подгрузить с сервера
+// При использовании API: если есть токен, но нет пользователя в кэше - подгрузить с сервера
 if (useApi() && getToken() && !getCurrentUserFromStorage()) {
     apiFetch('/api/auth/me').then(data => {
         if (data.user) {
@@ -447,7 +447,7 @@ export function onAuthStateChange(callback) {
     return () => { authStateListeners = authStateListeners.filter(cb => cb !== callback); };
 }
 
-// ——————————————— Монеты и магазин ———————————————
+// --------------- Монеты и магазин ---------------
 export async function addCoins(uid, amount) {
     if (useApi()) {
         try {
@@ -560,4 +560,3 @@ window.authModule = {
     getUserBalance,
     isLessonPurchased
 };
-

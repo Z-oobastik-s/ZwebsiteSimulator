@@ -184,11 +184,11 @@ function applyFreeModePreset(preset) {
     if (!textarea) return;
     let text = '';
     if (preset === 'motivation') {
-        text = 'Каждый день по несколько минут печати приближает тебя к скорости, о которой ты раньше только мечтал. Главное — не идеальный результат, а регулярное движение вперёд.';
+        text = 'Каждый день по несколько минут печати приближает тебя к скорости, о которой ты раньше только мечтал. Главное - не идеальный результат, а регулярное движение вперёд.';
     } else if (preset === 'code') {
         text = 'function neuralTyping(speed, accuracy) { const focus = true; const practice = speed * accuracy; return focus && practice > 0 ? "upgrade" : "idle"; }';
     } else if (preset === 'story') {
-        text = 'В неоновом тумане мегаполиса клавиатура щёлкает как сердце системы. Каждый символ — импульс по проводам, каждое слово — новый пакет данных в бесконечной сети.';
+        text = 'В неоновом тумане мегаполиса клавиатура щёлкает как сердце системы. Каждый символ - импульс по проводам, каждое слово - новый пакет данных в бесконечной сети.';
     }
     textarea.value = text;
     updateFreeModeChars();
@@ -765,4 +765,3 @@ document.addEventListener('DOMContentLoaded', () => {
     
     console.log('Initialization complete');
 });
-

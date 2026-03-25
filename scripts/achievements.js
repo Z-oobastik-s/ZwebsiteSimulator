@@ -107,7 +107,7 @@ function checkAndUnlock() {
     return newlyUnlocked;
 }
 
-/** За одну сессию показываем тост только за высший новый порог по скорости и по точности (остальные — все). */
+/** За одну сессию показываем тост только за высший новый порог по скорости и по точности (остальные - все). */
 function pickToastsForSession(newlyUnlocked) {
     if (!newlyUnlocked.length) return [];
     const bySpeed = newlyUnlocked.filter(function (a) { return a.condition === 'speed'; });
@@ -130,7 +130,7 @@ function showAchievementToast(ach) {
     const title = lang === 'en' ? ach.titleEn : (lang === 'ua' ? ach.titleUa : ach.titleRu);
     const msg = lang === 'en' ? 'Achievement unlocked!' : (lang === 'ua' ? 'Досягнення розблоковано!' : 'Достижение получено!');
     if (typeof showToast === 'function') {
-        showToast(title + ' ' + ach.icon + ' — ' + msg, 'success', ach.icon);
+        showToast(title + ' ' + ach.icon + ' - ' + msg, 'success', ach.icon);
     } else {
         try { console.log('[Achievement]', title, ach.icon); } catch (e) {}
     }
@@ -153,7 +153,7 @@ function render(container) {
         const title = lang === 'en' ? ach.titleEn : (lang === 'ua' ? ach.titleUa : ach.titleRu);
         const desc = lang === 'en' ? ach.descEn : (lang === 'ua' ? ach.descUa : ach.descRu);
         const coinsHint = lang === 'en' ? '(+50 coins)' : lang === 'ua' ? '(+50 монет)' : '(+50 монет)';
-        const tip = isUnlocked ? title + ' — ' + desc + ' ' + coinsHint : desc;
+        const tip = isUnlocked ? title + ' - ' + desc + ' ' + coinsHint : desc;
         const animIndex = index % 12;
         const div = document.createElement('div');
         div.className = 'achievement-icon-wrap' + (isUnlocked ? ' achievement-unlocked ach-hover-' + animIndex : ' achievement-locked') + (isSelected ? ' achievement-selected' : '');
@@ -246,4 +246,3 @@ window.achievementsModule = {
     getAchievements: function () { return ACHIEVEMENTS; },
     COINS_PER_ACHIEVEMENT: COINS_PER_ACHIEVEMENT
 };
-

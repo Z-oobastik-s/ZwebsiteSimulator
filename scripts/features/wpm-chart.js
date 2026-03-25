@@ -146,7 +146,7 @@
         _attachTooltip(canvas, history, padL, padR, padT, padB, maxCpm, maxT, cw, ch, W, H);
     }
 
-    // Хранилище listenrов — чтобы не дублировать при повторном рендере
+    // Хранилище listenrов - чтобы не дублировать при повторном рендере
     var _canvasListeners = new WeakMap();
 
     function _attachTooltip(canvas, history, padL, padR, padT, padB, maxCpm, maxT, cw, ch, W, H) {
@@ -226,4 +226,3 @@
         renderChart: renderChart
     };
 })();
-

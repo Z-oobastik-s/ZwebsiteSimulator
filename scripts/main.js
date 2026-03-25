@@ -3,7 +3,7 @@
  * Typing trainer with lessons, free mode, and speed test
  */
 
-// Иконка валюты — картинка монеты (money.png)
+// Иконка валюты - картинка монеты (money.png)
 var COIN_ICON_IMG = '<img src="assets/images/money.png" alt="" class="coin-icon-img inline-block flex-shrink-0" width="20" height="20" style="vertical-align: middle;">';
 
 // Global state
@@ -200,7 +200,7 @@ function initPwaInstallBanner() {
   }
 }
 
-// In-memory кэш ошибок по клавишам — flush в localStorage при finishPractice
+// In-memory кэш ошибок по клавишам - flush в localStorage при finishPractice
 var _keyErrorsCache = {};
 var _keyErrorsFlushTimer = null;
 
@@ -218,7 +218,7 @@ function _flushKeyErrors() {
 }
 
 /**
- * После сессии без ошибок (100% точность) — уменьшаем «хвост» по буквам, которые реально печатали.
+ * После сессии без ошибок (100% точность) - уменьшаем «хвост» по буквам, которые реально печатали.
  * Счётчики постепенно падают и ключи исчезают из профиля.
  */
 function _decayKeyErrorsIfPerfect(accuracy, errors) {
@@ -294,6 +294,8 @@ let audioFeedback = null;
 let audioClickMenu0 = null;
 let audioClickMenu1 = null;
 let welcomePlayed = false;
+/** Ссылка на обработчик ended у welcome - снимаем при общем «выкл звук», чтобы не включать музыку по старому событию */
+var _welcomeEndedHandler = null;
 
 // translations extracted to scripts/ui/translations.js
 // Fallback: inline definition kept for builds that don't load the separate file first.
@@ -459,12 +461,12 @@ const translations = window.translations || {
         startLesson: 'Начать урок',
         lessonPurchased: 'Урок успешно куплен!',
         purchaseError: 'Ошибка покупки',
-        tipInsufficientCoins: 'Пройди уроки с точностью 90%+ — получай монеты!',
-        shopTipEarn: 'Чем выше точность в уроках — тем больше монет в награду.',
+        tipInsufficientCoins: 'Пройди уроки с точностью 90%+ - получай монеты!',
+        shopTipEarn: 'Чем выше точность в уроках - тем больше монет в награду.',
         shopTipFocus: 'Меньше ошибок = больше награда. Целься в 90%+ точности!',
         shopTipDaily: 'Регулярные тренировки повышают скорость и приносят монеты.',
-        shopTipFlip: 'Наведи на карточку — увидишь совет на обороте.',
-        shopTipLevel: 'Сложнее урок — выше награда за прохождение.',
+        shopTipFlip: 'Наведи на карточку - увидишь совет на обороте.',
+        shopTipLevel: 'Сложнее урок - выше награда за прохождение.',
         // Animations
         toggleAnimations: 'Включить/выключить анимации',
         animationsOn: 'Анимации включены',
@@ -496,7 +498,7 @@ const translations = window.translations || {
         copyResultShort: 'Копия',
         resultCopied: 'Результат скопирован в буфер обмена',
         copyFailed: 'Не удалось скопировать',
-        hotkeysHint: 'Esc — закрыть · Enter или R — повторить',
+        hotkeysHint: 'Esc - закрыть · Enter или R - повторить',
         streakDays: 'дней подряд',
         streakHint: 'Серия дней с тренировкой',
         // Multiplayer room settings
@@ -520,9 +522,9 @@ const translations = window.translations || {
         profileTabOverview: 'Обзор',
         profileTabHistory: 'История',
         profileTabErrors: 'Ошибки',
-        profileTabNoSessions: 'Пока нет сессий — пройди урок!',
+        profileTabNoSessions: 'Пока нет сессий - пройди урок!',
         profileTabNoAchiev: 'Достижений пока нет',
-        profileTabNoErrors: 'Пройди урок — и здесь появится аналитика ошибок',
+        profileTabNoErrors: 'Пройди урок - и здесь появится аналитика ошибок',
         profileTabNeedMore: 'Пройди хотя бы 2 сессии для динамики',
         profileTabSessions: 'Последние сессии',
         profileTabAchievements: 'Достижения',
@@ -730,7 +732,7 @@ const translations = window.translations || {
         copyResultShort: 'Copy',
         resultCopied: 'Result copied to clipboard',
         copyFailed: 'Copy failed',
-        hotkeysHint: 'Esc — close · Enter or R — repeat',
+        hotkeysHint: 'Esc - close · Enter or R - repeat',
         streakDays: 'day streak',
         streakHint: 'Consecutive days with practice',
         // Multiplayer room settings
@@ -754,7 +756,7 @@ const translations = window.translations || {
         profileTabOverview: 'Overview',
         profileTabHistory: 'History',
         profileTabErrors: 'Errors',
-        profileTabNoSessions: 'No sessions yet — complete a lesson!',
+        profileTabNoSessions: 'No sessions yet - complete a lesson!',
         profileTabNoAchiev: 'No achievements yet',
         profileTabNoErrors: 'Complete a lesson to see key error analytics',
         profileTabNeedMore: 'Complete at least 2 sessions to see trends',
@@ -909,7 +911,7 @@ function calculateLessonRewardCoins(lesson, accuracy, isFirstTime) {
     return coins;
 }
 
-// ——————————————— Фоны (покупка/выбор) ———————————————
+// --------------- Фоны (покупка/выбор) ---------------
 // BACKGROUNDS extracted to scripts/ui/backgrounds.js
 // Fallback: inline definition kept for builds that don't load the separate file first.
 var BACKGROUNDS = window.BACKGROUNDS || [
@@ -1081,7 +1083,7 @@ function selectProfileBackground(backgroundId) {
     applyBackgroundToPage();
     renderBackgroundSelectorGrid();
     updateProfileBgPreview();
-    showToast((typeof t('profileSaved') !== 'undefined' ? t('profileSaved') : 'Сохранено') + ' — ' + bg.name, 'success');
+    showToast((typeof t('profileSaved') !== 'undefined' ? t('profileSaved') : 'Сохранено') + ' - ' + bg.name, 'success');
 }
 
 function buyProfileBackground(backgroundId) {
@@ -1113,7 +1115,7 @@ function buyProfileBackground(backgroundId) {
             if (updatedUser && typeof updateUserUI === 'function') updateUserUI(updatedUser, currentUserProfile || updatedUser);
             var shopBalanceEl = DOM.get('shopBalance');
             if (shopBalanceEl) shopBalanceEl.textContent = (updatedUser && (updatedUser.balance != null) ? updatedUser.balance : newBalance) + '';
-            showToast(bg.name + ' — ' + (app.lang === 'en' ? 'Unlocked!' : 'Открыто!'), 'success');
+            showToast(bg.name + ' - ' + (app.lang === 'en' ? 'Unlocked!' : 'Открыто!'), 'success');
         } else {
             showToast(result && result.error ? result.error : 'Ошибка', 'error');
         }
@@ -1129,7 +1131,7 @@ function createParticles() {
     const heroContainer = document.querySelector('.hero-container');
     if (!heroContainer) return;
     
-    // Reuse: если частицы уже есть — не пересоздаём (только показываем)
+    // Reuse: если частицы уже есть - не пересоздаём (только показываем)
     const existing = heroContainer.querySelectorAll('.particle');
     if (existing.length > 0) {
         existing.forEach(p => { p.style.display = ''; });
@@ -1348,37 +1350,68 @@ function initializeAudio() {
 // Play welcome sound once (на время воспроизведения приглушаем фоновую музыку)
 function playWelcomeSound() {
     if (!welcomePlayed && app.soundEnabled && audioWelcome && app.currentMode === 'home') {
+        if (_welcomeEndedHandler && audioWelcome) {
+            audioWelcome.removeEventListener('ended', _welcomeEndedHandler);
+            _welcomeEndedHandler = null;
+        }
         var bgWasPlaying = bgMusicAudio && !bgMusicAudio.paused;
         if (bgWasPlaying) stopBgMusic();
-        var onWelcomeEnd = function() {
-            audioWelcome.removeEventListener('ended', onWelcomeEnd);
+        _welcomeEndedHandler = function() {
+            audioWelcome.removeEventListener('ended', _welcomeEndedHandler);
+            _welcomeEndedHandler = null;
             if (app.bgMusicEnabled && bgWasPlaying) startBgMusic();
         };
-        audioWelcome.addEventListener('ended', onWelcomeEnd);
+        audioWelcome.addEventListener('ended', _welcomeEndedHandler);
         var playPromise = audioWelcome.play();
         if (playPromise !== undefined) {
             playPromise.then(function() {
                 welcomePlayed = true;
             }).catch(function() {
-                audioWelcome.removeEventListener('ended', onWelcomeEnd);
+                if (_welcomeEndedHandler && audioWelcome) {
+                    audioWelcome.removeEventListener('ended', _welcomeEndedHandler);
+                    _welcomeEndedHandler = null;
+                }
                 if (bgWasPlaying && app.bgMusicEnabled) startBgMusic();
                 var playOnInteraction = function() {
+                    document.removeEventListener('click', playOnInteraction);
+                    document.removeEventListener('keydown', playOnInteraction);
+                    if (!app.soundEnabled) {
+                        welcomePlayed = true;
+                        return;
+                    }
                     if (!welcomePlayed && audioWelcome && app.currentMode === 'home') {
                         var bgPlaying = bgMusicAudio && !bgMusicAudio.paused;
                         if (bgPlaying) stopBgMusic();
-                        audioWelcome.addEventListener('ended', function() {
+                        _welcomeEndedHandler = function() {
+                            audioWelcome.removeEventListener('ended', _welcomeEndedHandler);
+                            _welcomeEndedHandler = null;
+                            if (app.bgMusicEnabled && bgPlaying) startBgMusic();
+                        };
+                        audioWelcome.addEventListener('ended', _welcomeEndedHandler);
+                        audioWelcome.play().catch(function() {
+                            if (_welcomeEndedHandler && audioWelcome) {
+                                audioWelcome.removeEventListener('ended', _welcomeEndedHandler);
+                                _welcomeEndedHandler = null;
+                            }
                             if (app.bgMusicEnabled && bgPlaying) startBgMusic();
                         });
-                        audioWelcome.play().catch(function() {});
                         welcomePlayed = true;
                     }
-                    document.removeEventListener('click', playOnInteraction);
-                    document.removeEventListener('keydown', playOnInteraction);
                 };
                 document.addEventListener('click', playOnInteraction, { once: true });
                 document.addEventListener('keydown', playOnInteraction, { once: true });
             });
         }
+    }
+}
+
+function updateSoundToggleIcon() {
+    var icon = DOM.get('soundIcon');
+    if (!icon) return;
+    if (app.soundEnabled) {
+        icon.innerHTML = '<path fill-rule="evenodd" d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.929a1 1 0 011.414 0A9.972 9.972 0 0119 10a9.972 9.972 0 01-2.929 7.071 1 1 0 01-1.414-1.414A7.971 7.971 0 0017 10c0-2.21-.894-4.208-2.343-5.657a1 1 0 010-1.414zm-2.829 2.828a1 1 0 011.415 0A5.983 5.983 0 0115 10a5.984 5.984 0 01-1.757 4.243 1 1 0 01-1.415-1.415A3.984 3.984 0 0013 10a3.983 3.983 0 00-1.172-2.828 1 1 0 010-1.415z" clip-rule="evenodd" />';
+    } else {
+        icon.innerHTML = '<path fill-rule="evenodd" d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM12.293 7.293a1 1 0 011.414 0L15 8.586l1.293-1.293a1 1 0 111.414 1.414L16.414 10l1.293 1.293a1 1 0 01-1.414 1.414L15 11.414l-1.293 1.293a1 1 0 01-1.414-1.414L13.586 10l-1.293-1.293a1 1 0 010-1.414z" clip-rule="evenodd" />';
     }
 }
 
@@ -1425,6 +1458,7 @@ function loadSettings() {
     var savedBgMusic = localStorage.getItem('bgMusic');
     if (savedBgMusic !== null) app.bgMusicEnabled = savedBgMusic === 'true';
     updateBgMusicIcon();
+    updateSoundToggleIcon();
     if (app.bgMusicEnabled) setTimeout(function() { startBgMusic(); }, 300);
 }
 
@@ -1474,7 +1508,7 @@ function initializeUI() {
     
     // Keyboard input - используем passive для лучшей производительности
     document.addEventListener('keydown', handleKeyPress, { passive: false });
-    // Global hotkeys: Esc — close modal, Enter/R — repeat when results open
+    // Global hotkeys: Esc - close modal, Enter/R - repeat when results open
     document.addEventListener('keydown', handleGlobalHotkeys);
 }
 
@@ -1524,7 +1558,7 @@ function showAppUpdateOverlay() {
     }
     if (sub) {
         sub.textContent = lang === 'en'
-            ? 'Please wait — loading the new version.'
+            ? 'Please wait - loading the new version.'
             : 'Подождите, загружается новая версия…';
     }
     el.classList.add('is-visible');
@@ -1605,7 +1639,7 @@ function handleGlobalHotkeys(e) {
         if (isModalVisible('resultsModal')) { e.preventDefault(); repeatPractice(); return; }
         if (isModalVisible('levelUpModal')) { e.preventDefault(); closeLevelUpModal(); return; }
     }
-    // Физическая клавиша R (KeyR) — работает при любой раскладке (RU/EN/UA).
+    // Физическая клавиша R (KeyR) - работает при любой раскладке (RU/EN/UA).
     if (e.code === 'KeyR') {
         if (e.ctrlKey || e.metaKey) return;
         if (justFinished) return;
@@ -1626,7 +1660,7 @@ function updateFooterBackground() {
     footer.style.backgroundImage = `url('${imagePath}')`;
 }
 
-// Theme toggle — короткий плавный переход фона и оверлея, остальное сразу
+// Theme toggle - короткий плавный переход фона и оверлея, остальное сразу
 function toggleTheme() {
     if (app.soundEnabled && audioThemeTransition) {
         audioThemeTransition.currentTime = 0;
@@ -1658,7 +1692,7 @@ function normalizeSiteLangFromStorage(savedLang) {
     return 'ru';
 }
 
-/** Атрибут `lang` у &lt;html&gt;: для украинского — BCP47 `uk` */
+/** Атрибут `lang` у &lt;html&gt;: для украинского - BCP47 `uk` */
 function siteLangHtmlAttr() {
     if (app.lang === 'en') return 'en';
     if (app.lang === 'ua') return 'uk';
@@ -1785,6 +1819,11 @@ function toggleSound() {
         audioOnSound.play().catch(() => {});
         if (app.bgMusicEnabled) startBgMusic();
     } else {
+        welcomePlayed = true;
+        if (_welcomeEndedHandler && audioWelcome) {
+            audioWelcome.removeEventListener('ended', _welcomeEndedHandler);
+            _welcomeEndedHandler = null;
+        }
         stopBgMusic();
         if (audioOffSound) {
             audioOffSound.currentTime = 0;
@@ -1796,14 +1835,7 @@ function toggleSound() {
         }
     }
     updateBgMusicIcon();
-    var icon = DOM.get('soundIcon');
-    if (icon) {
-        if (app.soundEnabled) {
-            icon.innerHTML = '<path fill-rule="evenodd" d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.929a1 1 0 011.414 0A9.972 9.972 0 0119 10a9.972 9.972 0 01-2.929 7.071 1 1 0 01-1.414-1.414A7.971 7.971 0 0017 10c0-2.21-.894-4.208-2.343-5.657a1 1 0 010-1.414zm-2.829 2.828a1 1 0 011.415 0A5.983 5.983 0 0115 10a5.984 5.984 0 01-1.757 4.243 1 1 0 01-1.415-1.415A3.984 3.984 0 0013 10a3.983 3.983 0 00-1.172-2.828 1 1 0 010-1.415z" clip-rule="evenodd" />';
-        } else {
-            icon.innerHTML = '<path fill-rule="evenodd" d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM12.293 7.293a1 1 0 011.414 0L15 8.586l1.293-1.293a1 1 0 111.414 1.414L16.414 10l1.293 1.293a1 1 0 01-1.414 1.414L15 11.414l-1.293 1.293a1 1 0 01-1.414-1.414L13.586 10l-1.293-1.293a1 1 0 010-1.414z" clip-rule="evenodd" />';
-        }
-    }
+    updateSoundToggleIcon();
 }
 
 // Apply animations setting to body
@@ -2218,6 +2250,9 @@ function formatLessonCharCountLabel(lesson) {
     var beg = _isLessonBeginnerish(lesson);
     var sym = typeof t === 'function' ? t('characters') : 'символов';
 
+    if (lesson.fixedText === true && text.length > 0) {
+        return String(text.trim().length) + ' ' + sym;
+    }
     if (layout === 'ua' && beg) {
         return '~100–200 ' + sym;
     }
@@ -2238,27 +2273,34 @@ function formatLessonCharCountLabel(lesson) {
     return '';
 }
 
-/** Средняя оценка длины урока в символах (для фильтра «короткие») */
-function estimateLessonCharMid(lesson) {
+/**
+ * Верхняя оценка длины текста в практике (символов) - для фильтров «до N символов».
+ * Должна совпадать с тем, что реально получает пользователь в startPractice (верхняя граница).
+ */
+function estimateLessonCharMaxForFilter(lesson) {
     if (!lesson) return 9999;
     var text = typeof lesson.text === 'string' ? lesson.text : String(lesson.text || '');
+    var trimmed = text.trim();
     var layout = lesson.layout || 'ru';
     var beg = _isLessonBeginnerish(lesson);
-    // digitsOnly lesson targets are expanded in startPractice() for medium/hard.
-    // Keep the filter estimate in sync with the actual rendered target length.
+
+    if (lesson.fixedText === true) {
+        return trimmed.length || 9999;
+    }
     if (lesson.digitsOnly === true) {
         if (lesson.difficulty === 'medium') return 700;
         if (lesson.difficulty === 'hard') return 900;
-        return text.length || 9999;
+        return trimmed.length || 9999;
     }
-    if (layout === 'ua' && beg) return 150;
-    if ((layout === 'ru' || layout === 'en') && beg) return 150;
-    if ((layout === 'ru' || layout === 'en') && text.length > 0 && !beg) {
-        var minC = Math.max(120, Math.round(text.length * 0.75));
-        var maxC = Math.min(4500, Math.max(minC + 40, Math.round(text.length * 1.08)));
-        return Math.round((minC + maxC) / 2);
+    if (beg) {
+        return 200;
     }
-    return text.length || 9999;
+    if ((layout === 'ru' || layout === 'en') && trimmed.length > 0) {
+        var minC = Math.max(120, Math.round(trimmed.length * 0.75));
+        var maxC = Math.min(4500, Math.max(minC + 40, Math.round(trimmed.length * 1.08)));
+        return maxC;
+    }
+    return trimmed.length || 9999;
 }
 
 var LESSON_CHAR_FILTERS = {
@@ -2381,7 +2423,7 @@ function buildErrorReplayTextFromSnippets(snippets) {
     return text;
 }
 
-/** Оставшееся время дриля ошибок (на паузе — «заморожено», пока дедлайн не сдвинут) */
+/** Оставшееся время дриля ошибок (на паузе - «заморожено», пока дедлайн не сдвинут) */
 function getReplaySecondsRemaining() {
     if (!app._replayDeadline) return 0;
     if (app.isPaused && app._replayPausedAt != null) {
@@ -2483,14 +2525,14 @@ function showLessonList(levelData) {
     if (lessonListFilter === 'short') lessonListFilter = 'all';
     if (LESSON_CHAR_FILTERS[lessonListFilter]) {
         var thr = LESSON_CHAR_FILTERS[lessonListFilter];
-        lessonsToShow = lessonsToShow.filter(function (l) { return estimateLessonCharMid(l) <= thr; });
+        lessonsToShow = lessonsToShow.filter(function (l) { return estimateLessonCharMaxForFilter(l) <= thr; });
     } else if (lessonListFilter === 'digits') {
         lessonsToShow = lessonsToShow.filter(function (l) { return l.digitsOnly === true; });
     }
 
     if (lessonListFilter !== 'all' && lessonsToShow.length) {
         // Sort filtered lessons by estimated target length.
-        lessonsToShow.sort(function (a, b) { return estimateLessonCharMid(a) - estimateLessonCharMid(b); });
+        lessonsToShow.sort(function (a, b) { return estimateLessonCharMaxForFilter(a) - estimateLessonCharMaxForFilter(b); });
     }
 
     if (lessonsToShow.length === 0) {
@@ -2649,7 +2691,7 @@ function generateUaBeginnerLessonText(poolText, minChars = 100, maxChars = 200) 
 
     let candidates = Array.from(new Set(rawWords));
 
-    // Small pool (e.g. keyboard drills like "фіва олдж") — cycle through existing
+    // Small pool (e.g. keyboard drills like "фіва олдж") - cycle through existing
     // words with shuffle instead of polluting with unrelated fallback vocabulary.
     const isSmallPool = candidates.length > 0 && candidates.length < 5;
 
@@ -2661,7 +2703,7 @@ function generateUaBeginnerLessonText(poolText, minChars = 100, maxChars = 200) 
         return generateCyclicWordText(candidates, minChars, maxChars);
     }
 
-    // No fallback enrichment — keep only the lesson's own vocabulary.
+    // No fallback enrichment - keep only the lesson's own vocabulary.
 
     // Build targets without repeating words within a single output string.
     const maxAttempts = 12;
@@ -2710,7 +2752,7 @@ function generateUaBeginnerSentenceText(poolText, minChars = 100, maxChars = 200
         return generateUaBeginnerLessonText(poolText, minChars, maxChars);
     }
 
-    // Never add unrelated fallback words — the sentence builder works only with
+    // Never add unrelated fallback words - the sentence builder works only with
     // the lesson's own vocabulary so the output always matches the lesson topic.
 
     const helpers = [
@@ -3624,7 +3666,7 @@ function startPractice(text, mode, lesson = null) {
 
     // Сбрасываем кэш ошибок текущей сессии и запускаем flush-таймер
     _keyErrorsCache = {};
-    /** Накопление по клавишам за всю сессию (не обнуляется периодическим flush в LS — иначе «проблемные клавиши» в результатах терялись) */
+    /** Накопление по клавишам за всю сессию (не обнуляется периодическим flush в LS - иначе «проблемные клавиши» в результатах терялись) */
     app._sessionKeyErrors = {};
     _startKeyErrorsFlushTimer();
 
@@ -3637,7 +3679,9 @@ function startPractice(text, mode, lesson = null) {
     // For Ukrainian beginner lessons we generate a fresh target per start/restart
     // from the provided word pool.
     let effectiveText = text;
-    if (
+    if (mode === 'lesson' && lesson && lesson.fixedText === true) {
+        effectiveText = String(lesson.text || text || '').trim();
+    } else if (
         mode === 'lesson' &&
         lesson &&
         lesson.digitsOnly === true
@@ -3828,7 +3872,7 @@ function startPractice(text, mode, lesson = null) {
     setTimeout(function () { document.body.focus(); }, 0);
 }
 
-// Render text display — reuses existing span nodes to avoid per-keypress DOM create/destroy.
+// Render text display - reuses existing span nodes to avoid per-keypress DOM create/destroy.
 function renderText() {
     const display = DOM.get('textDisplay');
     if (!display) return;
@@ -3858,7 +3902,7 @@ function renderText() {
 
     if (windowLen === 0) { display.innerHTML = ''; return; }
 
-    // Adjust child count WITHOUT clearing innerHTML — reuse existing spans.
+    // Adjust child count WITHOUT clearing innerHTML - reuse existing spans.
     while (display.childElementCount > windowLen) display.removeChild(display.lastChild);
     if (display.childElementCount < windowLen) {
         const frag = document.createDocumentFragment();
@@ -3892,7 +3936,7 @@ function renderText() {
         if (span.textContent !== content) span.textContent = content;
     }
 
-    // Direct O(1) index access — no querySelector('.char-current') needed.
+    // Direct O(1) index access - no querySelector('.char-current') needed.
     const cursorSpan = children[app.currentPosition - startPos];
     if (cursorSpan) {
         // 'instant' eliminates competing smooth-scroll animations during fast typing.
@@ -3934,7 +3978,7 @@ function handleKeyPress(e) {
         // Неправильный символ - играем звук ошибки и НЕ двигаемся дальше
         playSound('error');
         app.errors++;
-        // Per-key error tracking — in-memory, flush при finishPractice
+        // Per-key error tracking - in-memory, flush при finishPractice
         var _ec = app.currentText[app.currentPosition];
         var _p = app.currentPosition;
         var _t = app.currentText;
@@ -4070,7 +4114,7 @@ function startStatsTimer() {
         }
         
         if (currentTime - lastUpdate >= 1000) {
-            // startStatsTimer отвечает только за таймер; скорость/точность/прогресс — updateStats
+            // startStatsTimer отвечает только за таймер; скорость/точность/прогресс - updateStats
             const elapsed = Math.max(0, (Date.now() - app.startTime - (app.totalLessonPauseDuration || 0)) / 1000);
             const timeEl = DOM.get('currentTime');
             if (timeEl) {
@@ -4199,7 +4243,7 @@ function togglePause() {
         if (app.currentMode === 'speedtest') {
             app.pauseStartTime = Date.now();
         } else {
-            // Для уроков — запоминаем момент начала паузы
+            // Для уроков - запоминаем момент начала паузы
             app._pauseStartAt = Date.now();
         }
         if (app.currentMode === 'replay-errors' && app._replayDeadline) {
@@ -4396,7 +4440,7 @@ async function finishPractice() {
     // that finished the lesson (prevents instant repeat-round trigger).
     app.practiceFinishedAt = Date.now();
 
-    // Снимок по клавишам за всю сессию (см. app._sessionKeyErrors — не сбрасывается таймером flush)
+    // Снимок по клавишам за всю сессию (см. app._sessionKeyErrors - не сбрасывается таймером flush)
     app._lastSessionErrors = Object.assign({}, app._sessionKeyErrors || {});
 
     app._lastErrorReplaySnippets = app.errors > 0 ? buildUniqueErrorSnippets() : [];
@@ -4416,7 +4460,7 @@ async function finishPractice() {
 // Last result data for copy to clipboard
 let lastResultData = { speed: 0, accuracy: 0, time: 0, errors: 0 };
 
-// Show results modal - ОПТИМИЗИРОВАНА. rewardCoins — уже посчитанная награда из finishPractice (чтобы не пересчитывать после addSession).
+// Show results modal - ОПТИМИЗИРОВАНА. rewardCoins - уже посчитанная награда из finishPractice (чтобы не пересчитывать после addSession).
 function showResults(speed, accuracy, time, errors, rewardCoins) {
     lastResultData = { speed, accuracy, time: Math.round(time), errors };
     const speedEl = DOM.get('resultSpeed');
@@ -4460,7 +4504,7 @@ function showResults(speed, accuracy, time, errors, rewardCoins) {
                 try { bestSpeed = JSON.parse(localStorage.getItem('zoobastiks_stats') || '{}').bestSpeed || 0; } catch (_) {}
             }
             // Сравниваем ПРЕДЫДУЩИЙ рекорд (до этой сессии, он уже мог обновиться)
-            // Считаем: если speed >= bestSpeed — новый рекорд
+            // Считаем: если speed >= bestSpeed - новый рекорд
             if (speed > 0 && speed >= bestSpeed && bestSpeed > 0) {
                 pbBadge.textContent = speed > bestSpeed ? '🏆 Новый рекорд!' : '🏆 Рекорд!';
                 pbBadge.className = 'mt-0.5 text-[8px] font-semibold px-1 py-0.5 rounded-full bg-yellow-400/20 text-yellow-300 leading-tight';
@@ -4729,10 +4773,10 @@ function copyResultsToClipboard() {
     const timeStr = mins + ':' + (secs < 10 ? '0' : '') + secs;
     const site = 'Zoobastiks';
     const text = app.lang === 'en'
-        ? site + ' — ' + d.speed + ' cpm, ' + d.accuracy + '% accuracy, ' + timeStr + ', ' + d.errors + ' errors'
+        ? site + ' - ' + d.speed + ' cpm, ' + d.accuracy + '% accuracy, ' + timeStr + ', ' + d.errors + ' errors'
         : app.lang === 'ua'
-            ? site + ' — ' + d.speed + ' зн/хв, точність ' + d.accuracy + '%, час ' + timeStr + ', помилок ' + d.errors
-            : site + ' — ' + d.speed + ' зн/мин, точность ' + d.accuracy + '%, время ' + timeStr + ', ошибок ' + d.errors;
+            ? site + ' - ' + d.speed + ' зн/хв, точність ' + d.accuracy + '%, час ' + timeStr + ', помилок ' + d.errors
+            : site + ' - ' + d.speed + ' зн/мин, точность ' + d.accuracy + '%, время ' + timeStr + ', ошибок ' + d.errors;
 
     function onSuccess() {
         showToast(t('resultCopied'), 'success', '');
@@ -4788,7 +4832,7 @@ function closeResults(skipExit) {
     }
 }
 
-// Repeat practice — не вызываем exitPractice(), только скрываем модалку и перезапускаем раунд.
+// Repeat practice - не вызываем exitPractice(), только скрываем модалку и перезапускаем раунд.
 function repeatPractice() {
     closeResults(true);
     restartPractice();
@@ -4818,14 +4862,14 @@ function renderLevelBlock() {
     if (levelBlock) {
         var tip;
         if (app.lang === 'en') {
-            tip = 'Level ' + info.level + ' — ' + info.tierName + ' · ' + info.xpInLevel + '/' + info.xpToNext + ' XP to next';
-            if (info.xpToNext <= 0) tip = 'Level ' + info.level + ' — ' + info.tierName;
+            tip = 'Level ' + info.level + ' - ' + info.tierName + ' · ' + info.xpInLevel + '/' + info.xpToNext + ' XP to next';
+            if (info.xpToNext <= 0) tip = 'Level ' + info.level + ' - ' + info.tierName;
         } else if (app.lang === 'ua') {
-            tip = 'Рівень ' + info.level + ' — ' + info.tierName + ' · ' + info.xpInLevel + '/' + info.xpToNext + ' XP до наступного';
-            if (info.xpToNext <= 0) tip = 'Рівень ' + info.level + ' — ' + info.tierName;
+            tip = 'Рівень ' + info.level + ' - ' + info.tierName + ' · ' + info.xpInLevel + '/' + info.xpToNext + ' XP до наступного';
+            if (info.xpToNext <= 0) tip = 'Рівень ' + info.level + ' - ' + info.tierName;
         } else {
-            tip = 'Уровень ' + info.level + ' — ' + info.tierName + ' · ' + info.xpInLevel + '/' + info.xpToNext + ' XP до следующего';
-            if (info.xpToNext <= 0) tip = 'Уровень ' + info.level + ' — ' + info.tierName;
+            tip = 'Уровень ' + info.level + ' - ' + info.tierName + ' · ' + info.xpInLevel + '/' + info.xpToNext + ' XP до следующего';
+            if (info.xpToNext <= 0) tip = 'Уровень ' + info.level + ' - ' + info.tierName;
         }
         levelBlock.setAttribute('title', tip);
     }
@@ -4922,7 +4966,7 @@ function toggleLevelListModal() {
     var modal = DOM.get('levelListModal');
     if (!modal) return;
     if (modal.classList.contains('hidden')) {
-        // Звук сразу по клику (как playMenuClickSound — через новый Audio для надёжного воспроизведения)
+        // Звук сразу по клику (как playMenuClickSound - через новый Audio для надёжного воспроизведения)
         if (app.soundEnabled) {
             try {
                 var snd = audioOpenAchievement ? audioOpenAchievement.cloneNode() : new Audio('assets/sounds/open_achievement.ogg');
@@ -4994,7 +5038,7 @@ function fillLevelListModal() {
 }
 
 // Play sound
-// Pre-allocated audio pools — avoids cloneNode() and GC pressure on every keypress.
+// Pre-allocated audio pools - avoids cloneNode() and GC pressure on every keypress.
 const _SFX_POOL_SIZE = 6;
 let _clickPool = null, _clickIdx = 0;
 let _errorPool = null, _errorIdx = 0;
@@ -5625,7 +5669,7 @@ function renderProfileOverview() {
     var lang = (app && app.lang) || 'ru';
     var en = lang === 'en';
     var uk = lang === 'ua';
-    /** ru, en, ua — для текстів профілю */
+    /** ru, en, ua - для текстів профілю */
     function P(ru, enStr, uaStr) {
         if (lang === 'en') return enStr;
         if (lang === 'ua') return (uaStr != null && uaStr !== '') ? uaStr : ru;
@@ -5645,7 +5689,7 @@ function renderProfileOverview() {
 
     var levelInfo = window.levelModule
         ? window.levelModule.getLevelInfo(window.levelModule.getPlayerXP())
-        : { level: 1, tierName: '—', progressPct: 0, xpInLevel: 0, xpToNext: 100 };
+        : { level: 1, tierName: '-', progressPct: 0, xpInLevel: 0, xpToNext: 100 };
     var balance = profile.balance != null ? profile.balance : 0;
 
     var sessions = (window.statsModule && window.statsModule.getRecentSessions) ? window.statsModule.getRecentSessions(30) : [];
@@ -5752,7 +5796,7 @@ function renderProfileOverview() {
             '<div style="font-size:20px;font-weight:900;color:' + skill.color + ';margin-bottom:2px">' + skill.title.toUpperCase() + '</div>' +
             '<div class="pct3" style="font-size:12px">' + skill.sub + '</div>' +
             (nextSkill
-                ? '<div class="pct5" style="font-size:11px;margin-top:5px">' + P('Следующий: ', 'Next: ', 'Далі: ') + '<span style="color:' + nextSkill.color + '">' + nextSkill.icon + ' ' + nextSkill.title + '</span>' + P(' — достигни ' + nextSkill.min + ' зн/мин', ' — reach ' + nextSkill.min + ' ch/min', ' — досягни ' + nextSkill.min + ' зн/хв') + '</div>'
+                ? '<div class="pct5" style="font-size:11px;margin-top:5px">' + P('Следующий: ', 'Next: ', 'Далі: ') + '<span style="color:' + nextSkill.color + '">' + nextSkill.icon + ' ' + nextSkill.title + '</span>' + P(' - достигни ' + nextSkill.min + ' зн/мин', ' - reach ' + nextSkill.min + ' ch/min', ' - досягни ' + nextSkill.min + ' зн/хв') + '</div>'
                 : '<div style="font-size:11px;color:#f59e0b;margin-top:5px">🏆 ' + P('Максимальный класс достигнут!', 'Maximum class reached!', 'Максимальний клас досягнуто!') + '</div>') +
         '</div>' +
     '</div>';
@@ -5802,7 +5846,7 @@ function renderProfileOverview() {
     if (unlocked.length === 0) {
         html += '<div class="pcD" style="margin-bottom:16px">' +
             '<div style="font-size:36px;margin-bottom:8px">🏅</div>' +
-            '<div class="pct4" style="font-size:13px">' + P('Проходи уроки — получай достижения!', 'Complete lessons to earn achievements!', 'Проходь уроки — отримуй досягнення!') + '</div>' +
+            '<div class="pct4" style="font-size:13px">' + P('Проходи уроки - получай достижения!', 'Complete lessons to earn achievements!', 'Проходь уроки - отримуй досягнення!') + '</div>' +
         '</div>';
     } else {
         html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-bottom:16px">';
@@ -5976,7 +6020,7 @@ function renderProfileErrors() {
               : avgAcc >= 85 ? { l: P('ХОРОШО!', 'GREAT!', 'ДОБРЕ!'),  c: '#22d3ee', icon: '⭐', sub: P('Очень хорошо! Продолжай тренироваться!', 'Very good! Keep practicing!', 'Дуже добре! Продовжуй тренуватися!') }
               : avgAcc >= 70 ? { l: P('НЕПЛОХО!', 'NOT BAD!', 'НЕПОГАНО!'), c: '#f59e0b', icon: '📈', sub: P('Становится лучше! Не останавливайся!', 'Getting better! Don\'t stop!', 'Стає краще! Не зупиняйся!') }
               : sessions.length > 0
-              ?               { l: P('ТРЕНИРУЙСЯ!', 'KEEP GOING!', 'ТРЕНУЙСЯ!'), c: '#ef4444', icon: '💪', sub: P('Больше практики — меньше ошибок!', 'More practice = fewer mistakes!', 'Більше практики — менше помилок!') }
+              ?               { l: P('ТРЕНИРУЙСЯ!', 'KEEP GOING!', 'ТРЕНУЙСЯ!'), c: '#ef4444', icon: '💪', sub: P('Больше практики - меньше ошибок!', 'More practice = fewer mistakes!', 'Більше практики - менше помилок!') }
               : null;
 
     var html = '';
@@ -6021,7 +6065,7 @@ function renderProfileErrors() {
         html += '<div class="pcD" style="padding:32px">' +
             '<div style="font-size:48px;margin-bottom:12px">🎯</div>' +
             '<div class="pct2" style="font-size:16px;font-weight:700;margin-bottom:6px">' + P('Ошибок пока нет!', 'No mistakes yet!', 'Помилок поки немає!') + '</div>' +
-            '<div class="pct4" style="font-size:13px">' + P('Пройди урок — и здесь появится статистика по буквам.', 'Complete a lesson — key stats will appear here.', 'Пройди урок — і тут з’явиться статистика по літерах.') + '</div>' +
+            '<div class="pct4" style="font-size:13px">' + P('Пройди урок - и здесь появится статистика по буквам.', 'Complete a lesson - key stats will appear here.', 'Пройди урок - і тут з’явиться статистика по літерах.') + '</div>' +
         '</div>';
     } else {
         html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:10px;margin-bottom:6px">';
@@ -6070,10 +6114,10 @@ function renderProfileErrors() {
         var worstCnt  = sorted[0][1];
         var dispWorst = worstChar === ' ' ? '␣' : worstChar;
         var tipText = en
-            ? 'You miss the key <b style="color:#f59e0b;font-size:16px;font-family:monospace">' + escapeHtml(dispWorst) + '</b> most often — <b>' + worstCnt + ' time' + (worstCnt === 1 ? '' : 's') + '</b>. Try slowing down a little when you reach this key!'
+            ? 'You miss the key <b style="color:#f59e0b;font-size:16px;font-family:monospace">' + escapeHtml(dispWorst) + '</b> most often - <b>' + worstCnt + ' time' + (worstCnt === 1 ? '' : 's') + '</b>. Try slowing down a little when you reach this key!'
             : uk
-            ? 'Найчастіше ти промахуєшся по клавіші <b style="color:#f59e0b;font-size:18px;font-family:monospace">' + escapeHtml(dispWorst) + '</b> — уже <b>' + worstCnt + ' ' + (function () { var w = worstCnt % 10, wh = worstCnt % 100; if (w === 1 && wh !== 11) return 'раз'; if (w >= 2 && w <= 4 && (wh < 10 || wh >= 20)) return 'рази'; return 'разів'; })() + '</b>. Спробуй трохи сповільнитися, коли доходиш до цієї літери!'
-            : 'Чаще всего ты промахиваешься по клавише <b style="color:#f59e0b;font-size:18px;font-family:monospace">' + escapeHtml(dispWorst) + '</b> — уже <b>' + worstCnt + ' раз' + (worstCnt % 10 >= 2 && worstCnt % 10 <= 4 && (worstCnt < 10 || worstCnt > 20) ? 'а' : '') + '</b>. Попробуй немного притормозить, когда доходишь до этой буквы!';
+            ? 'Найчастіше ти промахуєшся по клавіші <b style="color:#f59e0b;font-size:18px;font-family:monospace">' + escapeHtml(dispWorst) + '</b> - уже <b>' + worstCnt + ' ' + (function () { var w = worstCnt % 10, wh = worstCnt % 100; if (w === 1 && wh !== 11) return 'раз'; if (w >= 2 && w <= 4 && (wh < 10 || wh >= 20)) return 'рази'; return 'разів'; })() + '</b>. Спробуй трохи сповільнитися, коли доходиш до цієї літери!'
+            : 'Чаще всего ты промахиваешься по клавише <b style="color:#f59e0b;font-size:18px;font-family:monospace">' + escapeHtml(dispWorst) + '</b> - уже <b>' + worstCnt + ' раз' + (worstCnt % 10 >= 2 && worstCnt % 10 <= 4 && (worstCnt < 10 || worstCnt > 20) ? 'а' : '') + '</b>. Попробуй немного притормозить, когда доходишь до этой буквы!';
         html += '<div class="pcTip">' +
             '<span style="font-size:30px;flex-shrink:0;line-height:1">💡</span>' +
             '<div>' +
@@ -6210,13 +6254,13 @@ function loadProfileData(profile) {
     }
     
     // Level, tier, balance, XP bar (2090 profile)
-    var levelInfo = window.levelModule ? window.levelModule.getLevelInfo(window.levelModule.getPlayerXP()) : { level: 1, tierName: '—', progressPct: 0, xpInLevel: 0, xpToNext: 100 };
+    var levelInfo = window.levelModule ? window.levelModule.getLevelInfo(window.levelModule.getPlayerXP()) : { level: 1, tierName: '-', progressPct: 0, xpInLevel: 0, xpToNext: 100 };
     var tierEl = DOM.get('profileTierName');
     var levelEl = DOM.get('profileLevelNumber');
     var balanceEl = DOM.get('profileBalance');
     var xpBarEl = DOM.get('profileXPBar');
     var xpLabelEl = DOM.get('profileXPLabel');
-    if (tierEl) tierEl.textContent = levelInfo.tierName || '—';
+    if (tierEl) tierEl.textContent = levelInfo.tierName || '-';
     if (levelEl) levelEl.textContent = levelInfo.level || 1;
     if (balanceEl) balanceEl.innerHTML = (profile.balance != null ? profile.balance : 0) + ' ' + COIN_ICON_IMG;
     if (xpBarEl) xpBarEl.style.width = (levelInfo.progressPct != null ? levelInfo.progressPct : 0) + '%';
@@ -6628,7 +6672,7 @@ function updateRoomSelectionUI() {
     setOptOn('digits', selectedTextOptDigits);
     setOptOn('mixCase', selectedTextOptMixCase);
 
-    // Summary — language-aware labels
+    // Summary - language-aware labels
     const isEn = app.lang === 'en';
     const isUa = app.lang === 'ua';
 
@@ -6792,7 +6836,7 @@ function renderMultiplayerText() {
 
     if (windowLen === 0) { display.innerHTML = ''; return; }
 
-    // Reuse existing spans — same strategy as single-player renderText.
+    // Reuse existing spans - same strategy as single-player renderText.
     while (display.childElementCount > windowLen) display.removeChild(display.lastChild);
     if (display.childElementCount < windowLen) {
         const frag = document.createDocumentFragment();
@@ -7621,4 +7665,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-

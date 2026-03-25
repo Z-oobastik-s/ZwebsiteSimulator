@@ -96,7 +96,7 @@ async function applySessionToUser(uid, session) {
     const totalErrors = (u.TotalErrors || 0) + errors;
     const totalAccuracy = recentSessions.reduce((sum, s) => sum + (s.accuracy || 0), 0);
     const averageAccuracy = recentSessions.length > 0 ? Math.round(totalAccuracy / recentSessions.length) : 0;
-    // Completed lessons — считаем за всё время по UserSessions, а не по последним 100
+    // Completed lessons - считаем за всё время по UserSessions, а не по последним 100
     const countResult = await query(
         `SELECT COUNT(DISTINCT LessonKey) AS cnt FROM UserSessions WHERE UserId = @uid AND LessonKey IS NOT NULL AND LessonKey != ''`,
         { uid }
@@ -108,7 +108,7 @@ async function applySessionToUser(uid, session) {
     );
 }
 
-// POST /api/users/:uid/session — одна сессия
+// POST /api/users/:uid/session - одна сессия
 router.post('/:uid/session', async (req, res) => {
     try {
         if (req.uid !== req.params.uid) return res.status(403).json({ success: false, error: 'Forbidden' });
@@ -120,7 +120,7 @@ router.post('/:uid/session', async (req, res) => {
     }
 });
 
-// POST /api/users/:uid/sessions — несколько сессий (batch)
+// POST /api/users/:uid/sessions - несколько сессий (batch)
 router.post('/:uid/sessions', async (req, res) => {
     try {
         if (req.uid !== req.params.uid) return res.status(403).json({ success: false, error: 'Forbidden' });
@@ -223,4 +223,3 @@ router.get('/:uid/lesson-purchased/:lessonId', async (req, res) => {
 });
 
 module.exports = router;
-
