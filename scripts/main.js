@@ -4617,6 +4617,77 @@ function _countCharInString(str, c) {
     return n;
 }
 
+function _normalizeWeakKeyFromStats(raw) {
+    if (raw == null) return '';
+    var s = String(raw);
+    if (s === 'space' || s === 'Space') return ' ';
+    if (s.length === 1) return s.toLowerCase();
+    return s.toLowerCase().charAt(0);
+}
+
+function _isWeakKeyDigit(k) {
+    return typeof k === 'string' && k.length === 1 && k >= '0' && k <= '9';
+}
+
+/**
+ * Если по цифрам ошибок не меньше, чем по лучшей «буквенной» клавише - тренируем цифры,
+ * иначе слова из словаря не содержат 1/0/8 и режим вырождается в случайный набор слов.
+ */
+function _shouldPreferAdaptiveDigitDrill(top) {
+    if (!top || !top.length) return false;
+    var bestDigit = null;
+    var bestLetter = null;
+    top.forEach(function (e) {
+        var k = _normalizeWeakKeyFromStats(e.key);
+        if (!k || k === ' ') return;
+        var c = Math.max(1, Math.round(Number(e.count) || 1));
+        if (_isWeakKeyDigit(k)) {
+            if (!bestDigit || c > bestDigit.count) bestDigit = { key: k, count: c };
+        } else {
+            if (!bestLetter || c > bestLetter.count) bestLetter = { key: k, count: c };
+        }
+    });
+    if (!bestDigit) return false;
+    if (!bestLetter) return true;
+    return bestDigit.count >= bestLetter.count;
+}
+
+function generateAdaptiveDigitDrillText(topWeakDigits, weight) {
+    var weakDigits = (topWeakDigits || []).filter(_isWeakKeyDigit);
+    if (!weakDigits.length) weakDigits = ['3', '4', '5'];
+    var allDigits = '0123456789';
+    function pickChar() {
+        var tw = weakDigits.reduce(function (s, d) { return s + (weight[d] || 1); }, 0);
+        if (tw > 0 && Math.random() < 0.7) {
+            var r = Math.random() * tw;
+            var j;
+            for (j = 0; j < weakDigits.length; j++) {
+                r -= (weight[weakDigits[j]] || 1);
+                if (r <= 0) return weakDigits[j];
+            }
+            return weakDigits[weakDigits.length - 1];
+        }
+        return allDigits.charAt(Math.floor(Math.random() * 10));
+    }
+    var parts = [];
+    var approxLen = 0;
+    while (approxLen < 500) {
+        var chunkLen = 2 + Math.floor(Math.random() * 5);
+        var chunk = '';
+        var z;
+        for (z = 0; z < chunkLen; z++) chunk += pickChar();
+        parts.push(chunk);
+        approxLen += chunk.length + 1;
+    }
+    var text = parts.join(' ');
+    if (text.length > 520) {
+        var cut = text.slice(0, 520);
+        var lastSp = cut.lastIndexOf(' ');
+        text = lastSp > 0 ? cut.slice(0, lastSp) : cut;
+    }
+    return text;
+}
+
 /**
  * Адаптивный текст: приоритет словам с редкими в словаре слабыми буквами (ф, ы, г…),
  * а не только «о», плюс гарантированные вставки по каждой топ-букве.
@@ -4630,6 +4701,20 @@ function generateAdaptiveText(lang) {
 
     var errorMap = window.heatmapModule ? window.heatmapModule.getErrorMap() : {};
     var top = window.heatmapModule ? window.heatmapModule.getTopErrors(errorMap, 8) : [];
+
+    if (_shouldPreferAdaptiveDigitDrill(top)) {
+        var digitWeights = {};
+        var digitOrder = [];
+        top.forEach(function (e) {
+            var k = _normalizeWeakKeyFromStats(e.key);
+            if (!_isWeakKeyDigit(k)) return;
+            var cnt = Math.max(1, Math.round(Number(e.count) || 1));
+            digitWeights[k] = Math.max(digitWeights[k] || 0, cnt);
+            if (digitOrder.indexOf(k) === -1) digitOrder.push(k);
+        });
+        digitOrder.sort(function (a, b) { return (digitWeights[b] || 0) - (digitWeights[a] || 0); });
+        return generateAdaptiveDigitDrillText(digitOrder, digitWeights);
+    }
 
     var words = (speedTestWords[layout] || []).slice();
     var extra = (typeof adaptiveExtraWords !== 'undefined' && adaptiveExtraWords[layout]) ? adaptiveExtraWords[layout] : [];
@@ -4646,7 +4731,7 @@ function generateAdaptiveText(lang) {
     top.forEach(function (e) {
         var raw = (e.key && String(e.key)) ? String(e.key) : '';
         if (!raw || raw === ' ') return;
-        var k = raw.length === 1 ? raw.toLowerCase() : raw.toLowerCase().charAt(0);
+        var k = _normalizeWeakKeyFromStats(raw);
         if (!k || k === ' ') return;
         if (weakChars.indexOf(k) === -1) weakChars.push(k);
         weight[k] = Math.max(weight[k] || 0, Math.max(1, Math.round(Number(e.count) || 1)));
@@ -6041,7 +6126,7 @@ function renderProfileErrors() {
                 '</div>' +
                 '<div style="flex:1;min-width:80px;background:var(--pchv);border-radius:10px;padding:10px;text-align:center">' +
                     '<div style="font-size:22px;font-weight:800;color:#fb923c">' + sorted.length + '</div>' +
-                    '<div class="pct4" style="font-size:11px;margin-top:2px">' + P('⌨️ Трудных букв', '⌨️ Hard keys', '⌨️ Складних літер') + '</div>' +
+                    '<div class="pct4" style="font-size:11px;margin-top:2px">' + P('⌨️ Трудных клавиш', '⌨️ Hard keys', '⌨️ Складних клавіш') + '</div>' +
                 '</div>' +
                 '<div style="flex:1;min-width:80px;background:var(--pchv);border-radius:10px;padding:10px;text-align:center">' +
                     '<div style="font-size:22px;font-weight:800;color:#a3e635">' + sessions.length + '</div>' +
@@ -6052,13 +6137,13 @@ function renderProfileErrors() {
     }
 
     // ── 2. Problem key cards ─────────────────────────────────────────────────
-    html += '<p class="profile-section-title mb-4">⌨️ ' + P('Какие буквы даются труднее всего', 'Most Missed Keys', 'Які літери даються найважче') + '</p>';
+    html += '<p class="profile-section-title mb-4">⌨️ ' + P('Какие клавиши даются труднее всего', 'Hardest keys for you', 'Які клавіші даються найважче') + '</p>';
 
     if (sorted.length === 0) {
         html += '<div class="pcD" style="padding:32px">' +
             '<div style="font-size:48px;margin-bottom:12px">🎯</div>' +
             '<div class="pct2" style="font-size:16px;font-weight:700;margin-bottom:6px">' + P('Ошибок пока нет!', 'No mistakes yet!', 'Помилок поки немає!') + '</div>' +
-            '<div class="pct4" style="font-size:13px">' + P('Пройди урок - и здесь появится статистика по буквам.', 'Complete a lesson - key stats will appear here.', 'Пройди урок - і тут з’явиться статистика по літерах.') + '</div>' +
+            '<div class="pct4" style="font-size:13px">' + P('Пройди урок - и здесь появится статистика по клавишам.', 'Complete a lesson - key stats will appear here.', 'Пройди урок - і тут з’явиться статистика по клавішах.') + '</div>' +
         '</div>';
     } else {
         html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:10px;margin-bottom:6px">';
@@ -6097,7 +6182,7 @@ function renderProfileErrors() {
         });
         html += '</div>';
         if (sorted.length > 10) {
-            html += '<p class="pct6" style="font-size:11px;text-align:center;margin-top:4px">+ ' + P('ещё ' + (sorted.length - 10) + ' букв', (sorted.length - 10) + ' more keys', 'ще ' + (sorted.length - 10) + ' літер') + '</p>';
+            html += '<p class="pct6" style="font-size:11px;text-align:center;margin-top:4px">+ ' + P('ещё ' + (sorted.length - 10) + ' клавиш', (sorted.length - 10) + ' more keys', 'ще ' + (sorted.length - 10) + ' клавіш') + '</p>';
         }
     }
 
@@ -6109,8 +6194,8 @@ function renderProfileErrors() {
         var tipText = en
             ? 'You miss the key <b style="color:#f59e0b;font-size:16px;font-family:monospace">' + escapeHtml(dispWorst) + '</b> most often - <b>' + worstCnt + ' time' + (worstCnt === 1 ? '' : 's') + '</b>. Try slowing down a little when you reach this key!'
             : uk
-            ? 'Найчастіше ти промахуєшся по клавіші <b style="color:#f59e0b;font-size:18px;font-family:monospace">' + escapeHtml(dispWorst) + '</b> - уже <b>' + worstCnt + ' ' + (function () { var w = worstCnt % 10, wh = worstCnt % 100; if (w === 1 && wh !== 11) return 'раз'; if (w >= 2 && w <= 4 && (wh < 10 || wh >= 20)) return 'рази'; return 'разів'; })() + '</b>. Спробуй трохи сповільнитися, коли доходиш до цієї літери!'
-            : 'Чаще всего ты промахиваешься по клавише <b style="color:#f59e0b;font-size:18px;font-family:monospace">' + escapeHtml(dispWorst) + '</b> - уже <b>' + worstCnt + ' раз' + (worstCnt % 10 >= 2 && worstCnt % 10 <= 4 && (worstCnt < 10 || worstCnt > 20) ? 'а' : '') + '</b>. Попробуй немного притормозить, когда доходишь до этой буквы!';
+            ? 'Найчастіше ти промахуєшся по клавіші <b style="color:#f59e0b;font-size:18px;font-family:monospace">' + escapeHtml(dispWorst) + '</b> - уже <b>' + worstCnt + ' ' + (function () { var w = worstCnt % 10, wh = worstCnt % 100; if (w === 1 && wh !== 11) return 'раз'; if (w >= 2 && w <= 4 && (wh < 10 || wh >= 20)) return 'рази'; return 'разів'; })() + '</b>. Спробуй трохи сповільнитися на цій клавіші!'
+            : 'Чаще всего ты промахиваешься по клавише <b style="color:#f59e0b;font-size:18px;font-family:monospace">' + escapeHtml(dispWorst) + '</b> - уже <b>' + worstCnt + ' раз' + (worstCnt % 10 >= 2 && worstCnt % 10 <= 4 && (worstCnt < 10 || worstCnt > 20) ? 'а' : '') + '</b>. Попробуй немного притормозить на этой клавише!';
         html += '<div class="pcTip">' +
             '<span style="font-size:30px;flex-shrink:0;line-height:1">💡</span>' +
             '<div>' +
@@ -7661,4 +7746,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-
