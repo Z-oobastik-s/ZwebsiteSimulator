@@ -3608,6 +3608,15 @@ function startPractice(text, mode, lesson = null) {
     if (
         mode === 'lesson' &&
         lesson &&
+        lesson.digitsOnly === true
+    ) {
+        // digitsOnly уроки должны содержать только цифровой пул:
+        // не используем RU/EN/UA beginner-генераторы (они подмешивают fallback словами при "неподходящем" пуле).
+        const pool = (lesson && lesson.text) ? lesson.text : text;
+        effectiveText = String(pool || '').trim();
+    } else if (
+        mode === 'lesson' &&
+        lesson &&
         lesson.layout === 'ua' &&
         (lesson.level === 'beginner' || lesson.difficulty === 'easy')
     ) {
@@ -3672,7 +3681,8 @@ function startPractice(text, mode, lesson = null) {
         mode === 'lesson' &&
         lesson &&
         lesson.layout === 'ua' &&
-        (lesson.level === 'beginner' || lesson.difficulty === 'easy')
+        (lesson.level === 'beginner' || lesson.difficulty === 'easy') &&
+        lesson.digitsOnly !== true
     ) {
         const uaAllowed = /^[абвгґдеєжзиіїйклмнопрстуфхцчшщьюя ]+$/i;
         const s = String(effectiveText || '');
@@ -3687,13 +3697,13 @@ function startPractice(text, mode, lesson = null) {
     if (typeof effectiveText !== 'string') effectiveText = String(effectiveText ?? '');
     if (!effectiveText || effectiveText.trim().length === 0) {
         const pool = (lesson && lesson.text) ? lesson.text : text;
-        if (lesson && lesson.layout === 'ua') {
+        if (lesson && lesson.layout === 'ua' && lesson.digitsOnly !== true) {
             effectiveText = generateUaBeginnerLessonText(pool, 100, 200);
         } else {
             // Best-effort fallback: use original pool (may still be generated elsewhere).
             effectiveText = String(pool || '').trim();
         }
-        if (!effectiveText) effectiveText = 'дім кіт мама тато вода рука нога день ніч стіл стілець вікно двері лампа книга';
+        if (!effectiveText) effectiveText = (lesson && lesson.digitsOnly === true) ? '0' : 'дім кіт мама тато вода рука нога день ніч стіл стілець вікно двері лампа книга';
     }
 
     app.currentText = effectiveText;
@@ -3778,7 +3788,7 @@ function renderText() {
     if (typeof app.currentText !== 'string' || app.currentText.length === 0) {
         const lesson = app.currentLesson;
         const pool = (lesson && lesson.text) ? lesson.text : '';
-        if (lesson && lesson.layout === 'ua') {
+        if (lesson && lesson.layout === 'ua' && lesson.digitsOnly !== true) {
             app.currentText = generateUaBeginnerLessonText(pool, 100, 200);
             app.totalChars = app.currentText.length;
             app.currentPosition = Math.min(app.currentPosition || 0, app.currentText.length);
@@ -7562,3 +7572,4 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+
