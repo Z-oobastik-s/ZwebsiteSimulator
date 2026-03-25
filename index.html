@@ -285,7 +285,7 @@
             background-color: rgba(0, 0, 0, 0.75);
         }
         html:not(.dark) body::before {
-            background-color: rgba(0, 0, 0, 0.35);
+            background-color: rgba(15, 23, 42, 0.18);
         }
         
         html.dark body {
@@ -347,25 +347,49 @@
         }
         html:not(.dark) #homeScreen h3.text-gray-500 { color: #374151 !important; text-shadow: 0 0 1px rgba(255,255,255,0.6), 0 1px 1px rgba(0,0,0,0.05); }
         /* Достижения и «Оцените сайт» */
-        html:not(.dark) .site-rating-wrap .text-gray-500 { color: #374151 !important; text-shadow: 0 0 1px rgba(255,255,255,0.5), 0 1px 1px rgba(0,0,0,0.05); }
-        html:not(.dark) #achievementsBlock,
-        html:not(.dark) #achievementsBlock * { color: #374151; text-shadow: 0 0 1px rgba(255,255,255,0.5), 0 1px 1px rgba(0,0,0,0.04); }
+        html:not(.dark) .site-rating-wrap .text-gray-500 { color: #334155 !important; text-shadow: none; }
+        html:not(.dark) #achievementsBlock .achievement-label {
+            color: #1e293b !important;
+            opacity: 1;
+            text-shadow: none;
+        }
         html:not(.dark) .glass {
             background: rgba(255, 255, 255, 0.97);
             backdrop-filter: blur(12px);
             border: 1px solid rgba(0, 0, 0, 0.08);
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
         }
-        /* Главная: карточки и блок прогресса сильно прозрачнее — фон с эмодзи хорошо просвечивает */
+        /* Главная: плотнее «стекло», иначе светлый текст и иконки теряются на ярком фоне */
         html:not(.dark) #homeScreen .glass {
-            background: rgba(255, 255, 255, 0.38);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(0, 0, 0, 0.12);
-            box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(18px) saturate(1.05);
+            -webkit-backdrop-filter: blur(18px) saturate(1.05);
+            border: 1px solid rgba(15, 23, 42, 0.12);
+            box-shadow: 0 4px 24px rgba(15, 23, 42, 0.08);
         }
         html:not(.dark) #homeScreen .glass:hover {
-            background: rgba(255, 255, 255, 0.58);
+            background: rgba(255, 255, 255, 0.95);
+            border-color: rgba(15, 23, 42, 0.14);
+        }
+        /* Подписи и цифры в прогрессе / заголовки секций — тёмные, без «молочного» cyan */
+        html:not(.dark) #homeScreen #statsPreview .text-gray-500,
+        html:not(.dark) #homeScreen #statsPreview .text-gray-400 {
+            color: #334155 !important;
+        }
+        html:not(.dark) #homeScreen #statsPreview .text-primary {
+            color: #0e7490 !important;
+        }
+        html:not(.dark) #homeScreen h3.text-gray-500,
+        html:not(.dark) #homeScreen h3.text-gray-400 {
+            color: #475569 !important;
+        }
+        html:not(.dark) #homeScreen .hero-subtitle {
+            color: #1e293b !important;
+            text-shadow: none;
+        }
+        /* Полоса прогресса уроков: дорожка видна на светлой карточке */
+        html:not(.dark) #homeScreen .glass .rounded-full.bg-white\/10 {
+            background-color: rgba(15, 23, 42, 0.12) !important;
         }
         html:not(.dark) header.glass {
             box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
@@ -1139,11 +1163,34 @@
             opacity: 0.7;
             filter: grayscale(0.3);
         }
+        html:not(.dark) .achievement-locked {
+            opacity: 0.95;
+            filter: grayscale(0.25) brightness(0.92);
+            background: rgba(248, 250, 252, 0.95);
+            border: 1px solid rgba(15, 23, 42, 0.14);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 1px 2px rgba(15, 23, 42, 0.06);
+        }
+        html:not(.dark) .achievement-locked:hover {
+            opacity: 1;
+            filter: grayscale(0.15);
+            border-color: rgba(14, 116, 144, 0.35);
+        }
         .achievement-unlocked {
             opacity: 1;
             filter: none;
             background: radial-gradient(circle at 30% 0%, rgba(56,189,248,0.35), transparent 55%), radial-gradient(circle at 70% 100%, rgba(59,130,246,0.5), transparent 60%), rgba(15,23,42,0.9);
             box-shadow: 0 0 18px rgba(56,189,248,0.45);
+        }
+        html:not(.dark) .achievement-unlocked {
+            background:
+                radial-gradient(circle at 30% 0%, rgba(14, 116, 144, 0.22), transparent 55%),
+                radial-gradient(circle at 70% 100%, rgba(59, 130, 246, 0.2), transparent 60%),
+                linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(241, 245, 249, 0.94));
+            border: 1px solid rgba(14, 116, 144, 0.35);
+            box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.8) inset, 0 4px 14px rgba(14, 116, 144, 0.18);
+        }
+        html:not(.dark) .achievement-unlocked:hover {
+            box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.85) inset, 0 4px 18px rgba(14, 116, 144, 0.28);
         }
         .achievement-unlocked:hover {
             box-shadow: 0 0 20px rgba(0, 229, 255, 0.4);
@@ -1157,6 +1204,21 @@
             position: relative;
             z-index: 50;
         }
+        /* Светлая тема: общий .glass перебивает градиент — задаём контрастную подложку и видимые звёзды */
+        html:not(.dark) .site-rating-wrap.glass {
+            background: linear-gradient(135deg, rgba(248, 250, 252, 0.98) 0%, rgba(226, 232, 240, 0.96) 100%) !important;
+            border: 1px solid rgba(15, 23, 42, 0.12) !important;
+            box-shadow: 0 4px 18px rgba(15, 23, 42, 0.1) !important;
+        }
+        html:not(.dark) .site-rating-wrap .site-star-svg {
+            color: rgba(71, 85, 105, 0.85);
+        }
+        html:not(.dark) .site-star:hover .site-star-svg,
+        html:not(.dark) .site-star.active .site-star-svg,
+        html:not(.dark) .site-rating-wrap .site-star.hover .site-star-svg {
+            color: #d97706;
+            filter: drop-shadow(0 0 4px rgba(217, 119, 6, 0.45));
+        }
         .site-star-svg {
             color: rgba(148, 163, 184, 0.4);
             transition: color 0.2s ease, filter 0.2s ease;
@@ -1164,13 +1226,124 @@
         .site-star:hover .site-star-svg { color: #fbbf24; filter: drop-shadow(0 0 6px rgba(251, 191, 36, 0.6)); }
         .site-star.active .site-star-svg { color: #fbbf24; filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.8)); }
         .site-rating-wrap .site-star.hover .site-star-svg { color: #fbbf24; filter: drop-shadow(0 0 6px rgba(251, 191, 36, 0.5)); }
+        /* Фильтры уроков — один ряд, горизонтальный скролл, «игровой» неон */
+        .lesson-filter-dock-wrap { margin-bottom: 1rem; }
+        .lesson-filter-dock {
+            display: flex;
+            align-items: stretch;
+            gap: 0.5rem;
+            padding: 0.35rem 0.45rem;
+            border-radius: 14px;
+            border: 1px solid rgba(34, 211, 238, 0.28);
+            background: linear-gradient(155deg, rgba(15, 23, 42, 0.94), rgba(30, 41, 59, 0.88));
+            box-shadow: 0 0 24px rgba(34, 211, 238, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+        }
+        html:not(.dark) .lesson-filter-dock {
+            background: linear-gradient(155deg, rgba(255, 255, 255, 0.96), rgba(241, 245, 249, 0.94));
+            border-color: rgba(14, 116, 144, 0.32);
+            box-shadow: 0 4px 20px rgba(15, 23, 42, 0.08);
+        }
+        .lesson-filter-dock__ad {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2px;
+            border-radius: 10px;
+            border: 1px solid rgba(34, 211, 238, 0.35);
+            background: rgba(0, 0, 0, 0.35);
+            transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+            align-self: center;
+        }
+        html:not(.dark) .lesson-filter-dock__ad {
+            background: rgba(255, 255, 255, 0.9);
+            border-color: rgba(14, 116, 144, 0.3);
+        }
+        .lesson-filter-dock__ad:hover {
+            transform: scale(1.04);
+            box-shadow: 0 0 14px rgba(34, 211, 238, 0.35);
+            border-color: rgba(34, 211, 238, 0.6);
+        }
+        .lesson-filter-dock__ad:focus-visible {
+            outline: 2px solid rgba(34, 211, 238, 0.85);
+            outline-offset: 2px;
+        }
+        .lesson-filter-dock__scroll {
+            display: flex;
+            flex-wrap: nowrap;
+            align-items: center;
+            gap: 0.35rem;
+            overflow-x: auto;
+            overflow-y: hidden;
+            min-width: 0;
+            flex: 1 1 auto;
+            padding: 2px 2px 5px 0;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(34, 211, 238, 0.45) rgba(15, 23, 42, 0.2);
+        }
+        .lesson-filter-dock__scroll::-webkit-scrollbar { height: 5px; }
+        .lesson-filter-dock__scroll::-webkit-scrollbar-thumb {
+            background: rgba(34, 211, 238, 0.45);
+            border-radius: 6px;
+        }
+        .lesson-filter-hint {
+            line-height: 1.35;
+            max-width: 56rem;
+        }
+        .lesson-filter-chip {
+            appearance: none;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            letter-spacing: 0.03em;
+            padding: 0.38rem 0.55rem;
+            border: 1px solid rgba(148, 163, 184, 0.45);
+            background: rgba(15, 23, 42, 0.55);
+            color: rgba(226, 232, 240, 0.95);
+            cursor: pointer;
+            transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+        }
+        html:not(.dark) .lesson-filter-chip {
+            background: rgba(255, 255, 255, 0.88);
+            color: #1e293b;
+            border-color: rgba(15, 23, 42, 0.12);
+        }
+        .lesson-filter-chip--off:hover {
+            border-color: rgba(34, 211, 238, 0.55);
+            color: rgb(165, 243, 252);
+            box-shadow: 0 0 12px rgba(34, 211, 238, 0.2);
+        }
+        html:not(.dark) .lesson-filter-chip--off:hover {
+            color: #0e7490;
+            border-color: rgba(14, 116, 144, 0.45);
+            box-shadow: 0 2px 10px rgba(14, 116, 144, 0.15);
+        }
+        .lesson-filter-chip--on {
+            border-color: rgba(34, 211, 238, 0.85);
+            background: linear-gradient(180deg, rgba(34, 211, 238, 0.35), rgba(59, 130, 246, 0.22));
+            color: rgb(236, 254, 255);
+            box-shadow: 0 0 16px rgba(34, 211, 238, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+        }
+        html:not(.dark) .lesson-filter-chip--on {
+            color: #0c4a6e;
+            background: linear-gradient(180deg, rgba(165, 243, 252, 0.65), rgba(125, 211, 252, 0.35));
+            border-color: rgba(14, 116, 144, 0.55);
+            box-shadow: 0 2px 12px rgba(14, 116, 144, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+        }
         .achievement-selected {
             outline: 2px solid rgba(56,189,248,0.95);
             outline-offset: 2px;
             box-shadow: 0 0 20px rgba(56,189,248,0.75);
         }
+        html:not(.dark) .achievement-selected {
+            outline-color: rgba(14, 116, 144, 0.85);
+            box-shadow: 0 0 0 2px rgba(14, 116, 144, 0.25), 0 6px 18px rgba(14, 116, 144, 0.2);
+        }
         .achievement-unlocked.achievement-selected {
             box-shadow: 0 0 26px rgba(56,189,248,0.9);
+        }
+        html:not(.dark) .achievement-unlocked.achievement-selected {
+            box-shadow: 0 0 0 2px rgba(14, 116, 144, 0.4), 0 6px 22px rgba(14, 116, 144, 0.28);
         }
         .achievement-icon {
             font-size: 1.35rem;
@@ -2842,15 +3015,21 @@
                     
                     <!-- Right side - Lessons grid -->
                     <div class="flex-1">
-                        <div id="lessonDurationFilterBar" class="hidden mb-4 flex flex-wrap items-center gap-2">
-                            <span id="lessonFilterHint" class="text-xs text-gray-500 dark:text-gray-400 mr-1 max-w-xl leading-snug">—</span>
-                            <button type="button" id="lessonFilterAll" data-i18n="lessonFilterAll" onclick="setLessonListFilter('all')" class="px-3 py-1.5 rounded-lg text-sm font-semibold border border-cyan-500/50 bg-cyan-500/20 text-cyan-200">Все уроки</button>
-                            <button type="button" id="lessonFilterShort" data-i18n="lessonFilterShort" onclick="setLessonListFilter('short')" class="px-3 py-1.5 rounded-lg text-sm font-semibold border border-gray-600 bg-gray-800/50 text-gray-300 hover:border-cyan-500/40">Короткие (1–2 мин)</button>
-                            <button type="button" id="lessonFilterLen100" data-i18n="lessonFilterLen100" onclick="setLessonListFilter('len_100')" class="px-3 py-1.5 rounded-lg text-sm font-semibold border border-gray-600 bg-gray-800/50 text-gray-300 hover:border-cyan-500/40">До 100</button>
-                            <button type="button" id="lessonFilterLen200" data-i18n="lessonFilterLen200" onclick="setLessonListFilter('len_200')" class="px-3 py-1.5 rounded-lg text-sm font-semibold border border-gray-600 bg-gray-800/50 text-gray-300 hover:border-cyan-500/40">До 200</button>
-                            <button type="button" id="lessonFilterLen300" data-i18n="lessonFilterLen300" onclick="setLessonListFilter('len_300')" class="px-3 py-1.5 rounded-lg text-sm font-semibold border border-gray-600 bg-gray-800/50 text-gray-300 hover:border-cyan-500/40">До 300</button>
-                            <button type="button" id="lessonFilterLen400" data-i18n="lessonFilterLen400" onclick="setLessonListFilter('len_400')" class="px-3 py-1.5 rounded-lg text-sm font-semibold border border-gray-600 bg-gray-800/50 text-gray-300 hover:border-cyan-500/40">До 400</button>
-                            <button type="button" id="lessonFilterDigits" data-i18n="lessonFilterDigits" onclick="setLessonListFilter('digits')" class="px-3 py-1.5 rounded-lg text-sm font-semibold border border-gray-600 bg-gray-800/50 text-gray-300 hover:border-cyan-500/40">Цифры</button>
+                        <div id="lessonDurationFilterBar" class="hidden lesson-filter-dock-wrap">
+                            <div class="lesson-filter-dock">
+                                <a href="#" onclick="return openLeaveHostingModal(event);" class="lesson-filter-dock__ad shrink-0" data-i18n-title="leaveHostingAdTitle" data-i18n-aria-label="leaveHostingAdTitle" aria-label="LeaveHosting">
+                                    <img src="assets/images/leavehosting.png" alt="" class="w-[42px] h-[41px] sm:w-[47px] sm:h-[46px] object-contain" width="51" height="50" draggable="false">
+                                </a>
+                                <div class="lesson-filter-dock__scroll">
+                                    <button type="button" id="lessonFilterAll" data-i18n="lessonFilterAll" data-i18n-title="lessonFilterTitleAll" onclick="setLessonListFilter('all')" class="lesson-filter-chip lesson-filter-chip--on">Все</button>
+                                    <button type="button" id="lessonFilterLen100" data-i18n="lessonFilterLen100" data-i18n-title="lessonFilterTitleLen100" onclick="setLessonListFilter('len_100')" class="lesson-filter-chip lesson-filter-chip--off">≤100</button>
+                                    <button type="button" id="lessonFilterLen200" data-i18n="lessonFilterLen200" data-i18n-title="lessonFilterTitleLen200" onclick="setLessonListFilter('len_200')" class="lesson-filter-chip lesson-filter-chip--off">≤200</button>
+                                    <button type="button" id="lessonFilterLen300" data-i18n="lessonFilterLen300" data-i18n-title="lessonFilterTitleLen300" onclick="setLessonListFilter('len_300')" class="lesson-filter-chip lesson-filter-chip--off">≤300</button>
+                                    <button type="button" id="lessonFilterLen400" data-i18n="lessonFilterLen400" data-i18n-title="lessonFilterTitleLen400" onclick="setLessonListFilter('len_400')" class="lesson-filter-chip lesson-filter-chip--off">≤400</button>
+                                    <button type="button" id="lessonFilterDigits" data-i18n="lessonFilterDigits" data-i18n-title="lessonFilterTitleDigits" onclick="setLessonListFilter('digits')" class="lesson-filter-chip lesson-filter-chip--off">0–9</button>
+                                </div>
+                            </div>
+                            <p id="lessonFilterHint" class="lesson-filter-hint mt-1.5 text-[11px] sm:text-xs text-gray-500 dark:text-gray-400 leading-snug">—</p>
                         </div>
                         <div class="grid md:grid-cols-3 gap-5" id="lessonsList">
                             <!-- Will be populated by JS -->
@@ -4076,3 +4255,4 @@
     </script>
 </body>
 </html>
+

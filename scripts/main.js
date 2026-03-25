@@ -2262,7 +2262,6 @@ function estimateLessonCharMid(lesson) {
 }
 
 var LESSON_CHAR_FILTERS = {
-    short: 280,
     len_100: 100,
     len_200: 200,
     len_300: 300,
@@ -2283,10 +2282,6 @@ function updateLessonFilterHint() {
         el.textContent = typeof t === 'function' ? t('lessonFilterDigitsHint') : '';
         return;
     }
-    if (lessonListFilter === 'short') {
-        el.textContent = typeof t === 'function' ? t('lessonFilterShortHint') : '';
-        return;
-    }
     var n = LESSON_CHAR_FILTERS[lessonListFilter];
     if (n) {
         el.textContent = typeof trReplace === 'function' ? trReplace('lessonFilterUpToHint', { n: String(n) }) : ('<= ' + n);
@@ -2296,17 +2291,16 @@ function updateLessonFilterHint() {
 }
 
 function updateLessonFilterBarStyles() {
+    if (lessonListFilter === 'short') lessonListFilter = 'all';
     var allBtn = document.getElementById('lessonFilterAll');
-    var shBtn = document.getElementById('lessonFilterShort');
     var len100Btn = document.getElementById('lessonFilterLen100');
     var len200Btn = document.getElementById('lessonFilterLen200');
     var len300Btn = document.getElementById('lessonFilterLen300');
     var len400Btn = document.getElementById('lessonFilterLen400');
     var digBtn = document.getElementById('lessonFilterDigits');
-    var on = 'px-3 py-1.5 rounded-lg text-sm font-semibold border border-cyan-500/50 bg-cyan-500/20 text-cyan-200';
-    var off = 'px-3 py-1.5 rounded-lg text-sm font-semibold border border-gray-600 bg-gray-800/50 text-gray-300 hover:border-cyan-500/40';
+    var on = 'lesson-filter-chip lesson-filter-chip--on whitespace-nowrap shrink-0';
+    var off = 'lesson-filter-chip lesson-filter-chip--off whitespace-nowrap shrink-0';
     if (allBtn) allBtn.className = lessonListFilter === 'all' ? on : off;
-    if (shBtn) shBtn.className = lessonListFilter === 'short' ? on : off;
     if (len100Btn) len100Btn.className = lessonListFilter === 'len_100' ? on : off;
     if (len200Btn) len200Btn.className = lessonListFilter === 'len_200' ? on : off;
     if (len300Btn) len300Btn.className = lessonListFilter === 'len_300' ? on : off;
@@ -2486,9 +2480,8 @@ function showLessonList(levelData) {
     const fragment = document.createDocumentFragment();
 
     var lessonsToShow = levelData.lessons.slice();
-    if (lessonListFilter === 'short') {
-        lessonsToShow = lessonsToShow.filter(function (l) { return estimateLessonCharMid(l) <= LESSON_CHAR_FILTERS.short; });
-    } else if (LESSON_CHAR_FILTERS[lessonListFilter]) {
+    if (lessonListFilter === 'short') lessonListFilter = 'all';
+    if (LESSON_CHAR_FILTERS[lessonListFilter]) {
         var thr = LESSON_CHAR_FILTERS[lessonListFilter];
         lessonsToShow = lessonsToShow.filter(function (l) { return estimateLessonCharMid(l) <= thr; });
     } else if (lessonListFilter === 'digits') {
@@ -7628,3 +7621,4 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+
