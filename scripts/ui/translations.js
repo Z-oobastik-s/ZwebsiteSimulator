@@ -183,6 +183,11 @@ window.translations = {
         lessonFilterShort: 'Короткие (1–2 мин)',
         lessonFilterDigits: 'Цифры',
         lessonFilterShortHint: 'Короткие: примерно до 280 символов.',
+        lessonFilterLen100: 'До 100 символов',
+        lessonFilterLen200: 'До 200 символов',
+        lessonFilterLen300: 'До 300 символов',
+        lessonFilterLen400: 'До 400 символов',
+        lessonFilterUpToHint: 'Короткие: примерно до {{n}} символов.',
         lessonFilterAllHint: 'Все уроки выбранного языка (RU / EN / UA в боковой панели).',
         lessonFilterDigitsHint: 'Только уроки для скоростного набора цифр (ряд 0–9, даты, суммы).',
         lessonFilterEmpty: 'Нет уроков в этом фильтре — выбери «Все уроки».',
@@ -439,6 +444,11 @@ window.translations = {
         lessonFilterShort: 'Short (1–2 min)',
         lessonFilterDigits: 'Numbers',
         lessonFilterShortHint: 'Short lessons: about ≤280 characters.',
+        lessonFilterLen100: 'Up to 100 characters',
+        lessonFilterLen200: 'Up to 200 characters',
+        lessonFilterLen300: 'Up to 300 characters',
+        lessonFilterLen400: 'Up to 400 characters',
+        lessonFilterUpToHint: 'Short lessons: about ≤{{n}} characters.',
         lessonFilterAllHint: 'All lessons for the selected language (sidebar RU / EN / UA).',
         lessonFilterDigitsHint: 'Number-focused drills: digit row, dates, codes, and amounts.',
         lessonFilterEmpty: 'No lessons match — try “All lessons”.',
@@ -695,6 +705,11 @@ window.translations = {
         lessonFilterShort: 'Короткі (1–2 хв)',
         lessonFilterDigits: 'Цифри',
         lessonFilterShortHint: 'Короткі: приблизно до 280 символів.',
+        lessonFilterLen100: 'До 100 символів',
+        lessonFilterLen200: 'До 200 символів',
+        lessonFilterLen300: 'До 300 символів',
+        lessonFilterLen400: 'До 400 символів',
+        lessonFilterUpToHint: 'Короткі: приблизно до {{n}} символів.',
         lessonFilterAllHint: 'Усі уроки обраної мови (RU / EN / UA у бічній панелі).',
         lessonFilterDigitsHint: 'Лише уроки для швидкого набору цифр (ряд 0–9, дати, суми).',
         lessonFilterEmpty: 'Немає уроків у цьому фільтрі — обери «Усі уроки».',
@@ -772,4 +787,3 @@ window.translations = {
         profileTabOnSite: 'на сайті'
     }
 };
-

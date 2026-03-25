@@ -2244,6 +2244,13 @@ function estimateLessonCharMid(lesson) {
     var text = typeof lesson.text === 'string' ? lesson.text : String(lesson.text || '');
     var layout = lesson.layout || 'ru';
     var beg = _isLessonBeginnerish(lesson);
+    // digitsOnly lesson targets are expanded in startPractice() for medium/hard.
+    // Keep the filter estimate in sync with the actual rendered target length.
+    if (lesson.digitsOnly === true) {
+        if (lesson.difficulty === 'medium') return 700;
+        if (lesson.difficulty === 'hard') return 900;
+        return text.length || 9999;
+    }
     if (layout === 'ua' && beg) return 150;
     if ((layout === 'ru' || layout === 'en') && beg) return 150;
     if ((layout === 'ru' || layout === 'en') && text.length > 0 && !beg) {
@@ -2254,10 +2261,16 @@ function estimateLessonCharMid(lesson) {
     return text.length || 9999;
 }
 
-var LESSON_SHORT_CHAR_MAX = 280;
+var LESSON_CHAR_FILTERS = {
+    short: 280,
+    len_100: 100,
+    len_200: 200,
+    len_300: 300,
+    len_400: 400
+};
 
 function setLessonListFilter(mode) {
-    if (mode === 'short' || mode === 'digits') lessonListFilter = mode;
+    if (mode === 'digits' || mode === 'all' || LESSON_CHAR_FILTERS[mode]) lessonListFilter = mode;
     else lessonListFilter = 'all';
     if (currentLevelData) showLessonList(currentLevelData);
     updateLessonFilterBarStyles();
@@ -2266,20 +2279,38 @@ function setLessonListFilter(mode) {
 function updateLessonFilterHint() {
     var el = document.getElementById('lessonFilterHint');
     if (!el) return;
-    var key = lessonListFilter === 'digits' ? 'lessonFilterDigitsHint'
-        : lessonListFilter === 'short' ? 'lessonFilterShortHint'
-            : 'lessonFilterAllHint';
-    el.textContent = typeof t === 'function' ? t(key) : '';
+    if (lessonListFilter === 'digits') {
+        el.textContent = typeof t === 'function' ? t('lessonFilterDigitsHint') : '';
+        return;
+    }
+    if (lessonListFilter === 'short') {
+        el.textContent = typeof t === 'function' ? t('lessonFilterShortHint') : '';
+        return;
+    }
+    var n = LESSON_CHAR_FILTERS[lessonListFilter];
+    if (n) {
+        el.textContent = typeof trReplace === 'function' ? trReplace('lessonFilterUpToHint', { n: String(n) }) : ('<= ' + n);
+        return;
+    }
+    el.textContent = typeof t === 'function' ? t('lessonFilterAllHint') : '';
 }
 
 function updateLessonFilterBarStyles() {
     var allBtn = document.getElementById('lessonFilterAll');
     var shBtn = document.getElementById('lessonFilterShort');
+    var len100Btn = document.getElementById('lessonFilterLen100');
+    var len200Btn = document.getElementById('lessonFilterLen200');
+    var len300Btn = document.getElementById('lessonFilterLen300');
+    var len400Btn = document.getElementById('lessonFilterLen400');
     var digBtn = document.getElementById('lessonFilterDigits');
     var on = 'px-3 py-1.5 rounded-lg text-sm font-semibold border border-cyan-500/50 bg-cyan-500/20 text-cyan-200';
     var off = 'px-3 py-1.5 rounded-lg text-sm font-semibold border border-gray-600 bg-gray-800/50 text-gray-300 hover:border-cyan-500/40';
     if (allBtn) allBtn.className = lessonListFilter === 'all' ? on : off;
     if (shBtn) shBtn.className = lessonListFilter === 'short' ? on : off;
+    if (len100Btn) len100Btn.className = lessonListFilter === 'len_100' ? on : off;
+    if (len200Btn) len200Btn.className = lessonListFilter === 'len_200' ? on : off;
+    if (len300Btn) len300Btn.className = lessonListFilter === 'len_300' ? on : off;
+    if (len400Btn) len400Btn.className = lessonListFilter === 'len_400' ? on : off;
     if (digBtn) digBtn.className = lessonListFilter === 'digits' ? on : off;
     updateLessonFilterHint();
 }
@@ -2456,9 +2487,17 @@ function showLessonList(levelData) {
 
     var lessonsToShow = levelData.lessons.slice();
     if (lessonListFilter === 'short') {
-        lessonsToShow = lessonsToShow.filter(function (l) { return estimateLessonCharMid(l) <= LESSON_SHORT_CHAR_MAX; });
+        lessonsToShow = lessonsToShow.filter(function (l) { return estimateLessonCharMid(l) <= LESSON_CHAR_FILTERS.short; });
+    } else if (LESSON_CHAR_FILTERS[lessonListFilter]) {
+        var thr = LESSON_CHAR_FILTERS[lessonListFilter];
+        lessonsToShow = lessonsToShow.filter(function (l) { return estimateLessonCharMid(l) <= thr; });
     } else if (lessonListFilter === 'digits') {
         lessonsToShow = lessonsToShow.filter(function (l) { return l.digitsOnly === true; });
+    }
+
+    if (lessonListFilter !== 'all' && lessonsToShow.length) {
+        // Sort filtered lessons by estimated target length.
+        lessonsToShow.sort(function (a, b) { return estimateLessonCharMid(a) - estimateLessonCharMid(b); });
     }
 
     if (lessonsToShow.length === 0) {
@@ -3614,6 +3653,23 @@ function startPractice(text, mode, lesson = null) {
         // не используем RU/EN/UA beginner-генераторы (они подмешивают fallback словами при "неподходящем" пуле).
         const pool = (lesson && lesson.text) ? lesson.text : text;
         effectiveText = String(pool || '').trim();
+
+        // Чтобы уроки для `medium` и `hard` были существенно длиннее (цель: 3–5 минут),
+        // расширяем цифровой пул повторением без добавления каких-либо новых символов.
+        var targetChars = 0;
+        if (lesson && lesson.difficulty === 'medium') targetChars = 700;
+        else if (lesson && lesson.difficulty === 'hard') targetChars = 900;
+
+        if (targetChars && effectiveText && effectiveText.length < targetChars) {
+            // base должен быть без завершающих пробелов, чтобы склейка давала стабильную разметку.
+            var base = effectiveText.replace(/\s+$/g, '');
+            var out = base;
+            while (out.length < targetChars) {
+                out += ' ' + base;
+            }
+            // trimEnd уберёт только пробелы, а цифры останутся.
+            effectiveText = out.slice(0, targetChars).trimEnd();
+        }
     } else if (
         mode === 'lesson' &&
         lesson &&
@@ -7572,4 +7628,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-
