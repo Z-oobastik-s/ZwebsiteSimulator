@@ -467,6 +467,7 @@
         html:not(.dark) .lesson-card__tag--medium { color: #b45309; }
         html:not(.dark) .lesson-card__tag--hard { color: #b91c1c; }
         html:not(.dark) .lesson-card__tag--chars { color: #64748b; border-color: rgba(100, 116, 139, 0.45); background: rgba(148, 163, 184, 0.12); }
+        html:not(.dark) .lesson-card__tag--digits { color: #6d28d9; border-color: rgba(109, 40, 217, 0.4); background: rgba(139, 92, 246, 0.12); }
         html:not(.dark) .lesson-card__reward {
             color: #5b21b6;
             -webkit-text-stroke: 0.35px rgba(0, 0, 0, 0.12);
@@ -952,6 +953,7 @@
         .lesson-card__tag--medium { color: #fbbf24; border-color: rgba(251, 191, 36, 0.35); }
         .lesson-card__tag--hard { color: #f87171; border-color: rgba(248, 113, 113, 0.35); }
         .lesson-card__tag--chars { color: #94a3b8; border-color: rgba(148, 163, 184, 0.4); background: rgba(148, 163, 184, 0.1); font-variant-numeric: tabular-nums; }
+        .lesson-card__tag--digits { color: #c4b5fd; border-color: rgba(167, 139, 250, 0.45); background: rgba(139, 92, 246, 0.14); font-variant-numeric: tabular-nums; }
         .lesson-card__reward {
             font-size: 0.65rem;
             font-weight: 700;
@@ -2841,9 +2843,10 @@
                     <!-- Right side - Lessons grid -->
                     <div class="flex-1">
                         <div id="lessonDurationFilterBar" class="hidden mb-4 flex flex-wrap items-center gap-2">
-                            <span class="text-xs text-gray-500 dark:text-gray-400 mr-1" data-i18n="lessonFilterShortHint">примерно до 280 символов</span>
-                            <button type="button" id="lessonFilterAll" data-i18n="lessonFilterAll" onclick="setLessonDurationFilter('all')" class="px-3 py-1.5 rounded-lg text-sm font-semibold border border-cyan-500/50 bg-cyan-500/20 text-cyan-200">Все уроки</button>
-                            <button type="button" id="lessonFilterShort" data-i18n="lessonFilterShort" onclick="setLessonDurationFilter('short')" class="px-3 py-1.5 rounded-lg text-sm font-semibold border border-gray-600 bg-gray-800/50 text-gray-300 hover:border-cyan-500/40">Короткие (1–2 мин)</button>
+                            <span id="lessonFilterHint" class="text-xs text-gray-500 dark:text-gray-400 mr-1 max-w-xl leading-snug">—</span>
+                            <button type="button" id="lessonFilterAll" data-i18n="lessonFilterAll" onclick="setLessonListFilter('all')" class="px-3 py-1.5 rounded-lg text-sm font-semibold border border-cyan-500/50 bg-cyan-500/20 text-cyan-200">Все уроки</button>
+                            <button type="button" id="lessonFilterShort" data-i18n="lessonFilterShort" onclick="setLessonListFilter('short')" class="px-3 py-1.5 rounded-lg text-sm font-semibold border border-gray-600 bg-gray-800/50 text-gray-300 hover:border-cyan-500/40">Короткие (1–2 мин)</button>
+                            <button type="button" id="lessonFilterDigits" data-i18n="lessonFilterDigits" onclick="setLessonListFilter('digits')" class="px-3 py-1.5 rounded-lg text-sm font-semibold border border-gray-600 bg-gray-800/50 text-gray-300 hover:border-cyan-500/40">Цифры</button>
                         </div>
                         <div class="grid md:grid-cols-3 gap-5" id="lessonsList">
                             <!-- Will be populated by JS -->
@@ -3947,7 +3950,7 @@
     </script>
     <script src="assets/js/portal-transition.min.js" defer></script>
     <script src="assets/js/api-config.min.js" defer></script>
-    <script src="assets/js/lessons-data.min.js" defer></script>
+    <script src="scripts/lessons-data.js" defer></script>
     <script src="assets/js/themed-texts.min.js" defer></script>
     <script src="assets/js/shop-data.min.js" defer></script>
     <script src="assets/js/keyboard.min.js" defer></script>
@@ -3977,4 +3980,3 @@
     </script>
 </body>
 </html>
-

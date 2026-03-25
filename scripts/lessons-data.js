@@ -854,6 +854,114 @@ const LESSONS_DATA = {
                 layout: "en",
                 text: "every day i train calmly keep mistakes in mind and slowly become faster with steady practice and clear focus",
                 difficulty: "easy"
+            },
+            {
+                id: 211,
+                name: "Цифры: ряд 0–9",
+                description: "Быстрый набор чисел и простых комбинаций",
+                layout: "ru",
+                text: "1 2 3 4 5 6 7 8 9 0 12 34 56 78 90 100 365 1000 2025 42 99 7 3 11 22 33 44 55 66 77 88 99 100 256 512 1024 2048 4096 123 321 789 987 000 111 222 333",
+                difficulty: "easy",
+                digitsOnly: true
+            },
+            {
+                id: 212,
+                name: "Numbers: 0–9 practice",
+                description: "Digit row and simple combos",
+                layout: "en",
+                text: "1 2 3 4 5 6 7 8 9 0 12 34 56 78 90 100 365 1000 2025 42 99 7 3 11 22 33 44 55 66 77 88 99 100 256 512 1024 2048 4096 123 321 789 987 000 111 222 333",
+                difficulty: "easy",
+                digitsOnly: true
+            },
+            {
+                id: 213,
+                name: "Цифри: ряд 0–9",
+                description: "Швидкий набір чисел",
+                layout: "ua",
+                text: "1 2 3 4 5 6 7 8 9 0 12 34 56 78 90 100 365 1000 2025 42 99 7 3 11 22 33 44 55 66 77 88 99 100 256 512 1024 2048 4096 123 321 789 987 000 111 222 333",
+                difficulty: "easy",
+                digitsOnly: true
+            },
+            {
+                id: 214,
+                name: "Цифры: десятки и сотни",
+                description: "Ритм 10 · 100 · 1000",
+                layout: "ru",
+                text: "10 20 30 40 50 60 70 80 90 100 200 300 400 500 600 700 800 900 1000 1100 1500 2000 2500 3000 4000 5000 7500 10000 12500 25000 50000 75000 100000",
+                difficulty: "easy",
+                digitsOnly: true
+            },
+            {
+                id: 215,
+                name: "Numbers: tens and hundreds",
+                description: "Steady rhythm 10 · 100 · 1000",
+                layout: "en",
+                text: "10 20 30 40 50 60 70 80 90 100 200 300 400 500 600 700 800 900 1000 1100 1500 2000 2500 3000 4000 5000 7500 10000 12500 25000 50000 75000 100000",
+                difficulty: "easy",
+                digitsOnly: true
+            },
+            {
+                id: 216,
+                name: "Цифри: десятки та сотні",
+                description: "Ритм 10 · 100 · 1000",
+                layout: "ua",
+                text: "10 20 30 40 50 60 70 80 90 100 200 300 400 500 600 700 800 900 1000 1100 1500 2000 2500 3000 4000 5000 7500 10000 12500 25000 50000 75000 100000",
+                difficulty: "easy",
+                digitsOnly: true
+            },
+            {
+                id: 217,
+                name: "Цифры: пары и повторы",
+                description: "Двузначные блоки и зеркала",
+                layout: "ru",
+                text: "05 07 12 18 24 31 47 52 63 74 88 96 03 30 12 21 45 54 67 76 09 90 101 121 202 303 414 505 616 717 808 909 112 221 334 443 556 665 778 887 998 889",
+                difficulty: "easy",
+                digitsOnly: true
+            },
+            {
+                id: 218,
+                name: "Numbers: pairs and mirrors",
+                description: "Two-digit blocks practice",
+                layout: "en",
+                text: "05 07 12 18 24 31 47 52 63 74 88 96 03 30 12 21 45 54 67 76 09 90 101 121 202 303 414 505 616 717 808 909 112 221 334 443 556 665 778 887 998 889",
+                difficulty: "easy",
+                digitsOnly: true
+            },
+            {
+                id: 219,
+                name: "Цифри: пари та повтори",
+                description: "Двозначні комбінації",
+                layout: "ua",
+                text: "05 07 12 18 24 31 47 52 63 74 88 96 03 30 12 21 45 54 67 76 09 90 101 121 202 303 414 505 616 717 808 909 112 221 334 443 556 665 778 887 998 889",
+                difficulty: "easy",
+                digitsOnly: true
+            },
+            {
+                id: 220,
+                name: "Цифры: тройки подряд",
+                description: "Трёхзначные числа без паузы",
+                layout: "ru",
+                text: "127 256 384 512 640 768 896 135 246 357 468 579 680 791 802 913 024 142 253 364 475 586 697 708 819 920 037 148 259 370 481 592 603 714 825 936 047 158 269 370",
+                difficulty: "easy",
+                digitsOnly: true
+            },
+            {
+                id: 221,
+                name: "Numbers: triple digits",
+                description: "Three-digit chunks flow",
+                layout: "en",
+                text: "127 256 384 512 640 768 896 135 246 357 468 579 680 791 802 913 024 142 253 364 475 586 697 708 819 920 037 148 259 370 481 592 603 714 825 936 047 158 269 370",
+                difficulty: "easy",
+                digitsOnly: true
+            },
+            {
+                id: 222,
+                name: "Цифри: потрійні блоки",
+                description: "Три цифри підряд",
+                layout: "ua",
+                text: "127 256 384 512 640 768 896 135 246 357 468 579 680 791 802 913 024 142 253 364 475 586 697 708 819 920 037 148 259 370 481 592 603 714 825 936 047 158 269 370",
+                difficulty: "easy",
+                digitsOnly: true
             }
         ]
     },
@@ -1400,6 +1508,87 @@ const LESSONS_DATA = {
                 layout: "en",
                 text: "The driver follows the route and keeps safety first. He stays calm, respects the time, and avoids rushing. With a good plan, every trip feels smoother and easier.",
                 difficulty: "medium"
+            },
+            {
+                id: 1601,
+                name: "Цифры: списки и паузы",
+                description: "Запятые, пробелы, даты и суммы",
+                layout: "ru",
+                text: "1, 2, 3, 10, 20, 100, 250, 500, 999, 12, 34, 56, 78, 2024, 365, 7, 14, 21, 28, 35, 42, 49, 56, 63, 70, 15.03.2025, 01.01.2024, 1000, 10 000, 2 500 000, 3.14, 2,718, 90, 180, 360, 720, 1440",
+                difficulty: "medium",
+                digitsOnly: true
+            },
+            {
+                id: 1602,
+                name: "Numbers: lists and spacing",
+                description: "Commas, dates, spaced thousands",
+                layout: "en",
+                text: "1, 2, 3, 10, 20, 100, 250, 500, 999, 12, 34, 56, 78, 2024, 365, 7, 14, 21, 28, 35, 42, 49, 56, 63, 70, 03/15/2025, 01/01/2024, 1000, 10 000, 2 500 000, 3.14, 2.718, 90, 180, 360, 720, 1440",
+                difficulty: "medium",
+                digitsOnly: true
+            },
+            {
+                id: 1603,
+                name: "Цифри: списки та дати",
+                description: "Комуки, пробіли, дати, суми",
+                layout: "ua",
+                text: "1, 2, 3, 10, 20, 100, 250, 500, 999, 12, 34, 56, 78, 2024, 365, 7, 14, 21, 28, 35, 42, 49, 56, 63, 70, 15.03.2025, 01.01.2024, 1000, 10 000, 2 500 000, 3,14, 90, 180, 360, 720, 1440",
+                difficulty: "medium",
+                digitsOnly: true
+            },
+            {
+                id: 1604,
+                name: "Цифры: время и доли",
+                description: "Часы, проценты, запятая, дата",
+                layout: "ru",
+                text: "00:00 06:30 09:15 12:45 15:20 18:00 22:10 23:59 5% 10% 17% 25% 33% 50% 66% 75% 82% 90% 99% 100% 0,25 0,5 1,5 2,75 12,125 100,00 01.06.2024 31.12.2025 15/08/2026 1 234 567 89",
+                difficulty: "medium",
+                digitsOnly: true
+            },
+            {
+                id: 1605,
+                name: "Numbers: time and ratios",
+                description: "Clocks, percents, decimals, dates",
+                layout: "en",
+                text: "00:00 06:30 09:15 12:45 15:20 18:00 22:10 23:59 5% 10% 17% 25% 33% 50% 66% 75% 82% 90% 99% 100% 0.25 0.5 1.5 2.75 12.125 100.00 06/01/2024 12/31/2025 08/15/2026 1 234 567 89",
+                difficulty: "medium",
+                digitsOnly: true
+            },
+            {
+                id: 1606,
+                name: "Цифри: час та частки",
+                description: "Години, відсотки, кома, дата",
+                layout: "ua",
+                text: "00:00 06:30 09:15 12:45 15:20 18:00 22:10 23:59 5% 10% 17% 25% 33% 50% 66% 75% 82% 90% 99% 100% 0,25 0,5 1,5 2,75 12,125 100,00 01.06.2024 31.12.2025 15.08.2026 1 234 567 89",
+                difficulty: "medium",
+                digitsOnly: true
+            },
+            {
+                id: 1607,
+                name: "Цифры: телефон и индекс",
+                description: "Группы цифр как в номере",
+                layout: "ru",
+                text: "8 800 555 35 35 8 495 123 45 67 +7 912 345 67 89 380 44 123 45 67 101000 125047 630001 350000 443022 190000 620075 115114 197342 443090 350091 900 200 300 400 500 800 880 960",
+                difficulty: "medium",
+                digitsOnly: true
+            },
+            {
+                id: 1608,
+                name: "Numbers: phone-style groups",
+                description: "Digit clusters and area codes",
+                layout: "en",
+                text: "1 800 555 01 99 +1 212 555 01 00 +44 20 7946 0958 +49 30 12345678 0800 111 2345 020 7946 0018 00 353 1 234 5678 900 200 300 400 500 600 700 800 900 118 118 999",
+                difficulty: "medium",
+                digitsOnly: true
+            },
+            {
+                id: 1609,
+                name: "Цифри: як у телефоні",
+                description: "Групи цифр та коди",
+                layout: "ua",
+                text: "380 50 123 45 67 380 67 234 56 78 044 123 45 67 032 225 88 99 800 50 50 50 53600 79000 65000 49000 21000 33000 900 300 600 900 800 500 777",
+                difficulty: "medium",
+                digitsOnly: true
             }
         ]
     },
@@ -2010,8 +2199,61 @@ const LESSONS_DATA = {
                 layout: "en",
                 text: "A clear routine helps me stay confident. I start slowly, I keep the current char in mind, and I maintain the flow until the end. When punctuation appears, I remain careful and consistent. At the end, the lesson feels like a small victory.",
                 difficulty: "hard"
+            },
+            {
+                id: 5001,
+                name: "Цифры: коды, версии, IP",
+                description: "Точки, дефисы, проценты, суффиксы",
+                layout: "ru",
+                text: "2.0.1 v3.10.5 build 4096 port 8080 443 192.168.0.1 10.0.0.1 172.16.254.1 90% -5°C -12 0xFF 0x1A2B UUID 8f4e-3d2c-1a9b-7e6f 3.14159 2.71828 $19.99 €42.00 1 500 000 99.9% uptime 2025-11-30 ISO-8601 lat 55.7558 lon 37.6173",
+                difficulty: "hard",
+                digitsOnly: true
+            },
+            {
+                id: 5002,
+                name: "Numbers: codes and tech",
+                description: "Dots, hyphens, hex, money, ports",
+                layout: "en",
+                text: "2.0.1 v3.10.5 build 4096 port 8080 443 192.168.0.1 10.0.0.1 172.16.254.1 90% -5F -12C 0xFF 0x1A2B id 8f4e3d2c 3.14159 2.71828 $19.99 €42.00 1 500 000 99.9% uptime 2025-11-30 lat 55.7558 lon 37.6173 sha256 256-bit",
+                difficulty: "hard",
+                digitsOnly: true
+            },
+            {
+                id: 5003,
+                name: "Цифри: коди та дані",
+                description: "Версії, IP, відсотки, суми",
+                layout: "ua",
+                text: "2.0.1 v3.10.5 build 4096 port 8080 443 192.168.0.1 10.0.0.1 172.16.254.1 90% -5°C -12 0xFF 0x1A2B 3.14159 2.71828 $19.99 €42.00 1 500 000 99.9% uptime 2025-11-30 lat 55.7558 lon 37.6173 IPv4 IPv6",
+                difficulty: "hard",
+                digitsOnly: true
+            },
+            {
+                id: 5004,
+                name: "Цифры: ряды и проценты",
+                description: "Арифметика и дроби в одном потоке",
+                layout: "ru",
+                text: "1+2=3 4×5=20 18÷3=6 7-2=5 15% от 200=30 12% от 150=18 3,5+2,25=5,75 100÷4=25 256×2=512 1024÷16=64 0,125×8=1 99×7=693 144÷12=12 1/2=0,5 3/4=0,75 2020–2025 1й 2я 3-е 4-я 10-15-20-25 30/50/70/90",
+                difficulty: "hard",
+                digitsOnly: true
+            },
+            {
+                id: 5005,
+                name: "Numbers: rows and rates",
+                description: "Percents and quick math in flow",
+                layout: "en",
+                text: "1+2=3 4*5=20 18/3=6 7-2=5 15% of 200=30 12% of 150=18 3.5+2.25=5.75 100/4=25 256*2=512 1024/16=64 0.125*8=1 99*7=693 144/12=12 1/2=0.5 3/4=0.75 2020-2025 1st 2nd 3rd 10-15-20-25 30/50/70/90 pace 60 90 120 180",
+                difficulty: "hard",
+                digitsOnly: true
+            },
+            {
+                id: 5006,
+                name: "Цифри: відсотки і ряди",
+                description: "Швидкі обчислення та групи чисел",
+                layout: "ua",
+                text: "1+2=3 4×5=20 18÷3=6 7-2=5 15% від 200=30 12% від 150=18 3,5+2,25=5,75 100÷4=25 256×2=512 1024÷16=64 0,125×8=1 99×7=693 144÷12=12 1/2=0,5 3/4=0,75 2020–2025 1-й 2-га 3-тє 10-15-20-25 30/50/70/90",
+                difficulty: "hard",
+                digitsOnly: true
             }
         ]
     }
 };
-

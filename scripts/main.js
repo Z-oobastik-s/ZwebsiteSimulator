@@ -41,8 +41,8 @@ const app = {
 
 // Streak (серия дней) + «заморозка»: 1 раз за календарную неделю можно не сбросить серию при пропуске ровно одного дня
 const STREAK_KEY = 'zoobastiks_streak';
-/** Фильтр длительности на экране списка уроков: all | short */
-var lessonDurationFilter = 'all';
+/** Фильтр списка уроков: all | short | digits */
+var lessonListFilter = 'all';
 
 function streakDateStr(d) {
     d = d || new Date();
@@ -1892,6 +1892,7 @@ function updateTranslations() {
         fillLevelListModal();
     }
     refreshLessonLangButtonStyles();
+    if (typeof updateLessonFilterHint === 'function') updateLessonFilterHint();
 }
 
 // Navigation functions
@@ -2255,19 +2256,32 @@ function estimateLessonCharMid(lesson) {
 
 var LESSON_SHORT_CHAR_MAX = 280;
 
-function setLessonDurationFilter(mode) {
-    lessonDurationFilter = mode === 'short' ? 'short' : 'all';
+function setLessonListFilter(mode) {
+    if (mode === 'short' || mode === 'digits') lessonListFilter = mode;
+    else lessonListFilter = 'all';
     if (currentLevelData) showLessonList(currentLevelData);
     updateLessonFilterBarStyles();
+}
+
+function updateLessonFilterHint() {
+    var el = document.getElementById('lessonFilterHint');
+    if (!el) return;
+    var key = lessonListFilter === 'digits' ? 'lessonFilterDigitsHint'
+        : lessonListFilter === 'short' ? 'lessonFilterShortHint'
+            : 'lessonFilterAllHint';
+    el.textContent = typeof t === 'function' ? t(key) : '';
 }
 
 function updateLessonFilterBarStyles() {
     var allBtn = document.getElementById('lessonFilterAll');
     var shBtn = document.getElementById('lessonFilterShort');
+    var digBtn = document.getElementById('lessonFilterDigits');
     var on = 'px-3 py-1.5 rounded-lg text-sm font-semibold border border-cyan-500/50 bg-cyan-500/20 text-cyan-200';
     var off = 'px-3 py-1.5 rounded-lg text-sm font-semibold border border-gray-600 bg-gray-800/50 text-gray-300 hover:border-cyan-500/40';
-    if (allBtn) allBtn.className = lessonDurationFilter === 'all' ? on : off;
-    if (shBtn) shBtn.className = lessonDurationFilter === 'short' ? on : off;
+    if (allBtn) allBtn.className = lessonListFilter === 'all' ? on : off;
+    if (shBtn) shBtn.className = lessonListFilter === 'short' ? on : off;
+    if (digBtn) digBtn.className = lessonListFilter === 'digits' ? on : off;
+    updateLessonFilterHint();
 }
 
 /** Чекпоинты отключены: звук, тост и пульс прогресс-бара отвлекали во время набора. */
@@ -2441,14 +2455,16 @@ function showLessonList(levelData) {
     const fragment = document.createDocumentFragment();
 
     var lessonsToShow = levelData.lessons.slice();
-    if (lessonDurationFilter === 'short') {
+    if (lessonListFilter === 'short') {
         lessonsToShow = lessonsToShow.filter(function (l) { return estimateLessonCharMid(l) <= LESSON_SHORT_CHAR_MAX; });
+    } else if (lessonListFilter === 'digits') {
+        lessonsToShow = lessonsToShow.filter(function (l) { return l.digitsOnly === true; });
     }
 
     if (lessonsToShow.length === 0) {
         var empty = document.createElement('div');
         empty.className = 'col-span-full text-center py-10 text-gray-400 text-sm px-4';
-        empty.textContent = t('lessonFilterEmpty');
+        empty.textContent = lessonListFilter === 'digits' ? t('lessonFilterEmptyDigits') : t('lessonFilterEmpty');
         fragment.appendChild(empty);
         container.innerHTML = '';
         container.appendChild(fragment);
@@ -2504,6 +2520,9 @@ function showLessonList(levelData) {
         const charTagHtml = charLabel
             ? `<span class="lesson-card__tag lesson-card__tag--chars" title="${escapeHtml(charHint)}">${escapeHtml(charLabel)}</span>`
             : '';
+        const digitsTagHtml = lesson.digitsOnly
+            ? `<span class="lesson-card__tag lesson-card__tag--digits">${escapeHtml(typeof t === 'function' ? t('lessonTagDigits') : '123')}</span>`
+            : '';
         card.innerHTML = `
             ${topBadge}
             <div class="lesson-card__accent">
@@ -2515,6 +2534,7 @@ function showLessonList(levelData) {
                 <div class="lesson-card__tags">
                     <span class="lesson-card__tag lesson-card__tag--lang">${lesson.layout.toUpperCase()}</span>
                     <span class="lesson-card__tag lesson-card__tag--${difficultyClass}">${difficultyLabel}</span>
+                    ${digitsTagHtml}
                     ${charTagHtml}
                 </div>
                 <div class="lesson-card__reward">
@@ -7542,4 +7562,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-
