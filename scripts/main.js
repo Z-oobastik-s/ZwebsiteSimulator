@@ -2633,9 +2633,8 @@ function showLessonList(levelData) {
 }
 
 // ------------------------------
-// Ukrainian beginner lesson generator
-// Goal: produce non-repetitive lesson targets (100-200 chars) consisting only of
-// lowercase Ukrainian letters and spaces (no punctuation, no apostrophes).
+// Ukrainian lesson text from pool: word order matches lesson data (readable, not random).
+// Small pools (<5 unique words): cyclic repeat for keyboard rows. Longer pools: repeat phrase to 100-200 chars if needed.
 // ------------------------------
 const UA_BEGINNER_ALLOWED_LETTERS_RE = /[абвгґдеєжзиіїйклмнопрстуфхцчшщьюя]/i;
 const UA_BEGINNER_WORD_STRIP_RE = /[^абвгґдеєжзиіїйклмнопрстуфхцчшщьюя]+/gi;
@@ -2689,334 +2688,68 @@ function cryptoShuffle(array) {
 }
 
 function generateUaBeginnerLessonText(poolText, minChars = 100, maxChars = 200) {
-    const rawWords = String(poolText || '')
+    const tokens = String(poolText || '')
+        .trim()
         .split(/\s+/)
         .map(s => sanitizeUaBeginnerWord(s))
         .filter(Boolean);
 
-    let candidates = Array.from(new Set(rawWords));
-
-    // Small pool (e.g. keyboard drills like "фіва олдж") - cycle through existing
-    // words with shuffle instead of polluting with unrelated fallback vocabulary.
-    const isSmallPool = candidates.length > 0 && candidates.length < 5;
-
-    if (candidates.length === 0) {
+    if (tokens.length === 0) {
         return 'дім кіт мама тато вода рука нога день ніч стіл стілець вікно двері лампа книга';
     }
 
+    const seen = new Set();
+    const uniqueInOrder = [];
+    for (let ti = 0; ti < tokens.length; ti++) {
+        const t = tokens[ti];
+        if (!seen.has(t)) {
+            seen.add(t);
+            uniqueInOrder.push(t);
+        }
+    }
+    const isSmallPool = uniqueInOrder.length > 0 && uniqueInOrder.length < 5;
     if (isSmallPool) {
-        return generateCyclicWordText(candidates, minChars, maxChars);
+        return generateCyclicWordText(uniqueInOrder, minChars, maxChars);
     }
 
-    // No fallback enrichment - keep only the lesson's own vocabulary.
+    const phrase = tokens.join(' ').replace(/\s+/g, ' ').trim();
 
-    // Build targets without repeating words within a single output string.
-    const maxAttempts = 12;
-    for (let attempt = 0; attempt < maxAttempts; attempt++) {
-        const shuffled = cryptoShuffle(candidates);
-        const outWords = [];
-        let outLen = 0;
-
-        for (let i = 0; i < shuffled.length; i++) {
-            const w = shuffled[i];
-            const sep = outWords.length ? 1 : 0;
-            const nextLen = outLen + sep + w.length;
-            if (nextLen > maxChars) continue;
-            outWords.push(w);
-            outLen = nextLen;
-            if (outLen >= minChars) break;
-        }
-
-        const outText = outWords.join(' ').trim().replace(/\s+/g, ' ');
-        if (outText.length >= minChars && outText.length <= maxChars) {
-            return outText;
-        }
+    if (phrase.length >= minChars && phrase.length <= maxChars) {
+        return phrase;
+    }
+    if (phrase.length > maxChars) {
+        let head = phrase.slice(0, maxChars);
+        const sp = head.lastIndexOf(' ');
+        if (sp >= minChars) return head.slice(0, sp).trim();
+        return head.trim();
     }
 
-    return generateShuffledPoolText(candidates, minChars, maxChars);
-}
-
-// More "sentence-like" UA beginner generator (still: only lowercase Ukrainian letters + spaces).
-function generateUaBeginnerSentenceText(poolText, minChars = 100, maxChars = 200) {
-    const poolLower = String(poolText || '').toLowerCase();
-    const rawWords = String(poolText || '')
-        .split(/\s+/)
-        .map(s => sanitizeUaBeginnerWord(s))
-        .filter(Boolean);
-
-    let candidates = Array.from(new Set(rawWords));
-
-    // Small/medium pool: delegate to the word-shuffler generator which handles
-    // repetition correctly without injecting unrelated fallback vocabulary.
-    // Threshold 14 covers: keyboard drills (2 words), standard vocabulary lessons (10-15 words).
-    // Only pools with 14+ unique words (shop lessons, rich themed texts) use the sentence builder.
-    if (candidates.length === 0) {
-        return generateUaBeginnerLessonText(poolText, minChars, maxChars);
+    let out = phrase;
+    let guard = 0;
+    while (out.length < minChars && guard++ < 800) {
+        out = (out + ' ' + phrase).trim();
     }
-    if (candidates.length < 14) {
-        return generateUaBeginnerLessonText(poolText, minChars, maxChars);
+    if (out.length > maxChars) {
+        out = out.slice(0, maxChars);
+        const sp = out.lastIndexOf(' ');
+        if (sp >= minChars) out = out.slice(0, sp).trim();
     }
-
-    // Never add unrelated fallback words - the sentence builder works only with
-    // the lesson's own vocabulary so the output always matches the lesson topic.
-
-    const helpers = [
-        'я', 'ми', 'ти', 'він', 'вона', 'воно', 'це',
-        'сьогодні', 'щодня', 'зараз', 'рано', 'ввечері', 'вночі',
-        'та', 'і', 'але', 'бо', 'тому', 'потім', 'завжди'
-    ].map(w => sanitizeUaBeginnerWord(w)).filter(Boolean);
-
-    // Optional topic-neutral verbs to make sentence skeletons readable.
-    const verbs = [
-        'працюю', 'роблю', 'вчу', 'пишу', 'читаю', 'бачу', 'знаю', 'граю',
-        'пакую', 'клею', 'продаю', 'вантажу', 'ремонтують', 'ремонтуємо', 'ремонтую',
-        'допомагаю', 'навчаю', 'готую', 'вожу'
-    ].map(w => sanitizeUaBeginnerWord(w)).filter(Boolean);
-
-    // Keep a single subject for readability (1st person singular).
-    const subjects = ['я'].map(w => sanitizeUaBeginnerWord(w)).filter(Boolean);
-
-    // Choose a stable verb by topic keywords (to keep the sentence coherent).
-    const has = (needle) => poolLower.includes(String(needle || '').toLowerCase());
-    let fixedVerb = null;
-    if (has('клей') || has('стикер') || has('етикет') || has('наклей') || has('клейщик')) fixedVerb = 'клею';
-    else if (has('пакет') || has('короб') || has('комплект') || has('замов') || has('посил') || has('посилка')) fixedVerb = 'пакую';
-    else if (has('вантаж') || has('груз') || has('ящик') || has('грузчик')) fixedVerb = 'вантажу';
-    else if (has('продав') || has('магазин') || has('клієнт') || has('клиент') || has('чек') || has('покуп')) fixedVerb = 'продаю';
-    else if (has('айтіш') || has('айти') || has('код') || has('програма') || has('сервер') || has('тест')) fixedVerb = 'пишу';
-    else if (has('вчитель') || has('учень') || has('урок') || has('навч')) fixedVerb = 'вчу';
-    else if (has('водій') || has('маршрут') || has('кермо') || has('водiй')) fixedVerb = 'керую';
-    else if (has('ножиці') || has('ножи') || has('ножиц') || has('стриж') || has('перукар') || has('гребін')) fixedVerb = 'стрижу';
-    else if (has('фарб') || has('пензель') || has('валик') || has('маляр')) fixedVerb = 'малюю';
-    else if (has('ремонт') || has('сервіс') || has('сервис') || has('гайка') || has('болт') || has('слюсар') || has('механ')) fixedVerb = 'ремонтую';
-    else if (has('полив') || has('садівник') || has('садов') || has('квітка') || has('квитка') || has('квiтка')) fixedVerb = 'поливаю';
-    else if (has('кухня') || has('суп') || has('каша') || has('борщ') || has('кондитер') || has('торт')) fixedVerb = 'готую';
-    else if (has('лікар') || has('ліки')) fixedVerb = 'лікую';
-    else if (has('поштар') || has('лист')) fixedVerb = 'відправляю';
-    else fixedVerb = 'працюю';
-    fixedVerb = sanitizeUaBeginnerWord(fixedVerb) || 'працюю';
-
-    // Coherent beginner sentence attempt (no punctuation, only words from pool).
-    // If we can fit 100-200 chars, return immediately to avoid "word salad".
-    // poolLower and has(...) are already defined above in this function.
-    const adverbsUa = ['акуратно', 'точно', 'спритно', 'швидко', 'повільно', 'уважно', 'спокійно', 'впевнено', 'чітко'].map(w => sanitizeUaBeginnerWord(w)).filter(Boolean);
-    let fixedAdverb = null;
-    if (has('акурат') || has('рівно') || has('безп') || has('помилка')) fixedAdverb = 'акуратно';
-    else if (has('швидко') || has('швид')) fixedAdverb = 'швидко';
-    else if (has('сприт')) fixedAdverb = 'спритно';
-    else if (has('повіль')) fixedAdverb = 'повільно';
-    else fixedAdverb = 'точно';
-    fixedAdverb = sanitizeUaBeginnerWord(fixedAdverb) || adverbsUa[0] || 'точно';
-
-    const goalWordsUa = ['порядок', 'точність', 'спокій', 'успіх', 'впевненість', 'увага', 'знання', 'радість', 'мрія', 'терпіння'].map(w => sanitizeUaBeginnerWord(w)).filter(Boolean);
-    let fixedGoal = null;
-    if (has('поряд') || has('склад') || has('комплект') || has('короб')) fixedGoal = 'порядок';
-    else if (has('етик') || has('стік') || has('клей')) fixedGoal = 'точність';
-    else if (has('вантаж') || has('вантаж')) fixedGoal = 'успіх';
-    else if (has('айті') || has('код') || has('тест')) fixedGoal = 'впевненість';
-    else if (has('вчитель') || has('урок') || has('знання')) fixedGoal = 'знання';
-    else fixedGoal = 'точність';
-    fixedGoal = sanitizeUaBeginnerWord(fixedGoal) || goalWordsUa[0] || 'точність';
-
-    const stopWordsUa = new Set([
-        'я', 'і', 'та', 'але', 'бо', 'тому', 'потім', 'завжди', 'це', 'щоб',
-        'сьогодні', 'щодня', 'зараз', 'рано', 'ввечері', 'вночі'
-    ].map(w => sanitizeUaBeginnerWord(w)).filter(Boolean));
-
-    const objCandidates = candidates
-        .filter(w => w && !stopWordsUa.has(w))
-        .filter(w => w !== fixedVerb && w !== fixedAdverb && w !== fixedGoal)
-        .slice();
-
-    const pickUnique = () => {
-        const available = objCandidates.filter(w => !used.has(w));
-        const w = available.length ? available[cryptoRandInt(available.length)] : null;
-        if (w) used.add(w);
-        return w;
-    };
-
-    // Build: {time} я {verb} {obj1} і {obj2} щоб {goal} та {obj3} {adverb}
-    // (word order is intentionally fixed for readability).
-    const templateTimeWords = ['сьогодні', 'щодня', 'зараз', 'рано', 'ввечері'];
-    const timeCandidates = templateTimeWords.filter(w => !stopWordsUa.has(w));
-    const time = timeCandidates.length
-        ? timeCandidates[cryptoRandInt(timeCandidates.length)]
-        : (templateTimeWords.length ? templateTimeWords[cryptoRandInt(templateTimeWords.length)] : null);
-    const connectorI = sanitizeUaBeginnerWord('і') || 'і';
-    const connectorTa = sanitizeUaBeginnerWord('та') || 'та';
-    const wordShchob = sanitizeUaBeginnerWord('щоб') || 'щоб';
-
-    const used = new Set();
-    const obj1 = pickUnique();
-    const obj2 = pickUnique();
-    const obj3 = pickUnique();
-    const subj = sanitizeUaBeginnerWord('я') || 'я';
-    const verb = fixedVerb;
-    const adverb = fixedAdverb;
-    const goal = fixedGoal;
-
-    if (time && obj1 && obj2 && obj3) {
-        let attemptWords = [time, subj, verb, obj1, connectorI, obj2, wordShchob, goal, connectorTa, obj3, adverb]
-            .map(w => sanitizeUaBeginnerWord(w))
-            .filter(Boolean);
-
-        let attemptText = attemptWords.join(' ').replace(/\s+/g, ' ').trim();
-
-        // Extend until we hit 100-200 chars (still without changing the grammar skeleton too much).
-        const usedObjs = new Set([obj1, obj2, obj3].filter(Boolean));
-        let loops = 0;
-        while (attemptText.length < minChars && loops < 60) {
-            loops++;
-            const availableObjs = objCandidates.filter(w => w && !usedObjs.has(w));
-            const poolForPick = availableObjs.length ? availableObjs : objCandidates.filter(Boolean);
-            if (!poolForPick.length) break;
-            const nextObj = poolForPick[cryptoRandInt(poolForPick.length)];
-            const connector = cryptoRandInt(2) === 0 ? connectorI : connectorTa;
-            const candidateWords = attemptWords.concat([connector, nextObj]);
-            const candidateText = candidateWords.join(' ').replace(/\s+/g, ' ').trim();
-            if (candidateText.length > maxChars) break;
-            attemptWords = candidateWords;
-            attemptText = candidateText;
-            usedObjs.add(nextObj);
-        }
-
-        if (attemptText.length >= minChars && attemptText.length <= maxChars) return attemptText;
-    }
-
-    candidates = Array.from(new Set(candidates.concat(helpers)));
-    const connectors = ['і', 'та', 'але', 'бо', 'тому', 'потім'];
-    // templateTimeWords is already defined above (used by the coherent skeleton).
-
-    const templates = [
-        // Skeletons (fixed words + placeholders from candidates).
-        ['{time}', '{subj}', '{verb}', '{w}', '{w}', 'та', '{w}', '{w}', 'і', '{w}', '{w}'],
-        ['{time}', '{subj}', '{verb}', '{w}', '{w}', 'і', '{w}', '{w}', 'та', '{w}', '{w}'],
-        ['{time}', '{subj}', '{verb}', '{w}', 'і', '{w}', '{w}', 'але', '{w}', '{w}'],
-        ['{time}', '{subj}', '{verb}', '{w}', '{w}', 'та', '{w}', '{w}', 'бо', '{w}', '{w}'],
-        ['{time}', '{subj}', '{verb}', '{w}', '{w}', 'і', '{w}', 'та', '{w}', '{w}', 'завжди']
-    ];
-
-    const pickRandom = (arr) => {
-        if (!arr || arr.length === 0) return null;
-        return arr[cryptoRandInt(arr.length)];
-    };
-
-    const maxAttempts = 24;
-    for (let attempt = 0; attempt < maxAttempts; attempt++) {
-        const template = templates[cryptoRandInt(templates.length)];
-        const used = new Set();
-        const outWords = [];
-        let outLen = 0;
-
-        let ok = true;
-
-        for (let i = 0; i < template.length; i++) {
-            const token = template[i];
-            let word = null;
-
-            if (token === '{w}') {
-                const available = candidates.filter(w => !used.has(w) && !w.includes('ґ'));
-                word = pickRandom(available);
-            } else if (token === '{verb}') {
-                word = fixedVerb;
-            } else if (token === '{subj}') {
-                const available = subjects.filter(w => !used.has(w) && !w.includes('ґ'));
-                word = pickRandom(available);
-            } else if (token === '{time}') {
-                word = pickRandom(templateTimeWords.filter(w => !used.has(w) && !w.includes('ґ')));
-            } else {
-                word = sanitizeUaBeginnerWord(token);
-                if (!word) ok = false;
-            }
-
-            if (!ok || !word) {
-                ok = false;
-                break;
-            }
-
-            // Enforce no word repeats in the output.
-            if (used.has(word)) {
-                ok = false;
-                break;
-            }
-
-            const sepLen = outWords.length ? 1 : 0;
-            if (outLen + sepLen + word.length > maxChars) {
-                ok = false;
-                break;
-            }
-
-            outWords.push(word);
-            used.add(word);
-            outLen += sepLen + word.length;
-        }
-
-        if (!ok) continue;
-
-        // Append extra words (with occasional connectors) to reach 100-200 chars.
-        let safeLoops = 0;
-        while (outLen < minChars && safeLoops < 60) {
-            safeLoops++;
-
-            // If we can, sometimes insert a connector + a word.
-            const insertConnector = outLen + 1 + 1 < maxChars && cryptoRandInt(100) < 35;
-            if (insertConnector) {
-                const availableConnector = connectors.filter(c => !used.has(c) && !c.includes('ґ'));
-                const connector = pickRandom(availableConnector);
-                const available = candidates.filter(w => !used.has(w) && !w.includes('ґ'));
-                const next = pickRandom(available);
-                if (connector && next) {
-                    const sep1 = outWords.length ? 1 : 0;
-                    const sep2 = 1; // between connector and next word
-                    const addLen = connector.length + sep1 + next.length + sep2;
-                    if (outLen + addLen <= maxChars) {
-                        outWords.push(connector);
-                        outWords.push(next);
-                        used.add(connector);
-                        used.add(next);
-                        outLen += addLen;
-                        continue;
-                    }
-                }
-            }
-
-            // Fallback: just append a content word.
-            const available = candidates.filter(w => !used.has(w) && !w.includes('ґ'));
-            const w = pickRandom(available);
-            if (!w) break;
-            const sepLen = outWords.length ? 1 : 0;
-            if (outLen + sepLen + w.length > maxChars) break;
-            outWords.push(w);
-            used.add(w);
-            outLen += sepLen + w.length;
-        }
-
-        // Validate final length.
-        if (outLen >= minChars && outLen <= maxChars) {
-            const outText = outWords.join(' ').replace(/\s+/g, ' ').trim();
-            if (outText.length >= minChars && outText.length <= maxChars) {
-                return outText;
-            }
-        }
-    }
-
-    // Fallback to the word bag generator (also uses shared helpers internally).
-    return generateUaBeginnerLessonText(poolText, minChars, maxChars);
+    return out;
 }
 
 // ------------------------------
 // Shared helpers for all language beginner generators
 // ------------------------------
 
-// Cyclic shuffle: repeat a small word set until minChars is reached (for keyboard drills).
+// Циклічне повторення малого набору слів у фіксованому порядку (ряди клавіатури) — без рандому.
 function generateCyclicWordText(words, minChars, maxChars) {
+    const list = (words || []).filter(Boolean);
     const outWords = [];
     let outLen = 0;
     let pass = 0;
-    while (outLen < minChars && pass < 60) {
-        const shuffled = cryptoShuffle(words.slice());
-        for (let i = 0; i < shuffled.length; i++) {
-            const w = shuffled[i];
+    while (outLen < minChars && pass < 120 && list.length) {
+        for (let i = 0; i < list.length; i++) {
+            const w = list[i];
             const sep = outWords.length ? 1 : 0;
             const nextLen = outLen + sep + w.length;
             if (nextLen > maxChars) break;
@@ -3548,122 +3281,6 @@ function generateRuEnBeginnerUniqueText(poolText, lessonKey, layout, minChars = 
     return fallback;
 }
 
-function splitIntoSentenceChunks(text) {
-    const s = String(text || '').trim();
-    if (!s) return [];
-    const re = /[^.!?]+[.!?]+|[^.!?]+$/g;
-    const chunks = s.match(re) || [];
-    return chunks.map(c => c.trim()).filter(Boolean);
-}
-
-function generateRuEnShuffledUniqueText(poolText, lessonKey, layout, minChars, maxChars) {
-    const storageKey = lessonKey ? (`ruen_lesson_recentTexts_${layout}_${lessonKey}`) : null;
-    const poolTextStr = String(poolText || '').trim().replace(/\s+/g, ' ');
-    if (!poolTextStr) return '';
-
-    const originalLen = poolTextStr.length || 200;
-    const targetMin = minChars ?? Math.max(80, Math.round(originalLen * 0.75));
-    const targetMax = maxChars ?? Math.min(4500, Math.max(targetMin + 40, Math.round(originalLen * 1.08)));
-
-    function rememberAndReturn(str) {
-        const out = String(str || '').trim().replace(/\s+/g, ' ');
-        if (!out) return '';
-        if (storageKey) {
-            const recentTexts = loadRecentTexts(storageKey);
-            saveRecentTexts(storageKey, recentTexts.concat([out]), 16);
-        }
-        return out;
-    }
-
-    // Цельный текст уже в нужной длине — не режем и не переставляем (история остаётся читаемой).
-    if (poolTextStr.length >= targetMin && poolTextStr.length <= targetMax) {
-        return rememberAndReturn(poolTextStr);
-    }
-
-    const chunks = splitIntoSentenceChunks(poolTextStr);
-
-    // Короткий пул: повторяем тот же связный блок через пробел, пока не достигнем минимума (как в цифровых уроках).
-    if (poolTextStr.length < targetMin) {
-        let out = poolTextStr;
-        let guard = 0;
-        while (out.length < targetMin && guard++ < 600) {
-            out = (out + ' ' + poolTextStr).trim();
-        }
-        if (out.length > targetMax) {
-            out = out.slice(0, targetMax);
-            const sp = out.lastIndexOf(' ');
-            if (sp >= targetMin) out = out.slice(0, sp);
-        }
-        return rememberAndReturn(out);
-    }
-
-    // Длинный пул: только подряд идущие предложения (случайная точка старта для разнообразия без потери смысла).
-    if (chunks.length >= 1) {
-        const maxAttempts = 28;
-        for (let attempt = 0; attempt < maxAttempts; attempt++) {
-            const start = chunks.length > 1 ? cryptoRandInt(chunks.length) : 0;
-            let acc = '';
-            for (let i = start; i < chunks.length; i++) {
-                const piece = chunks[i];
-                const next = acc ? (acc + ' ' + piece) : piece;
-                if (next.length > targetMax) break;
-                acc = next;
-                if (acc.length >= targetMin) break;
-            }
-            if (acc.length >= targetMin && acc.length <= targetMax) {
-                return rememberAndReturn(acc);
-            }
-        }
-        // С начала абзаца — максимум текста в пределах targetMax.
-        let fromStart = '';
-        for (let i = 0; i < chunks.length; i++) {
-            const next = fromStart ? (fromStart + ' ' + chunks[i]) : chunks[i];
-            if (next.length > targetMax) break;
-            fromStart = next;
-        }
-        if (fromStart.length >= targetMin) {
-            return rememberAndReturn(fromStart);
-        }
-    }
-
-    // Нет границ предложений: сплошной отрезок по словам, без перемешивания.
-    if (poolTextStr.length > targetMax) {
-        let head = poolTextStr.slice(0, targetMax);
-        const sp = head.lastIndexOf(' ');
-        if (sp >= targetMin) head = head.slice(0, sp);
-        return rememberAndReturn(head);
-    }
-
-    return rememberAndReturn(poolTextStr);
-}
-
-function generateUaBeginnerLessonTextUnique(poolText, lessonKey, minChars = 100, maxChars = 200) {
-    const storageKey = lessonKey ? `ua_beginner_lastText_${lessonKey}` : null;
-    let lastText = null;
-    if (storageKey) {
-        try { lastText = localStorage.getItem(storageKey); } catch (e) { lastText = null; }
-    }
-
-    // Try a few times to avoid producing exactly the same target text.
-    const maxAttempts = 8;
-    for (let attempt = 0; attempt < maxAttempts; attempt++) {
-        const candidate = generateUaBeginnerLessonText(poolText, minChars, maxChars);
-        if (!storageKey || !lastText || candidate !== lastText) {
-            if (storageKey) {
-                try { localStorage.setItem(storageKey, candidate); } catch (e) {}
-            }
-            return candidate;
-        }
-    }
-
-    // Best-effort fallback if we couldn't avoid a collision.
-    const fallback = generateUaBeginnerLessonText(poolText, minChars, maxChars);
-    if (storageKey) {
-        try { localStorage.setItem(storageKey, fallback); } catch (e) {}
-    }
-    return fallback;
-}
-
 // Start practice - ОПТИМИЗИРОВАНА
 function startPractice(text, mode, lesson = null) {
     toggleFooter(false); // Скрываем футер при начале практики
@@ -3705,8 +3322,6 @@ function startPractice(text, mode, lesson = null) {
     app.currentMode = mode;
     app.currentLesson = lesson;
 
-    // For Ukrainian beginner lessons we generate a fresh target per start/restart
-    // from the provided word pool.
     let effectiveText = text;
     if (mode === 'lesson' && lesson && lesson.fixedText === true) {
         effectiveText = String(lesson.text || text || '').trim();
@@ -3743,46 +3358,15 @@ function startPractice(text, mode, lesson = null) {
         mode === 'lesson' &&
         lesson &&
         lesson.layout === 'ua' &&
-        (lesson.level === 'beginner' || lesson.difficulty === 'easy')
+        lesson.text &&
+        lesson.digitsOnly !== true
     ) {
-        // Keep generated targets in history to avoid exact repeats
-        // between different starts/restarts.
-        var storageKey = lesson.key ? ('ua_beginner_recentTexts_' + lesson.key) : null;
-        var recentTexts = [];
-        if (storageKey) {
-            try {
-                const raw = localStorage.getItem(storageKey);
-                const parsed = raw ? JSON.parse(raw) : [];
-                if (Array.isArray(parsed)) recentTexts = parsed;
-            } catch (e) {
-                recentTexts = [];
-            }
+        const isBeginnerishUa = (lesson.level === 'beginner' || lesson.difficulty === 'easy');
+        if (isBeginnerishUa) {
+            effectiveText = generateUaBeginnerLessonText(lesson.text, 100, 200);
+        } else {
+            effectiveText = String(lesson.text || text || '').trim().replace(/\s+/g, ' ');
         }
-
-        var candidate = null;
-        var maxAttempts = 16;
-        for (var attempt = 0; attempt < maxAttempts; attempt++) {
-            var t = generateUaBeginnerSentenceText(lesson.text);
-            if (!storageKey || !recentTexts.includes(t)) {
-                candidate = t;
-                break;
-            }
-        }
-        if (!candidate) candidate = generateUaBeginnerSentenceText(lesson.text);
-
-        if (storageKey) {
-            try {
-                recentTexts.push(candidate);
-                // Keep last N targets.
-                const MAX_HISTORY = 16;
-                if (recentTexts.length > MAX_HISTORY) {
-                    recentTexts = recentTexts.slice(-MAX_HISTORY);
-                }
-                localStorage.setItem(storageKey, JSON.stringify(recentTexts));
-            } catch (e) {}
-        }
-
-        effectiveText = candidate;
     } else if (
         mode === 'lesson' &&
         lesson &&
@@ -3791,12 +3375,11 @@ function startPractice(text, mode, lesson = null) {
     ) {
         const isBeginnerish = (lesson.level === 'beginner' || lesson.difficulty === 'easy');
         if (isBeginnerish) {
+            // Короткие пулы слов: собираем связные предложения с рандомом только внутри шаблона.
             effectiveText = generateRuEnBeginnerUniqueText(lesson.text, lesson.key, lesson.layout, 100, 200);
         } else {
-            // For medium/advanced, keep original punctuation/casing by reordering sentence chunks.
-            const minChars = Math.max(120, Math.round(String(lesson.text || '').length * 0.75));
-            const maxChars = Math.min(4500, Math.max(minChars + 40, Math.round(String(lesson.text || '').length * 1.08)));
-            effectiveText = generateRuEnShuffledUniqueText(lesson.text, lesson.key, lesson.layout, minChars, maxChars);
+            // Средний/продвинутый: как в магазине - цельный текст из данных, без перестановки фраз.
+            effectiveText = String(lesson.text || text || '').trim().replace(/\s+/g, ' ');
         }
     }
 
@@ -7785,3 +7368,4 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+
