@@ -297,6 +297,18 @@ let welcomePlayed = false;
 /** Ссылка на обработчик ended у welcome - снимаем при общем «выкл звук», чтобы не включать музыку по старому событию */
 var _welcomeEndedHandler = null;
 
+/** Интро при загрузке главной: один из треков выбирается случайно на каждый визит */
+var WELCOME_INTRO_SOURCES = [
+    'assets/sounds/welcome.ogg',
+    'assets/sounds/welcome_1.ogg',
+    'assets/sounds/welcome_2.ogg',
+    'assets/sounds/welcome_3.ogg'
+];
+
+function pickWelcomeIntroSource() {
+    return WELCOME_INTRO_SOURCES[Math.floor(Math.random() * WELCOME_INTRO_SOURCES.length)];
+}
+
 // translations extracted to scripts/ui/translations.js
 // Fallback: inline definition kept for builds that don't load the separate file first.
 const translations = window.translations || {
@@ -1304,7 +1316,7 @@ function initializeAudio() {
     try {
         audioClick = new Audio('assets/sounds/click.ogg');
         audioError = new Audio('assets/sounds/error.ogg');
-        audioWelcome = new Audio('assets/sounds/welcome.ogg');
+        audioWelcome = new Audio(pickWelcomeIntroSource());
         audioVictory = new Audio('assets/sounds/victory.ogg');
         audioThemeTransition = new Audio('assets/sounds/transition_theme.ogg');
         audioDeniedMoney = new Audio('assets/sounds/denied_money.ogg');
@@ -7746,3 +7758,4 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+
