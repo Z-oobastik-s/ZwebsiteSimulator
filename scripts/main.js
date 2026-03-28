@@ -3558,59 +3558,83 @@ function splitIntoSentenceChunks(text) {
 
 function generateRuEnShuffledUniqueText(poolText, lessonKey, layout, minChars, maxChars) {
     const storageKey = lessonKey ? (`ruen_lesson_recentTexts_${layout}_${lessonKey}`) : null;
-    const recentTexts = loadRecentTexts(storageKey);
-    const poolTextStr = String(poolText || '');
+    const poolTextStr = String(poolText || '').trim().replace(/\s+/g, ' ');
+    if (!poolTextStr) return '';
+
     const originalLen = poolTextStr.length || 200;
+    const targetMin = minChars ?? Math.max(80, Math.round(originalLen * 0.75));
+    const targetMax = maxChars ?? Math.min(4500, Math.max(targetMin + 40, Math.round(originalLen * 1.08)));
 
-    // Keep length in a similar order of magnitude to reduce UI surprises.
-    const targetMin = minChars ?? Math.max(80, Math.round(originalLen * 0.85));
-    const targetMax = maxChars ?? Math.min(4500, Math.max(targetMin + 20, Math.round(originalLen * 1.08)));
+    function rememberAndReturn(str) {
+        const out = String(str || '').trim().replace(/\s+/g, ' ');
+        if (!out) return '';
+        if (storageKey) {
+            const recentTexts = loadRecentTexts(storageKey);
+            saveRecentTexts(storageKey, recentTexts.concat([out]), 16);
+        }
+        return out;
+    }
 
-    const maxAttempts = 24;
-    for (let attempt = 0; attempt < maxAttempts; attempt++) {
-        const chunks = splitIntoSentenceChunks(poolTextStr);
-        let candidate = '';
+    // Цельный текст уже в нужной длине — не режем и не переставляем (история остаётся читаемой).
+    if (poolTextStr.length >= targetMin && poolTextStr.length <= targetMax) {
+        return rememberAndReturn(poolTextStr);
+    }
 
-        if (chunks.length >= 2) {
-            const maxUse = Math.min(4, chunks.length);
-            // Choose subset size 2..maxUse (prefer more when text is short).
-            const useCount = Math.min(maxUse, Math.max(2, cryptoRandInt(maxUse - 1) + 2));
-            // Pick consecutive sentence chunks (keeps readability).
-            const start = chunks.length - useCount > 0 ? cryptoRandInt(chunks.length - useCount + 1) : 0;
-            const picked = chunks.slice(start, start + useCount);
-            candidate = picked.join(' ').replace(/\s+/g, ' ').trim();
-        } else {
-            // Fallback: shuffle word tokens if we don't have sentence boundaries.
-            const tokens = poolTextStr.split(/\s+/).filter(Boolean);
-            // Fallback: take a contiguous token window (better readability than full shuffle).
-            if (tokens.length) {
-                const maxTokensUse = Math.min(80, tokens.length);
-                const window = Math.max(30, cryptoRandInt(maxTokensUse));
-                const start = tokens.length - window > 0 ? cryptoRandInt(tokens.length - window + 1) : 0;
-                candidate = tokens.slice(start, start + window).join(' ').replace(/\s+/g, ' ').trim();
+    const chunks = splitIntoSentenceChunks(poolTextStr);
+
+    // Короткий пул: повторяем тот же связный блок через пробел, пока не достигнем минимума (как в цифровых уроках).
+    if (poolTextStr.length < targetMin) {
+        let out = poolTextStr;
+        let guard = 0;
+        while (out.length < targetMin && guard++ < 600) {
+            out = (out + ' ' + poolTextStr).trim();
+        }
+        if (out.length > targetMax) {
+            out = out.slice(0, targetMax);
+            const sp = out.lastIndexOf(' ');
+            if (sp >= targetMin) out = out.slice(0, sp);
+        }
+        return rememberAndReturn(out);
+    }
+
+    // Длинный пул: только подряд идущие предложения (случайная точка старта для разнообразия без потери смысла).
+    if (chunks.length >= 1) {
+        const maxAttempts = 28;
+        for (let attempt = 0; attempt < maxAttempts; attempt++) {
+            const start = chunks.length > 1 ? cryptoRandInt(chunks.length) : 0;
+            let acc = '';
+            for (let i = start; i < chunks.length; i++) {
+                const piece = chunks[i];
+                const next = acc ? (acc + ' ' + piece) : piece;
+                if (next.length > targetMax) break;
+                acc = next;
+                if (acc.length >= targetMin) break;
+            }
+            if (acc.length >= targetMin && acc.length <= targetMax) {
+                return rememberAndReturn(acc);
             }
         }
-
-        if (!candidate) continue;
-        if (candidate.length < targetMin || candidate.length > targetMax) continue;
-        if (!storageKey || !recentTexts.includes(candidate)) {
-            if (storageKey) saveRecentTexts(storageKey, recentTexts.concat([candidate]), 16);
-            return candidate;
+        // С начала абзаца — максимум текста в пределах targetMax.
+        let fromStart = '';
+        for (let i = 0; i < chunks.length; i++) {
+            const next = fromStart ? (fromStart + ' ' + chunks[i]) : chunks[i];
+            if (next.length > targetMax) break;
+            fromStart = next;
+        }
+        if (fromStart.length >= targetMin) {
+            return rememberAndReturn(fromStart);
         }
     }
 
-    // Final fallback: use simple sentence chunk reorder; may collide but still works.
-    const chunks = splitIntoSentenceChunks(poolTextStr);
-    // Prefer consecutive sentences for final fallback too.
-    const fallback = chunks.length >= 2
-        ? (() => {
-            const useCount = Math.min(chunks.length, 3);
-            const start = chunks.length - useCount > 0 ? cryptoRandInt(chunks.length - useCount + 1) : 0;
-            return chunks.slice(start, start + useCount).join(' ').replace(/\s+/g, ' ').trim();
-        })()
-        : cryptoShuffle(poolTextStr.split(/\s+/).filter(Boolean)).join(' ');
-    if (storageKey) saveRecentTexts(storageKey, recentTexts.concat([fallback]), 16);
-    return fallback;
+    // Нет границ предложений: сплошной отрезок по словам, без перемешивания.
+    if (poolTextStr.length > targetMax) {
+        let head = poolTextStr.slice(0, targetMax);
+        const sp = head.lastIndexOf(' ');
+        if (sp >= targetMin) head = head.slice(0, sp);
+        return rememberAndReturn(head);
+    }
+
+    return rememberAndReturn(poolTextStr);
 }
 
 function generateUaBeginnerLessonTextUnique(poolText, lessonKey, minChars = 100, maxChars = 200) {
@@ -3685,6 +3709,9 @@ function startPractice(text, mode, lesson = null) {
     // from the provided word pool.
     let effectiveText = text;
     if (mode === 'lesson' && lesson && lesson.fixedText === true) {
+        effectiveText = String(lesson.text || text || '').trim();
+    } else if (mode === 'lesson' && lesson && lesson.isShopLesson === true && lesson.text) {
+        // Уроки из магазина: целый осмысленный текст из данных (без перестановки фраз и обрезки до «салата»).
         effectiveText = String(lesson.text || text || '').trim();
     } else if (
         mode === 'lesson' &&
@@ -7758,3 +7785,4 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+
