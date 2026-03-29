@@ -4087,6 +4087,21 @@ function exitPractice() {
     }
 }
 
+function grantCoinsForNewAchievements(newlyAchievements) {
+    const user = window.authModule?.getCurrentUser();
+    if (!user || !window.authModule || !newlyAchievements || newlyAchievements.length === 0) return;
+    if (!window.achievementsModule || !window.achievementsModule.COINS_PER_ACHIEVEMENT) return;
+    var totalCoins = window.achievementsModule.COINS_PER_ACHIEVEMENT * newlyAchievements.length;
+    window.authModule.addCoins(user.uid, totalCoins).then(function (result) {
+        if (result.success) {
+            var updatedUser = window.authModule.getCurrentUser();
+            if (updatedUser) updateUserUI(updatedUser, updatedUser);
+            var msg = app.lang === 'en' ? '+' + totalCoins + ' coins for achievements!' : '+' + totalCoins + ' монет за достижения!';
+            showToast(msg, 'success', '🪙');
+        }
+    }).catch(function (err) { console.error('Achievement coins:', err); });
+}
+
 // Finish practice - ОПТИМИЗИРОВАНА
 async function finishPractice() {
     if (app.timerInterval) {
@@ -4185,17 +4200,7 @@ async function finishPractice() {
                 console.error('Failed to add coins:', err);
             });
         }
-        if (newlyAchievements && newlyAchievements.length > 0 && window.achievementsModule && window.achievementsModule.COINS_PER_ACHIEVEMENT) {
-            var totalCoins = window.achievementsModule.COINS_PER_ACHIEVEMENT * newlyAchievements.length;
-            window.authModule.addCoins(user.uid, totalCoins).then(function (result) {
-                if (result.success) {
-                    var updatedUser = window.authModule.getCurrentUser();
-                    if (updatedUser) updateUserUI(updatedUser, updatedUser);
-                    var msg = app.lang === 'en' ? '+' + totalCoins + ' coins for achievements!' : '+' + totalCoins + ' монет за достижения!';
-                    showToast(msg, 'success', '🪙');
-                }
-            }).catch(function (err) { console.error('Achievement coins:', err); });
-        }
+        grantCoinsForNewAchievements(newlyAchievements);
     }
     
     // Mark timestamp so handleGlobalHotkeys ignores the same keydown event
@@ -7373,15 +7378,16 @@ function recordBotMultiplayerSessionIfNeeded() {
         if (xpResult.leveledUp) app.pendingLevelUp = xpResult.newLevel;
         renderLevelBlock();
     }
-    if (window.achievementsModule && typeof window.achievementsModule.checkAndNotify === 'function') {
-        window.achievementsModule.checkAndNotify();
-    }
+    var newlyAchievements = window.achievementsModule && typeof window.achievementsModule.checkAndNotify === 'function'
+        ? window.achievementsModule.checkAndNotify()
+        : [];
     var user = window.authModule && window.authModule.getCurrentUser && window.authModule.getCurrentUser();
     if (user && window.authModule.addUserSession) {
         window.authModule.addUserSession(user.uid, sessionData).catch(function (err) {
             console.error('Failed to save bot duel session:', err);
         });
     }
+    grantCoinsForNewAchievements(newlyAchievements);
 }
 
 function openMultiplayerResultsModal(isWin) {
@@ -8099,3 +8105,4 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+
