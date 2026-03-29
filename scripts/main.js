@@ -300,6 +300,14 @@ let welcomePlayed = false;
 /** Ссылка на обработчик ended у welcome - снимаем при общем «выкл звук», чтобы не включать музыку по старому событию */
 var _welcomeEndedHandler = null;
 
+/** v=… подставляется из version.json — после деплоя подтягиваются новые ogg/mp3 без ручного сброса кэша */
+function soundAssetUrl(path) {
+    if (!path || typeof path !== 'string') return path;
+    var v = typeof window !== 'undefined' && window.__zoobAssetBust != null ? window.__zoobAssetBust : 0;
+    var sep = path.indexOf('?') >= 0 ? '&' : '?';
+    return path + sep + 'v=' + encodeURIComponent(String(v));
+}
+
 /** Интро при загрузке главной: один из треков выбирается случайно на каждый визит */
 var WELCOME_INTRO_SOURCES = [
     'assets/sounds/welcome.ogg',
@@ -309,7 +317,7 @@ var WELCOME_INTRO_SOURCES = [
 ];
 
 function pickWelcomeIntroSource() {
-    return WELCOME_INTRO_SOURCES[Math.floor(Math.random() * WELCOME_INTRO_SOURCES.length)];
+    return soundAssetUrl(WELCOME_INTRO_SOURCES[Math.floor(Math.random() * WELCOME_INTRO_SOURCES.length)]);
 }
 
 // translations extracted to scripts/ui/translations.js
@@ -1269,12 +1277,24 @@ document.addEventListener('DOMContentLoaded', function() {
     initSiteRating();
     // Футер/фон уже запланированы в scheduleBackgroundAfterFirstPaint
     
-    // Неблокирующая инициализация: аудио и частицы после первого кадра
-    setTimeout(function() {
-        initializeAudio();
-        _initSfxPools();
-        createParticles();
-    }, 0);
+    // Аудио после version.json — к звукам добавляется ?v=build, чтобы SW/браузер не отдавали старые файлы
+    fetchDeployBuild().then(function (data) {
+        var b = _parseDeployBuild(data);
+        if (b != null) {
+            __zoobDeployBaseline = b;
+            window.__zoobAssetBust = b;
+        } else {
+            window.__zoobAssetBust = Math.floor(Date.now() / 1000);
+        }
+    }).catch(function () {
+        window.__zoobAssetBust = Math.floor(Date.now() / 1000);
+    }).finally(function () {
+        setTimeout(function () {
+            initializeAudio();
+            _initSfxPools();
+            createParticles();
+        }, 0);
+    });
     
     setTimeout(showOnboardingIfFirstVisit, 700);
     
@@ -1341,25 +1361,25 @@ document.addEventListener('DOMContentLoaded', function() {
 // Initialize audio elements
 function initializeAudio() {
     try {
-        audioClick = new Audio('assets/sounds/click.ogg');
-        audioError = new Audio('assets/sounds/error.ogg');
+        audioClick = new Audio(soundAssetUrl('assets/sounds/click.ogg'));
+        audioError = new Audio(soundAssetUrl('assets/sounds/error.ogg'));
         audioWelcome = new Audio(pickWelcomeIntroSource());
-        audioVictory = new Audio('assets/sounds/victory.ogg');
-        audioThemeTransition = new Audio('assets/sounds/transition_theme.ogg');
-        audioDeniedMoney = new Audio('assets/sounds/denied_money.ogg');
-        audioSwipeAnimation = new Audio('assets/sounds/swipe_animation.ogg');
-        audioOnSound = new Audio('assets/sounds/On_sound.ogg');
-        audioOffSound = new Audio('assets/sounds/Off_sound.ogg');
-        audioOpenShop = new Audio('assets/sounds/open_shop.ogg');
-        audioClickLanguage = new Audio('assets/sounds/click_language.ogg');
-        audioBuyShop = new Audio('assets/sounds/buy_shop_sound.ogg');
-        audioOpenProfile = new Audio('assets/sounds/open_profile.ogg');
-        audioOpenAchievement = new Audio('assets/sounds/open_achievement.ogg');
-        audioCompleteAdvanced = new Audio('assets/sounds/complete_advanced.ogg');
-        audioOpenTelegram = new Audio('assets/sounds/open_telegram.ogg');
-        audioFeedback = new Audio('assets/sounds/feetback.ogg');
-        audioClickMenu0 = new Audio('assets/sounds/click_menu_0.ogg');
-        audioClickMenu1 = new Audio('assets/sounds/click_menu_1.ogg');
+        audioVictory = new Audio(soundAssetUrl('assets/sounds/victory.ogg'));
+        audioThemeTransition = new Audio(soundAssetUrl('assets/sounds/transition_theme.ogg'));
+        audioDeniedMoney = new Audio(soundAssetUrl('assets/sounds/denied_money.ogg'));
+        audioSwipeAnimation = new Audio(soundAssetUrl('assets/sounds/swipe_animation.ogg'));
+        audioOnSound = new Audio(soundAssetUrl('assets/sounds/On_sound.ogg'));
+        audioOffSound = new Audio(soundAssetUrl('assets/sounds/Off_sound.ogg'));
+        audioOpenShop = new Audio(soundAssetUrl('assets/sounds/open_shop.ogg'));
+        audioClickLanguage = new Audio(soundAssetUrl('assets/sounds/click_language.ogg'));
+        audioBuyShop = new Audio(soundAssetUrl('assets/sounds/buy_shop_sound.ogg'));
+        audioOpenProfile = new Audio(soundAssetUrl('assets/sounds/open_profile.ogg'));
+        audioOpenAchievement = new Audio(soundAssetUrl('assets/sounds/open_achievement.ogg'));
+        audioCompleteAdvanced = new Audio(soundAssetUrl('assets/sounds/complete_advanced.ogg'));
+        audioOpenTelegram = new Audio(soundAssetUrl('assets/sounds/open_telegram.ogg'));
+        audioFeedback = new Audio(soundAssetUrl('assets/sounds/feetback.ogg'));
+        audioClickMenu0 = new Audio(soundAssetUrl('assets/sounds/click_menu_0.ogg'));
+        audioClickMenu1 = new Audio(soundAssetUrl('assets/sounds/click_menu_1.ogg'));
         
         // Set volumes (2–5% через SFX_VOLUME)
         if (audioClick) audioClick.volume = SFX_VOLUME;
@@ -1641,25 +1661,20 @@ function fetchDeployBuild() {
 }
 
 function initDeployVersionCheck() {
-    fetchDeployBuild().then(function (data) {
-        var b = _parseDeployBuild(data);
-        if (b == null) return;
-        __zoobDeployBaseline = b;
-        if (__zoobDeployPollTimer) clearInterval(__zoobDeployPollTimer);
-        // Первый опрос через 20 с, далее каждые 45 с (не мешает игре, ловит новый деплой)
-        setTimeout(function () {
-            __zoobDeployPollTimer = setInterval(function () {
-                if (window.__zoobUpdateReloading) return;
-                fetchDeployBuild().then(function (d) {
-                    var nb = _parseDeployBuild(d);
-                    if (nb == null || __zoobDeployBaseline == null) return;
-                    if (nb > __zoobDeployBaseline) {
-                        performAppHardReload();
-                    }
-                });
-            }, 45000);
-        }, 20000);
-    });
+    if (__zoobDeployPollTimer) clearInterval(__zoobDeployPollTimer);
+    // Базовый build задаётся до вызова — см. fetch версии перед initializeAudio
+    setTimeout(function () {
+        __zoobDeployPollTimer = setInterval(function () {
+            if (window.__zoobUpdateReloading) return;
+            fetchDeployBuild().then(function (d) {
+                var nb = _parseDeployBuild(d);
+                if (nb == null || __zoobDeployBaseline == null) return;
+                if (nb > __zoobDeployBaseline) {
+                    performAppHardReload();
+                }
+            });
+        }, 45000);
+    }, 20000);
 }
 
 function handleGlobalHotkeys(e) {
@@ -1805,27 +1820,27 @@ function startBgMusic() {
     if (bgMusicAudio) {
         var trackIndex = bgMusicPausedTrackIndex;
         var seekTo = bgMusicPausedAt;
-        bgMusicAudio.src = BG_MUSIC_TRACKS[trackIndex];
+        bgMusicAudio.src = soundAssetUrl(BG_MUSIC_TRACKS[trackIndex]);
         bgMusicTrackIndex = trackIndex;
         bgMusicAudio.volume = BG_MUSIC_VOLUME;
         bgMusicAudio.currentTime = seekTo;
         bgMusicAudio.play().catch(function() {});
         return;
     }
-    bgMusicAudio = new Audio(BG_MUSIC_TRACKS[0]);
+    bgMusicAudio = new Audio(soundAssetUrl(BG_MUSIC_TRACKS[0]));
     bgMusicAudio.volume = BG_MUSIC_VOLUME;
     bgMusicAudio.addEventListener('ended', function() {
         if (!app.bgMusicEnabled) return;
         bgMusicTrackIndex = (bgMusicTrackIndex + 1) % BG_MUSIC_TRACKS.length;
         bgMusicPausedTrackIndex = bgMusicTrackIndex;
         bgMusicPausedAt = 0;
-        bgMusicAudio.src = BG_MUSIC_TRACKS[bgMusicTrackIndex];
+        bgMusicAudio.src = soundAssetUrl(BG_MUSIC_TRACKS[bgMusicTrackIndex]);
         bgMusicAudio.play().catch(function() {});
     });
     bgMusicTrackIndex = 0;
     bgMusicPausedTrackIndex = 0;
     bgMusicPausedAt = 0;
-    bgMusicAudio.src = BG_MUSIC_TRACKS[0];
+    bgMusicAudio.src = soundAssetUrl(BG_MUSIC_TRACKS[0]);
     bgMusicAudio.play().catch(function() {});
 }
 
@@ -4809,7 +4824,7 @@ function toggleLevelListModal() {
         // Звук сразу по клику (как playMenuClickSound - через новый Audio для надёжного воспроизведения)
         if (app.soundEnabled) {
             try {
-                var snd = audioOpenAchievement ? audioOpenAchievement.cloneNode() : new Audio('assets/sounds/open_achievement.ogg');
+                var snd = audioOpenAchievement ? audioOpenAchievement.cloneNode() : new Audio(soundAssetUrl('assets/sounds/open_achievement.ogg'));
                 snd.volume = SFX_VOLUME;
                 snd.currentTime = 0;
                 snd.play().catch(function() {});
@@ -7989,7 +8004,7 @@ async function purchaseLesson(lessonId) {
 function playDeniedMoneySound() {
     if (!app.soundEnabled) return;
     try {
-        var s = audioDeniedMoney ? audioDeniedMoney.cloneNode() : new Audio('assets/sounds/denied_money.ogg');
+        var s = audioDeniedMoney ? audioDeniedMoney.cloneNode() : new Audio(soundAssetUrl('assets/sounds/denied_money.ogg'));
         s.volume = SFX_VOLUME;
         s.currentTime = 0;
         s.play().catch(function() {});
@@ -8005,7 +8020,7 @@ function playTelegramSound() {
 function playMenuClickSound() {
     if (!app.soundEnabled) return;
     var num = Math.random() < 0.5 ? '0' : '1';
-    var s = new Audio('assets/sounds/click_menu_' + num + '.ogg');
+    var s = new Audio(soundAssetUrl('assets/sounds/click_menu_' + num + '.ogg'));
     s.volume = SFX_VOLUME;
     s.play().catch(function () {});
 }
@@ -8084,4 +8099,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-
