@@ -88,7 +88,7 @@ router.put('/:uid/avatar', async (req, res) => {
             { uid: req.params.uid, avatarIndex: idx, photoURL }
         );
         const user = await getUserById(req.params.uid);
-        return res.json({ success: true, photoURL: user.photoURL });
+        return res.json({ success: true, photoURL: user.photoURL, avatarIndex: user.avatarIndex });
     } catch (err) {
         return send500(res, err, 'Update avatar error');
     }
@@ -253,3 +253,4 @@ router.get('/:uid/lesson-purchased/:lessonId', async (req, res) => {
 });
 
 module.exports = router;
+

@@ -13,7 +13,9 @@ window.THEMED_TEXTS = {
                 'Десять минут в день лучше, чем час раз в неделю. Регулярность важнее длительности.',
                 'Ошибки это часть обучения. Анализируйте их и продолжайте вперёд.',
                 'Ваши пальцы запоминают расположение клавиш. Доверьтесь мышечной памяти.',
-                'Скорость приходит сама, когда вы перестаёте смотреть на клавиатуру.'
+                'Скорость приходит сама, когда вы перестаёте смотреть на клавиатуру.',
+                'Когда вы тренируетесь каждый день, мозг буквально перестраивает нервные связи: движения пальцев становятся автоматическими, как ходьба. Не гонитесь за рекордом в первую неделю лучше закрепите ровный ритм и отсутствие взгляда на клавиши. Через месяц регулярных двадцатиминутных сессий вы заметите, что ошибок меньше, а мысли не отвлекаются на поиск букв. Запомните: слепая печать экономит часы в году и снижает усталость от работы за компьютером.',
+                'Поставьте честную цель: не «стать чемпионом за неделю», а «каждый день набирать пять минут без ошибок выше девяноста процентов». Замеряйте точность дороже скорости. Когда стабильность выросла, добавляйте темп на пять десятков знаков в минуту и снова удерживайте качество. Так вы избежите плато и выгорания. Награждайте себя за серию из семи дней подряд это сильнее мотивирует, чем разовый спринт.'
             ]
         },
         quotes: {
@@ -73,7 +75,9 @@ window.THEMED_TEXTS = {
                 'Ten minutes a day beats an hour once a week. Consistency matters more than length.',
                 'Mistakes are part of learning. Review them and keep going.',
                 'Your fingers remember key positions. Trust your muscle memory.',
-                'Speed comes naturally when you stop looking at the keyboard.'
+                'Speed comes naturally when you stop looking at the keyboard.',
+                'When you practice daily your brain literally rewires so finger motion becomes automatic like walking. Do not chase a record in week one focus on steady rhythm and not looking at keys. After a month of twenty minute sessions you will notice fewer errors and less mental effort to find letters. Touch typing saves hours every year and cuts screen work fatigue.',
+                'Set an honest goal not to become a champion in a week but to type five minutes every day above ninety percent accuracy. Measure accuracy before speed. When it is stable add five dozen characters per minute and hold quality again. This avoids plateaus and burnout. Reward a seven day streak it motivates more than one all out sprint.'
             ]
         },
         quotes: {
@@ -123,3 +127,4 @@ window.THEMED_TEXTS = {
         }
     }
 };
+

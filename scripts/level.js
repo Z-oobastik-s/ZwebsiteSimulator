@@ -134,3 +134,4 @@ window.levelModule = {
     getTierNameForLang: getTierNameForLang,
     getXPThreshold: getXPThreshold
 };
+

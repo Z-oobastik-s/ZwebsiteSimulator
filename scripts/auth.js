@@ -317,19 +317,35 @@ export async function updateProfileAvatar(uid, avatarIndex) {
                 method: 'PUT',
                 body: JSON.stringify({ avatarIndex })
             });
+            const resolvedURL = data && data.photoURL ? data.photoURL : photoURL;
+            const resolvedIdx = data && data.avatarIndex != null && Number.isFinite(Number(data.avatarIndex))
+                ? Number(data.avatarIndex)
+                : avatarIndex;
             const user = getCurrentUserFromStorage();
             if (user && user.uid === uid) {
-                user.photoURL = photoURL;
-                user.avatarIndex = avatarIndex;
+                user.photoURL = resolvedURL;
+                user.avatarIndex = resolvedIdx;
                 saveCurrentUserToStorage(user);
                 notifyAuthStateListeners(user);
             }
-            return { success: true, photoURL };
+            return { success: true, photoURL: resolvedURL, avatarIndex: resolvedIdx };
         } catch (err) {
             return { success: false, error: (err.data && err.data.error) || err.message };
         }
     }
-    return updateUserProfile(uid, { photoURL, avatarIndex }).then(r => r.success ? { success: true, photoURL } : r);
+    const users = getAllUsersStorage();
+    const user = users[uid];
+    if (!user) return { success: false, error: 'User not found' };
+    user.photoURL = photoURL;
+    user.avatarIndex = avatarIndex;
+    users[uid] = user;
+    if (!saveAllUsersStorage(users)) return { success: false, error: 'Ошибка сохранения данных' };
+    const current = getCurrentUserFromStorage();
+    if (current && current.uid === uid) {
+        saveCurrentUserToStorage(user);
+        notifyAuthStateListeners(user);
+    }
+    return { success: true, photoURL, avatarIndex };
 }
 
 // --------------- Сессии (прогресс) ---------------
@@ -639,3 +655,4 @@ window.authModule = {
     getUserBalance,
     isLessonPurchased
 };
+

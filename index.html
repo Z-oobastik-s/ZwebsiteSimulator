@@ -1273,6 +1273,11 @@
         .no-animations .hover\:scale-102:hover {
             transform: none !important;
         }
+
+        .no-animations #multiplayerMyProgressBar::after,
+        .no-animations #multiplayerOpponentProgressBar::after {
+            display: none !important;
+        }
         
         /* Hide scrollbar but keep functionality */
         .no-scrollbar::-webkit-scrollbar {
@@ -2100,6 +2105,10 @@
             width: 32px;
             height: 32px;
             border-radius: 50%;
+            box-shadow: 0 0 0 2px rgba(0, 229, 255, 0.22);
+        }
+        html:not(.dark) #userAvatar {
+            box-shadow: 0 0 0 2px rgba(8, 145, 178, 0.35);
         }
         
         #avatarGrid img {
@@ -2579,32 +2588,22 @@
         }
 
         /* ==========================================
-           Multiplayer - эпичный HUD стиль
+           Multiplayer — лёгкий UI (без blur на огромных слоях — иначе лаги)
            ========================================== */
         #multiplayerMenuScreen #multiplayerMainMenu,
         #multiplayerWaitingScreen .glass,
         #multiplayerGameScreen .glass.rounded-2xl {
             position: relative;
             overflow: hidden;
-            border: 1px solid rgba(255,255,255,0.14);
-            box-shadow:
-                0 0 0 1px rgba(0,229,255,0.06) inset,
-                0 0 30px rgba(0,229,255,0.10),
-                0 18px 60px rgba(0,0,0,0.35);
+            border: 1px solid rgba(148, 163, 184, 0.22);
+            background: rgba(15, 23, 42, 0.78);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
         }
 
         #multiplayerMenuScreen #multiplayerMainMenu::before,
         #multiplayerWaitingScreen .glass::before,
         #multiplayerGameScreen .glass.rounded-2xl::before {
-            content: '';
-            position: absolute;
-            inset: -2px;
-            background: radial-gradient(circle at 20% 10%, rgba(0,229,255,0.22), transparent 55%),
-                        radial-gradient(circle at 80% 90%, rgba(147,51,234,0.20), transparent 60%),
-                        linear-gradient(135deg, rgba(34,211,238,0.06) 0%, rgba(168,85,247,0.08) 50%, rgba(244,63,94,0.06) 100%);
-            pointer-events: none;
-            filter: blur(10px);
-            opacity: 0.9;
+            display: none;
         }
 
         #multiplayerMenuScreen #multiplayerMainMenu > *,
@@ -2612,6 +2611,39 @@
         #multiplayerGameScreen .glass.rounded-2xl > * {
             position: relative;
             z-index: 1;
+        }
+
+        #multiplayerMenuScreen .mp-mode-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            text-align: center;
+            width: 100%;
+            min-width: 0;
+            box-sizing: border-box;
+            background: rgba(30, 41, 59, 0.82);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            box-shadow: none;
+            transition: border-color 0.15s ease, background-color 0.15s ease;
+        }
+        #multiplayerMenuScreen .mp-mode-btn:hover {
+            border-color: rgba(34, 211, 238, 0.45);
+            background: rgba(30, 41, 59, 0.95);
+        }
+        html:not(.dark) #multiplayerMenuScreen .mp-mode-btn {
+            background: rgba(241, 245, 249, 0.92);
+            border-color: rgba(100, 116, 139, 0.35);
+        }
+        html:not(.dark) #multiplayerMenuScreen .mp-mode-btn:hover {
+            border-color: rgba(8, 145, 178, 0.55);
+        }
+        #multiplayerMenuScreen .mp-mode-btn h4,
+        #multiplayerMenuScreen .mp-mode-btn p {
+            width: 100%;
+            max-width: 100%;
+            text-align: center;
+            text-wrap: balance;
         }
 
         /* Bot voice: native <select> uses OS colors; force dark list + text on Windows/Chrome */
@@ -2686,6 +2718,23 @@
             100% { transform: translateX(100%); }
         }
 
+        @media (prefers-reduced-motion: reduce) {
+            #multiplayerMyProgressBar::after,
+            #multiplayerOpponentProgressBar::after {
+                display: none !important;
+            }
+        }
+
+        .no-animations #multiplayerTextDisplay {
+            text-shadow: none;
+            background: rgba(15, 23, 42, 0.55);
+            border-color: rgba(148, 163, 184, 0.2);
+        }
+
+        .no-animations #multiplayerWaitingScreen .animate-pulse::before {
+            display: none !important;
+        }
+
         /* Waiting screen pulse: make it feel alive */
         #multiplayerWaitingScreen .animate-pulse {
             font-weight: 700;
@@ -2732,16 +2781,13 @@
             box-shadow: 0 0 0 1px rgba(168,85,247,0.10) inset, 0 0 30px rgba(0,229,255,0.10);
         }
         .mp-room-dialog::before{
-            content:'';
-            position:absolute;
-            inset:-3px;
-            background:
-                radial-gradient(circle at 20% 10%, rgba(0,229,255,0.22), transparent 55%),
-                radial-gradient(circle at 85% 70%, rgba(168,85,247,0.20), transparent 60%),
-                linear-gradient(135deg, rgba(0,229,255,0.06), rgba(168,85,247,0.06));
-            filter: blur(14px);
-            opacity: 0.9;
-            pointer-events:none;
+            display: none;
+        }
+        .mp-room-dialog {
+            background: rgba(15, 23, 42, 0.85) !important;
+        }
+        html:not(.dark) .mp-room-dialog {
+            background: rgba(248, 250, 252, 0.96) !important;
         }
         .mp-room-dialog > * { position: relative; z-index: 1; }
 
@@ -3344,46 +3390,48 @@
         
         <!-- Multiplayer Menu Screen -->
         <div id="multiplayerMenuScreen" class="hidden fade-in">
-            <div class="max-w-2xl mx-auto">
-                <div class="flex items-center justify-between mb-8">
-                    <button onclick="showHome()" class="glass px-6 py-3 rounded-xl hover:bg-white/20 dark:hover:bg-black/20 flex items-center space-x-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                        </svg>
-                        <span data-i18n="back">Назад</span>
-                    </button>
-                    <h2 class="text-3xl font-bold text-purple-400"><span data-i18n="multiplayerMenu">🎮 Мультиплеер</span></h2>
-                    <div class="w-32"></div>
+            <div class="max-w-2xl mx-auto px-3 sm:px-0">
+                <div class="grid grid-cols-1 sm:grid-cols-3 items-center gap-3 mb-8">
+                    <div class="flex justify-start order-2 sm:order-1">
+                        <button onclick="showHome()" type="button" class="glass px-5 py-2.5 sm:px-6 sm:py-3 rounded-xl hover:bg-white/15 dark:hover:bg-black/25 flex items-center gap-2 border border-white/10">
+                            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                            </svg>
+                            <span data-i18n="back">Назад</span>
+                        </button>
+                    </div>
+                    <h2 class="text-2xl sm:text-3xl font-bold text-purple-400 text-center order-1 sm:order-2 px-2 leading-tight"><span data-i18n="multiplayerMenu">🎮 Мультиплеер</span></h2>
+                    <div class="hidden sm:block order-3" aria-hidden="true"></div>
                 </div>
                 
                 <!-- Main Menu -->
-                <div id="multiplayerMainMenu" class="glass rounded-2xl p-8 mb-6">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div id="multiplayerMainMenu" class="rounded-2xl p-6 sm:p-8 mb-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5">
                         <!-- Create Room -->
-                        <button onclick="showRoomSettings(false)" class="glass rounded-xl p-8 hover:scale-105 transition-transform text-center">
-                            <div class="w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center mb-4 mx-auto">
-                                <svg class="w-8 h-8 text-purple-500" fill="currentColor" viewBox="0 0 20 20">
+                        <button type="button" onclick="showRoomSettings(false)" class="mp-mode-btn rounded-xl p-8">
+                            <div class="w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center mb-4 mx-auto shrink-0">
+                                <svg class="w-8 h-8 text-purple-400" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                                     <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
                                 </svg>
                             </div>
                             <h4 class="text-xl font-semibold mb-2" data-i18n="createRoom">Создать комнату</h4>
-                            <p class="text-gray-400 text-sm" data-i18n="createRoomDesc">Получи код и отправь другу</p>
+                            <p class="text-gray-500 dark:text-gray-400 text-sm" data-i18n="createRoomDesc">Получи код и отправь другу</p>
                         </button>
                         
                         <!-- Join Room -->
-                        <button onclick="showJoinRoomDialog()" class="glass rounded-xl p-8 hover:scale-105 transition-transform text-center">
-                            <div class="w-16 h-16 bg-success/20 rounded-full flex items-center justify-center mb-4 mx-auto">
-                                <svg class="w-8 h-8 text-success" fill="currentColor" viewBox="0 0 20 20">
+                        <button type="button" onclick="showJoinRoomDialog()" class="mp-mode-btn rounded-xl p-8">
+                            <div class="w-16 h-16 bg-emerald-500/15 rounded-full flex items-center justify-center mb-4 mx-auto shrink-0">
+                                <svg class="w-8 h-8 text-emerald-400" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                                     <path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z" />
                                 </svg>
                             </div>
                             <h4 class="text-xl font-semibold mb-2" data-i18n="joinRoom">Подключиться</h4>
-                            <p class="text-gray-400 text-sm" data-i18n="joinRoomDesc">Введи код комнаты друга</p>
+                            <p class="text-gray-500 dark:text-gray-400 text-sm" data-i18n="joinRoomDesc">Введи код комнаты друга</p>
                         </button>
 
                         <!-- Vs Bot -->
-                        <button type="button" onclick="showBotBattleSettings()" class="glass rounded-xl p-8 hover:scale-105 transition-transform text-center border border-fuchsia-500/20">
-                            <div class="w-16 h-16 bg-fuchsia-500/20 rounded-full flex items-center justify-center mb-4 mx-auto text-fuchsia-200" aria-hidden="true">
+                        <button type="button" onclick="showBotBattleSettings()" class="mp-mode-btn rounded-xl p-8 ring-1 ring-fuchsia-500/25">
+                            <div class="w-16 h-16 bg-fuchsia-500/20 rounded-full flex items-center justify-center mb-4 mx-auto text-fuchsia-200 shrink-0" aria-hidden="true">
                                 <svg class="w-9 h-9" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M12 3v2.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
                                     <rect x="6.5" y="6" width="11" height="10" rx="2.2" stroke="currentColor" stroke-width="1.75"/>
@@ -3394,7 +3442,7 @@
                                 </svg>
                             </div>
                             <h4 class="text-xl font-semibold mb-2" data-i18n="mpVsBot">Против бота</h4>
-                            <p class="text-gray-400 text-sm" data-i18n="mpVsBotDesc">Тренировка без комнаты</p>
+                            <p class="text-gray-500 dark:text-gray-400 text-sm" data-i18n="mpVsBotDesc">Тренировка без комнаты</p>
                         </button>
                     </div>
                 </div>
@@ -3727,25 +3775,49 @@
                 </button>
             </div>
             
-            <div class="mb-4">
-                <label class="block text-sm font-semibold text-gray-300 mb-2" data-i18n="textByTheme">Текст по теме:</label>
-                <div class="flex flex-wrap gap-2 mb-2">
-                    <select id="freeModeThemeSelect" class="flex-1 min-w-[140px] bg-gray-800/50 border border-gray-600 rounded-lg px-3 py-2 text-gray-100 text-sm focus:border-success/50 focus:outline-none focus:ring-1 focus:ring-success/30">
+            <div class="mb-4 space-y-3">
+                <label class="block text-sm font-semibold text-gray-300 mb-1" data-i18n="textByTheme">Текст по теме:</label>
+                <div class="flex flex-wrap gap-2 items-stretch">
+                    <select id="freeModeThemeSelect" class="flex-1 min-w-[160px] bg-gray-800/50 border border-gray-600 rounded-lg px-3 py-2 text-gray-100 text-sm focus:border-success/50 focus:outline-none focus:ring-1 focus:ring-success/30">
                         <option value="motivation" data-i18n="themeMotivation">Мотивация</option>
                         <option value="quotes" data-i18n="themeQuotes">Цитаты</option>
                         <option value="facts" data-i18n="themeFacts">Факты</option>
                         <option value="humor" data-i18n="themeHumor">Юмор</option>
                         <option value="proverbs" data-i18n="themeProverbs">Пословицы</option>
                     </select>
-                    <button type="button" onclick="loadThemedText()" class="px-4 py-2 rounded-lg bg-success/20 hover:bg-success/30 border border-success/40 text-success font-medium text-sm transition-colors whitespace-nowrap" data-i18n="loadRandomText">Случайный текст</button>
+                    <button type="button" onclick="loadThemedText()" class="px-4 py-2 rounded-lg bg-success/20 hover:bg-success/30 border border-success/40 text-success font-medium text-sm transition-colors whitespace-nowrap" data-i18n="freeModeFromTheme">Текст из темы</button>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-400 mb-1" data-i18n="freeModeCharsetLabel">Набор для случайного текста</label>
+                        <select id="freeModeCharsetSelect" class="w-full bg-gray-800/50 border border-gray-600 rounded-lg px-3 py-2 text-gray-100 text-sm focus:border-success/50 focus:outline-none focus:ring-1 focus:ring-success/30">
+                            <option value="letters" data-i18n="freeModeCharsetLetters">Буквы и пробел (по раскладке)</option>
+                            <option value="alnum" data-i18n="freeModeCharsetAlnum">Буквы, цифры, пробел (без знаков)</option>
+                            <option value="digits" data-i18n="freeModeCharsetDigits">Только цифры</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-400 mb-1" data-i18n="freeModeLengthLabel">Целевая длина</label>
+                        <select id="freeModeLengthSelect" class="w-full bg-gray-800/50 border border-gray-600 rounded-lg px-3 py-2 text-gray-100 text-sm focus:border-success/50 focus:outline-none focus:ring-1 focus:ring-success/30">
+                            <option value="200">~200</option>
+                            <option value="400" selected>~400</option>
+                            <option value="700">~700</option>
+                            <option value="1200">~1200</option>
+                            <option value="2000">~2000</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="flex flex-wrap gap-2 items-center">
+                    <button type="button" onclick="loadGeneratedFreeModeText()" class="px-4 py-2 rounded-lg bg-cyan-600/25 hover:bg-cyan-500/35 border border-cyan-500/40 text-cyan-200 font-medium text-sm transition-colors whitespace-nowrap" data-i18n="loadRandomText">Случайный набор</button>
+                    <span class="text-xs text-gray-500" data-i18n="freeModeRandomHint">Учитывает раскладку и настройки выше</span>
                 </div>
             </div>
             <div class="mb-6">
                 <label class="block text-sm font-semibold text-gray-300 mb-3" data-i18n="enterYourText">Введите свой текст для тренировки:</label>
                 <textarea 
                     id="freeModeTextInput" 
-                    class="w-full bg-gray-800/50 border-2 border-gray-700/50 rounded-xl p-4 text-gray-100 placeholder-gray-500 focus:border-success/50 focus:outline-none focus:ring-2 focus:ring-success/20 transition-all resize-none min-h-[200px] text-lg leading-relaxed font-mono"
-                    placeholder="Введите или вставьте текст, либо нажмите «Случайный текст» выше..."
+                    class="w-full bg-gray-800/50 border-2 border-gray-700/50 rounded-xl p-4 text-gray-100 placeholder-gray-500 focus:border-success/50 focus:outline-none focus:ring-2 focus:ring-success/20 transition-all resize-y min-h-[220px] sm:min-h-[260px] text-lg leading-relaxed font-mono"
+                    placeholder="Введите или вставьте текст, либо используйте кнопки выше..."
                     autofocus
                     onkeydown="if(event.key==='Enter' && event.ctrlKey) startFreeModePractice()"
                 ></textarea>
@@ -4558,3 +4630,4 @@
     </script>
 </body>
 </html>
+

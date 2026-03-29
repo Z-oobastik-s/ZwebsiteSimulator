@@ -492,7 +492,14 @@ const translations = window.translations || {
         tip: '💡 Совет:',
         freeModeTip: 'Можно вставить текст из любого источника. Нажмите Ctrl+Enter для быстрого старта',
         textByTheme: 'Текст по теме:',
-        loadRandomText: 'Случайный текст',
+        loadRandomText: 'Случайный набор',
+        freeModeFromTheme: 'Текст из темы',
+        freeModeCharsetLabel: 'Набор для случайного текста',
+        freeModeCharsetLetters: 'Буквы и пробел (по раскладке)',
+        freeModeCharsetAlnum: 'Буквы, цифры, пробел (без знаков)',
+        freeModeCharsetDigits: 'Только цифры',
+        freeModeLengthLabel: 'Целевая длина',
+        freeModeRandomHint: 'Учитывает раскладку и настройки выше',
         themeMotivation: 'Мотивация',
         themeQuotes: 'Цитаты',
         themeFacts: 'Факты',
@@ -727,7 +734,14 @@ const translations = window.translations || {
         tip: '💡 Tip:',
         freeModeTip: 'You can paste text from any source. Press Ctrl+Enter to start quickly',
         textByTheme: 'Text by theme:',
-        loadRandomText: 'Random text',
+        loadRandomText: 'Random sample',
+        freeModeFromTheme: 'Text from theme',
+        freeModeCharsetLabel: 'Charset for random text',
+        freeModeCharsetLetters: 'Letters and space (keyboard layout)',
+        freeModeCharsetAlnum: 'Letters, digits, space (no punctuation)',
+        freeModeCharsetDigits: 'Digits only',
+        freeModeLengthLabel: 'Target length',
+        freeModeRandomHint: 'Uses layout and settings above',
         themeMotivation: 'Motivation',
         themeQuotes: 'Quotes',
         themeFacts: 'Facts',
@@ -2002,6 +2016,8 @@ function showLessons() {
 }
 
 const FREE_MODE_THEME_KEY = 'zoobastiks_free_mode_theme';
+const FREE_MODE_CHARSET_KEY = 'zoobastiks_free_mode_charset';
+const FREE_MODE_LENGTH_KEY = 'zoobastiks_free_mode_len';
 
 // Show free mode modal
 function showFreeMode() {
@@ -2020,6 +2036,26 @@ function showFreeMode() {
             }
             themeSelect.removeEventListener('change', saveFreeModeTheme);
             themeSelect.addEventListener('change', saveFreeModeTheme);
+        }
+        var charsetSel = DOM.get('freeModeCharsetSelect');
+        var lenSel = DOM.get('freeModeLengthSelect');
+        try {
+            if (charsetSel) {
+                var sc = localStorage.getItem(FREE_MODE_CHARSET_KEY);
+                if (sc && ['letters', 'alnum', 'digits'].indexOf(sc) >= 0) charsetSel.value = sc;
+            }
+            if (lenSel) {
+                var sl = localStorage.getItem(FREE_MODE_LENGTH_KEY);
+                if (sl && [].slice.call(lenSel.options).some(function (o) { return o.value === sl; })) lenSel.value = sl;
+            }
+        } catch (_e) {}
+        if (charsetSel) {
+            charsetSel.removeEventListener('change', saveFreeModeGeneratorPrefs);
+            charsetSel.addEventListener('change', saveFreeModeGeneratorPrefs);
+        }
+        if (lenSel) {
+            lenSel.removeEventListener('change', saveFreeModeGeneratorPrefs);
+            lenSel.addEventListener('change', saveFreeModeGeneratorPrefs);
         }
         textInput.focus();
         updateFreeModeCharCount();
@@ -2072,24 +2108,95 @@ function saveFreeModeTheme() {
     if (select) localStorage.setItem(FREE_MODE_THEME_KEY, select.value);
 }
 
-// Load a random text from the selected theme into free mode textarea
-function loadThemedText() {
-    var themes = window.THEMED_TEXTS;
-    if (!themes) return;
-    var lang = (app.lang === 'en') ? 'en' : 'ru';
-    var data = themes[lang];
-    if (!data) return;
-    var select = DOM.get('freeModeThemeSelect');
-    var themeId = select ? select.value : 'motivation';
-    var theme = data[themeId];
-    if (!theme || !theme.texts || theme.texts.length === 0) return;
-    var text = theme.texts[Math.floor(Math.random() * theme.texts.length)];
+function saveFreeModeGeneratorPrefs() {
+    var charsetSel = DOM.get('freeModeCharsetSelect');
+    var lenSel = DOM.get('freeModeLengthSelect');
+    try {
+        if (charsetSel && charsetSel.value) localStorage.setItem(FREE_MODE_CHARSET_KEY, charsetSel.value);
+        if (lenSel && lenSel.value) localStorage.setItem(FREE_MODE_LENGTH_KEY, lenSel.value);
+    } catch (_e) {}
+}
+
+function getFreeModeTargetLength() {
+    var lenSel = DOM.get('freeModeLengthSelect');
+    var n = lenSel ? parseInt(lenSel.value, 10) : 400;
+    return Number.isFinite(n) && n > 0 ? n : 400;
+}
+
+function getThemedTextsLangKey() {
+    return app.lang === 'en' ? 'en' : 'ru';
+}
+
+function getFreeModeAlphabetForLayout() {
+    var L = app.currentLayout;
+    if (L === 'en') return 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    if (L === 'ua') return 'абвгґдеєжзиіїйклмнопрстуфхцчшщьюяАБВГҐДЕЄЖЗИІЇЙКЛМНОПРСТУФХЦЧШЩЬЮЯ';
+    return 'абвгдеёжзийклмнопрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ';
+}
+
+function buildFreeModeCharPool(charsetMode) {
+    if (charsetMode === 'digits') return '0123456789';
+    var letters = getFreeModeAlphabetForLayout() + ' ';
+    if (charsetMode === 'letters') return letters;
+    if (charsetMode === 'alnum') return letters.replace(/\s/g, '') + '0123456789 ';
+    return letters;
+}
+
+function generateFreeModeTextFromPool(pool, length) {
+    if (!pool || pool.length === 0 || length < 1) return '';
+    var s = '';
+    for (var i = 0; i < length; i++) {
+        s += pool.charAt(Math.floor(Math.random() * pool.length));
+    }
+    return s;
+}
+
+function loadGeneratedFreeModeText() {
+    var charsetSel = DOM.get('freeModeCharsetSelect');
+    var mode = charsetSel ? charsetSel.value : 'letters';
+    if (['letters', 'alnum', 'digits'].indexOf(mode) < 0) mode = 'letters';
+    var len = getFreeModeTargetLength();
+    saveFreeModeGeneratorPrefs();
+    var pool = buildFreeModeCharPool(mode);
+    var text = generateFreeModeTextFromPool(pool, len);
     var textInput = DOM.get('freeModeTextInput');
     if (textInput) {
         textInput.value = text;
         updateFreeModeCharCount();
         textInput.focus();
     }
+}
+
+// Load a random text from the selected theme into free mode textarea (склеиваем фрагменты до целевой длины)
+function loadThemedText() {
+    var themes = window.THEMED_TEXTS;
+    if (!themes) return;
+    var lang = getThemedTextsLangKey();
+    var data = themes[lang];
+    if (!data) return;
+    var select = DOM.get('freeModeThemeSelect');
+    var themeId = select ? select.value : 'motivation';
+    var theme = data[themeId];
+    if (!theme || !theme.texts || theme.texts.length === 0) return;
+    var lenTarget = getFreeModeTargetLength();
+    var parts = [];
+    var acc = '';
+    var guard = 0;
+    while (acc.length < lenTarget && guard < 120) {
+        guard++;
+        var piece = theme.texts[Math.floor(Math.random() * theme.texts.length)];
+        parts.push(piece);
+        acc = parts.join(' ');
+    }
+    var text = acc.length >= lenTarget ? acc : acc + ' ' + theme.texts[0];
+    if (text.length > lenTarget + 80) text = text.slice(0, lenTarget + 40).replace(/\s+\S*$/, '').trim();
+    var textInput = DOM.get('freeModeTextInput');
+    if (textInput) {
+        textInput.value = text;
+        updateFreeModeCharCount();
+        textInput.focus();
+    }
+    saveFreeModeTheme();
 }
 
 // Start free mode practice
@@ -4922,6 +5029,8 @@ function trReplace(key, map) {
 // ============================================
 
 let currentUserProfile = null;
+let avatarSaveInFlight = false;
+let avatarModalEscapeHandler = null;
 
 // Auth state listener will be initialized in DOMContentLoaded
 
@@ -4958,16 +5067,13 @@ function updateUserUI(user, profile) {
     
     if (avatarURL) {
         userAvatar.src = avatarURL;
+        userAvatar.alt = '';
         userAvatar.style.display = 'block';
         userAvatar.style.width = '32px';
         userAvatar.style.height = '32px';
         userAvatar.style.objectFit = 'cover';
-        const placeholder = DOM.get('profilePhotoPlaceholder');
-        if (placeholder) placeholder.style.display = 'none';
     } else {
         userAvatar.style.display = 'none';
-        const placeholder = DOM.get('profilePhotoPlaceholder');
-        if (placeholder) placeholder.style.display = 'flex';
     }
 }
 
@@ -5955,6 +6061,7 @@ function loadProfileData(profile) {
     
     if (avatarURL && photoEl && placeholderEl) {
         photoEl.src = avatarURL;
+        photoEl.alt = '';
         photoEl.style.display = 'block';
         photoEl.style.width = '128px';
         photoEl.style.height = '128px';
@@ -6104,10 +6211,28 @@ function showAvatarSelector() {
     modal.onclick = function(e) {
         if (e.target === modal) closeAvatarSelector();
     };
+
+    if (avatarModalEscapeHandler) {
+        document.removeEventListener('keydown', avatarModalEscapeHandler);
+        avatarModalEscapeHandler = null;
+    }
+    avatarModalEscapeHandler = function (e) {
+        if (e.key === 'Escape') {
+            e.preventDefault();
+            closeAvatarSelector();
+        }
+    };
+    document.addEventListener('keydown', avatarModalEscapeHandler);
+
+    focusFirstInModal(modal);
 }
 
 // Close avatar selector
 function closeAvatarSelector() {
+    if (avatarModalEscapeHandler) {
+        document.removeEventListener('keydown', avatarModalEscapeHandler);
+        avatarModalEscapeHandler = null;
+    }
     const modal = DOM.get('avatarSelectorModal');
     if (modal) {
         modal.classList.add('hidden');
@@ -6120,47 +6245,65 @@ function closeAvatarSelector() {
 async function selectAvatar(avatarIndex) {
     const user = window.authModule?.getCurrentUser();
     if (!user || !window.authModule) return;
-    
-    showToast(t('updatingAvatar'), 'info');
-    
-    const result = await window.authModule.updateProfileAvatar(user.uid, avatarIndex);
-    
-    if (result.success) {
-        // Update profile photo display
-        const profilePhoto = DOM.get('profilePhoto');
-        const profilePlaceholder = DOM.get('profilePhotoPlaceholder');
-        const userAvatar = DOM.get('userAvatar');
-        
-        if (profilePhoto) {
-            profilePhoto.src = result.photoURL;
-            profilePhoto.style.display = 'block';
-            profilePhoto.style.width = '128px';
-            profilePhoto.style.height = '128px';
-            profilePhoto.style.objectFit = 'cover';
-            profilePhoto.style.objectPosition = 'center';
+    if (avatarSaveInFlight) return;
+
+    const grid = DOM.get('avatarGrid');
+    avatarSaveInFlight = true;
+    if (grid) {
+        grid.style.pointerEvents = 'none';
+        grid.style.opacity = '0.65';
+    }
+
+    try {
+        const result = await window.authModule.updateProfileAvatar(user.uid, avatarIndex);
+
+        if (result.success) {
+            const url = result.photoURL;
+            const idx = result.avatarIndex != null ? result.avatarIndex : avatarIndex;
+
+            const profilePhoto = DOM.get('profilePhoto');
+            const profilePlaceholder = DOM.get('profilePhotoPlaceholder');
+            const userAvatar = DOM.get('userAvatar');
+
+            if (profilePhoto && url) {
+                profilePhoto.src = url;
+                profilePhoto.alt = '';
+                profilePhoto.style.display = 'block';
+                profilePhoto.style.width = '128px';
+                profilePhoto.style.height = '128px';
+                profilePhoto.style.objectFit = 'cover';
+                profilePhoto.style.objectPosition = 'center';
+            }
+            if (profilePlaceholder) profilePlaceholder.style.display = 'none';
+            if (userAvatar && url) {
+                userAvatar.src = url;
+                userAvatar.alt = '';
+                userAvatar.style.display = 'block';
+                userAvatar.style.width = '32px';
+                userAvatar.style.height = '32px';
+                userAvatar.style.objectFit = 'cover';
+                userAvatar.style.objectPosition = 'center';
+            }
+
+            if (currentUserProfile) {
+                currentUserProfile.photoURL = url;
+                currentUserProfile.avatarIndex = idx;
+            }
+
+            const fresh = window.authModule.getCurrentUser();
+            if (fresh && typeof updateUserUI === 'function') updateUserUI(fresh, fresh);
+
+            closeAvatarSelector();
+            showToast(t('avatarUpdated'), 'success');
+        } else {
+            showToast(result.error || t('updateError'), 'error');
         }
-        if (profilePlaceholder) {
-            profilePlaceholder.style.display = 'none';
+    } finally {
+        avatarSaveInFlight = false;
+        if (grid) {
+            grid.style.pointerEvents = '';
+            grid.style.opacity = '';
         }
-        if (userAvatar) {
-            userAvatar.src = result.photoURL;
-            userAvatar.style.display = 'block';
-            userAvatar.style.width = '32px';
-            userAvatar.style.height = '32px';
-            userAvatar.style.objectFit = 'cover';
-            userAvatar.style.objectPosition = 'center';
-        }
-        
-        // Update current profile
-        if (currentUserProfile) {
-            currentUserProfile.photoURL = result.photoURL;
-            currentUserProfile.avatarIndex = avatarIndex;
-        }
-        
-        closeAvatarSelector();
-        showToast(t('avatarUpdated'), 'success');
-    } else {
-        showToast(result.error || t('updateError'), 'error');
     }
 }
 
@@ -7941,3 +8084,4 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+
