@@ -2588,9 +2588,8 @@
         }
 
         /* ==========================================
-           Multiplayer — лёгкий UI (без blur на огромных слоях — иначе лаги)
+           Multiplayer — игровой HUD без тяжёлого filter:blur (производительность)
            ========================================== */
-        #multiplayerMenuScreen #multiplayerMainMenu,
         #multiplayerWaitingScreen .glass,
         #multiplayerGameScreen .glass.rounded-2xl {
             position: relative;
@@ -2600,50 +2599,226 @@
             box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
         }
 
-        #multiplayerMenuScreen #multiplayerMainMenu::before,
         #multiplayerWaitingScreen .glass::before,
         #multiplayerGameScreen .glass.rounded-2xl::before {
             display: none;
         }
 
-        #multiplayerMenuScreen #multiplayerMainMenu > *,
         #multiplayerWaitingScreen .glass > *,
         #multiplayerGameScreen .glass.rounded-2xl > * {
             position: relative;
             z-index: 1;
         }
 
+        /* Меню: «арена» с неоновой рамкой и верхней полосой */
+        #multiplayerMenuScreen #multiplayerMainMenu.mp-menu-arena {
+            position: relative;
+            overflow: hidden;
+            border-radius: 1.25rem;
+            border: 1px solid rgba(34, 211, 238, 0.38);
+            background: linear-gradient(155deg, rgba(15, 23, 42, 0.94) 0%, rgba(30, 27, 75, 0.9) 45%, rgba(15, 23, 42, 0.95) 100%);
+            box-shadow:
+                0 0 0 1px rgba(0, 0, 0, 0.45) inset,
+                0 10px 40px rgba(0, 0, 0, 0.5),
+                0 0 50px rgba(139, 92, 246, 0.14);
+        }
+        #multiplayerMenuScreen #multiplayerMainMenu.mp-menu-arena::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #22d3ee, #a855f7, #e879f9, transparent);
+            opacity: 0.92;
+            pointer-events: none;
+        }
+        #multiplayerMenuScreen #multiplayerMainMenu.mp-menu-arena > * {
+            position: relative;
+            z-index: 1;
+        }
+        html:not(.dark) #multiplayerMenuScreen #multiplayerMainMenu.mp-menu-arena {
+            background: linear-gradient(155deg, rgba(248, 250, 252, 0.97) 0%, rgba(238, 242, 255, 0.96) 100%);
+            border-color: rgba(8, 145, 178, 0.45);
+            box-shadow: 0 10px 36px rgba(15, 23, 42, 0.12), 0 0 0 1px rgba(15, 23, 42, 0.06) inset;
+        }
+        html:not(.dark) #multiplayerMenuScreen #multiplayerMainMenu.mp-menu-arena::before {
+            opacity: 0.85;
+        }
+
+        #multiplayerMenuScreen .mp-menu-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0.85rem;
+        }
+        @media (min-width: 768px) {
+            #multiplayerMenuScreen .mp-menu-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 1rem;
+            }
+        }
+
+        /* Карточка режима: центрирование через внутреннюю колонку (фикс кривой иконки «user+») */
         #multiplayerMenuScreen .mp-mode-btn {
+            display: block;
+            width: 100%;
+            min-width: 0;
+            min-height: 10.5rem;
+            box-sizing: border-box;
+            padding: 1.15rem 0.9rem 1.25rem;
+            text-align: center;
+            border-radius: 1rem;
+            position: relative;
+            border: 1px solid rgba(148, 163, 184, 0.22);
+            background: linear-gradient(180deg, rgba(30, 41, 59, 0.55) 0%, rgba(15, 23, 42, 0.72) 100%);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.28);
+            transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+        }
+        #multiplayerMenuScreen .mp-mode-btn:focus-visible {
+            outline: 2px solid rgba(34, 211, 238, 0.7);
+            outline-offset: 2px;
+        }
+        #multiplayerMenuScreen .mp-mode-btn__inner {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: flex-start;
+            width: 100%;
+            max-width: 16rem;
+            margin: 0 auto;
             text-align: center;
+        }
+        #multiplayerMenuScreen .mp-mode-icon {
+            width: 3.75rem;
+            height: 3.75rem;
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 0.85rem;
+            flex-shrink: 0;
+            box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+        }
+        #multiplayerMenuScreen .mp-mode-btn svg {
+            display: block;
+            flex-shrink: 0;
+        }
+        #multiplayerMenuScreen .mp-mode-btn h4 {
             width: 100%;
-            min-width: 0;
-            box-sizing: border-box;
-            background: rgba(30, 41, 59, 0.82);
-            border: 1px solid rgba(148, 163, 184, 0.2);
-            box-shadow: none;
-            transition: border-color 0.15s ease, background-color 0.15s ease;
-        }
-        #multiplayerMenuScreen .mp-mode-btn:hover {
-            border-color: rgba(34, 211, 238, 0.45);
-            background: rgba(30, 41, 59, 0.95);
-        }
-        html:not(.dark) #multiplayerMenuScreen .mp-mode-btn {
-            background: rgba(241, 245, 249, 0.92);
-            border-color: rgba(100, 116, 139, 0.35);
-        }
-        html:not(.dark) #multiplayerMenuScreen .mp-mode-btn:hover {
-            border-color: rgba(8, 145, 178, 0.55);
-        }
-        #multiplayerMenuScreen .mp-mode-btn h4,
-        #multiplayerMenuScreen .mp-mode-btn p {
-            width: 100%;
-            max-width: 100%;
+            margin: 0 0 0.35rem 0;
+            font-size: 1.05rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            line-height: 1.25;
             text-align: center;
             text-wrap: balance;
+        }
+        #multiplayerMenuScreen .mp-mode-btn p {
+            width: 100%;
+            margin: 0;
+            font-size: 0.8rem;
+            line-height: 1.35;
+            text-align: center;
+            text-wrap: balance;
+            opacity: 0.88;
+        }
+        html.dark #multiplayerMenuScreen .mp-mode-btn p {
+            color: rgb(203, 213, 225);
+        }
+        html:not(.dark) #multiplayerMenuScreen .mp-mode-btn p {
+            color: rgb(71, 85, 105);
+        }
+
+        #multiplayerMenuScreen .mp-mode-btn--host .mp-mode-icon {
+            background: linear-gradient(145deg, rgba(168, 85, 247, 0.35), rgba(139, 92, 246, 0.15));
+            color: #e9d5ff;
+            box-shadow: 0 0 28px rgba(168, 85, 247, 0.22);
+        }
+        #multiplayerMenuScreen .mp-mode-btn--host:hover {
+            border-color: rgba(192, 132, 252, 0.55);
+            box-shadow: 0 0 28px rgba(168, 85, 247, 0.2), 0 6px 24px rgba(0, 0, 0, 0.35);
+        }
+        #multiplayerMenuScreen .mp-mode-btn--host h4 {
+            color: #f5d0fe;
+        }
+        html:not(.dark) #multiplayerMenuScreen .mp-mode-btn--host h4 {
+            color: #7e22ce;
+        }
+
+        #multiplayerMenuScreen .mp-mode-btn--join .mp-mode-icon {
+            background: linear-gradient(145deg, rgba(16, 185, 129, 0.38), rgba(5, 150, 105, 0.18));
+            color: #a7f3d0;
+            box-shadow: 0 0 28px rgba(16, 185, 129, 0.22);
+        }
+        #multiplayerMenuScreen .mp-mode-btn--join:hover {
+            border-color: rgba(52, 211, 153, 0.55);
+            box-shadow: 0 0 28px rgba(16, 185, 129, 0.18), 0 6px 24px rgba(0, 0, 0, 0.35);
+        }
+        #multiplayerMenuScreen .mp-mode-btn--join h4 {
+            color: #a7f3d0;
+        }
+        html:not(.dark) #multiplayerMenuScreen .mp-mode-btn--join h4 {
+            color: #047857;
+        }
+
+        #multiplayerMenuScreen .mp-mode-btn--bot .mp-mode-icon {
+            background: linear-gradient(145deg, rgba(217, 70, 239, 0.35), rgba(192, 38, 211, 0.18));
+            color: #e9d5ff;
+            box-shadow: 0 0 28px rgba(217, 70, 239, 0.2);
+        }
+        #multiplayerMenuScreen .mp-mode-btn--bot:hover {
+            border-color: rgba(232, 121, 249, 0.55);
+            box-shadow: 0 0 28px rgba(217, 70, 239, 0.18), 0 6px 24px rgba(0, 0, 0, 0.35);
+        }
+        #multiplayerMenuScreen .mp-mode-btn--bot h4 {
+            color: #f0abfc;
+        }
+        html:not(.dark) #multiplayerMenuScreen .mp-mode-btn--bot h4 {
+            color: #a21caf;
+        }
+
+        .no-animations #multiplayerMenuScreen .mp-mode-btn:hover {
+            transform: none;
+        }
+        #multiplayerMenuScreen .mp-mode-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Заголовок экрана мультиплеера */
+        #multiplayerMenuScreen .mp-menu-title {
+            font-weight: 800;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            background: linear-gradient(92deg, #c4b5fd 0%, #22d3ee 45%, #e879f9 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: none;
+            filter: drop-shadow(0 0 18px rgba(34, 211, 238, 0.25));
+        }
+        html:not(.dark) #multiplayerMenuScreen .mp-menu-title {
+            background: linear-gradient(92deg, #6d28d9 0%, #0e7490 50%, #a21caf 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            filter: none;
+        }
+        #multiplayerMenuScreen .mp-back-btn {
+            border: 1px solid rgba(34, 211, 238, 0.35);
+            background: rgba(15, 23, 42, 0.55);
+            box-shadow: 0 0 16px rgba(34, 211, 238, 0.08);
+        }
+        #multiplayerMenuScreen .mp-back-btn:hover {
+            border-color: rgba(34, 211, 238, 0.55);
+            background: rgba(15, 23, 42, 0.75);
+        }
+        html:not(.dark) #multiplayerMenuScreen .mp-back-btn {
+            background: rgba(255, 255, 255, 0.85);
+            border-color: rgba(8, 145, 178, 0.35);
+            color: rgb(14, 116, 144);
+        }
+        .no-animations #multiplayerMenuScreen .mp-menu-title {
+            filter: none;
         }
 
         /* Bot voice: native <select> uses OS colors; force dark list + text on Windows/Chrome */
@@ -3390,59 +3565,67 @@
         
         <!-- Multiplayer Menu Screen -->
         <div id="multiplayerMenuScreen" class="hidden fade-in">
-            <div class="max-w-2xl mx-auto px-3 sm:px-0">
-                <div class="grid grid-cols-1 sm:grid-cols-3 items-center gap-3 mb-8">
+            <div class="max-w-3xl mx-auto px-3 sm:px-1">
+                <div class="grid grid-cols-1 sm:grid-cols-3 items-center gap-3 mb-7">
                     <div class="flex justify-start order-2 sm:order-1">
-                        <button onclick="showHome()" type="button" class="glass px-5 py-2.5 sm:px-6 sm:py-3 rounded-xl hover:bg-white/15 dark:hover:bg-black/25 flex items-center gap-2 border border-white/10">
-                            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <button onclick="showHome()" type="button" class="mp-back-btn px-4 py-2.5 sm:px-5 sm:py-3 rounded-xl flex items-center gap-2 text-sm font-semibold text-cyan-100 dark:text-cyan-100">
+                            <svg class="w-5 h-5 shrink-0 opacity-90" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                             </svg>
                             <span data-i18n="back">Назад</span>
                         </button>
                     </div>
-                    <h2 class="text-2xl sm:text-3xl font-bold text-purple-400 text-center order-1 sm:order-2 px-2 leading-tight"><span data-i18n="multiplayerMenu">🎮 Мультиплеер</span></h2>
+                    <h2 class="mp-menu-title text-lg sm:text-xl md:text-2xl text-center order-1 sm:order-2 px-2 leading-snug"><span data-i18n="multiplayerMenu">Мультиплеер</span></h2>
                     <div class="hidden sm:block order-3" aria-hidden="true"></div>
                 </div>
                 
                 <!-- Main Menu -->
-                <div id="multiplayerMainMenu" class="rounded-2xl p-6 sm:p-8 mb-6">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5">
+                <div id="multiplayerMainMenu" class="mp-menu-arena p-5 sm:p-6 mb-6">
+                    <div class="mp-menu-grid">
                         <!-- Create Room -->
-                        <button type="button" onclick="showRoomSettings(false)" class="mp-mode-btn rounded-xl p-8">
-                            <div class="w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center mb-4 mx-auto shrink-0">
-                                <svg class="w-8 h-8 text-purple-400" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                                    <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
-                                </svg>
-                            </div>
-                            <h4 class="text-xl font-semibold mb-2" data-i18n="createRoom">Создать комнату</h4>
-                            <p class="text-gray-500 dark:text-gray-400 text-sm" data-i18n="createRoomDesc">Получи код и отправь другу</p>
+                        <button type="button" onclick="showRoomSettings(false)" class="mp-mode-btn mp-mode-btn--host">
+                            <span class="mp-mode-btn__inner">
+                                <span class="mp-mode-icon" aria-hidden="true">
+                                    <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                        <path d="M19 11h-6V5h-2v6H5v2h6v6h2v-6h6v-2z"/>
+                                    </svg>
+                                </span>
+                                <h4 data-i18n="createRoom">Создать комнату</h4>
+                                <p data-i18n="createRoomDesc">Получи код и отправь другу</p>
+                            </span>
                         </button>
                         
-                        <!-- Join Room -->
-                        <button type="button" onclick="showJoinRoomDialog()" class="mp-mode-btn rounded-xl p-8">
-                            <div class="w-16 h-16 bg-emerald-500/15 rounded-full flex items-center justify-center mb-4 mx-auto shrink-0">
-                                <svg class="w-8 h-8 text-emerald-400" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                                    <path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z" />
-                                </svg>
-                            </div>
-                            <h4 class="text-xl font-semibold mb-2" data-i18n="joinRoom">Подключиться</h4>
-                            <p class="text-gray-500 dark:text-gray-400 text-sm" data-i18n="joinRoomDesc">Введи код комнаты друга</p>
+                        <!-- Join Room: симметричная иконка «вход по коду» — без визуального сдвига -->
+                        <button type="button" onclick="showJoinRoomDialog()" class="mp-mode-btn mp-mode-btn--join">
+                            <span class="mp-mode-btn__inner">
+                                <span class="mp-mode-icon" aria-hidden="true">
+                                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                        <path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/>
+                                        <polyline points="10 17 15 12 10 7"/>
+                                        <line x1="15" y1="12" x2="3" y2="12"/>
+                                    </svg>
+                                </span>
+                                <h4 data-i18n="joinRoom">Подключиться</h4>
+                                <p data-i18n="joinRoomDesc">Введи код комнаты друга</p>
+                            </span>
                         </button>
 
                         <!-- Vs Bot -->
-                        <button type="button" onclick="showBotBattleSettings()" class="mp-mode-btn rounded-xl p-8 ring-1 ring-fuchsia-500/25">
-                            <div class="w-16 h-16 bg-fuchsia-500/20 rounded-full flex items-center justify-center mb-4 mx-auto text-fuchsia-200 shrink-0" aria-hidden="true">
-                                <svg class="w-9 h-9" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M12 3v2.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
-                                    <rect x="6.5" y="6" width="11" height="10" rx="2.2" stroke="currentColor" stroke-width="1.75"/>
-                                    <circle cx="9.5" cy="10.5" r="1.25" fill="currentColor"/>
-                                    <circle cx="14.5" cy="10.5" r="1.25" fill="currentColor"/>
-                                    <path d="M9 14h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.85"/>
-                                    <path d="M8 19.5h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.55"/>
-                                </svg>
-                            </div>
-                            <h4 class="text-xl font-semibold mb-2" data-i18n="mpVsBot">Против бота</h4>
-                            <p class="text-gray-500 dark:text-gray-400 text-sm" data-i18n="mpVsBotDesc">Тренировка без комнаты</p>
+                        <button type="button" onclick="showBotBattleSettings()" class="mp-mode-btn mp-mode-btn--bot">
+                            <span class="mp-mode-btn__inner">
+                                <span class="mp-mode-icon" aria-hidden="true">
+                                    <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                        <path d="M12 3v2.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+                                        <rect x="6.5" y="6" width="11" height="10" rx="2.2" stroke="currentColor" stroke-width="1.75"/>
+                                        <circle cx="9.5" cy="10.5" r="1.25" fill="currentColor"/>
+                                        <circle cx="14.5" cy="10.5" r="1.25" fill="currentColor"/>
+                                        <path d="M9 14h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.85"/>
+                                        <path d="M8 19.5h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.55"/>
+                                    </svg>
+                                </span>
+                                <h4 data-i18n="mpVsBot">Против бота</h4>
+                                <p data-i18n="mpVsBotDesc">Тренировка без комнаты</p>
+                            </span>
                         </button>
                     </div>
                 </div>
@@ -4630,4 +4813,3 @@
     </script>
 </body>
 </html>
-
