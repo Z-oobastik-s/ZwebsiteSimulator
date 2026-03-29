@@ -7364,8 +7364,9 @@ window.multiplayerResultsSettings = async function() {
     closeMultiplayerResultsModal();
     if (app.lastMatchWasBot) {
         app.gameEnded = false;
-        mpRoomSettingsMode = 'bot';
         showMultiplayerMenu();
+        // showMultiplayerMenu() сбрасывает режим в online; для рестарта бота обязательно снова выставить bot.
+        mpRoomSettingsMode = 'bot';
         document.getElementById('multiplayerMainMenu').classList.add('hidden');
         document.getElementById('roomSettingsDialog').classList.remove('hidden');
         document.getElementById('joinRoomDialog').classList.add('hidden');
@@ -7756,4 +7757,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-

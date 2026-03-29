@@ -16,10 +16,12 @@
         novice: { cpmLo: 22, cpmHi: 44, typoMul: 2.5, pauseMul: 2.3, reactiveMs: 3800, idleMin: 4500, idleMax: 10000, ttsGap: 1300, chatterPerSec: 0.14, cpmWander: 16, sprintChance: 0.35 },
         easy: { cpmLo: 40, cpmHi: 72, typoMul: 1.55, pauseMul: 1.65, reactiveMs: 3000, idleMin: 3800, idleMax: 8200, ttsGap: 1100, chatterPerSec: 0.22, cpmWander: 20, sprintChance: 0.42 },
         medium: { cpmLo: 62, cpmHi: 105, typoMul: 1, pauseMul: 1, reactiveMs: 2100, idleMin: 2800, idleMax: 6500, ttsGap: 850, chatterPerSec: 0.34, cpmWander: 26, sprintChance: 0.52 },
-        hard: { cpmLo: 95, cpmHi: 145, typoMul: 0.58, pauseMul: 0.68, reactiveMs: 1500, idleMin: 2000, idleMax: 5200, ttsGap: 650, chatterPerSec: 0.45, cpmWander: 32, sprintChance: 0.6 },
-        insane: { cpmLo: 135, cpmHi: 200, typoMul: 0.32, pauseMul: 0.48, reactiveMs: 1100, idleMin: 1500, idleMax: 4000, ttsGap: 500, chatterPerSec: 0.55, cpmWander: 38, sprintChance: 0.68 },
-        impossible: { cpmLo: 190, cpmHi: 295, typoMul: 0.18, pauseMul: 0.32, reactiveMs: 800, idleMin: 1000, idleMax: 2800, ttsGap: 380, chatterPerSec: 0.66, cpmWander: 45, sprintChance: 0.75 }
+        hard: { cpmLo: 105, cpmHi: 168, typoMul: 0.52, pauseMul: 0.58, reactiveMs: 1400, idleMin: 1900, idleMax: 5000, ttsGap: 650, chatterPerSec: 0.38, cpmWander: 34, sprintChance: 0.62 },
+        insane: { cpmLo: 172, cpmHi: 255, typoMul: 0.22, pauseMul: 0.34, reactiveMs: 1000, idleMin: 1200, idleMax: 3400, ttsGap: 500, chatterPerSec: 0.32, cpmWander: 42, sprintChance: 0.72 },
+        impossible: { cpmLo: 235, cpmHi: 335, typoMul: 0.12, pauseMul: 0.24, reactiveMs: 700, idleMin: 900, idleMax: 2400, ttsGap: 380, chatterPerSec: 0.5, cpmWander: 48, sprintChance: 0.78 }
     };
+
+    var CHAT_UI_MIN_MS = { novice: 4200, easy: 3600, medium: 3000, hard: 2700, insane: 2400, impossible: 2100 };
 
     var NAMES = {
         ru: ['NeoType', 'БыстрыйЛис', 'Клавишник', 'ТурбоПалец', 'НочнойОхотник', 'СтримерOK', 'КиберПечать', 'ГонщикWPM', 'Спринтер', 'ТихийШторм', 'FlashPrint', 'Клавиатурщик', 'СпринтМастер', 'ПулемётЁ', 'СоваНаКофе'],
@@ -458,12 +460,18 @@
         ttsSpeechActive = false;
     }
 
-    function pushMessage(text, doTts) {
+    function pushMessage(text, doTts, forceChatUi) {
         if (!state || !text) return;
         state.lastLine = text;
+        var now = performance.now();
+        var minChat = state.chatUiMinMs || 2800;
+        var showUi = !!forceChatUi || (now - state.lastChatUiAt >= minChat);
+        if (!showUi) return;
+
+        state.lastChatUiAt = now;
         if (state.onMessage) state.onMessage(text);
+
         if (doTts && state.ttsEnabled) {
-            var now = performance.now();
             var gap = state.ttsGapMs || 900;
             if (now - state.lastTtsAt > gap) {
                 state.lastTtsAt = now;
@@ -482,10 +490,10 @@
         var bundle = state.bundle;
         if (pr > br + 0.09) {
             state.lastReactiveAt = now;
-            pushMessage(pickLine(bundle, 'playerAhead', state.lastLine), true);
+            pushMessage(pickLine(bundle, 'playerAhead', state.lastLine), true, false);
         } else if (br > pr + 0.09) {
             state.lastReactiveAt = now;
-            pushMessage(pickLine(bundle, 'botAhead', state.lastLine), true);
+            pushMessage(pickLine(bundle, 'botAhead', state.lastLine), true, false);
         }
     }
 
@@ -529,7 +537,7 @@
             if (Math.random() < state.typoRate) {
                 state.botErrors += 1;
                 if (state.onErrors) state.onErrors(state.botErrors);
-                pushMessage(pickLine(state.bundle, 'botTypo', state.lastLine), Math.random() < state.profile.sprintChance);
+                pushMessage(pickLine(state.bundle, 'botTypo', state.lastLine), Math.random() < state.profile.sprintChance, false);
             } else {
                 state.botChars += 1;
             }
@@ -544,38 +552,39 @@
         var ratio = state.botChars / state.textLen;
         if (!state.m25 && ratio >= 0.25) {
             state.m25 = true;
-            pushMessage(pickLine(state.bundle, 'mid', state.lastLine), Math.random() < 0.55);
+            pushMessage(pickLine(state.bundle, 'mid', state.lastLine), Math.random() < 0.55, true);
         }
         if (!state.m40 && ratio >= 0.40) {
             state.m40 = true;
-            pushMessage(randomBanterLine(state.bundle, state.lastLine), Math.random() < 0.5);
+            pushMessage(randomBanterLine(state.bundle, state.lastLine), Math.random() < 0.5, true);
         }
         if (!state.m55 && ratio >= 0.55) {
             state.m55 = true;
-            pushMessage(pickLine(state.bundle, 'mid', state.lastLine), Math.random() < 0.62);
+            pushMessage(pickLine(state.bundle, 'mid', state.lastLine), Math.random() < 0.62, true);
         }
         if (!state.m72 && ratio >= 0.72) {
             state.m72 = true;
-            pushMessage(randomBanterLine(state.bundle, state.lastLine), Math.random() < 0.58);
+            pushMessage(randomBanterLine(state.bundle, state.lastLine), Math.random() < 0.58, true);
         }
         if (!state.m88 && ratio >= 0.88) {
             state.m88 = true;
-            pushMessage(pickLine(state.bundle, 'sprint', state.lastLine), true);
+            pushMessage(pickLine(state.bundle, 'sprint', state.lastLine), true, true);
         }
 
         if (Math.random() < dt * state.profile.chatterPerSec * 1.15) {
-            pushMessage(randomBanterLine(state.bundle, state.lastLine), Math.random() < 0.42);
+            pushMessage(randomBanterLine(state.bundle, state.lastLine), Math.random() < 0.42, false);
         }
 
         if (now > state.nextIdleAt) {
             var span = state.profile.idleMax - state.profile.idleMin;
             state.nextIdleAt = now + state.profile.idleMin + Math.random() * span;
-            if (Math.random() < 0.72) pushMessage(randomBanterLine(state.bundle, state.lastLine), Math.random() < 0.48);
+            if (Math.random() < 0.72) pushMessage(randomBanterLine(state.bundle, state.lastLine), Math.random() < 0.48, false);
         }
 
         if (state.botChars >= state.textLen) {
+            var onBotWin = state.onBotWin;
             stop();
-            if (state.onBotWin) state.onBotWin();
+            if (onBotWin) onBotWin();
             return;
         }
 
@@ -593,8 +602,9 @@
         var profile = getDiff(diffId);
         var voiceURI = config.voiceURI || '';
 
+        var fastRoll = diffId === 'impossible' ? 0.8 : diffId === 'insane' ? 0.72 : diffId === 'hard' ? 0.58 : 0.45;
         var personality = {
-            fast: Math.random() < 0.45,
+            fast: Math.random() < fastRoll,
             jitterMul: (0.88 + Math.random() * 0.26) * (profile.typoMul < 0.5 ? 1.04 : 1),
             burstFactor: 0.95 + Math.random() * 0.2,
             pauseMul: profile.pauseMul,
@@ -617,8 +627,8 @@
             lo -= 5;
             hi -= 8;
         }
-        lo = clamp(lo, 15, 320);
-        hi = clamp(hi, lo + 8, 340);
+        lo = clamp(lo, 15, 350);
+        hi = clamp(hi, lo + 8, 395);
 
         var base = lo + Math.random() * (hi - lo);
 
@@ -647,6 +657,8 @@
             ttsRateMul: diffId === 'novice' || diffId === 'easy' ? 0.96 : diffId === 'impossible' ? 1.08 : 1,
             ttsPitchMul: 1,
             reactiveMs: profile.reactiveMs,
+            chatUiMinMs: CHAT_UI_MIN_MS[diffId] || 3000,
+            lastChatUiAt: 0,
             onMessage: config.onMessage,
             onProgress: config.onProgress,
             onErrors: config.onErrors,
@@ -665,7 +677,7 @@
             m88: false
         };
 
-        pushMessage(pickLine(state.bundle, 'start', ''), true);
+        pushMessage(pickLine(state.bundle, 'start', ''), true, true);
         state.rafId = global.requestAnimationFrame(tick);
     }
 
@@ -721,4 +733,3 @@
         speakLine: speakLinePublic
     };
 })(typeof window !== 'undefined' ? window : globalThis);
-
