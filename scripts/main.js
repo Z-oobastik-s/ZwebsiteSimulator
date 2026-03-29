@@ -1740,6 +1740,7 @@ function toggleLanguage() {
     syncSelectedLessonLangWithSite();
     updateTranslations();
     updateRoomSelectionUI();
+    if (mpRoomSettingsMode === 'bot') refreshMpBotVoiceSelect();
     if (app.currentMode === 'lessons') loadLessons();
 }
 
@@ -6258,11 +6259,11 @@ function showMultiplayerMenu() {
 }
 
 // Room settings
-let selectedWordCount = 500; // Default (now used as "chars" length)
+let selectedWordCount = 200; // Default (chars)
 let selectedTheme = 'random'; // Default
 let selectedMultiplayerLang = 'ru'; // Default
-let selectedTextOptComma = true;
-let selectedTextOptPeriod = true;
+let selectedTextOptComma = false;
+let selectedTextOptPeriod = false;
 let selectedTextOptDigits = false;
 let selectedTextOptMixCase = false;
 let mpRoomSettingsMode = 'online'; // 'online' | 'bot'
@@ -6292,10 +6293,16 @@ function selectBotDifficulty(d) {
     });
 }
 
+function mpVoiceLangFromSite() {
+    if (app.lang === 'ua') return 'ua';
+    if (app.lang === 'en') return 'en';
+    return 'ru';
+}
+
 function refreshMpBotVoiceSelect() {
     const sel = document.getElementById('mpBotVoiceSelect');
     if (!sel || !window.botBattleModule || typeof window.botBattleModule.populateVoiceSelect !== 'function') return;
-    window.botBattleModule.populateVoiceSelect(sel, selectedMultiplayerLang, t('mpBotVoiceAuto'));
+    window.botBattleModule.populateVoiceSelect(sel, mpVoiceLangFromSite(), t('mpBotVoiceAuto'));
 }
 
 function getMpBotVoiceUriForSpeak() {
@@ -6383,7 +6390,6 @@ function selectMultiplayerLang(lang) {
         }
     });
     updateRoomSelectionUI();
-    if (mpRoomSettingsMode === 'bot') refreshMpBotVoiceSelect();
 }
 
 // Select theme
@@ -6486,6 +6492,15 @@ function updateRoomSelectionUI() {
     setOptOn('period', selectedTextOptPeriod);
     setOptOn('digits', selectedTextOptDigits);
     setOptOn('mixCase', selectedTextOptMixCase);
+
+    const oc = document.getElementById('mpOptComma');
+    const op = document.getElementById('mpOptPeriod');
+    const od = document.getElementById('mpOptDigits');
+    const om = document.getElementById('mpOptMixCase');
+    if (oc) oc.checked = selectedTextOptComma;
+    if (op) op.checked = selectedTextOptPeriod;
+    if (od) od.checked = selectedTextOptDigits;
+    if (om) om.checked = selectedTextOptMixCase;
 
     // Summary - language-aware labels
     const isEn = app.lang === 'en';
@@ -7757,4 +7772,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-

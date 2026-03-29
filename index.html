@@ -2640,13 +2640,14 @@
         .mp-room-dialog > * { position: relative; z-index: 1; }
 
         .mp-room-top { display:flex; flex-direction:column; align-items:center; }
+        .mp-room-dialog h3{ font-size: 1.05rem !important; margin-bottom: 0.15rem !important; }
         .mp-room-summary{
             display:flex;
             align-items:center;
             justify-content:center;
             gap: 0.25rem;
             width: 100%;
-            padding: 0.45rem 0.8rem;
+            padding: 0.35rem 0.65rem;
             border-radius: 1rem;
             border: 1px solid rgba(0,229,255,0.18);
             background: rgba(2,132,199,0.08);
@@ -2666,18 +2667,39 @@
         .mp-room-grid{
             display:grid;
             grid-template-columns: 1fr;
-            gap: 0.9rem;
-            margin-top: 0.9rem;
+            gap: 0.4rem;
+            margin-top: 0.45rem;
         }
-        @media (min-width: 768px){
+        @media (min-width: 900px){
             .mp-room-grid{
-                grid-template-columns: 1fr 1fr;
+                grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
+                gap: 0.45rem;
+                align-items: start;
             }
         }
 
+        .mp-stack-tight{
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+        .mp-theme-grid{
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 0.28rem;
+        }
+        #roomSettingsDialog .theme-btn{
+            padding: 0.3rem 0.2rem !important;
+        }
+        #roomSettingsDialog .theme-btn .mp-th-ico{
+            font-size: 1.05rem;
+            line-height: 1.1;
+            margin-bottom: 0.05rem;
+        }
+
         .mp-group{
-            padding: 0.6rem 0.6rem 0.8rem 0.6rem;
-            border-radius: 1rem;
+            padding: 0.38rem 0.45rem 0.48rem;
+            border-radius: 0.85rem;
             border: 1px solid rgba(255,255,255,0.08);
             background: rgba(15,23,42,0.22);
         }
@@ -2689,9 +2711,25 @@
             font-weight: 800;
             letter-spacing: 0.08em;
             text-transform: uppercase;
-            font-size: 0.72rem;
+            font-size: 0.62rem;
             color: rgba(226,232,240,0.95);
-            margin-bottom: 0.6rem;
+            margin-bottom: 0.35rem;
+        }
+        .mp-tts-inline{
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.45rem;
+            padding: 0.3rem 0.55rem;
+            border-radius: 0.65rem;
+            border: 1px solid rgba(255,255,255,0.10);
+            background: rgba(15,23,42,0.35);
+            flex-shrink: 0;
+        }
+        @media (min-width: 640px){
+            .mp-tts-inline{
+                max-width: 11.5rem;
+            }
         }
 
         /* Selected tiles (works even if Tailwind classes are not generated) */
@@ -2721,6 +2759,13 @@
 
         .mp-room-actions{
             position: relative;
+        }
+        @media (max-height: 720px) {
+            .mp-room-dialog {
+                max-height: min(94vh, 680px);
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+            }
         }
 
         /* Multiplayer keyboard: bigger keys */
@@ -3249,10 +3294,10 @@
                 </div>
                 
                 <!-- Room Settings Dialog -->
-                <div id="roomSettingsDialog" class="glass rounded-2xl p-5 mb-6 hidden mp-room-dialog">
+                <div id="roomSettingsDialog" class="glass rounded-2xl p-3 sm:p-4 mb-4 hidden mp-room-dialog">
                     <div class="mp-room-top">
                         <h3 class="text-xl font-bold text-center"><span id="mpRoomSettingsTitle" data-i18n="chooseGameMode">Выбери режим игры</span></h3>
-                        <div id="mpRoomSummary" class="mp-room-summary mt-3">
+                        <div id="mpRoomSummary" class="mp-room-summary mt-2">
                             <span id="mpRoomSummaryTheme">Тематика</span>
                             <span class="mx-2 text-gray-500">/</span>
                             <span id="mpRoomSummaryLang">Язык</span>
@@ -3262,139 +3307,135 @@
                     </div>
 
                     <div class="mp-room-grid">
-                        <!-- Themes -->
-                        <div class="mp-group">
+                        <div class="mp-group mp-cell-themes">
                             <h4 class="mp-group-title" data-i18n="textTheme">Тематика текста</h4>
-                            <div class="grid grid-cols-3 gap-2">
-                                <button onclick="selectTheme('random')" class="theme-btn glass rounded-lg px-3 py-2 border-2 border-transparent" data-theme="random">
-                                    <div class="text-2xl mb-0.5">🎲</div>
-                                    <div class="text-xs font-semibold" data-i18n="mpThemeRandom">Случайные</div>
+                            <div class="mp-theme-grid">
+                                <button type="button" onclick="selectTheme('random')" class="theme-btn glass rounded-lg border-2 border-transparent" data-theme="random">
+                                    <div class="mp-th-ico">🎲</div>
+                                    <div class="text-[0.62rem] font-semibold leading-tight" data-i18n="mpThemeRandom">Случайные</div>
                                 </button>
-                                <button onclick="selectTheme('anime')" class="theme-btn glass rounded-lg px-3 py-2 border-2 border-transparent" data-theme="anime">
-                                    <div class="text-2xl mb-0.5">🎌</div>
-                                    <div class="text-xs font-semibold" data-i18n="mpThemeAnime">Аниме</div>
+                                <button type="button" onclick="selectTheme('anime')" class="theme-btn glass rounded-lg border-2 border-transparent" data-theme="anime">
+                                    <div class="mp-th-ico">🎌</div>
+                                    <div class="text-[0.62rem] font-semibold leading-tight" data-i18n="mpThemeAnime">Аниме</div>
                                 </button>
-                                <button onclick="selectTheme('games')" class="theme-btn glass rounded-lg px-3 py-2 border-2 border-transparent" data-theme="games">
-                                    <div class="text-2xl mb-0.5">🎮</div>
-                                    <div class="text-xs font-semibold" data-i18n="mpThemeGames">Игры</div>
+                                <button type="button" onclick="selectTheme('games')" class="theme-btn glass rounded-lg border-2 border-transparent" data-theme="games">
+                                    <div class="mp-th-ico">🎮</div>
+                                    <div class="text-[0.62rem] font-semibold leading-tight" data-i18n="mpThemeGames">Игры</div>
                                 </button>
-                                <button onclick="selectTheme('animals')" class="theme-btn glass rounded-lg px-3 py-2 border-2 border-transparent" data-theme="animals">
-                                    <div class="text-2xl mb-0.5">🐾</div>
-                                    <div class="text-xs font-semibold" data-i18n="mpThemeAnimals">Животные</div>
+                                <button type="button" onclick="selectTheme('animals')" class="theme-btn glass rounded-lg border-2 border-transparent" data-theme="animals">
+                                    <div class="mp-th-ico">🐾</div>
+                                    <div class="text-[0.62rem] font-semibold leading-tight" data-i18n="mpThemeAnimals">Животные</div>
                                 </button>
-                                <button onclick="selectTheme('space')" class="theme-btn glass rounded-lg px-3 py-2 border-2 border-transparent" data-theme="space">
-                                    <div class="text-2xl mb-0.5">🚀</div>
-                                    <div class="text-xs font-semibold" data-i18n="mpThemeSpace">Космос</div>
+                                <button type="button" onclick="selectTheme('space')" class="theme-btn glass rounded-lg border-2 border-transparent" data-theme="space">
+                                    <div class="mp-th-ico">🚀</div>
+                                    <div class="text-[0.62rem] font-semibold leading-tight" data-i18n="mpThemeSpace">Космос</div>
                                 </button>
-                                <button onclick="selectTheme('nature')" class="theme-btn glass rounded-lg px-3 py-2 border-2 border-transparent" data-theme="nature">
-                                    <div class="text-2xl mb-0.5">🌲</div>
-                                    <div class="text-xs font-semibold" data-i18n="mpThemeNature">Природа</div>
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Language -->
-                        <div class="mp-group">
-                            <h4 class="mp-group-title" data-i18n="textLanguage">Язык текста</h4>
-                            <div class="grid grid-cols-3 gap-2">
-                                <button onclick="selectMultiplayerLang('ru')" class="mp-lang-btn glass rounded-lg px-3 py-2 border-2 border-transparent" data-lang="ru">
-                                    <div class="text-2xl font-bold mb-0.5">РУС</div>
-                                    <div class="text-[10px]">Русский</div>
-                                </button>
-                                <button onclick="selectMultiplayerLang('en')" class="mp-lang-btn glass rounded-lg px-3 py-2 border-2 border-transparent" data-lang="en">
-                                    <div class="text-2xl font-bold mb-0.5">ENG</div>
-                                    <div class="text-[10px]">English</div>
-                                </button>
-                                <button onclick="selectMultiplayerLang('ua')" class="mp-lang-btn glass rounded-lg px-3 py-2 border-2 border-transparent" data-lang="ua">
-                                    <div class="text-2xl font-bold mb-0.5">УКР</div>
-                                    <div class="text-[10px]">Українська</div>
+                                <button type="button" onclick="selectTheme('nature')" class="theme-btn glass rounded-lg border-2 border-transparent" data-theme="nature">
+                                    <div class="mp-th-ico">🌲</div>
+                                    <div class="text-[0.62rem] font-semibold leading-tight" data-i18n="mpThemeNature">Природа</div>
                                 </button>
                             </div>
                         </div>
 
-                        <!-- Length -->
-                        <div class="mp-group">
-                            <h4 class="mp-group-title" data-i18n="mpTextLength">Длина текста (символы)</h4>
-                            <div class="grid grid-cols-2 gap-2">
-                                <button onclick="selectWordCount(200)" class="room-setting-btn glass rounded-lg px-3 py-3 border-2 border-transparent" data-words="200">
-                                    <div class="text-xl font-bold text-primary mb-0.5">200</div>
-                                    <div class="text-[10px]" data-i18n="mpChars">симв</div>
-                                </button>
-                                <button onclick="selectWordCount(500)" class="room-setting-btn glass rounded-lg px-3 py-3 border-2 border-transparent" data-words="500">
-                                    <div class="text-xl font-bold text-primary mb-0.5">500</div>
-                                    <div class="text-[10px]" data-i18n="mpChars">симв</div>
-                                </button>
-                                <button onclick="selectWordCount(1000)" class="room-setting-btn glass rounded-lg px-3 py-3 border-2 border-transparent" data-words="1000">
-                                    <div class="text-xl font-bold text-primary mb-0.5">1000</div>
-                                    <div class="text-[10px]" data-i18n="mpChars">симв</div>
-                                </button>
-                                <button onclick="selectWordCount(1800)" class="room-setting-btn glass rounded-lg px-3 py-3 border-2 border-transparent" data-words="1800">
-                                    <div class="text-xl font-bold text-primary mb-0.5">1800</div>
-                                    <div class="text-[10px]" data-i18n="mpChars">симв</div>
-                                </button>
+                        <div class="mp-stack-tight">
+                            <div class="mp-group">
+                                <h4 class="mp-group-title" data-i18n="textLanguage">Язык текста</h4>
+                                <div class="grid grid-cols-3 gap-1">
+                                    <button type="button" onclick="selectMultiplayerLang('ru')" class="mp-lang-btn glass rounded-lg px-1 py-1.5 border-2 border-transparent" data-lang="ru">
+                                        <div class="text-sm font-bold leading-none">РУС</div>
+                                        <div class="text-[9px] opacity-90">RU</div>
+                                    </button>
+                                    <button type="button" onclick="selectMultiplayerLang('en')" class="mp-lang-btn glass rounded-lg px-1 py-1.5 border-2 border-transparent" data-lang="en">
+                                        <div class="text-sm font-bold leading-none">ENG</div>
+                                        <div class="text-[9px] opacity-90">EN</div>
+                                    </button>
+                                    <button type="button" onclick="selectMultiplayerLang('ua')" class="mp-lang-btn glass rounded-lg px-1 py-1.5 border-2 border-transparent" data-lang="ua">
+                                        <div class="text-sm font-bold leading-none">УКР</div>
+                                        <div class="text-[9px] opacity-90">UA</div>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="mp-group">
+                                <h4 class="mp-group-title" data-i18n="mpTextLength">Длина (симв.)</h4>
+                                <div class="grid grid-cols-4 gap-1">
+                                    <button type="button" onclick="selectWordCount(200)" class="room-setting-btn glass rounded-lg py-1.5 px-1 border-2 border-transparent" data-words="200">
+                                        <div class="text-sm font-bold text-primary leading-none">200</div>
+                                        <div class="text-[8px] opacity-80" data-i18n="mpChars">симв</div>
+                                    </button>
+                                    <button type="button" onclick="selectWordCount(500)" class="room-setting-btn glass rounded-lg py-1.5 px-1 border-2 border-transparent" data-words="500">
+                                        <div class="text-sm font-bold text-primary leading-none">500</div>
+                                        <div class="text-[8px] opacity-80" data-i18n="mpChars">симв</div>
+                                    </button>
+                                    <button type="button" onclick="selectWordCount(1000)" class="room-setting-btn glass rounded-lg py-1.5 px-1 border-2 border-transparent" data-words="1000">
+                                        <div class="text-sm font-bold text-primary leading-none">1000</div>
+                                        <div class="text-[8px] opacity-80" data-i18n="mpChars">симв</div>
+                                    </button>
+                                    <button type="button" onclick="selectWordCount(1800)" class="room-setting-btn glass rounded-lg py-1.5 px-1 border-2 border-transparent" data-words="1800">
+                                        <div class="text-sm font-bold text-primary leading-none">1800</div>
+                                        <div class="text-[8px] opacity-80" data-i18n="mpChars">симв</div>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="mp-group">
+                                <h4 class="mp-group-title" data-i18n="mpTextOptions">Параметры</h4>
+                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-1">
+                                    <label class="mp-opt glass rounded-md px-2 py-1 cursor-pointer border border-white/10 hover:bg-white/10 flex items-center justify-between gap-1" data-opt="comma">
+                                        <span class="text-[10px] font-semibold" data-i18n="mpOptComma">Запятые</span>
+                                        <input id="mpOptComma" type="checkbox" onchange="setMultiplayerTextOption('comma', this.checked)" />
+                                    </label>
+                                    <label class="mp-opt glass rounded-md px-2 py-1 cursor-pointer border border-white/10 hover:bg-white/10 flex items-center justify-between gap-1" data-opt="period">
+                                        <span class="text-[10px] font-semibold" data-i18n="mpOptPeriod">Точки</span>
+                                        <input id="mpOptPeriod" type="checkbox" onchange="setMultiplayerTextOption('period', this.checked)" />
+                                    </label>
+                                    <label class="mp-opt glass rounded-md px-2 py-1 cursor-pointer border border-white/10 hover:bg-white/10 flex items-center justify-between gap-1" data-opt="digits">
+                                        <span class="text-[10px] font-semibold" data-i18n="mpOptDigits">Цифры</span>
+                                        <input id="mpOptDigits" type="checkbox" onchange="setMultiplayerTextOption('digits', this.checked)" />
+                                    </label>
+                                    <label class="mp-opt glass rounded-md px-2 py-1 cursor-pointer border border-white/10 hover:bg-white/10 flex items-center justify-between gap-1" data-opt="mixCase">
+                                        <span class="text-[10px] font-semibold" data-i18n="mpOptMixCase">Микс</span>
+                                        <input id="mpOptMixCase" type="checkbox" onchange="setMultiplayerTextOption('mixCase', this.checked)" />
+                                    </label>
+                                </div>
+                                <p class="text-gray-500 text-[9px] mt-1.5 text-center leading-snug" data-i18n="mpAlwaysRandom">Текст генерируется случайно на лету.</p>
                             </div>
                         </div>
 
-                        <!-- Text Options -->
-                        <div class="mp-group">
-                            <h4 class="mp-group-title" data-i18n="mpTextOptions">Параметры текста</h4>
-                            <div class="grid grid-cols-2 gap-2">
-                                <label class="mp-opt glass rounded-lg px-3 py-2 cursor-pointer border border-white/10 hover:bg-white/10 flex items-center justify-between gap-2" data-opt="comma">
-                                    <span class="text-xs font-semibold" data-i18n="mpOptComma">Запятые</span>
-                                    <input id="mpOptComma" type="checkbox" checked onchange="setMultiplayerTextOption('comma', this.checked)" />
-                                </label>
-                                <label class="mp-opt glass rounded-lg px-3 py-2 cursor-pointer border border-white/10 hover:bg-white/10 flex items-center justify-between gap-2" data-opt="period">
-                                    <span class="text-xs font-semibold" data-i18n="mpOptPeriod">Точки</span>
-                                    <input id="mpOptPeriod" type="checkbox" checked onchange="setMultiplayerTextOption('period', this.checked)" />
-                                </label>
-                                <label class="mp-opt glass rounded-lg px-3 py-2 cursor-pointer border border-white/10 hover:bg-white/10 flex items-center justify-between gap-2" data-opt="digits">
-                                    <span class="text-xs font-semibold" data-i18n="mpOptDigits">Цифры</span>
-                                    <input id="mpOptDigits" type="checkbox" onchange="setMultiplayerTextOption('digits', this.checked)" />
-                                </label>
-                                <label class="mp-opt glass rounded-lg px-3 py-2 cursor-pointer border border-white/10 hover:bg-white/10 flex items-center justify-between gap-2" data-opt="mixCase">
-                                    <span class="text-xs font-semibold" data-i18n="mpOptMixCase">Микс</span>
-                                    <input id="mpOptMixCase" type="checkbox" onchange="setMultiplayerTextOption('mixCase', this.checked)" />
-                                </label>
-                            </div>
-                            <div class="text-gray-400 text-[11px] mt-2 text-center" data-i18n="mpAlwaysRandom">
-                                Текст генерируется случайно на лету.
-                            </div>
-                        </div>
-
-                        <!-- Players (online only) -->
                         <div class="mp-group mp-group-wide mp-online-only">
                             <h4 class="mp-group-title" data-i18n="mpPlayers">Игроки</h4>
-                            <div class="glass rounded-lg px-4 py-3 text-center border border-white/10">
+                            <div class="glass rounded-lg px-3 py-2 text-center border border-white/10 text-sm">
                                 <span data-i18n="mpDuelOnly">Сейчас доступна только дуэль:</span> <span class="text-primary font-bold" data-i18n="mp2Players">2 игрока</span>.
                             </div>
                         </div>
 
-                        <!-- Bot: difficulty, voice, TTS -->
                         <div class="mp-group mp-group-wide mp-bot-only hidden">
                             <h4 class="mp-group-title" data-i18n="mpBotDifficultyTitle">Сложность бота</h4>
-                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-3">
-                                <button type="button" class="mp-diff-btn glass rounded-lg px-2 py-2.5 border-2 border-transparent text-center leading-tight" data-difficulty="novice" onclick="selectBotDifficulty('novice')"><span class="text-[11px] font-bold block" data-i18n="mpDiffNovice">Новичок</span></button>
-                                <button type="button" class="mp-diff-btn glass rounded-lg px-2 py-2.5 border-2 border-transparent text-center leading-tight" data-difficulty="easy" onclick="selectBotDifficulty('easy')"><span class="text-[11px] font-bold block" data-i18n="mpDiffEasy">Легко</span></button>
-                                <button type="button" class="mp-diff-btn glass rounded-lg px-2 py-2.5 border-2 border-transparent text-center leading-tight" data-difficulty="medium" onclick="selectBotDifficulty('medium')"><span class="text-[11px] font-bold block" data-i18n="mpDiffMedium">Средне</span></button>
-                                <button type="button" class="mp-diff-btn glass rounded-lg px-2 py-2.5 border-2 border-transparent text-center leading-tight" data-difficulty="hard" onclick="selectBotDifficulty('hard')"><span class="text-[11px] font-bold block" data-i18n="mpDiffHard">Сложно</span></button>
-                                <button type="button" class="mp-diff-btn glass rounded-lg px-2 py-2.5 border-2 border-transparent text-center leading-tight" data-difficulty="insane" onclick="selectBotDifficulty('insane')"><span class="text-[11px] font-bold block" data-i18n="mpDiffInsane">Безумно</span></button>
-                                <button type="button" class="mp-diff-btn glass rounded-lg px-2 py-2.5 border-2 border-transparent text-center leading-tight" data-difficulty="impossible" onclick="selectBotDifficulty('impossible')"><span class="text-[11px] font-bold block" data-i18n="mpDiffImpossible">Невозможно</span></button>
+                            <div class="grid grid-cols-3 sm:grid-cols-6 gap-1">
+                                <button type="button" class="mp-diff-btn glass rounded-md px-1 py-1.5 border-2 border-transparent text-center" data-difficulty="novice" onclick="selectBotDifficulty('novice')"><span class="text-[10px] font-bold block leading-tight" data-i18n="mpDiffNovice">Новичок</span></button>
+                                <button type="button" class="mp-diff-btn glass rounded-md px-1 py-1.5 border-2 border-transparent text-center" data-difficulty="easy" onclick="selectBotDifficulty('easy')"><span class="text-[10px] font-bold block leading-tight" data-i18n="mpDiffEasy">Легко</span></button>
+                                <button type="button" class="mp-diff-btn glass rounded-md px-1 py-1.5 border-2 border-transparent text-center" data-difficulty="medium" onclick="selectBotDifficulty('medium')"><span class="text-[10px] font-bold block leading-tight" data-i18n="mpDiffMedium">Средне</span></button>
+                                <button type="button" class="mp-diff-btn glass rounded-md px-1 py-1.5 border-2 border-transparent text-center" data-difficulty="hard" onclick="selectBotDifficulty('hard')"><span class="text-[10px] font-bold block leading-tight" data-i18n="mpDiffHard">Сложно</span></button>
+                                <button type="button" class="mp-diff-btn glass rounded-md px-1 py-1.5 border-2 border-transparent text-center" data-difficulty="insane" onclick="selectBotDifficulty('insane')"><span class="text-[10px] font-bold block leading-tight" data-i18n="mpDiffInsane">Безумно</span></button>
+                                <button type="button" class="mp-diff-btn glass rounded-md px-1 py-1.5 border-2 border-transparent text-center" data-difficulty="impossible" onclick="selectBotDifficulty('impossible')"><span class="text-[10px] font-bold block leading-tight" data-i18n="mpDiffImpossible">Невозможно</span></button>
                             </div>
-                            <h4 class="mp-group-title" data-i18n="mpBotVoicePick">Голос озвучки</h4>
-                            <select id="mpBotVoiceSelect" class="mp-bot-voice-select w-full px-3 py-2.5 rounded-lg border text-sm mb-2 outline-none" onchange="onMpBotVoiceChange(this)" aria-label="Bot voice"></select>
-                            <p class="text-gray-400 text-[10px] mb-3 text-center" data-i18n="mpBotVoicePickHint">Список зависит от браузера и ОС; «Авто» подстраивается под язык текста.</p>
-                            <h4 class="mp-group-title" data-i18n="mpBotTtsSectionTitle">Озвучка</h4>
-                            <label class="glass rounded-lg px-4 py-3 cursor-pointer border border-white/10 hover:bg-white/10 flex items-center justify-between gap-2">
-                                <span class="text-xs font-semibold" data-i18n="mpBotVoice">Озвучивать фразы (TTS)</span>
-                                <input id="mpBotTtsCheckbox" type="checkbox" onchange="onMpBotTtsChange(this)" />
-                            </label>
-                            <p class="text-gray-400 text-[11px] mt-2 text-center" data-i18n="mpBotVoiceHint">Бот пишет чаще и разнообразнее; голос можно сменить выше.</p>
+                            <div class="flex flex-col sm:flex-row gap-2 sm:items-end mt-2">
+                                <div class="flex-1 min-w-0 w-full">
+                                    <h4 class="mp-group-title text-left mb-1 !text-[0.58rem]" data-i18n="mpBotVoicePick">Голос (язык сайта)</h4>
+                                    <select id="mpBotVoiceSelect" class="mp-bot-voice-select w-full px-2 py-1.5 rounded-lg border text-xs outline-none" onchange="onMpBotVoiceChange(this)" aria-label="Bot voice"></select>
+                                </div>
+                                <label class="mp-tts-inline cursor-pointer w-full sm:w-auto">
+                                    <span class="text-[10px] font-semibold leading-tight" data-i18n="mpBotVoiceShort">Фразы TTS</span>
+                                    <input id="mpBotTtsCheckbox" type="checkbox" onchange="onMpBotTtsChange(this)" />
+                                </label>
+                            </div>
+                            <p class="text-gray-500 text-[9px] mt-1.5 text-center leading-snug" data-i18n="mpBotVoicePickHint">Голоса из системы; «Авто» под язык сайта.</p>
                         </div>
                     </div>
 
-                    <div class="flex gap-4 mt-4 mp-room-actions">
-                        <button onclick="hideRoomSettings()" class="flex-1 px-4 py-3 rounded-lg glass hover:bg-white/20 dark:hover:bg-black/20" data-i18n="back">Назад</button>
-                        <button type="button" id="mpRoomPrimaryBtn" onclick="createMultiplayerRoomWithSettings()" class="flex-1 px-4 py-3 rounded-lg bg-purple-500 hover:bg-purple-600 text-white font-semibold"><span id="mpRoomPrimaryBtnLabel" data-i18n="createRoom">Создать</span></button>
+                    <div class="flex gap-2 sm:gap-3 mt-3 mp-room-actions">
+                        <button type="button" onclick="hideRoomSettings()" class="flex-1 px-3 py-2 rounded-lg text-sm glass hover:bg-white/20 dark:hover:bg-black/20" data-i18n="back">Назад</button>
+                        <button type="button" id="mpRoomPrimaryBtn" onclick="createMultiplayerRoomWithSettings()" class="flex-1 px-3 py-2 rounded-lg text-sm bg-purple-500 hover:bg-purple-600 text-white font-semibold"><span id="mpRoomPrimaryBtnLabel" data-i18n="createRoom">Создать</span></button>
                     </div>
                 </div>
                 
@@ -3737,7 +3778,7 @@
                         <span id="mpResOppReadyPill" class="px-3 py-1 rounded-full text-xs border border-white/10 bg-white/5 text-gray-300 whitespace-nowrap">-</span>
                     </div>
                 </div>
-                <button type="button" onclick="closeMultiplayerResultsModal()" class="p-2 rounded-xl hover:bg-white/10 text-gray-300" aria-label="Close">
+                <button type="button" onclick="multiplayerResultsExit()" class="p-2 rounded-xl hover:bg-white/10 text-gray-300" aria-label="Close">
                     ✕
                 </button>
             </div>
@@ -4395,4 +4436,3 @@
     </script>
 </body>
 </html>
-
