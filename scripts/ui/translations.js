@@ -71,6 +71,7 @@ window.translations = {
         playerJoined: 'Игрок подключился',
         leftRoom: 'Вы покинули комнату',
         errorCreatingRoom: 'Ошибка создания комнаты',
+        multiplayerPermissionDeniedBody: 'База отклонила запись. В Firebase Console → Realtime Database → Rules разрешите чтение и запись для веток rooms, siteStats и online (готовый файл database.rules.json в репозитории; при CLI: firebase deploy --only database).',
         errorJoiningRoom: 'Ошибка подключения',
         enterRoomCode: 'Введи код комнаты (например: ABC123)',
         invalidCode: 'Введи корректный код (6 символов)',
@@ -399,6 +400,7 @@ window.translations = {
         playerJoined: 'Player joined',
         leftRoom: 'You left the room',
         errorCreatingRoom: 'Error creating room',
+        multiplayerPermissionDeniedBody: 'Database denied the write. In Firebase Console → Realtime Database → Rules, allow read and write for branches rooms, siteStats, and online (see database.rules.json in the repo; with CLI: firebase deploy --only database).',
         errorJoiningRoom: 'Error joining room',
         enterRoomCode: 'Enter room code (e.g.: ABC123)',
         invalidCode: 'Enter valid code (6 characters)',
@@ -727,6 +729,7 @@ window.translations = {
         playerJoined: 'Гравець підключився',
         leftRoom: 'Ви покинули кімнату',
         errorCreatingRoom: 'Помилка створення кімнати',
+        multiplayerPermissionDeniedBody: 'База відхилила запис. У Firebase Console → Realtime Database → Rules дозвольте читання й запис для гілок rooms, siteStats та online (файл database.rules.json у репозиторії; через CLI: firebase deploy --only database).',
         errorJoiningRoom: 'Помилка підключення',
         enterRoomCode: 'Введи код кімнати (наприклад: ABC123)',
         invalidCode: 'Введи коректний код (6 символів)',
@@ -988,4 +991,3 @@ window.translations = {
         profileTabOnSite: 'на сайті'
     }
 };
-

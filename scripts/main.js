@@ -389,6 +389,7 @@ const translations = window.translations || {
         playerJoined: 'Игрок подключился',
         leftRoom: 'Вы покинули комнату',
         errorCreatingRoom: 'Ошибка создания комнаты',
+        multiplayerPermissionDeniedBody: 'База отклонила запись. В Firebase Console → Realtime Database → Rules разрешите чтение и запись для веток rooms, siteStats и online (файл database.rules.json в репозитории).',
         errorJoiningRoom: 'Ошибка подключения',
         enterRoomCode: 'Введи код комнаты (например: ABC123)',
         invalidCode: 'Введи корректный код (6 символов)',
@@ -631,6 +632,7 @@ const translations = window.translations || {
         playerJoined: 'Player joined',
         leftRoom: 'You left the room',
         errorCreatingRoom: 'Error creating room',
+        multiplayerPermissionDeniedBody: 'Database denied the write. In Firebase Console → Realtime Database → Rules, allow read and write for branches rooms, siteStats, and online (see database.rules.json in the repo).',
         errorJoiningRoom: 'Error joining room',
         enterRoomCode: 'Enter room code (e.g.: ABC123)',
         invalidCode: 'Enter valid code (6 characters)',
@@ -6728,6 +6730,15 @@ function hideJoinRoomDialog() {
     document.getElementById('multiplayerMainMenu').classList.remove('hidden');
 }
 
+function formatMultiplayerFirebaseError(error) {
+    var msg = error && error.message != null ? String(error.message) : '';
+    var code = error && error.code != null ? String(error.code) : '';
+    if (/PERMISSION_DENIED/i.test(msg) || code === 'PERMISSION_DENIED') {
+        return t('multiplayerPermissionDeniedBody');
+    }
+    return msg;
+}
+
 // Create multiplayer room with settings
 async function createMultiplayerRoomWithSettings() {
     if (mpRoomSettingsMode === 'bot') {
@@ -6750,7 +6761,8 @@ async function createMultiplayerRoomWithSettings() {
         
     } catch (error) {
         console.error('Failed to create room:', error);
-        showToast(error.message, 'error', t('errorCreatingRoom'));
+        var createErr = formatMultiplayerFirebaseError(error) || (error && error.message) || '';
+        showToast(createErr, 'error', t('errorCreatingRoom'));
     }
 }
 
@@ -6778,7 +6790,8 @@ async function joinMultiplayerRoom() {
         
     } catch (error) {
         console.error('Failed to join room:', error);
-        document.getElementById('joinRoomError').textContent = error.message;
+        var joinErr = formatMultiplayerFirebaseError(error) || (error && error.message) || '';
+        document.getElementById('joinRoomError').textContent = joinErr;
         document.getElementById('joinRoomError').classList.remove('hidden');
     }
 }
@@ -8105,4 +8118,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-
