@@ -277,6 +277,12 @@ window.translations = {
         mpBotVoiceHint: 'Бот чаще пишет в чат и разнообразнее; TTS можно выключить.',
         mpVsBotHud: 'Против бота',
         mpBotSays: 'чат',
+        mpResDifficultyLabel: 'Сложность',
+        mpResVsNamedBot: 'Бот: {name}',
+        mpResNoTextOpts: 'Текст без запятых и точек в настройках',
+        mpResOptsPrefix: 'В тексте:',
+        mpResBotPaceAhead: 'Средний темп соперника примерно на {n} зн/мин выше',
+        mpResBotPaceYouAhead: 'Твой средний темп примерно на {n} зн/мин выше',
         mpBotRematchHint: 'Сыграй снова: другой темп и реплики. «Сменить настройки»: тема и язык текста.',
         mpBotLoading: 'Загружается модуль мультиплеера...',
         mpPlayAgain: 'Играть снова',
@@ -584,6 +590,12 @@ window.translations = {
         mpBotVoiceHint: 'The bot chats more often; you can turn TTS off.',
         mpVsBotHud: 'Vs bot',
         mpBotSays: 'chat',
+        mpResDifficultyLabel: 'Difficulty',
+        mpResVsNamedBot: 'Bot: {name}',
+        mpResNoTextOpts: 'Plain text options (no commas/periods)',
+        mpResOptsPrefix: 'Text has:',
+        mpResBotPaceAhead: 'Opponent averaged about {n} CPM faster',
+        mpResBotPaceYouAhead: 'You averaged about {n} CPM faster',
         mpBotRematchHint: 'Play again for a new pace and lines. «Change settings» for theme and text language.',
         mpBotLoading: 'Loading multiplayer module...',
         mpPlayAgain: 'Play again',
@@ -891,6 +903,12 @@ window.translations = {
         mpBotVoiceHint: 'Бот частіше пише в чат; TTS можна вимкнути.',
         mpVsBotHud: 'Проти бота',
         mpBotSays: 'чат',
+        mpResDifficultyLabel: 'Складність',
+        mpResVsNamedBot: 'Бот: {name}',
+        mpResNoTextOpts: 'Текст без ком і крапок у налаштуваннях',
+        mpResOptsPrefix: 'У тексті:',
+        mpResBotPaceAhead: 'Середній темп суперника приблизно на {n} зн/хв вищий',
+        mpResBotPaceYouAhead: 'Твій середній темп приблизно на {n} зн/хв вищий',
         mpBotRematchHint: 'Зіграй знову: інший темп і репліки. «Змінити налаштування»: тема й мова тексту.',
         mpBotLoading: 'Завантажується модуль мультиплеєра...',
         mpPlayAgain: 'Грати знову',
@@ -925,3 +943,4 @@ window.translations = {
         profileTabOnSite: 'на сайті'
     }
 };
+

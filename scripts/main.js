@@ -7134,6 +7134,30 @@ function formatClock(totalSeconds) {
     return m + ':' + String(s).padStart(2, '0');
 }
 
+function mpResultsThemeTitle(theme) {
+    const keys = {
+        random: 'mpThemeRandom',
+        anime: 'mpThemeAnime',
+        games: 'mpThemeGames',
+        animals: 'mpThemeAnimals',
+        space: 'mpThemeSpace',
+        nature: 'mpThemeNature'
+    };
+    return t(keys[theme] || 'mpThemeRandom');
+}
+
+function mpResultsDifficultyLabel(diffId) {
+    const map = {
+        novice: 'mpDiffNovice',
+        easy: 'mpDiffEasy',
+        medium: 'mpDiffMedium',
+        hard: 'mpDiffHard',
+        insane: 'mpDiffInsane',
+        impossible: 'mpDiffImpossible'
+    };
+    return t(map[diffId] || 'mpDiffMedium');
+}
+
 function openMultiplayerResultsModal(isWin) {
     const modal = document.getElementById('multiplayerResultsModal');
     if (!modal) return;
@@ -7158,6 +7182,7 @@ function openMultiplayerResultsModal(isWin) {
     const oppCpm = Math.round(oppChars / minutes);
     const oppWpm = Math.round((oppChars / 5) / minutes);
     const oppAcc = Math.round(oppChars + opponentErrors > 0 ? (oppChars / (oppChars + opponentErrors)) * 100 : 100);
+    const cpmDelta = Math.round(oppCpm - myCpm);
 
     const isEnglish = app.lang === 'en';
     const isUkrainian = app.lang === 'ua';
@@ -7186,6 +7211,50 @@ function openMultiplayerResultsModal(isWin) {
     document.getElementById('mpResOppAcc').textContent = oppAcc;
     document.getElementById('mpResOppChars').textContent = oppChars;
     document.getElementById('mpResOppErrors').textContent = opponentErrors;
+
+    const botMatchInfo = document.getElementById('mpResBotMatchInfo');
+    const botDiffPill = document.getElementById('mpResBotDifficultyPill');
+    const botSetupLine = document.getElementById('mpResBotSetupLine');
+    const botPaceNote = document.getElementById('mpResBotPaceNote');
+    if (botMatchInfo) {
+        if (app.lastMatchWasBot) {
+            botMatchInfo.classList.remove('hidden');
+            const diffLbl = botMatchInfo.querySelector('[data-i18n="mpResDifficultyLabel"]');
+            if (diffLbl) diffLbl.textContent = t('mpResDifficultyLabel');
+            if (botDiffPill) botDiffPill.textContent = mpResultsDifficultyLabel(selectedBotDifficulty);
+            if (botSetupLine) {
+                const themePart = mpResultsThemeTitle(selectedTheme);
+                const lenPart = selectedWordCount + ' ' + t('mpChars');
+                const langPart = (selectedMultiplayerLang || 'ru').toUpperCase();
+                const namePart = (app.botOpponentName && String(app.botOpponentName).trim())
+                    ? t('mpResVsNamedBot').replace('{name}', app.botOpponentName)
+                    : '';
+                const optParts = [];
+                if (selectedTextOptComma) optParts.push(t('mpOptComma'));
+                if (selectedTextOptPeriod) optParts.push(t('mpOptPeriod'));
+                if (selectedTextOptDigits) optParts.push(t('mpOptDigits'));
+                if (selectedTextOptMixCase) optParts.push(t('mpOptMixCase'));
+                const optStr = optParts.length ? t('mpResOptsPrefix') + ' ' + optParts.join(', ') : t('mpResNoTextOpts');
+                const bits = [themePart, lenPart, langPart, optStr];
+                if (namePart) bits.push(namePart);
+                botSetupLine.textContent = bits.join(' · ');
+            }
+            if (botPaceNote) {
+                if (!isWin && cpmDelta >= 12) {
+                    botPaceNote.textContent = t('mpResBotPaceAhead').replace('{n}', String(cpmDelta));
+                    botPaceNote.classList.remove('hidden');
+                } else if (isWin && cpmDelta <= -12) {
+                    botPaceNote.textContent = t('mpResBotPaceYouAhead').replace('{n}', String(Math.abs(cpmDelta)));
+                    botPaceNote.classList.remove('hidden');
+                } else {
+                    botPaceNote.classList.add('hidden');
+                }
+            }
+        } else {
+            botMatchInfo.classList.add('hidden');
+            if (botPaceNote) botPaceNote.classList.add('hidden');
+        }
+    }
 
     const pillsRow = document.getElementById('mpResReadyPillsRow');
     if (pillsRow) pillsRow.style.display = app.lastMatchWasBot ? 'none' : '';
@@ -7772,3 +7841,4 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+

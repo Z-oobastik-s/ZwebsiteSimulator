@@ -3773,6 +3773,16 @@
                 <div class="min-w-0">
                     <h3 id="multiplayerResultsTitle" class="text-3xl font-bold mb-1 text-center">Результат матча</h3>
                     <div id="multiplayerResultsSubtitle" class="text-center text-gray-400 text-sm">-</div>
+                    <div id="mpResBotMatchInfo" class="hidden w-full max-w-xl mx-auto mt-3">
+                        <div class="rounded-xl border border-cyan-400/25 bg-gradient-to-br from-cyan-500/10 via-purple-500/8 to-fuchsia-500/10 px-3 py-2.5 shadow-[0_0_24px_rgba(0,229,255,0.08)]">
+                            <div class="flex flex-wrap items-center justify-center gap-x-2 gap-y-1.5 text-center">
+                                <span class="text-[10px] uppercase tracking-widest text-cyan-300/90 font-bold mr-0.5" data-i18n="mpResDifficultyLabel">Сложность</span>
+                                <span id="mpResBotDifficultyPill" class="rounded-lg bg-fuchsia-500/30 border border-fuchsia-400/40 px-2.5 py-0.5 text-sm font-extrabold text-fuchsia-50 shadow-[0_0_16px_rgba(168,85,247,0.25)]">-</span>
+                            </div>
+                            <p id="mpResBotSetupLine" class="text-center text-[11px] sm:text-xs text-gray-300 mt-2 leading-relaxed"></p>
+                            <p id="mpResBotPaceNote" class="hidden text-center text-[11px] text-cyan-200/85 mt-1.5 font-medium"></p>
+                        </div>
+                    </div>
                     <div id="mpResReadyPillsRow" class="mt-3 flex items-center justify-center gap-3">
                         <span id="mpResMyReadyPill" class="px-3 py-1 rounded-full text-xs border border-white/10 bg-white/5 text-gray-300 whitespace-nowrap">-</span>
                         <span id="mpResOppReadyPill" class="px-3 py-1 rounded-full text-xs border border-white/10 bg-white/5 text-gray-300 whitespace-nowrap">-</span>
@@ -4436,3 +4446,4 @@
     </script>
 </body>
 </html>
+
