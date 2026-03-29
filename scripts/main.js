@@ -36,7 +36,10 @@ const app = {
     animationFrameId: null,
     pendingLevelUp: null,
     totalLessonPauseDuration: 0,
-    _pauseStartAt: null
+    _pauseStartAt: null,
+    botBattleActive: false,
+    lastMatchWasBot: false,
+    botOpponentName: ''
 };
 
 // Streak (серия дней) + «заморозка»: 1 раз за календарную неделю можно не сбросить серию при пропуске ровно одного дня
@@ -1927,6 +1930,7 @@ function updateTranslations() {
     if (typeof window.__siteStatsUpdateUI === 'function' && typeof window.__siteStatsVisits !== 'undefined') {
         window.__siteStatsUpdateUI(window.__siteStatsVisits, window.__siteStatsOnline);
     }
+    if (typeof refreshMpRoomSettingsChrome === 'function') refreshMpRoomSettingsChrome();
     var _ps = document.getElementById('profileScreen');
     if (_ps && !_ps.classList.contains('hidden') && typeof showProfileTab === 'function') {
         showProfileTab(_lastProfileTab);
@@ -6243,6 +6247,7 @@ function showMultiplayerMenu() {
     hideAllScreens();
     document.getElementById('multiplayerMenuScreen').classList.remove('hidden');
     app.currentMode = 'multiplayer-menu';
+    if (typeof refreshMpRoomSettingsChrome === 'function') refreshMpRoomSettingsChrome();
 }
 
 // Room settings
@@ -6253,13 +6258,45 @@ let selectedTextOptComma = true;
 let selectedTextOptPeriod = true;
 let selectedTextOptDigits = false;
 let selectedTextOptMixCase = false;
+let mpRoomSettingsMode = 'online'; // 'online' | 'bot'
 
-// Show room settings
-function showRoomSettings() {
+// Show room settings (forBot = true → duel vs AI, same text options)
+function showRoomSettings(forBot) {
+    if (typeof forBot === 'undefined') forBot = false;
+    mpRoomSettingsMode = forBot ? 'bot' : 'online';
     document.getElementById('multiplayerMainMenu').classList.add('hidden');
     document.getElementById('roomSettingsDialog').classList.remove('hidden');
     document.getElementById('joinRoomDialog').classList.add('hidden');
+    refreshMpRoomSettingsChrome();
     updateRoomSelectionUI();
+}
+
+function showBotBattleSettings() {
+    showRoomSettings(true);
+}
+
+function refreshMpRoomSettingsChrome() {
+    const titleEl = document.getElementById('mpRoomSettingsTitle');
+    const btnLabel = document.getElementById('mpRoomPrimaryBtnLabel');
+    const isBot = mpRoomSettingsMode === 'bot';
+    if (titleEl) titleEl.textContent = isBot ? t('mpBotRoomTitle') : t('chooseGameMode');
+    if (btnLabel) btnLabel.textContent = isBot ? t('mpStartBotBattle') : t('createRoom');
+    document.querySelectorAll('.mp-online-only').forEach(el => {
+        el.classList.toggle('hidden', isBot);
+    });
+    document.querySelectorAll('.mp-bot-only').forEach(el => {
+        el.classList.toggle('hidden', !isBot);
+    });
+    const tts = document.getElementById('mpBotTtsCheckbox');
+    if (tts && window.botBattleModule && typeof window.botBattleModule.getTtsStored === 'function') {
+        tts.checked = !!window.botBattleModule.getTtsStored();
+    }
+}
+
+function onMpBotTtsChange(el) {
+    if (window.botBattleModule && typeof window.botBattleModule.setTtsStored === 'function') {
+        window.botBattleModule.setTtsStored(!!(el && el.checked));
+    }
 }
 
 // Select multiplayer language
@@ -6304,8 +6341,13 @@ function selectTheme(theme) {
 
 // Hide room settings
 function hideRoomSettings() {
-    document.getElementById('roomSettingsDialog').classList.add('hidden');
-    document.getElementById('multiplayerMainMenu').classList.remove('hidden');
+    const dlg = document.getElementById('roomSettingsDialog');
+    if (dlg && !dlg.classList.contains('hidden')) {
+        dlg.classList.add('hidden');
+        document.getElementById('multiplayerMainMenu').classList.remove('hidden');
+    }
+    mpRoomSettingsMode = 'online';
+    refreshMpRoomSettingsChrome();
 }
 
 // Select word count
@@ -6416,7 +6458,12 @@ function hideJoinRoomDialog() {
 
 // Create multiplayer room with settings
 async function createMultiplayerRoomWithSettings() {
+    if (mpRoomSettingsMode === 'bot') {
+        startBotBattleFromSettings();
+        return;
+    }
     try {
+        app.lastMatchWasBot = false;
         window.secondPlayerNotified = false; // Сброс флага
         const opts = getMultiplayerTextOptions();
         const roomCode = await window.multiplayerModule.createRoom(selectedWordCount, selectedTheme, selectedMultiplayerLang, opts);
@@ -6446,6 +6493,7 @@ async function joinMultiplayerRoom() {
     }
     
     try {
+        app.lastMatchWasBot = false;
         window.secondPlayerNotified = false;
         await window.multiplayerModule.joinRoom(roomCode);
         
@@ -6463,12 +6511,187 @@ async function joinMultiplayerRoom() {
     }
 }
 
+function hideBotBattleChrome() {
+    const chatWrap = document.getElementById('multiplayerBotChatWrap');
+    if (chatWrap) chatWrap.classList.add('hidden');
+    const hud = document.getElementById('multiplayerGameHudTitle');
+    if (hud) hud.textContent = t('multiplayer');
+}
+
+function startBotBattleFromSettings() {
+    const gen = window.multiplayerModule && window.multiplayerModule.generateRandomTextByChars;
+    if (typeof gen !== 'function') {
+        showToast(t('mpBotLoading'), 'info', t('multiplayer'));
+        let tries = 0;
+        const id = setInterval(() => {
+            tries++;
+            if (window.multiplayerModule && typeof window.multiplayerModule.generateRandomTextByChars === 'function') {
+                clearInterval(id);
+                startBotBattleFromSettings();
+            } else if (tries > 28) {
+                clearInterval(id);
+                showToast(t('errorCreatingRoom'), 'error', t('multiplayer'));
+            }
+        }, 200);
+        return;
+    }
+    hideRoomSettings();
+    const opts = getMultiplayerTextOptions();
+    let gameText;
+    try {
+        gameText = gen.call(window.multiplayerModule, selectedWordCount, selectedMultiplayerLang, selectedTheme, opts);
+    } catch (err) {
+        console.error('Bot battle text:', err);
+        showToast(t('errorCreatingRoom'), 'error', t('multiplayer'));
+        return;
+    }
+    if (!gameText || !gameText.length) {
+        showToast(t('errorCreatingRoom'), 'error', t('multiplayer'));
+        return;
+    }
+    const botName = (window.botBattleModule && window.botBattleModule.pickBotName)
+        ? window.botBattleModule.pickBotName(selectedMultiplayerLang)
+        : 'Bot';
+    const ttsEl = document.getElementById('mpBotTtsCheckbox');
+    const ttsOn = ttsEl ? !!ttsEl.checked : false;
+    if (window.botBattleModule && typeof window.botBattleModule.setTtsStored === 'function') {
+        window.botBattleModule.setTtsStored(ttsOn);
+    }
+    beginBotBattleSession(gameText, botName, ttsOn);
+}
+
+function beginBotBattleSession(gameText, botName, ttsEnabled) {
+    try {
+        if (window.botBattleModule) window.botBattleModule.stop();
+    } catch (e) {}
+
+    hideAllScreens();
+    document.getElementById('multiplayerGameScreen').classList.remove('hidden');
+    app.currentMode = 'multiplayer-game';
+    app.botBattleActive = true;
+    app.lastMatchWasBot = true;
+    app.gameEnded = false;
+    app.botOpponentName = botName || 'Bot';
+
+    try { closeMultiplayerResultsModal(); } catch (e2) {}
+    stopMultiplayerRematchCountdown();
+
+    app.currentText = gameText;
+    app.currentPosition = 0;
+    app.errors = 0;
+    app.opponentErrors = 0;
+    app.startTime = Date.now();
+    app.isPaused = false;
+
+    const oppEl = document.getElementById('multiplayerOpponentName');
+    if (oppEl) oppEl.textContent = app.botOpponentName;
+    const myNameEl = document.getElementById('multiplayerMyName');
+    if (myNameEl) {
+        const u = window.authModule && window.authModule.getCurrentUser && window.authModule.getCurrentUser();
+        myNameEl.textContent = (u && u.username) ? u.username : (app.lang === 'en' ? 'You' : app.lang === 'ua' ? 'Ви' : 'Вы');
+    }
+
+    const hud = document.getElementById('multiplayerGameHudTitle');
+    if (hud) hud.textContent = t('mpVsBotHud');
+
+    const chatWrap = document.getElementById('multiplayerBotChatWrap');
+    const chatName = document.getElementById('multiplayerBotChatName');
+    const chatText = document.getElementById('multiplayerBotChatText');
+    if (chatWrap) chatWrap.classList.remove('hidden');
+    if (chatName) chatName.textContent = app.botOpponentName + ' · ' + t('mpBotSays');
+    if (chatText) chatText.textContent = '';
+
+    renderMultiplayerText();
+    const display = document.getElementById('multiplayerTextDisplay');
+    if (display) display.scrollLeft = 0;
+
+    document.getElementById('multiplayerMyProgress').textContent = '0';
+    document.getElementById('multiplayerMyProgressBar').style.width = '0%';
+    document.getElementById('multiplayerOpponentProgress').textContent = '0';
+    document.getElementById('multiplayerOpponentProgressBar').style.width = '0%';
+
+    const keyboardContainer = document.getElementById('multiplayerKeyboardContainer');
+    keyboardContainer.innerHTML = '';
+    window.keyboardModule.render(app.currentLayout, keyboardContainer);
+
+    document.removeEventListener('keydown', handleMultiplayerKeyPress);
+    document.addEventListener('keydown', handleMultiplayerKeyPress);
+
+    if (!window.botBattleModule || typeof window.botBattleModule.start !== 'function') return;
+
+    window.botBattleModule.start({
+        text: gameText,
+        textLang: selectedMultiplayerLang,
+        ttsEnabled: !!ttsEnabled,
+        onMessage(msg) {
+            const el = document.getElementById('multiplayerBotChatText');
+            if (el) el.textContent = msg;
+        },
+        onProgress(pct, errs) {
+            if (app.gameEnded) return;
+            app.opponentErrors = errs || 0;
+            document.getElementById('multiplayerOpponentProgress').textContent = String(pct);
+            document.getElementById('multiplayerOpponentProgressBar').style.width = pct + '%';
+        },
+        onErrors(e) {
+            app.opponentErrors = e;
+        },
+        onBotWin() {
+            if (app.gameEnded) return;
+            finishBotBattleLoss();
+        }
+    });
+}
+
+function finishBotBattleLoss() {
+    if (app.gameEnded) return;
+    app.gameEnded = true;
+    app.botBattleActive = false;
+    document.removeEventListener('keydown', handleMultiplayerKeyPress);
+    try {
+        if (window.botBattleModule) window.botBattleModule.stop();
+    } catch (e) {}
+
+    const line = (window.botBattleModule && window.botBattleModule.lineForMatchEnd)
+        ? window.botBattleModule.lineForMatchEnd(true, selectedMultiplayerLang)
+        : '';
+    const chatEl = document.getElementById('multiplayerBotChatText');
+    if (chatEl && line) chatEl.textContent = line;
+
+    const ttsOn = window.botBattleModule && window.botBattleModule.getTtsStored && window.botBattleModule.getTtsStored();
+    if (ttsOn && line && window.botBattleModule.speakLine) {
+        window.botBattleModule.speakLine(line, selectedMultiplayerLang);
+    }
+
+    openMultiplayerResultsModal(false);
+}
+
 // Leave multiplayer room
 async function leaveMultiplayerRoom(redirectTo = 'home') {
     try {
         // Stop game input handler to avoid "ghost" key presses after leaving.
         app.gameEnded = true;
         document.removeEventListener('keydown', handleMultiplayerKeyPress);
+
+        if (app.botBattleActive) {
+            try {
+                if (window.botBattleModule) window.botBattleModule.stop();
+            } catch (e0) {}
+            app.botBattleActive = false;
+            app.lastMatchWasBot = false;
+            app.gameEnded = false;
+            hideBotBattleChrome();
+            try { closeMultiplayerResultsModal(); } catch (e1) {}
+            showToast(t('leftRoom'), 'info', t('multiplayer'));
+            if (redirectTo === 'multiplayer-menu') {
+                showMultiplayerMenu();
+            } else {
+                showHome();
+            }
+            setRandomBackground();
+            createParticles();
+            return;
+        }
 
         await window.multiplayerModule.leaveRoom();
         showToast(t('leftRoom'), 'info', t('multiplayer'));
@@ -6609,6 +6832,10 @@ window.onMultiplayerUpdate = (data) => {
 };
 
 window.onMultiplayerStart = (gameText) => {
+    app.botBattleActive = false;
+    app.lastMatchWasBot = false;
+    hideBotBattleChrome();
+
     hideAllScreens();
     document.getElementById('multiplayerGameScreen').classList.remove('hidden');
     app.currentMode = 'multiplayer-game';
@@ -6722,12 +6949,16 @@ function handleMultiplayerKeyPress(e) {
         // Error
         app.errors++;
         playSound('error');
-        window.multiplayerModule?.updateErrors?.(app.errors);
+        if (app.botBattleActive) {
+            if (window.botBattleModule) window.botBattleModule.notifyPlayer(app.currentPosition);
+        } else {
+            window.multiplayerModule?.updateErrors?.(app.errors);
+        }
     }
 }
 
-// Update multiplayer progress
-function updateMultiplayerProgress() {
+// Update multiplayer progress (UI only for my bar)
+function applyMyMultiplayerProgressUI() {
     if (!app.currentText || app.currentText.length === 0) {
         const progress = 0;
         document.getElementById('multiplayerMyProgress').textContent = progress;
@@ -6739,15 +6970,49 @@ function updateMultiplayerProgress() {
     const progress = isFinished ? 100 : Math.floor(raw);
     document.getElementById('multiplayerMyProgress').textContent = progress;
     document.getElementById('multiplayerMyProgressBar').style.width = progress + '%';
-    
-    // Send to Firebase
+}
+
+// Update multiplayer progress
+function updateMultiplayerProgress() {
+    applyMyMultiplayerProgressUI();
+    if (app.botBattleActive) {
+        if (window.botBattleModule) window.botBattleModule.notifyPlayer(app.currentPosition);
+        return;
+    }
+    if (!app.currentText || app.currentText.length === 0) {
+        window.multiplayerModule.updateProgress(0);
+        return;
+    }
+    const raw = (app.currentPosition / app.currentText.length) * 100;
+    const isFinished = app.currentPosition >= app.currentText.length;
+    const progress = isFinished ? 100 : Math.floor(raw);
     window.multiplayerModule.updateProgress(progress);
 }
 
 // Finish multiplayer game
 async function finishMultiplayerGame() {
     if (app.gameEnded) return; // Защита от повторного вызова
-    
+
+    if (app.botBattleActive) {
+        app.gameEnded = true;
+        app.botBattleActive = false;
+        document.removeEventListener('keydown', handleMultiplayerKeyPress);
+        try {
+            if (window.botBattleModule) window.botBattleModule.stop();
+        } catch (e) {}
+        const line = (window.botBattleModule && window.botBattleModule.lineForMatchEnd)
+            ? window.botBattleModule.lineForMatchEnd(false, selectedMultiplayerLang)
+            : '';
+        const chatEl = document.getElementById('multiplayerBotChatText');
+        if (chatEl && line) chatEl.textContent = line;
+        const ttsOn = window.botBattleModule && window.botBattleModule.getTtsStored && window.botBattleModule.getTtsStored();
+        if (ttsOn && line && window.botBattleModule.speakLine) {
+            window.botBattleModule.speakLine(line, selectedMultiplayerLang);
+        }
+        openMultiplayerResultsModal(true);
+        return;
+    }
+
     app.gameEnded = true;
     document.removeEventListener('keydown', handleMultiplayerKeyPress);
     try {
@@ -6829,6 +7094,16 @@ function openMultiplayerResultsModal(isWin) {
     document.getElementById('mpResOppChars').textContent = oppChars;
     document.getElementById('mpResOppErrors').textContent = opponentErrors;
 
+    const pillsRow = document.getElementById('mpResReadyPillsRow');
+    if (pillsRow) pillsRow.style.display = app.lastMatchWasBot ? 'none' : '';
+
+    const rematchL = document.getElementById('mpResRematchLabel');
+    const settingsL = document.getElementById('mpResSettingsLabel');
+    const exitL = document.getElementById('mpResExitLabel');
+    if (rematchL) rematchL.textContent = t('mpPlayAgain');
+    if (settingsL) settingsL.textContent = t('mpChangeSettings');
+    if (exitL) exitL.textContent = app.lastMatchWasBot ? t('mpBotExitToMenu') : t('mpExitRoom');
+
     modal.classList.remove('hidden');
     modal.classList.add('flex');
     updateMultiplayerResultsHint();
@@ -6840,6 +7115,15 @@ function updateMultiplayerResultsHint() {
     if (!modal || !hint) return;
     const isVisible = !modal.classList.contains('hidden');
     if (!isVisible) return;
+
+    if (app.lastMatchWasBot) {
+        hint.style.animation = '';
+        hint.textContent = t('mpBotRematchHint');
+        hint.style.border = '1px solid rgba(255,255,255,0.10)';
+        hint.style.background = 'transparent';
+        hint.style.boxShadow = 'none';
+        return;
+    }
 
     const isEnglish = app.lang === 'en';
     const isUkrainian = app.lang === 'ua';
@@ -6893,6 +7177,7 @@ function updateMultiplayerReadyPills() {
     const myPill = document.getElementById('mpResMyReadyPill');
     const oppPill = document.getElementById('mpResOppReadyPill');
     if (!myPill || !oppPill) return;
+    if (app.lastMatchWasBot) return;
 
     const isEnglish = app.lang === 'en';
     const isUkrainian = app.lang === 'ua';
@@ -6976,17 +7261,40 @@ function startMultiplayerRematchCountdown() {
 
 window.multiplayerResultsRematch = async function() {
     closeMultiplayerResultsModal();
-    // Reset local player state and mark myself ready (server will start next match only after both are ready).
+    if (app.lastMatchWasBot) {
+        startBotBattleFromSettings();
+        return;
+    }
     await returnToMultiplayerLobby();
 };
 
 window.multiplayerResultsExit = async function() {
     closeMultiplayerResultsModal();
+    if (app.lastMatchWasBot) {
+        app.lastMatchWasBot = false;
+        app.gameEnded = false;
+        hideBotBattleChrome();
+        showHome();
+        setRandomBackground();
+        createParticles();
+        return;
+    }
     await leaveMultiplayerRoom();
 };
 
 window.multiplayerResultsSettings = async function() {
     closeMultiplayerResultsModal();
+    if (app.lastMatchWasBot) {
+        app.gameEnded = false;
+        mpRoomSettingsMode = 'bot';
+        showMultiplayerMenu();
+        document.getElementById('multiplayerMainMenu').classList.add('hidden');
+        document.getElementById('roomSettingsDialog').classList.remove('hidden');
+        document.getElementById('joinRoomDialog').classList.add('hidden');
+        refreshMpRoomSettingsChrome();
+        updateRoomSelectionUI();
+        return;
+    }
     await leaveMultiplayerRoom('multiplayer-menu');
 };
 
@@ -7370,3 +7678,4 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+

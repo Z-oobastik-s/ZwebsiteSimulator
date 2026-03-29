@@ -3183,9 +3183,9 @@
                 
                 <!-- Main Menu -->
                 <div id="multiplayerMainMenu" class="glass rounded-2xl p-8 mb-6">
-                    <div class="grid md:grid-cols-2 gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <!-- Create Room -->
-                        <button onclick="showRoomSettings()" class="glass rounded-xl p-8 hover:scale-105 transition-transform text-center">
+                        <button onclick="showRoomSettings(false)" class="glass rounded-xl p-8 hover:scale-105 transition-transform text-center">
                             <div class="w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center mb-4 mx-auto">
                                 <svg class="w-8 h-8 text-purple-500" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
@@ -3205,13 +3205,20 @@
                             <h4 class="text-xl font-semibold mb-2" data-i18n="joinRoom">Подключиться</h4>
                             <p class="text-gray-400 text-sm" data-i18n="joinRoomDesc">Введи код комнаты друга</p>
                         </button>
+
+                        <!-- Vs Bot -->
+                        <button type="button" onclick="showBotBattleSettings()" class="glass rounded-xl p-8 hover:scale-105 transition-transform text-center border border-fuchsia-500/20">
+                            <div class="w-16 h-16 bg-fuchsia-500/20 rounded-full flex items-center justify-center mb-4 mx-auto text-3xl">🤖</div>
+                            <h4 class="text-xl font-semibold mb-2" data-i18n="mpVsBot">Против бота</h4>
+                            <p class="text-gray-400 text-sm" data-i18n="mpVsBotDesc">Тренировка без комнаты</p>
+                        </button>
                     </div>
                 </div>
                 
                 <!-- Room Settings Dialog -->
                 <div id="roomSettingsDialog" class="glass rounded-2xl p-5 mb-6 hidden mp-room-dialog">
                     <div class="mp-room-top">
-                        <h3 class="text-xl font-bold text-center" data-i18n="chooseGameMode">Выбери режим игры</h3>
+                        <h3 class="text-xl font-bold text-center"><span id="mpRoomSettingsTitle" data-i18n="chooseGameMode">Выбери режим игры</span></h3>
                         <div id="mpRoomSummary" class="mp-room-summary mt-3">
                             <span id="mpRoomSummaryTheme">Тематика</span>
                             <span class="mx-2 text-gray-500">/</span>
@@ -3321,18 +3328,28 @@
                             </div>
                         </div>
 
-                        <!-- Players -->
-                        <div class="mp-group mp-group-wide">
+                        <!-- Players (online only) -->
+                        <div class="mp-group mp-group-wide mp-online-only">
                             <h4 class="mp-group-title" data-i18n="mpPlayers">Игроки</h4>
                             <div class="glass rounded-lg px-4 py-3 text-center border border-white/10">
                                 <span data-i18n="mpDuelOnly">Сейчас доступна только дуэль:</span> <span class="text-primary font-bold" data-i18n="mp2Players">2 игрока</span>.
                             </div>
                         </div>
+
+                        <!-- Bot: voice toggle -->
+                        <div class="mp-group mp-group-wide mp-bot-only hidden">
+                            <h4 class="mp-group-title" data-i18n="mpBotOpponent">Противник</h4>
+                            <label class="glass rounded-lg px-4 py-3 cursor-pointer border border-white/10 hover:bg-white/10 flex items-center justify-between gap-2">
+                                <span class="text-xs font-semibold" data-i18n="mpBotVoice">Голос (озвучка в браузере)</span>
+                                <input id="mpBotTtsCheckbox" type="checkbox" onchange="onMpBotTtsChange(this)" />
+                            </label>
+                            <p class="text-gray-400 text-[11px] mt-2 text-center" data-i18n="mpBotVoiceHint">Короткие реплики через синтез речи; можно выключить.</p>
+                        </div>
                     </div>
 
                     <div class="flex gap-4 mt-4 mp-room-actions">
                         <button onclick="hideRoomSettings()" class="flex-1 px-4 py-3 rounded-lg glass hover:bg-white/20 dark:hover:bg-black/20" data-i18n="back">Назад</button>
-                        <button onclick="createMultiplayerRoomWithSettings()" class="flex-1 px-4 py-3 rounded-lg bg-purple-500 hover:bg-purple-600 text-white font-semibold" data-i18n="createRoom">Создать</button>
+                        <button type="button" id="mpRoomPrimaryBtn" onclick="createMultiplayerRoomWithSettings()" class="flex-1 px-4 py-3 rounded-lg bg-purple-500 hover:bg-purple-600 text-white font-semibold"><span id="mpRoomPrimaryBtnLabel" data-i18n="createRoom">Создать</span></button>
                     </div>
                 </div>
                 
@@ -3400,7 +3417,7 @@
                     <button onclick="leaveMultiplayerRoom()" class="glass px-4 py-2 rounded-lg hover:bg-white/20 dark:hover:bg-black/20">
                         ← <span data-i18n="exit">Выйти</span>
                     </button>
-                    <h2 class="text-2xl font-bold text-purple-400">🏆 <span data-i18n="multiplayer">Multiplayer</span></h2>
+                    <h2 class="text-2xl font-bold text-purple-400">🏆 <span id="multiplayerGameHudTitle" data-i18n="multiplayer">Multiplayer</span></h2>
                     <div class="w-32"></div>
                 </div>
                 
@@ -3433,6 +3450,16 @@
                             <div class="w-full h-4 bg-gray-700 rounded-full overflow-hidden">
                                 <div id="multiplayerOpponentProgressBar" class="h-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-300" style="width: 0%"></div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="multiplayerBotChatWrap" class="glass rounded-2xl p-4 mb-6 hidden border border-purple-500/25">
+                    <div class="flex items-start gap-3">
+                        <span class="text-2xl shrink-0" aria-hidden="true">💬</span>
+                        <div class="min-w-0 flex-1">
+                            <div id="multiplayerBotChatName" class="text-xs font-semibold text-purple-300"></div>
+                            <p id="multiplayerBotChatText" class="text-sm text-gray-200 mt-1 leading-relaxed"></p>
                         </div>
                     </div>
                 </div>
@@ -3658,7 +3685,7 @@
                 <div class="min-w-0">
                     <h3 id="multiplayerResultsTitle" class="text-3xl font-bold mb-1 text-center">Результат матча</h3>
                     <div id="multiplayerResultsSubtitle" class="text-center text-gray-400 text-sm">-</div>
-                    <div class="mt-3 flex items-center justify-center gap-3">
+                    <div id="mpResReadyPillsRow" class="mt-3 flex items-center justify-center gap-3">
                         <span id="mpResMyReadyPill" class="px-3 py-1 rounded-full text-xs border border-white/10 bg-white/5 text-gray-300 whitespace-nowrap">-</span>
                         <span id="mpResOppReadyPill" class="px-3 py-1 rounded-full text-xs border border-white/10 bg-white/5 text-gray-300 whitespace-nowrap">-</span>
                     </div>
@@ -3701,13 +3728,13 @@
 
             <div class="mt-5 flex flex-col sm:flex-row gap-3">
                 <button type="button" onclick="multiplayerResultsRematch()" class="flex-1 bg-primary hover:bg-primary/90 text-white font-semibold py-3 rounded-xl shadow-lg shadow-primary/20">
-                    Играть снова
+                    <span id="mpResRematchLabel" data-i18n="mpPlayAgain">Играть снова</span>
                 </button>
                 <button type="button" onclick="multiplayerResultsSettings()" class="flex-1 glass hover:bg-white/20 dark:hover:bg-black/20 text-white font-semibold py-3 rounded-xl border border-white/10">
-                    Сменить настройки
+                    <span id="mpResSettingsLabel" data-i18n="mpChangeSettings">Сменить настройки</span>
                 </button>
                 <button type="button" onclick="multiplayerResultsExit()" class="flex-1 glass hover:bg-white/20 dark:hover:bg-black/20 text-white font-semibold py-3 rounded-xl border border-white/10">
-                    Выйти из комнаты
+                    <span id="mpResExitLabel" data-i18n="mpExitRoom">Выйти из комнаты</span>
                 </button>
             </div>
 
@@ -4305,6 +4332,7 @@
     <script src="scripts/features/wpm-chart.js" defer></script>
     <script src="scripts/features/heatmap.js" defer></script>
     <script src="scripts/features/daily-challenge.js" defer></script>
+    <script src="scripts/features/bot-battle.js" defer></script>
     <!-- Use source main.js (always up-to-date, no build required) -->
     <script src="scripts/main.js" defer></script>
     <script>
@@ -4320,3 +4348,4 @@
     </script>
 </body>
 </html>
+

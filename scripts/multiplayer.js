@@ -132,7 +132,7 @@ function sanitizeToken(token) {
     }
 }
 
-function generateRandomTextByChars(targetChars, language, theme, options = {}) {
+export function generateRandomTextByChars(targetChars, language, theme, options = {}) {
     const includeComma = !!options.includeComma;
     const includePeriod = !!options.includePeriod;
     const includeDigits = !!options.includeDigits;
@@ -555,5 +555,7 @@ window.multiplayerModule = {
     resetGame,
     setReadyForNext,
     getMultiplayerState,
-    isMultiplayerActive
+    isMultiplayerActive,
+    generateRandomTextByChars
 };
+
