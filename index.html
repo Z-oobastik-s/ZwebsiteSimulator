@@ -3781,24 +3781,25 @@
                 </div>
             </div>
 
-            <div class="grid md:grid-cols-2 gap-4">
-                <div id="mpResBotMetaRow" class="hidden md:col-span-2 rounded-xl border border-white/10 bg-white/5 dark:bg-black/25 px-3 py-2.5 sm:px-4">
-                    <div class="flex flex-wrap justify-center items-center gap-x-1.5 gap-y-1.5 text-[11px] sm:text-xs text-center">
-                        <span class="text-[10px] uppercase tracking-wider text-cyan-400/85 font-bold shrink-0" data-i18n="mpResDifficultyLabel">Сложность</span>
-                        <span id="mpResBotDifficultyPill" class="rounded-lg bg-fuchsia-500/30 border border-fuchsia-400/40 px-2 py-0.5 text-xs font-extrabold text-fuchsia-50 shrink-0">-</span>
-                        <span class="text-white/25 shrink-0" aria-hidden="true">·</span>
-                        <span id="mpResBotChipTheme" class="px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-gray-200 font-medium max-w-[42vw] sm:max-w-none truncate" title="">-</span>
-                        <span class="text-white/25 shrink-0" aria-hidden="true">·</span>
-                        <span id="mpResBotChipLen" class="px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-gray-200 font-medium whitespace-nowrap">-</span>
-                        <span class="text-white/25 shrink-0" aria-hidden="true">·</span>
-                        <span id="mpResBotChipLang" class="px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-gray-200 font-semibold whitespace-nowrap">-</span>
-                        <span class="text-white/25 shrink-0" aria-hidden="true">·</span>
-                        <span id="mpResBotChipOpts" class="px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-gray-300 font-medium max-w-[min(100%,14rem)] sm:max-w-[20rem] text-left leading-snug break-words" title="">-</span>
-                        <span id="mpResBotChipBotSep" class="text-white/25 shrink-0 hidden" aria-hidden="true">·</span>
-                        <span id="mpResBotChipBot" class="hidden px-2 py-0.5 rounded-md bg-fuchsia-500/20 border border-fuchsia-400/35 text-fuchsia-100 font-semibold max-w-[42vw] sm:max-w-[12rem] truncate" title="">-</span>
-                    </div>
-                    <p id="mpResBotPaceNote" class="hidden text-center text-[11px] leading-snug text-cyan-200/85 mt-2 pt-2 border-t border-white/10 font-medium"></p>
+            <div id="mpResBotMetaRow" class="mb-4 w-full rounded-xl border border-white/10 bg-white/5 dark:bg-black/25 px-3 py-2.5 sm:px-4" style="display: none;">
+                <div class="flex flex-wrap justify-center items-center gap-x-1.5 gap-y-1.5 text-[11px] sm:text-xs text-center">
+                    <span class="text-[10px] uppercase tracking-wider text-cyan-400/85 font-bold shrink-0" data-i18n="mpResDifficultyLabel">Сложность</span>
+                    <span id="mpResBotDifficultyPill" class="rounded-lg bg-fuchsia-500/30 border border-fuchsia-400/40 px-2 py-0.5 text-xs font-extrabold text-fuchsia-50 shrink-0">-</span>
+                    <span class="text-white/25 shrink-0" aria-hidden="true">·</span>
+                    <span id="mpResBotChipTheme" class="px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-gray-200 font-medium max-w-[42vw] sm:max-w-none truncate" title="">-</span>
+                    <span class="text-white/25 shrink-0" aria-hidden="true">·</span>
+                    <span id="mpResBotChipLen" class="px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-gray-200 font-medium whitespace-nowrap">-</span>
+                    <span class="text-white/25 shrink-0" aria-hidden="true">·</span>
+                    <span id="mpResBotChipLang" class="px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-gray-200 font-semibold whitespace-nowrap">-</span>
+                    <span class="text-white/25 shrink-0" aria-hidden="true">·</span>
+                    <span id="mpResBotChipOpts" class="px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-gray-300 font-medium max-w-[min(100%,14rem)] sm:max-w-[20rem] text-left leading-snug break-words" title="">-</span>
+                    <span id="mpResBotChipBotSep" class="text-white/25 shrink-0 hidden" aria-hidden="true">·</span>
+                    <span id="mpResBotChipBot" class="hidden px-2 py-0.5 rounded-md bg-fuchsia-500/20 border border-fuchsia-400/35 text-fuchsia-100 font-semibold max-w-[42vw] sm:max-w-[12rem] truncate" title="">-</span>
                 </div>
+                <p id="mpResBotPaceNote" class="hidden text-center text-[11px] leading-snug text-cyan-200/85 mt-2 pt-2 border-t border-white/10 font-medium"></p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-4">
                 <div class="p-4 bg-white/10 dark:bg-black/20 rounded-xl border border-white/10">
                     <div class="flex items-center justify-between mb-2">
                         <h4 class="text-lg font-bold text-primary">Вы</h4>
@@ -4451,4 +4452,3 @@
     </script>
 </body>
 </html>
-

@@ -7223,7 +7223,7 @@ function openMultiplayerResultsModal(isWin) {
     const botPaceNote = document.getElementById('mpResBotPaceNote');
     if (botMetaRow) {
         if (app.lastMatchWasBot) {
-            botMetaRow.classList.remove('hidden');
+            botMetaRow.style.display = 'block';
             botMetaRow.querySelectorAll('[data-i18n]').forEach((el) => {
                 const key = el.getAttribute('data-i18n');
                 if (key) el.textContent = t(key);
@@ -7279,7 +7279,7 @@ function openMultiplayerResultsModal(isWin) {
                 }
             }
         } else {
-            botMetaRow.classList.add('hidden');
+            botMetaRow.style.display = 'none';
             if (botPaceNote) botPaceNote.classList.add('hidden');
         }
     }
@@ -7422,6 +7422,8 @@ function updateMultiplayerReadyPills() {
 function closeMultiplayerResultsModal() {
     const modal = document.getElementById('multiplayerResultsModal');
     if (!modal) return;
+    const botMetaRow = document.getElementById('mpResBotMetaRow');
+    if (botMetaRow) botMetaRow.style.display = 'none';
     modal.classList.add('hidden');
     modal.classList.remove('flex');
     stopMultiplayerRematchCountdown();
@@ -7869,4 +7871,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-
