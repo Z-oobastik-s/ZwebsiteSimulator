@@ -2689,6 +2689,14 @@
                 0 0 26px rgba(0,229,255,0.26);
             transform: translateY(-1px);
         }
+        #roomSettingsDialog .mp-diff-btn[data-selected="true"]{
+            border-color: rgba(192,132,252,0.95) !important;
+            background: rgba(168,85,247,0.18) !important;
+            box-shadow:
+                0 0 0 2px rgba(168,85,247,0.22),
+                0 0 22px rgba(168,85,247,0.28);
+            transform: translateY(-1px);
+        }
         #roomSettingsDialog .mp-opt[data-on="true"]{
             border-color: rgba(0,229,255,0.60) !important;
             background: rgba(0,229,255,0.10) !important;
@@ -3208,7 +3216,16 @@
 
                         <!-- Vs Bot -->
                         <button type="button" onclick="showBotBattleSettings()" class="glass rounded-xl p-8 hover:scale-105 transition-transform text-center border border-fuchsia-500/20">
-                            <div class="w-16 h-16 bg-fuchsia-500/20 rounded-full flex items-center justify-center mb-4 mx-auto text-3xl">🤖</div>
+                            <div class="w-16 h-16 bg-fuchsia-500/20 rounded-full flex items-center justify-center mb-4 mx-auto text-fuchsia-200" aria-hidden="true">
+                                <svg class="w-9 h-9" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 3v2.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+                                    <rect x="6.5" y="6" width="11" height="10" rx="2.2" stroke="currentColor" stroke-width="1.75"/>
+                                    <circle cx="9.5" cy="10.5" r="1.25" fill="currentColor"/>
+                                    <circle cx="14.5" cy="10.5" r="1.25" fill="currentColor"/>
+                                    <path d="M9 14h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.85"/>
+                                    <path d="M8 19.5h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.55"/>
+                                </svg>
+                            </div>
                             <h4 class="text-xl font-semibold mb-2" data-i18n="mpVsBot">Против бота</h4>
                             <p class="text-gray-400 text-sm" data-i18n="mpVsBotDesc">Тренировка без комнаты</p>
                         </button>
@@ -3336,14 +3353,26 @@
                             </div>
                         </div>
 
-                        <!-- Bot: voice toggle -->
+                        <!-- Bot: difficulty, voice, TTS -->
                         <div class="mp-group mp-group-wide mp-bot-only hidden">
-                            <h4 class="mp-group-title" data-i18n="mpBotOpponent">Противник</h4>
+                            <h4 class="mp-group-title" data-i18n="mpBotDifficultyTitle">Сложность бота</h4>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-3">
+                                <button type="button" class="mp-diff-btn glass rounded-lg px-2 py-2.5 border-2 border-transparent text-center leading-tight" data-difficulty="novice" onclick="selectBotDifficulty('novice')"><span class="text-[11px] font-bold block" data-i18n="mpDiffNovice">Новичок</span></button>
+                                <button type="button" class="mp-diff-btn glass rounded-lg px-2 py-2.5 border-2 border-transparent text-center leading-tight" data-difficulty="easy" onclick="selectBotDifficulty('easy')"><span class="text-[11px] font-bold block" data-i18n="mpDiffEasy">Легко</span></button>
+                                <button type="button" class="mp-diff-btn glass rounded-lg px-2 py-2.5 border-2 border-transparent text-center leading-tight" data-difficulty="medium" onclick="selectBotDifficulty('medium')"><span class="text-[11px] font-bold block" data-i18n="mpDiffMedium">Средне</span></button>
+                                <button type="button" class="mp-diff-btn glass rounded-lg px-2 py-2.5 border-2 border-transparent text-center leading-tight" data-difficulty="hard" onclick="selectBotDifficulty('hard')"><span class="text-[11px] font-bold block" data-i18n="mpDiffHard">Сложно</span></button>
+                                <button type="button" class="mp-diff-btn glass rounded-lg px-2 py-2.5 border-2 border-transparent text-center leading-tight" data-difficulty="insane" onclick="selectBotDifficulty('insane')"><span class="text-[11px] font-bold block" data-i18n="mpDiffInsane">Безумно</span></button>
+                                <button type="button" class="mp-diff-btn glass rounded-lg px-2 py-2.5 border-2 border-transparent text-center leading-tight" data-difficulty="impossible" onclick="selectBotDifficulty('impossible')"><span class="text-[11px] font-bold block" data-i18n="mpDiffImpossible">Невозможно</span></button>
+                            </div>
+                            <h4 class="mp-group-title" data-i18n="mpBotVoicePick">Голос озвучки</h4>
+                            <select id="mpBotVoiceSelect" class="w-full px-3 py-2.5 rounded-lg bg-gray-700/60 border border-white/15 text-sm text-white mb-2 outline-none focus:border-purple-400/60" onchange="onMpBotVoiceChange(this)" aria-label="Bot voice"></select>
+                            <p class="text-gray-400 text-[10px] mb-3 text-center" data-i18n="mpBotVoicePickHint">Список зависит от браузера и ОС; «Авто» подстраивается под язык текста.</p>
+                            <h4 class="mp-group-title" data-i18n="mpBotTtsSectionTitle">Озвучка</h4>
                             <label class="glass rounded-lg px-4 py-3 cursor-pointer border border-white/10 hover:bg-white/10 flex items-center justify-between gap-2">
-                                <span class="text-xs font-semibold" data-i18n="mpBotVoice">Голос (озвучка в браузере)</span>
+                                <span class="text-xs font-semibold" data-i18n="mpBotVoice">Озвучивать фразы (TTS)</span>
                                 <input id="mpBotTtsCheckbox" type="checkbox" onchange="onMpBotTtsChange(this)" />
                             </label>
-                            <p class="text-gray-400 text-[11px] mt-2 text-center" data-i18n="mpBotVoiceHint">Короткие реплики через синтез речи; можно выключить.</p>
+                            <p class="text-gray-400 text-[11px] mt-2 text-center" data-i18n="mpBotVoiceHint">Бот пишет чаще и разнообразнее; голос можно сменить выше.</p>
                         </div>
                     </div>
 
@@ -4348,4 +4377,3 @@
     </script>
 </body>
 </html>
-

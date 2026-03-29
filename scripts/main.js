@@ -1931,6 +1931,7 @@ function updateTranslations() {
         window.__siteStatsUpdateUI(window.__siteStatsVisits, window.__siteStatsOnline);
     }
     if (typeof refreshMpRoomSettingsChrome === 'function') refreshMpRoomSettingsChrome();
+    if (mpRoomSettingsMode === 'bot' && typeof refreshMpBotVoiceSelect === 'function') refreshMpBotVoiceSelect();
     var _ps = document.getElementById('profileScreen');
     if (_ps && !_ps.classList.contains('hidden') && typeof showProfileTab === 'function') {
         showProfileTab(_lastProfileTab);
@@ -6260,6 +6261,53 @@ let selectedTextOptDigits = false;
 let selectedTextOptMixCase = false;
 let mpRoomSettingsMode = 'online'; // 'online' | 'bot'
 
+const BOT_DIFFICULTY_IDS = ['novice', 'easy', 'medium', 'hard', 'insane', 'impossible'];
+const BOT_DIFFICULTY_STORAGE_KEY = 'zoob_mp_bot_difficulty';
+
+function loadStoredBotDifficulty() {
+    try {
+        const v = localStorage.getItem(BOT_DIFFICULTY_STORAGE_KEY);
+        if (v && BOT_DIFFICULTY_IDS.includes(v)) return v;
+    } catch (e) {}
+    return 'medium';
+}
+
+let selectedBotDifficulty = loadStoredBotDifficulty();
+
+function selectBotDifficulty(d) {
+    if (!BOT_DIFFICULTY_IDS.includes(d)) return;
+    selectedBotDifficulty = d;
+    try {
+        localStorage.setItem(BOT_DIFFICULTY_STORAGE_KEY, d);
+    } catch (e) {}
+    document.querySelectorAll('.mp-diff-btn').forEach(btn => {
+        const on = btn.getAttribute('data-difficulty') === d;
+        btn.dataset.selected = String(on);
+    });
+}
+
+function refreshMpBotVoiceSelect() {
+    const sel = document.getElementById('mpBotVoiceSelect');
+    if (!sel || !window.botBattleModule || typeof window.botBattleModule.populateVoiceSelect !== 'function') return;
+    window.botBattleModule.populateVoiceSelect(sel, selectedMultiplayerLang, t('mpBotVoiceAuto'));
+}
+
+function getMpBotVoiceUriForSpeak() {
+    const s = document.getElementById('mpBotVoiceSelect');
+    if (s && s.value) return s.value;
+    if (window.botBattleModule && typeof window.botBattleModule.getVoiceUriStored === 'function') {
+        const u = window.botBattleModule.getVoiceUriStored();
+        return u || null;
+    }
+    return null;
+}
+
+function onMpBotVoiceChange(el) {
+    if (window.botBattleModule && typeof window.botBattleModule.setVoiceUriStored === 'function') {
+        window.botBattleModule.setVoiceUriStored(el && el.value ? el.value : '');
+    }
+}
+
 // Show room settings (forBot = true → duel vs AI, same text options)
 function showRoomSettings(forBot) {
     if (typeof forBot === 'undefined') forBot = false;
@@ -6291,6 +6339,18 @@ function refreshMpRoomSettingsChrome() {
     if (tts && window.botBattleModule && typeof window.botBattleModule.getTtsStored === 'function') {
         tts.checked = !!window.botBattleModule.getTtsStored();
     }
+    if (isBot) {
+        selectBotDifficulty(selectedBotDifficulty);
+        refreshMpBotVoiceSelect();
+        try {
+            if (window.speechSynthesis && !window._mpBotVoiceHooked) {
+                window._mpBotVoiceHooked = true;
+                window.speechSynthesis.addEventListener('voiceschanged', () => {
+                    if (mpRoomSettingsMode === 'bot') refreshMpBotVoiceSelect();
+                });
+            }
+        } catch (e) {}
+    }
 }
 
 function onMpBotTtsChange(el) {
@@ -6317,6 +6377,7 @@ function selectMultiplayerLang(lang) {
         }
     });
     updateRoomSelectionUI();
+    if (mpRoomSettingsMode === 'bot') refreshMpBotVoiceSelect();
 }
 
 // Select theme
@@ -6404,6 +6465,10 @@ function updateRoomSelectionUI() {
     dialog.querySelectorAll('.room-setting-btn').forEach(btn => {
         const w = parseInt(btn.getAttribute('data-words') || '0', 10);
         btn.dataset.selected = String(w === selectedWordCount);
+    });
+    dialog.querySelectorAll('.mp-diff-btn').forEach(btn => {
+        const d = btn.getAttribute('data-difficulty');
+        btn.dataset.selected = String(d === selectedBotDifficulty);
     });
 
     // Options visual state
@@ -6619,10 +6684,17 @@ function beginBotBattleSession(gameText, botName, ttsEnabled) {
 
     if (!window.botBattleModule || typeof window.botBattleModule.start !== 'function') return;
 
+    const voiceSel = document.getElementById('mpBotVoiceSelect');
+    const voiceUri = (voiceSel && voiceSel.value)
+        ? voiceSel.value
+        : (window.botBattleModule.getVoiceUriStored && window.botBattleModule.getVoiceUriStored()) || '';
+
     window.botBattleModule.start({
         text: gameText,
         textLang: selectedMultiplayerLang,
         ttsEnabled: !!ttsEnabled,
+        difficulty: selectedBotDifficulty,
+        voiceURI: voiceUri || null,
         onMessage(msg) {
             const el = document.getElementById('multiplayerBotChatText');
             if (el) el.textContent = msg;
@@ -6660,7 +6732,7 @@ function finishBotBattleLoss() {
 
     const ttsOn = window.botBattleModule && window.botBattleModule.getTtsStored && window.botBattleModule.getTtsStored();
     if (ttsOn && line && window.botBattleModule.speakLine) {
-        window.botBattleModule.speakLine(line, selectedMultiplayerLang);
+        window.botBattleModule.speakLine(line, selectedMultiplayerLang, getMpBotVoiceUriForSpeak());
     }
 
     openMultiplayerResultsModal(false);
@@ -7007,7 +7079,7 @@ async function finishMultiplayerGame() {
         if (chatEl && line) chatEl.textContent = line;
         const ttsOn = window.botBattleModule && window.botBattleModule.getTtsStored && window.botBattleModule.getTtsStored();
         if (ttsOn && line && window.botBattleModule.speakLine) {
-            window.botBattleModule.speakLine(line, selectedMultiplayerLang);
+            window.botBattleModule.speakLine(line, selectedMultiplayerLang, getMpBotVoiceUriForSpeak());
         }
         openMultiplayerResultsModal(true);
         return;
@@ -7678,4 +7750,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-
