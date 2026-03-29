@@ -16,9 +16,9 @@
         novice: { cpmLo: 22, cpmHi: 44, typoMul: 2.5, pauseMul: 2.3, reactiveMs: 3800, idleMin: 4500, idleMax: 10000, ttsGap: 1300, chatterPerSec: 0.14, cpmWander: 16, sprintChance: 0.35 },
         easy: { cpmLo: 40, cpmHi: 72, typoMul: 1.55, pauseMul: 1.65, reactiveMs: 3000, idleMin: 3800, idleMax: 8200, ttsGap: 1100, chatterPerSec: 0.22, cpmWander: 20, sprintChance: 0.42 },
         medium: { cpmLo: 62, cpmHi: 105, typoMul: 1, pauseMul: 1, reactiveMs: 2100, idleMin: 2800, idleMax: 6500, ttsGap: 850, chatterPerSec: 0.34, cpmWander: 26, sprintChance: 0.52 },
-        hard: { cpmLo: 105, cpmHi: 168, typoMul: 0.52, pauseMul: 0.58, reactiveMs: 1400, idleMin: 1900, idleMax: 5000, ttsGap: 650, chatterPerSec: 0.38, cpmWander: 34, sprintChance: 0.62 },
-        insane: { cpmLo: 172, cpmHi: 255, typoMul: 0.22, pauseMul: 0.34, reactiveMs: 1000, idleMin: 1200, idleMax: 3400, ttsGap: 500, chatterPerSec: 0.32, cpmWander: 42, sprintChance: 0.72 },
-        impossible: { cpmLo: 235, cpmHi: 335, typoMul: 0.12, pauseMul: 0.24, reactiveMs: 700, idleMin: 900, idleMax: 2400, ttsGap: 380, chatterPerSec: 0.5, cpmWander: 48, sprintChance: 0.78 }
+        hard: { cpmLo: 115, cpmHi: 188, typoMul: 0.48, pauseMul: 0.52, reactiveMs: 1300, idleMin: 1750, idleMax: 4800, ttsGap: 650, chatterPerSec: 0.36, cpmWander: 32, sprintChance: 0.64 },
+        insane: { cpmLo: 268, cpmHi: 415, typoMul: 0.11, pauseMul: 0.2, reactiveMs: 820, idleMin: 720, idleMax: 2300, ttsGap: 500, chatterPerSec: 0.28, cpmWander: 30, sprintChance: 0.8 },
+        impossible: { cpmLo: 348, cpmHi: 505, typoMul: 0.055, pauseMul: 0.14, reactiveMs: 560, idleMin: 580, idleMax: 1700, ttsGap: 380, chatterPerSec: 0.4, cpmWander: 34, sprintChance: 0.85 }
     };
 
     var CHAT_UI_MIN_MS = { novice: 4200, easy: 3600, medium: 3000, hard: 2700, insane: 2400, impossible: 2100 };
@@ -514,7 +514,9 @@
         }
 
         state.burstPhase += dt * (0.75 + Math.random() * 0.55) * state.profile.burstFactor;
-        state.burstMul = 0.68 + 0.4 * (Math.sin(state.burstPhase) * 0.5 + 0.5);
+        var blo = state.profile.burstLo;
+        var brg = state.profile.burstRange;
+        state.burstMul = blo + brg * (Math.sin(state.burstPhase) * 0.5 + 0.5);
 
         if (now > state.nextCpmShiftAt) {
             state.nextCpmShiftAt = now + 1600 + Math.random() * 2200;
@@ -522,13 +524,15 @@
             state.targetCpm = clamp(state.targetCpm, state.cpmClampLo, state.cpmClampHi);
         }
 
-        var pauseChance = 0.2 * state.profile.pauseMul;
+        var pauseChance = (state.difficultyId === 'insane' || state.difficultyId === 'impossible' ? 0.11 : 0.2) * state.profile.pauseMul;
         if (Math.random() < dt * pauseChance) {
             var pm = state.profile.pauseMul;
             state.pauseUntil = now + (120 + Math.random() * 620) * pm;
         }
 
-        var noise = 0.84 + Math.random() * 0.3;
+        var noise = (state.difficultyId === 'insane' || state.difficultyId === 'impossible')
+            ? (0.91 + Math.random() * 0.11)
+            : (0.84 + Math.random() * 0.3);
         var cps = (state.targetCpm / 60) * state.burstMul * noise * state.profile.jitterMul;
         state.acc += cps * dt;
 
@@ -602,11 +606,25 @@
         var profile = getDiff(diffId);
         var voiceURI = config.voiceURI || '';
 
-        var fastRoll = diffId === 'impossible' ? 0.8 : diffId === 'insane' ? 0.72 : diffId === 'hard' ? 0.58 : 0.45;
+        var fastRoll = diffId === 'impossible' ? 0.9 : diffId === 'insane' ? 0.85 : diffId === 'hard' ? 0.6 : 0.45;
+        var burstLo = 0.68;
+        var burstRange = 0.4;
+        if (diffId === 'hard') {
+            burstLo = 0.73;
+            burstRange = 0.32;
+        } else if (diffId === 'insane') {
+            burstLo = 0.8;
+            burstRange = 0.22;
+        } else if (diffId === 'impossible') {
+            burstLo = 0.86;
+            burstRange = 0.16;
+        }
         var personality = {
             fast: Math.random() < fastRoll,
             jitterMul: (0.88 + Math.random() * 0.26) * (profile.typoMul < 0.5 ? 1.04 : 1),
             burstFactor: 0.95 + Math.random() * 0.2,
+            burstLo: burstLo,
+            burstRange: burstRange,
             pauseMul: profile.pauseMul,
             sprintChance: profile.sprintChance,
             chatterPerSec: profile.chatterPerSec,
@@ -627,8 +645,8 @@
             lo -= 5;
             hi -= 8;
         }
-        lo = clamp(lo, 15, 350);
-        hi = clamp(hi, lo + 8, 395);
+        lo = clamp(lo, 15, 450);
+        hi = clamp(hi, lo + 8, 520);
 
         var base = lo + Math.random() * (hi - lo);
 
@@ -636,6 +654,7 @@
         typoRate = clamp(typoRate, 0.003, 0.11);
 
         state = {
+            difficultyId: diffId,
             textLen: textLen,
             textLang: textLang,
             voiceURI: voiceURI || null,
@@ -733,3 +752,4 @@
         speakLine: speakLinePublic
     };
 })(typeof window !== 'undefined' ? window : globalThis);
+
