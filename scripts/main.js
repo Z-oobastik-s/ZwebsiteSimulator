@@ -1960,6 +1960,9 @@ function toggleFooter(show) {
 function showHome() {
     DOM.clear(); // Invalidate stale element references after screen switch.
     hideAllScreens();
+    // Leaving multiplayer via "Back" hides #multiplayerMainMenu while dialogs close; restore so next visit is not empty.
+    const mpMain = document.getElementById('multiplayerMainMenu');
+    if (mpMain) mpMain.classList.remove('hidden');
     const homeScreen = DOM.get('homeScreen');
     if (homeScreen) homeScreen.classList.remove('hidden');
     app.currentMode = 'home';
@@ -6247,6 +6250,9 @@ function showMultiplayerMenu() {
     toggleFooter(false); // Скрываем футер в мультиплеере
     hideAllScreens();
     document.getElementById('multiplayerMenuScreen').classList.remove('hidden');
+    const mpMain = document.getElementById('multiplayerMainMenu');
+    if (mpMain) mpMain.classList.remove('hidden');
+    mpRoomSettingsMode = 'online';
     app.currentMode = 'multiplayer-menu';
     if (typeof refreshMpRoomSettingsChrome === 'function') refreshMpRoomSettingsChrome();
 }
@@ -7750,3 +7756,4 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+

@@ -7,6 +7,11 @@
     var STORAGE_TTS = 'zoob_mp_bot_tts';
     var STORAGE_VOICE_URI = 'zoob_mp_bot_voice_uri';
 
+    /** One utterance at a time so rapid bot lines do not cancel mid-word; latest pending line wins. */
+    var ttsGen = 0;
+    var ttsQueued = null;
+    var ttsSpeechActive = false;
+
     var DIFF = {
         novice: { cpmLo: 22, cpmHi: 44, typoMul: 2.5, pauseMul: 2.3, reactiveMs: 3800, idleMin: 4500, idleMax: 10000, ttsGap: 1300, chatterPerSec: 0.14, cpmWander: 16, sprintChance: 0.35 },
         easy: { cpmLo: 40, cpmHi: 72, typoMul: 1.55, pauseMul: 1.65, reactiveMs: 3000, idleMin: 3800, idleMax: 8200, ttsGap: 1100, chatterPerSec: 0.22, cpmWander: 20, sprintChance: 0.42 },
@@ -379,20 +384,65 @@
         }
     }
 
-    function synthSpeak(text, lang, voice, rateMul, pitchMul) {
+    function applyUtteranceLangVoice(u, lang, voice, rateMul, pitchMul) {
+        u.rate = (rateMul || 1) * (1.02 + Math.random() * 0.06);
+        u.pitch = (pitchMul || 1) * (0.92 + Math.random() * 0.14);
+        u.volume = 0.84;
+        if (langKey(lang) === 'ua') u.lang = 'uk-UA';
+        else if (langKey(lang) === 'en') u.lang = 'en-US';
+        else u.lang = 'ru-RU';
+        if (voice) u.voice = voice;
+    }
+
+    function drainTtsAfterUtterance(myGen) {
+        if (myGen !== ttsGen) return;
+        ttsSpeechActive = false;
+        if (ttsQueued) {
+            var q = ttsQueued;
+            ttsQueued = null;
+            runStartTts(q);
+        }
+    }
+
+    function runStartTts(payload) {
+        if (!global.speechSynthesis || !payload || !payload.text) return;
+        ttsGen++;
+        var myGen = ttsGen;
+        ttsSpeechActive = true;
+        try {
+            var u = new global.SpeechSynthesisUtterance(payload.text);
+            applyUtteranceLangVoice(u, payload.lang, payload.voice, payload.rateMul, payload.pitchMul);
+            u.onend = function () { drainTtsAfterUtterance(myGen); };
+            u.onerror = function () { drainTtsAfterUtterance(myGen); };
+            global.speechSynthesis.speak(u);
+        } catch (e) {
+            ttsSpeechActive = false;
+            if (ttsQueued) {
+                var q2 = ttsQueued;
+                ttsQueued = null;
+                runStartTts(q2);
+            }
+        }
+    }
+
+    function enqueueSynthTts(text, lang, voice, rateMul, pitchMul) {
         if (!global.speechSynthesis || !text) return;
+        var payload = { text: text, lang: lang, voice: voice, rateMul: rateMul, pitchMul: pitchMul };
+        if (ttsSpeechActive) {
+            ttsQueued = payload;
+            return;
+        }
+        runStartTts(payload);
+    }
+
+    function prioritySpeakTts(text, lang, voice, rateMul, pitchMul) {
+        if (!global.speechSynthesis || !text) return;
+        ttsQueued = null;
         try {
             global.speechSynthesis.cancel();
-            var u = new global.SpeechSynthesisUtterance(text);
-            u.rate = (rateMul || 1) * (1.02 + Math.random() * 0.06);
-            u.pitch = (pitchMul || 1) * (0.92 + Math.random() * 0.14);
-            u.volume = 0.84;
-            if (langKey(lang) === 'ua') u.lang = 'uk-UA';
-            else if (langKey(lang) === 'en') u.lang = 'en-US';
-            else u.lang = 'ru-RU';
-            if (voice) u.voice = voice;
-            global.speechSynthesis.speak(u);
-        } catch (e) {}
+        } catch (e0) {}
+        ttsSpeechActive = false;
+        runStartTts({ text: text, lang: lang, voice: voice, rateMul: rateMul, pitchMul: pitchMul });
     }
 
     function stop() {
@@ -400,9 +450,12 @@
             try { global.cancelAnimationFrame(state.rafId); } catch (e) {}
         }
         state = null;
+        ttsQueued = null;
         try {
             if (global.speechSynthesis) global.speechSynthesis.cancel();
         } catch (e2) {}
+        ttsGen++;
+        ttsSpeechActive = false;
     }
 
     function pushMessage(text, doTts) {
@@ -415,7 +468,7 @@
             if (now - state.lastTtsAt > gap) {
                 state.lastTtsAt = now;
                 var v = resolveVoice(state.textLang, state.voiceURI);
-                synthSpeak(text, state.textLang, v, state.ttsRateMul, state.ttsPitchMul);
+                enqueueSynthTts(text, state.textLang, v, state.ttsRateMul, state.ttsPitchMul);
             }
         }
     }
@@ -651,7 +704,7 @@
         }
         if (uri === '') uri = null;
         var v = resolveVoice(lang, uri);
-        synthSpeak(text, lang, v, 1, 1);
+        prioritySpeakTts(text, lang, v, 1, 1);
     }
 
     global.botBattleModule = {
@@ -668,3 +721,4 @@
         speakLine: speakLinePublic
     };
 })(typeof window !== 'undefined' ? window : globalThis);
+
