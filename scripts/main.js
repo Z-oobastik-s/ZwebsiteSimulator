@@ -547,7 +547,8 @@ const translations = window.translations || {
         profileTabAccTrend: 'Динамика точности',
         profileTabSpeed: 'Скорость',
         profileTabLocked: 'закрыто',
-        profileTabOnSite: 'на сайте'
+        profileTabOnSite: 'на сайте',
+        profileModeMultiplayerBot: 'Дуэль с ботом'
     },
     en: {
         welcome: 'Welcome to Zoobastiks',
@@ -781,7 +782,8 @@ const translations = window.translations || {
         profileTabAccTrend: 'Accuracy Trend',
         profileTabSpeed: 'Speed',
         profileTabLocked: 'locked',
-        profileTabOnSite: 'on site'
+        profileTabOnSite: 'on site',
+        profileModeMultiplayerBot: 'Bot duel'
     }
 };
 
@@ -1643,6 +1645,11 @@ function handleGlobalHotkeys(e) {
         if (isAnyModalVisible()) {
             closeTopModal();
         }
+        return;
+    }
+    // Пробел не должен «нажимать» сфокусированную кнопку «Повторить» в модалке результатов
+    if (e.key === ' ' && isModalVisible('resultsModal')) {
+        e.preventDefault();
         return;
     }
     if (isInputFocused()) return;
@@ -3574,6 +3581,7 @@ function renderText() {
 
 // Handle key press - ОПТИМИЗИРОВАНА
 function handleKeyPress(e) {
+    if (isModalVisible('resultsModal')) return;
     // Разрешаем ввод во всех режимах практики
     const validModes = ['practice', 'speedtest', 'lesson', 'free', 'adaptive', 'replay-errors'];
     if (!validModes.includes(app.currentMode) || app.isPaused) return;
@@ -4235,7 +4243,13 @@ function showResults(speed, accuracy, time, errors, rewardCoins) {
     if (modal) {
         modal.classList.remove('hidden');
         modal.classList.add('flex');
-        focusFirstInModal(modal);
+        var rTitle = document.getElementById('resultsModalTitle');
+        if (rTitle) {
+            rTitle.setAttribute('tabindex', '-1');
+            setTimeout(function () { try { rTitle.focus(); } catch (_e) {} }, 0);
+        } else {
+            focusFirstInModal(modal);
+        }
     }
     updateResultsModalHotkeysHint();
 }
@@ -5629,9 +5643,10 @@ function renderProfileHistory() {
             );
             var accColor  = acc >= 95 ? '#10b981' : acc >= 80 ? '#22d3ee' : acc >= 60 ? '#f59e0b' : '#ef4444';
             var errColor  = err === 0 ? '#10b981' : err <= 5 ? '#f59e0b' : '#ef4444';
-            var modeIcon  = s.mode === 'lesson' ? '📚' : s.mode === 'speedtest' ? '⚡' : '✍️';
+            var modeIcon  = s.mode === 'lesson' ? '📚' : s.mode === 'speedtest' ? '⚡' : s.mode === 'multiplayer-bot' ? '🤖' : '✍️';
             var modeName  = s.mode === 'lesson' ? P('Урок', 'Lesson', 'Урок')
                           : s.mode === 'speedtest' ? P('Тест скорости', 'Speed Test', 'Тест швидкості')
+                          : s.mode === 'multiplayer-bot' ? (typeof _t === 'function' ? _t('profileModeMultiplayerBot') : P('Дуэль с ботом', 'Bot duel', 'Дуель з ботом'))
                           : P('Практика', 'Practice', 'Практика');
             var resolved    = _resolveLessonName(s);
             var lessonTitle = resolved || P('Свободная практика', 'Free Practice', 'Вільна практика');
@@ -6658,6 +6673,7 @@ function beginBotBattleSession(gameText, botName, ttsEnabled) {
     app.lastMatchWasBot = true;
     app.gameEnded = false;
     app.botOpponentName = botName || 'Bot';
+    app._botMpSessionLogged = false;
 
     try { closeMultiplayerResultsModal(); } catch (e2) {}
     stopMultiplayerRematchCountdown();
@@ -7158,9 +7174,55 @@ function mpResultsDifficultyLabel(diffId) {
     return t(map[diffId] || 'mpDiffMedium');
 }
 
+/** Одна запись в локальной статистике / профиле после дуэли с ботом (победа или поражение). */
+function recordBotMultiplayerSessionIfNeeded() {
+    if (!app.lastMatchWasBot || app._botMpSessionLogged) return;
+    app._botMpSessionLogged = true;
+    const myChars = app.currentPosition || 0;
+    const myErrors = app.errors || 0;
+    const timeSec = Math.max(1, Math.round((Date.now() - (app.startTime || Date.now())) / 1000));
+    const minutes = timeSec / 60;
+    const speed = Math.round(myChars / minutes);
+    const accuracy = myChars + myErrors > 0 ? Math.round((myChars / (myChars + myErrors)) * 100) : 100;
+    const botLabel = (app.botOpponentName && String(app.botOpponentName).trim()) || 'Bot';
+    const modeLabel = typeof t === 'function' ? t('profileModeMultiplayerBot') : 'Bot duel';
+    const sessionData = {
+        speed: speed,
+        accuracy: accuracy,
+        time: timeSec,
+        errors: myErrors,
+        mode: 'multiplayer-bot',
+        layout: app.currentLayout || 'ru',
+        lessonKey: null,
+        lessonName: modeLabel + ' · ' + botLabel,
+        timestamp: Date.now()
+    };
+    if (window.statsModule && typeof window.statsModule.addSession === 'function') {
+        window.statsModule.addSession(sessionData);
+    }
+    updateStreak();
+    if (window.levelModule) {
+        var xp = window.levelModule.calculateSessionXP(sessionData);
+        var xpResult = window.levelModule.addPlayerXP(xp);
+        if (xpResult.leveledUp) app.pendingLevelUp = xpResult.newLevel;
+        renderLevelBlock();
+    }
+    if (window.achievementsModule && typeof window.achievementsModule.checkAndNotify === 'function') {
+        window.achievementsModule.checkAndNotify();
+    }
+    var user = window.authModule && window.authModule.getCurrentUser && window.authModule.getCurrentUser();
+    if (user && window.authModule.addUserSession) {
+        window.authModule.addUserSession(user.uid, sessionData).catch(function (err) {
+            console.error('Failed to save bot duel session:', err);
+        });
+    }
+}
+
 function openMultiplayerResultsModal(isWin) {
     const modal = document.getElementById('multiplayerResultsModal');
     if (!modal) return;
+
+    recordBotMultiplayerSessionIfNeeded();
 
     const myChars = app.currentPosition || 0;
     const myErrors = app.errors || 0;
@@ -7871,3 +7933,4 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+

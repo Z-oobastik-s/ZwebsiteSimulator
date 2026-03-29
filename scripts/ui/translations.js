@@ -316,6 +316,7 @@ window.translations = {
         profileTabNoErrors: 'Пройди урок - и здесь появится аналитика ошибок',
         profileTabNeedMore: 'Пройди хотя бы 2 сессии для динамики',
         profileTabSessions: 'Последние сессии',
+        profileModeMultiplayerBot: 'Дуэль с ботом',
         profileTabAchievements: 'Достижения',
         profileTabMissedKeys: 'Проблемные клавиши',
         profileTabAccTrend: 'Динамика точности',
@@ -636,6 +637,7 @@ window.translations = {
         profileTabNoErrors: 'Complete a lesson to see key error analytics',
         profileTabNeedMore: 'Complete at least 2 sessions to see trends',
         profileTabSessions: 'Recent Sessions',
+        profileModeMultiplayerBot: 'Bot duel',
         profileTabAchievements: 'Achievements',
         profileTabMissedKeys: 'Most Missed Keys',
         profileTabAccTrend: 'Accuracy Trend',
@@ -956,6 +958,7 @@ window.translations = {
         profileTabNoErrors: 'Пройди урок - тут з’явиться аналітика помилок',
         profileTabNeedMore: 'Пройди хоча б 2 сесії для динаміки',
         profileTabSessions: 'Останні сесії',
+        profileModeMultiplayerBot: 'Дуель з ботом',
         profileTabAchievements: 'Досягнення',
         profileTabMissedKeys: 'Проблемні клавіші',
         profileTabAccTrend: 'Динаміка точності',
@@ -964,3 +967,4 @@ window.translations = {
         profileTabOnSite: 'на сайті'
     }
 };
+
