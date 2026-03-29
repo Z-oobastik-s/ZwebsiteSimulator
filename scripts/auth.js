@@ -473,73 +473,126 @@ export function onAuthStateChange(callback) {
 }
 
 // --------------- Монеты и магазин ---------------
+/** Последовательная очередь: быстрые двойные клики не читают один и тот же баланс параллельно. */
+let balanceOpChain = Promise.resolve();
+function withBalanceLock(fn) {
+    const next = balanceOpChain.then(() => fn());
+    balanceOpChain = next.then(() => {}, () => {});
+    return next;
+}
+
 export async function addCoins(uid, amount) {
-    if (useApi()) {
-        try {
-            const data = await apiFetch(`/api/users/${uid}/coins`, {
-                method: 'POST',
-                body: JSON.stringify({ amount })
-            });
-            const user = getCurrentUserFromStorage();
-            if (user && user.uid === uid) {
-                user.balance = data.balance;
-                saveCurrentUserToStorage(user);
-                notifyAuthStateListeners(user);
+    const n = parseInt(amount, 10) || 0;
+    if (n <= 0) return { success: false, error: 'Invalid amount' };
+    return withBalanceLock(async () => {
+        if (useApi()) {
+            try {
+                const data = await apiFetch(`/api/users/${uid}/coins`, {
+                    method: 'POST',
+                    body: JSON.stringify({ amount: n })
+                });
+                const user = getCurrentUserFromStorage();
+                if (user && user.uid === uid) {
+                    user.balance = data.balance;
+                    saveCurrentUserToStorage(user);
+                    notifyAuthStateListeners(user);
+                }
+                return { success: true, balance: data.balance };
+            } catch (err) {
+                return { success: false, error: (err.data && err.data.error) || err.message };
             }
-            return { success: true, balance: data.balance };
-        } catch (err) {
-            return { success: false, error: (err.data && err.data.error) || err.message };
         }
-    }
-    const users = getAllUsersStorage();
-    const user = users[uid];
-    if (!user) return { success: false, error: 'User not found' };
-    user.balance = (user.balance || 0) + amount;
-    users[uid] = user;
-    if (!saveAllUsersStorage(users)) return { success: false, error: 'Ошибка сохранения данных' };
-    const current = getCurrentUserFromStorage();
-    if (current && current.uid === uid) saveCurrentUserToStorage(user);
-    return { success: true, balance: user.balance };
+        const users = getAllUsersStorage();
+        const user = users[uid];
+        if (!user) return { success: false, error: 'User not found' };
+        user.balance = (user.balance || 0) + n;
+        users[uid] = user;
+        if (!saveAllUsersStorage(users)) return { success: false, error: 'Ошибка сохранения данных' };
+        const current = getCurrentUserFromStorage();
+        if (current && current.uid === uid) saveCurrentUserToStorage(user);
+        notifyAuthStateListeners(user);
+        return { success: true, balance: user.balance };
+    });
+}
+
+/** Списание монет (покупка фона и т.п.); в API через POST /coins с отрицательным amount. */
+export async function deductCoins(uid, amount) {
+    const n = parseInt(amount, 10) || 0;
+    if (n <= 0) return { success: false, error: 'Invalid amount' };
+    return withBalanceLock(async () => {
+        if (useApi()) {
+            try {
+                const data = await apiFetch(`/api/users/${uid}/coins`, {
+                    method: 'POST',
+                    body: JSON.stringify({ amount: -n })
+                });
+                const user = getCurrentUserFromStorage();
+                if (user && user.uid === uid) {
+                    user.balance = data.balance;
+                    saveCurrentUserToStorage(user);
+                    notifyAuthStateListeners(user);
+                }
+                return { success: true, balance: data.balance };
+            } catch (err) {
+                return { success: false, error: (err.data && err.data.error) || err.message };
+            }
+        }
+        const users = getAllUsersStorage();
+        const user = users[uid];
+        if (!user) return { success: false, error: 'User not found' };
+        const b = user.balance || 0;
+        if (b < n) return { success: false, error: 'Недостаточно монет' };
+        user.balance = b - n;
+        users[uid] = user;
+        if (!saveAllUsersStorage(users)) return { success: false, error: 'Ошибка сохранения данных' };
+        const current = getCurrentUserFromStorage();
+        if (current && current.uid === uid) saveCurrentUserToStorage(user);
+        notifyAuthStateListeners(user);
+        return { success: true, balance: user.balance };
+    });
 }
 
 export async function purchaseLesson(uid, lessonId) {
     const shopLesson = window.shopModule && window.shopModule.getLessonById && window.shopModule.getLessonById(lessonId);
     if (!shopLesson) return { success: false, error: 'Урок не найден в магазине' };
 
-    if (useApi()) {
-        try {
-            const data = await apiFetch(`/api/users/${uid}/purchase`, {
-                method: 'POST',
-                body: JSON.stringify({ lessonId })
-            });
-            const user = getCurrentUserFromStorage();
-            if (user && user.uid === uid) {
-                user.balance = data.balance;
-                user.purchasedLessons = user.purchasedLessons || [];
-                if (!user.purchasedLessons.includes(lessonId)) user.purchasedLessons.push(lessonId);
-                saveCurrentUserToStorage(user);
-                notifyAuthStateListeners(user);
+    return withBalanceLock(async () => {
+        if (useApi()) {
+            try {
+                const data = await apiFetch(`/api/users/${uid}/purchase`, {
+                    method: 'POST',
+                    body: JSON.stringify({ lessonId })
+                });
+                const user = getCurrentUserFromStorage();
+                if (user && user.uid === uid) {
+                    user.balance = data.balance;
+                    user.purchasedLessons = user.purchasedLessons || [];
+                    if (!user.purchasedLessons.includes(lessonId)) user.purchasedLessons.push(lessonId);
+                    saveCurrentUserToStorage(user);
+                    notifyAuthStateListeners(user);
+                }
+                return { success: true, balance: data.balance };
+            } catch (err) {
+                return { success: false, error: (err.data && err.data.error) || err.message };
             }
-            return { success: true, balance: data.balance };
-        } catch (err) {
-            return { success: false, error: (err.data && err.data.error) || err.message };
         }
-    }
 
-    const users = getAllUsersStorage();
-    const user = users[uid];
-    if (!user) return { success: false, error: 'User not found' };
-    if (!user.balance) user.balance = 0;
-    if (!user.purchasedLessons) user.purchasedLessons = [];
-    if (user.purchasedLessons.includes(lessonId)) return { success: false, error: 'Урок уже куплен' };
-    if (user.balance < shopLesson.price) return { success: false, error: 'Недостаточно монет' };
-    user.balance -= shopLesson.price;
-    user.purchasedLessons.push(lessonId);
-    users[uid] = user;
-    if (!saveAllUsersStorage(users)) return { success: false, error: 'Ошибка сохранения данных' };
-    const current = getCurrentUserFromStorage();
-    if (current && current.uid === uid) saveCurrentUserToStorage(user);
-    return { success: true, balance: user.balance };
+        const users = getAllUsersStorage();
+        const user = users[uid];
+        if (!user) return { success: false, error: 'User not found' };
+        if (!user.balance) user.balance = 0;
+        if (!user.purchasedLessons) user.purchasedLessons = [];
+        if (user.purchasedLessons.includes(lessonId)) return { success: false, error: 'Урок уже куплен' };
+        if (user.balance < shopLesson.price) return { success: false, error: 'Недостаточно монет' };
+        user.balance -= shopLesson.price;
+        user.purchasedLessons.push(lessonId);
+        users[uid] = user;
+        if (!saveAllUsersStorage(users)) return { success: false, error: 'Ошибка сохранения данных' };
+        const current = getCurrentUserFromStorage();
+        if (current && current.uid === uid) saveCurrentUserToStorage(user);
+        notifyAuthStateListeners(user);
+        return { success: true, balance: user.balance };
+    });
 }
 
 export function getUserBalance(uid) {
@@ -581,8 +634,8 @@ window.authModule = {
     deleteUser,
     onAuthStateChange,
     addCoins,
+    deductCoins,
     purchaseLesson,
     getUserBalance,
     isLessonPurchased
 };
-

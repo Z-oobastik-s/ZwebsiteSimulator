@@ -1103,7 +1103,7 @@ function selectProfileBackground(backgroundId) {
     showToast((typeof t('profileSaved') !== 'undefined' ? t('profileSaved') : 'Сохранено') + ' - ' + bg.name, 'success');
 }
 
-function buyProfileBackground(backgroundId) {
+async function buyProfileBackground(backgroundId) {
     var bg = BACKGROUNDS.find(function(b) { return b.id === backgroundId; });
     if (!bg || bg.cost === 0) return;
     var user = window.authModule && window.authModule.getCurrentUser ? window.authModule.getCurrentUser() : null;
@@ -1117,9 +1117,14 @@ function buyProfileBackground(backgroundId) {
         showToast(typeof t('notEnoughCoins') === 'string' ? t('notEnoughCoins') : 'Недостаточно монет', 'error');
         return;
     }
-    var newBalance = balance - bg.cost;
-    window.authModule.updateUserProfile(user.uid, { balance: newBalance }).then(function(result) {
+    if (!window.authModule || !window.authModule.deductCoins) {
+        showToast('Ошибка покупки', 'error');
+        return;
+    }
+    try {
+        var result = await window.authModule.deductCoins(user.uid, bg.cost);
         if (result && result.success) {
+            var newBalance = result.balance != null ? result.balance : (balance - bg.cost);
             var unlocked = getUnlockedBackgroundIds();
             if (unlocked.indexOf(backgroundId) < 0) unlocked.push(backgroundId);
             setUnlockedBackgroundIds(unlocked);
@@ -1134,11 +1139,14 @@ function buyProfileBackground(backgroundId) {
             if (shopBalanceEl) shopBalanceEl.textContent = (updatedUser && (updatedUser.balance != null) ? updatedUser.balance : newBalance) + '';
             showToast(bg.name + ' - ' + (app.lang === 'en' ? 'Unlocked!' : 'Открыто!'), 'success');
         } else {
+            if (result && result.error && (result.error === 'Недостаточно монет' || result.error.indexOf('монет') !== -1)) {
+                if (typeof playDeniedMoneySound === 'function') playDeniedMoneySound();
+            }
             showToast(result && result.error ? result.error : 'Ошибка', 'error');
         }
-    }).catch(function() {
+    } catch (_e) {
         showToast('Ошибка покупки', 'error');
-    });
+    }
 }
 
 // Create floating particles effect
@@ -7933,4 +7941,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-

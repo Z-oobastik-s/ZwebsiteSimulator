@@ -161,11 +161,22 @@ router.post('/:uid/coins', async (req, res) => {
             return res.status(403).json({ success: false, error: 'Forbidden' });
         }
         const amount = parseInt(req.body.amount, 10) || 0;
-        if (amount <= 0) return res.status(400).json({ success: false, error: 'Invalid amount' });
-        await query(
-            `UPDATE Users SET Balance = Balance + @amount WHERE Uid = @uid`,
-            { uid: req.params.uid, amount }
-        );
+        if (amount === 0) return res.status(400).json({ success: false, error: 'Invalid amount' });
+        if (amount > 0) {
+            await query(
+                `UPDATE Users SET Balance = Balance + @amount WHERE Uid = @uid`,
+                { uid: req.params.uid, amount }
+            );
+        } else {
+            const spend = -amount;
+            const upd = await query(
+                `UPDATE Users SET Balance = Balance - @spend WHERE Uid = @uid AND Balance >= @spend`,
+                { uid: req.params.uid, spend }
+            );
+            if (!upd.affectedRows) {
+                return res.status(400).json({ success: false, error: 'Недостаточно монет' });
+            }
+        }
         const user = await getUserById(req.params.uid);
         return res.json({ success: true, balance: user.balance });
     } catch (err) {
@@ -242,4 +253,3 @@ router.get('/:uid/lesson-purchased/:lessonId', async (req, res) => {
 });
 
 module.exports = router;
-

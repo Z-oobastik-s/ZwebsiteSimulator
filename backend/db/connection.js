@@ -40,7 +40,10 @@ async function query(sqlQuery, params = {}) {
     const p = getPool();
     const [rows] = await p.execute(sql, values);
     // rows is an array for SELECT; ResultSetHeader for INSERT/UPDATE/DELETE
-    return { recordset: Array.isArray(rows) ? rows : [] };
+    if (Array.isArray(rows)) {
+        return { recordset: rows };
+    }
+    return { recordset: [], affectedRows: rows.affectedRows ?? 0 };
 }
 
 async function close() {
@@ -51,4 +54,3 @@ async function close() {
 }
 
 module.exports = { getPool, query, close };
-
