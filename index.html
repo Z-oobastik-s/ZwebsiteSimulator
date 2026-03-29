@@ -2704,7 +2704,8 @@
             flex-shrink: 0;
         }
         #multiplayerMenuScreen .mp-mode-btn h4 {
-            width: 100%;
+            width: auto;
+            max-width: 100%;
             margin: 0 0 0.35rem 0;
             font-size: 1.05rem;
             font-weight: 700;
@@ -2803,10 +2804,75 @@
             color: transparent;
             filter: none;
         }
+        /* Шапка мультиплеера: воздух у краёв, «Назад» не прилипает к рамке и к заголовку */
+        #multiplayerMenuScreen .mp-menu-top-wrap {
+            max-width: 52rem;
+            margin-left: auto;
+            margin-right: auto;
+            padding-left: max(1rem, env(safe-area-inset-left, 0px));
+            padding-right: max(1rem, env(safe-area-inset-right, 0px));
+            padding-top: 0.5rem;
+        }
+        @media (min-width: 640px) {
+            #multiplayerMenuScreen .mp-menu-top-wrap {
+                padding-left: 1.5rem;
+                padding-right: 1.5rem;
+                padding-top: 0.75rem;
+            }
+        }
+        @media (min-width: 1024px) {
+            #multiplayerMenuScreen .mp-menu-top-wrap {
+                padding-left: 2rem;
+                padding-right: 2rem;
+            }
+        }
+        #multiplayerMenuScreen .mp-menu-header {
+            display: grid;
+            grid-template-columns: 1fr;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.35rem 0.25rem 0.5rem;
+            margin-bottom: 0.25rem;
+        }
+        @media (min-width: 640px) {
+            #multiplayerMenuScreen .mp-menu-header {
+                grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+                gap: 1rem;
+                padding: 0.5rem 0.35rem 0.65rem;
+                margin-bottom: 0.35rem;
+            }
+        }
+        #multiplayerMenuScreen .mp-menu-header__back {
+            display: flex;
+            justify-content: flex-start;
+            justify-self: stretch;
+        }
+        @media (min-width: 640px) {
+            #multiplayerMenuScreen .mp-menu-header__back {
+                justify-self: start;
+                padding-left: 0.35rem;
+            }
+        }
+        #multiplayerMenuScreen .mp-menu-header__title {
+            order: -1;
+        }
+        @media (min-width: 640px) {
+            #multiplayerMenuScreen .mp-menu-header__title {
+                order: 0;
+            }
+        }
         #multiplayerMenuScreen .mp-back-btn {
             border: 1px solid rgba(34, 211, 238, 0.35);
             background: rgba(15, 23, 42, 0.55);
             box-shadow: 0 0 16px rgba(34, 211, 238, 0.08);
+            border-radius: 0.875rem;
+            padding: 0.65rem 1.1rem 0.65rem 0.85rem;
+            min-height: 2.75rem;
+        }
+        @media (min-width: 640px) {
+            #multiplayerMenuScreen .mp-back-btn {
+                padding: 0.7rem 1.25rem 0.7rem 1rem;
+            }
         }
         #multiplayerMenuScreen .mp-back-btn:hover {
             border-color: rgba(34, 211, 238, 0.55);
@@ -2819,6 +2885,15 @@
         }
         .no-animations #multiplayerMenuScreen .mp-menu-title {
             filter: none;
+        }
+
+        #multiplayerMenuScreen .mp-menu-content {
+            margin-top: 0.5rem;
+        }
+        @media (min-width: 640px) {
+            #multiplayerMenuScreen .mp-menu-content {
+                margin-top: 0.85rem;
+            }
         }
 
         /* Bot voice: native <select> uses OS colors; force dark list + text on Windows/Chrome */
@@ -3565,20 +3640,21 @@
         
         <!-- Multiplayer Menu Screen -->
         <div id="multiplayerMenuScreen" class="hidden fade-in">
-            <div class="max-w-3xl mx-auto px-3 sm:px-1">
-                <div class="grid grid-cols-1 sm:grid-cols-3 items-center gap-3 mb-7">
-                    <div class="flex justify-start order-2 sm:order-1">
-                        <button onclick="showHome()" type="button" class="mp-back-btn px-4 py-2.5 sm:px-5 sm:py-3 rounded-xl flex items-center gap-2 text-sm font-semibold text-cyan-100 dark:text-cyan-100">
+            <div class="mp-menu-top-wrap">
+                <div class="mp-menu-header">
+                    <div class="mp-menu-header__back order-2 sm:order-1">
+                        <button onclick="showHome()" type="button" class="mp-back-btn flex items-center gap-2 text-sm font-semibold text-cyan-100 dark:text-cyan-100">
                             <svg class="w-5 h-5 shrink-0 opacity-90" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                             </svg>
                             <span data-i18n="back">Назад</span>
                         </button>
                     </div>
-                    <h2 class="mp-menu-title text-lg sm:text-xl md:text-2xl text-center order-1 sm:order-2 px-2 leading-snug"><span data-i18n="multiplayerMenu">Мультиплеер</span></h2>
+                    <h2 class="mp-menu-title mp-menu-header__title text-lg sm:text-xl md:text-2xl text-center order-1 sm:order-2 px-3 sm:px-4 leading-snug"><span data-i18n="multiplayerMenu">Мультиплеер</span></h2>
                     <div class="hidden sm:block order-3" aria-hidden="true"></div>
                 </div>
-                
+            </div>
+            <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 mp-menu-content">
                 <!-- Main Menu -->
                 <div id="multiplayerMainMenu" class="mp-menu-arena p-5 sm:p-6 mb-6">
                     <div class="mp-menu-grid">
@@ -4813,3 +4889,4 @@
     </script>
 </body>
 </html>
+
