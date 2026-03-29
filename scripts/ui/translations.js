@@ -278,6 +278,12 @@ window.translations = {
         mpVsBotHud: 'Против бота',
         mpBotSays: 'чат',
         mpResDifficultyLabel: 'Сложность',
+        mpResRowTheme: 'Тема',
+        mpResRowLength: 'Длина',
+        mpResRowTextLang: 'Язык текста',
+        mpResRowTextOpts: 'Параметры текста',
+        mpResRowBot: 'Бот',
+        mpResOptsPlain: 'Без запятых, точек, цифр и смешанного регистра',
         mpResVsNamedBot: 'Бот: {name}',
         mpResNoTextOpts: 'Текст без запятых и точек в настройках',
         mpResOptsPrefix: 'В тексте:',
@@ -591,6 +597,12 @@ window.translations = {
         mpVsBotHud: 'Vs bot',
         mpBotSays: 'chat',
         mpResDifficultyLabel: 'Difficulty',
+        mpResRowTheme: 'Theme',
+        mpResRowLength: 'Length',
+        mpResRowTextLang: 'Text language',
+        mpResRowTextOpts: 'Text options',
+        mpResRowBot: 'Bot',
+        mpResOptsPlain: 'No commas, periods, digits, or mixed case',
         mpResVsNamedBot: 'Bot: {name}',
         mpResNoTextOpts: 'Plain text options (no commas/periods)',
         mpResOptsPrefix: 'Text has:',
@@ -904,6 +916,12 @@ window.translations = {
         mpVsBotHud: 'Проти бота',
         mpBotSays: 'чат',
         mpResDifficultyLabel: 'Складність',
+        mpResRowTheme: 'Тема',
+        mpResRowLength: 'Довжина',
+        mpResRowTextLang: 'Мова тексту',
+        mpResRowTextOpts: 'Параметри тексту',
+        mpResRowBot: 'Бот',
+        mpResOptsPlain: 'Без ком, крапок, цифр і мішаного регістру',
         mpResVsNamedBot: 'Бот: {name}',
         mpResNoTextOpts: 'Текст без ком і крапок у налаштуваннях',
         mpResOptsPrefix: 'У тексті:',
@@ -943,4 +961,3 @@ window.translations = {
         profileTabOnSite: 'на сайті'
     }
 };
-

@@ -3768,29 +3768,48 @@
 
     <!-- Multiplayer Results Modal -->
     <div id="multiplayerResultsModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50" role="dialog" aria-modal="true" aria-labelledby="multiplayerResultsTitle">
-        <div class="glass rounded-2xl p-8 max-w-3xl w-full mx-4 fade-in border border-cyan-400/20 shadow-2xl">
-            <div class="flex items-start justify-between gap-4 mb-5">
-                <div class="min-w-0">
-                    <h3 id="multiplayerResultsTitle" class="text-3xl font-bold mb-1 text-center">Результат матча</h3>
-                    <div id="multiplayerResultsSubtitle" class="text-center text-gray-400 text-sm">-</div>
-                    <div id="mpResBotMatchInfo" class="hidden w-full max-w-xl mx-auto mt-3">
-                        <div class="rounded-xl border border-cyan-400/25 bg-gradient-to-br from-cyan-500/10 via-purple-500/8 to-fuchsia-500/10 px-3 py-2.5 shadow-[0_0_24px_rgba(0,229,255,0.08)]">
-                            <div class="flex flex-wrap items-center justify-center gap-x-2 gap-y-1.5 text-center">
-                                <span class="text-[10px] uppercase tracking-widest text-cyan-300/90 font-bold mr-0.5" data-i18n="mpResDifficultyLabel">Сложность</span>
-                                <span id="mpResBotDifficultyPill" class="rounded-lg bg-fuchsia-500/30 border border-fuchsia-400/40 px-2.5 py-0.5 text-sm font-extrabold text-fuchsia-50 shadow-[0_0_16px_rgba(168,85,247,0.25)]">-</span>
-                            </div>
-                            <p id="mpResBotSetupLine" class="text-center text-[11px] sm:text-xs text-gray-300 mt-2 leading-relaxed"></p>
-                            <p id="mpResBotPaceNote" class="hidden text-center text-[11px] text-cyan-200/85 mt-1.5 font-medium"></p>
+        <div class="glass rounded-2xl p-6 sm:p-8 max-w-3xl w-full mx-4 fade-in border border-cyan-400/20 shadow-2xl relative">
+            <button type="button" onclick="multiplayerResultsExit()" class="absolute right-3 top-3 sm:right-4 sm:top-4 z-10 p-2 rounded-xl hover:bg-white/10 text-gray-300" aria-label="Close">
+                ✕
+            </button>
+            <div class="text-center mb-5 pr-10 sm:pr-12">
+                <h3 id="multiplayerResultsTitle" class="text-3xl font-bold mb-1">Результат матча</h3>
+                <div id="multiplayerResultsSubtitle" class="text-gray-400 text-sm">-</div>
+                <div id="mpResBotMatchInfo" class="hidden w-full mt-4 text-left">
+                    <div class="mx-auto max-w-md rounded-xl border border-cyan-400/25 bg-gradient-to-br from-cyan-500/10 via-purple-500/8 to-fuchsia-500/10 px-4 py-3 shadow-[0_0_24px_rgba(0,229,255,0.08)]">
+                        <div class="text-center pb-3 mb-0.5 border-b border-white/10">
+                            <div class="text-[10px] uppercase tracking-widest text-cyan-300/90 font-bold" data-i18n="mpResDifficultyLabel">Сложность</div>
+                            <div id="mpResBotDifficultyPill" class="inline-block mt-1.5 rounded-lg bg-fuchsia-500/30 border border-fuchsia-400/40 px-2.5 py-0.5 text-sm font-extrabold text-fuchsia-50 shadow-[0_0_16px_rgba(168,85,247,0.25)]">-</div>
                         </div>
-                    </div>
-                    <div id="mpResReadyPillsRow" class="mt-3 flex items-center justify-center gap-3">
-                        <span id="mpResMyReadyPill" class="px-3 py-1 rounded-full text-xs border border-white/10 bg-white/5 text-gray-300 whitespace-nowrap">-</span>
-                        <span id="mpResOppReadyPill" class="px-3 py-1 rounded-full text-xs border border-white/10 bg-white/5 text-gray-300 whitespace-nowrap">-</span>
+                        <dl class="mt-2 space-y-0">
+                            <div class="flex justify-between gap-4 py-2 border-b border-white/5 items-start">
+                                <dt class="text-xs text-gray-400 shrink-0 pt-0.5" data-i18n="mpResRowTheme">Тема</dt>
+                                <dd id="mpResBotValTheme" class="text-sm font-semibold text-gray-100 text-right min-w-0 break-words">-</dd>
+                            </div>
+                            <div class="flex justify-between gap-4 py-2 border-b border-white/5 items-start">
+                                <dt class="text-xs text-gray-400 shrink-0 pt-0.5" data-i18n="mpResRowLength">Длина</dt>
+                                <dd id="mpResBotValLen" class="text-sm font-semibold text-gray-100 text-right whitespace-nowrap">-</dd>
+                            </div>
+                            <div class="flex justify-between gap-4 py-2 border-b border-white/5 items-start">
+                                <dt class="text-xs text-gray-400 shrink-0 pt-0.5" data-i18n="mpResRowTextLang">Язык текста</dt>
+                                <dd id="mpResBotValLang" class="text-sm font-semibold text-gray-100 text-right">-</dd>
+                            </div>
+                            <div class="flex justify-between gap-4 py-2 border-b border-white/5 items-start">
+                                <dt class="text-xs text-gray-400 shrink-0 pt-0.5" data-i18n="mpResRowTextOpts">Параметры текста</dt>
+                                <dd id="mpResBotValOpts" class="text-sm font-medium text-gray-200 text-right min-w-0 break-words max-w-[58%]">-</dd>
+                            </div>
+                            <div id="mpResBotRowName" class="hidden flex justify-between gap-4 py-2 items-start">
+                                <dt class="text-xs text-gray-400 shrink-0 pt-0.5" data-i18n="mpResRowBot">Бот</dt>
+                                <dd id="mpResBotValName" class="text-sm font-semibold text-fuchsia-100/95 text-right min-w-0 break-words max-w-[58%]">-</dd>
+                            </div>
+                        </dl>
+                        <p id="mpResBotPaceNote" class="hidden text-center text-xs text-cyan-200/90 mt-3 pt-2 border-t border-white/10 font-medium leading-snug"></p>
                     </div>
                 </div>
-                <button type="button" onclick="multiplayerResultsExit()" class="p-2 rounded-xl hover:bg-white/10 text-gray-300" aria-label="Close">
-                    ✕
-                </button>
+                <div id="mpResReadyPillsRow" class="mt-3 flex items-center justify-center gap-3">
+                    <span id="mpResMyReadyPill" class="px-3 py-1 rounded-full text-xs border border-white/10 bg-white/5 text-gray-300 whitespace-nowrap">-</span>
+                    <span id="mpResOppReadyPill" class="px-3 py-1 rounded-full text-xs border border-white/10 bg-white/5 text-gray-300 whitespace-nowrap">-</span>
+                </div>
             </div>
 
             <div class="grid md:grid-cols-2 gap-4">
@@ -4446,4 +4465,3 @@
     </script>
 </body>
 </html>
-
