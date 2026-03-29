@@ -284,6 +284,7 @@ window.translations = {
         mpResRowTextOpts: 'Параметры текста',
         mpResRowBot: 'Бот',
         mpResOptsPlain: 'Без запятых, точек, цифр и смешанного регистра',
+        mpResOptsChip: 'Базово',
         mpResVsNamedBot: 'Бот: {name}',
         mpResNoTextOpts: 'Текст без запятых и точек в настройках',
         mpResOptsPrefix: 'В тексте:',
@@ -603,6 +604,7 @@ window.translations = {
         mpResRowTextOpts: 'Text options',
         mpResRowBot: 'Bot',
         mpResOptsPlain: 'No commas, periods, digits, or mixed case',
+        mpResOptsChip: 'Default',
         mpResVsNamedBot: 'Bot: {name}',
         mpResNoTextOpts: 'Plain text options (no commas/periods)',
         mpResOptsPrefix: 'Text has:',
@@ -922,6 +924,7 @@ window.translations = {
         mpResRowTextOpts: 'Параметри тексту',
         mpResRowBot: 'Бот',
         mpResOptsPlain: 'Без ком, крапок, цифр і мішаного регістру',
+        mpResOptsChip: 'Базово',
         mpResVsNamedBot: 'Бот: {name}',
         mpResNoTextOpts: 'Текст без ком і крапок у налаштуваннях',
         mpResOptsPrefix: 'У тексті:',
@@ -961,3 +964,4 @@ window.translations = {
         profileTabOnSite: 'на сайті'
     }
 };
+

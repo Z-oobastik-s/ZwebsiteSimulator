@@ -3775,37 +3775,6 @@
             <div class="text-center mb-5 pr-10 sm:pr-12">
                 <h3 id="multiplayerResultsTitle" class="text-3xl font-bold mb-1">Результат матча</h3>
                 <div id="multiplayerResultsSubtitle" class="text-gray-400 text-sm">-</div>
-                <div id="mpResBotMatchInfo" class="hidden w-full mt-4 text-left">
-                    <div class="mx-auto max-w-md rounded-xl border border-cyan-400/25 bg-gradient-to-br from-cyan-500/10 via-purple-500/8 to-fuchsia-500/10 px-4 py-3 shadow-[0_0_24px_rgba(0,229,255,0.08)]">
-                        <div class="text-center pb-3 mb-0.5 border-b border-white/10">
-                            <div class="text-[10px] uppercase tracking-widest text-cyan-300/90 font-bold" data-i18n="mpResDifficultyLabel">Сложность</div>
-                            <div id="mpResBotDifficultyPill" class="inline-block mt-1.5 rounded-lg bg-fuchsia-500/30 border border-fuchsia-400/40 px-2.5 py-0.5 text-sm font-extrabold text-fuchsia-50 shadow-[0_0_16px_rgba(168,85,247,0.25)]">-</div>
-                        </div>
-                        <dl class="mt-2 space-y-0">
-                            <div class="flex justify-between gap-4 py-2 border-b border-white/5 items-start">
-                                <dt class="text-xs text-gray-400 shrink-0 pt-0.5" data-i18n="mpResRowTheme">Тема</dt>
-                                <dd id="mpResBotValTheme" class="text-sm font-semibold text-gray-100 text-right min-w-0 break-words">-</dd>
-                            </div>
-                            <div class="flex justify-between gap-4 py-2 border-b border-white/5 items-start">
-                                <dt class="text-xs text-gray-400 shrink-0 pt-0.5" data-i18n="mpResRowLength">Длина</dt>
-                                <dd id="mpResBotValLen" class="text-sm font-semibold text-gray-100 text-right whitespace-nowrap">-</dd>
-                            </div>
-                            <div class="flex justify-between gap-4 py-2 border-b border-white/5 items-start">
-                                <dt class="text-xs text-gray-400 shrink-0 pt-0.5" data-i18n="mpResRowTextLang">Язык текста</dt>
-                                <dd id="mpResBotValLang" class="text-sm font-semibold text-gray-100 text-right">-</dd>
-                            </div>
-                            <div class="flex justify-between gap-4 py-2 border-b border-white/5 items-start">
-                                <dt class="text-xs text-gray-400 shrink-0 pt-0.5" data-i18n="mpResRowTextOpts">Параметры текста</dt>
-                                <dd id="mpResBotValOpts" class="text-sm font-medium text-gray-200 text-right min-w-0 break-words max-w-[58%]">-</dd>
-                            </div>
-                            <div id="mpResBotRowName" class="hidden flex justify-between gap-4 py-2 items-start">
-                                <dt class="text-xs text-gray-400 shrink-0 pt-0.5" data-i18n="mpResRowBot">Бот</dt>
-                                <dd id="mpResBotValName" class="text-sm font-semibold text-fuchsia-100/95 text-right min-w-0 break-words max-w-[58%]">-</dd>
-                            </div>
-                        </dl>
-                        <p id="mpResBotPaceNote" class="hidden text-center text-xs text-cyan-200/90 mt-3 pt-2 border-t border-white/10 font-medium leading-snug"></p>
-                    </div>
-                </div>
                 <div id="mpResReadyPillsRow" class="mt-3 flex items-center justify-center gap-3">
                     <span id="mpResMyReadyPill" class="px-3 py-1 rounded-full text-xs border border-white/10 bg-white/5 text-gray-300 whitespace-nowrap">-</span>
                     <span id="mpResOppReadyPill" class="px-3 py-1 rounded-full text-xs border border-white/10 bg-white/5 text-gray-300 whitespace-nowrap">-</span>
@@ -3813,6 +3782,23 @@
             </div>
 
             <div class="grid md:grid-cols-2 gap-4">
+                <div id="mpResBotMetaRow" class="hidden md:col-span-2 rounded-xl border border-white/10 bg-white/5 dark:bg-black/25 px-3 py-2.5 sm:px-4">
+                    <div class="flex flex-wrap justify-center items-center gap-x-1.5 gap-y-1.5 text-[11px] sm:text-xs text-center">
+                        <span class="text-[10px] uppercase tracking-wider text-cyan-400/85 font-bold shrink-0" data-i18n="mpResDifficultyLabel">Сложность</span>
+                        <span id="mpResBotDifficultyPill" class="rounded-lg bg-fuchsia-500/30 border border-fuchsia-400/40 px-2 py-0.5 text-xs font-extrabold text-fuchsia-50 shrink-0">-</span>
+                        <span class="text-white/25 shrink-0" aria-hidden="true">·</span>
+                        <span id="mpResBotChipTheme" class="px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-gray-200 font-medium max-w-[42vw] sm:max-w-none truncate" title="">-</span>
+                        <span class="text-white/25 shrink-0" aria-hidden="true">·</span>
+                        <span id="mpResBotChipLen" class="px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-gray-200 font-medium whitespace-nowrap">-</span>
+                        <span class="text-white/25 shrink-0" aria-hidden="true">·</span>
+                        <span id="mpResBotChipLang" class="px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-gray-200 font-semibold whitespace-nowrap">-</span>
+                        <span class="text-white/25 shrink-0" aria-hidden="true">·</span>
+                        <span id="mpResBotChipOpts" class="px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-gray-300 font-medium max-w-[min(100%,14rem)] sm:max-w-[20rem] text-left leading-snug break-words" title="">-</span>
+                        <span id="mpResBotChipBotSep" class="text-white/25 shrink-0 hidden" aria-hidden="true">·</span>
+                        <span id="mpResBotChipBot" class="hidden px-2 py-0.5 rounded-md bg-fuchsia-500/20 border border-fuchsia-400/35 text-fuchsia-100 font-semibold max-w-[42vw] sm:max-w-[12rem] truncate" title="">-</span>
+                    </div>
+                    <p id="mpResBotPaceNote" class="hidden text-center text-[11px] leading-snug text-cyan-200/85 mt-2 pt-2 border-t border-white/10 font-medium"></p>
+                </div>
                 <div class="p-4 bg-white/10 dark:bg-black/20 rounded-xl border border-white/10">
                     <div class="flex items-center justify-between mb-2">
                         <h4 class="text-lg font-bold text-primary">Вы</h4>
@@ -4465,3 +4451,4 @@
     </script>
 </body>
 </html>
+

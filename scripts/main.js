@@ -7212,39 +7212,59 @@ function openMultiplayerResultsModal(isWin) {
     document.getElementById('mpResOppChars').textContent = oppChars;
     document.getElementById('mpResOppErrors').textContent = opponentErrors;
 
-    const botMatchInfo = document.getElementById('mpResBotMatchInfo');
+    const botMetaRow = document.getElementById('mpResBotMetaRow');
     const botDiffPill = document.getElementById('mpResBotDifficultyPill');
-    const botValTheme = document.getElementById('mpResBotValTheme');
-    const botValLen = document.getElementById('mpResBotValLen');
-    const botValLang = document.getElementById('mpResBotValLang');
-    const botValOpts = document.getElementById('mpResBotValOpts');
-    const botRowName = document.getElementById('mpResBotRowName');
-    const botValName = document.getElementById('mpResBotValName');
+    const botChipTheme = document.getElementById('mpResBotChipTheme');
+    const botChipLen = document.getElementById('mpResBotChipLen');
+    const botChipLang = document.getElementById('mpResBotChipLang');
+    const botChipOpts = document.getElementById('mpResBotChipOpts');
+    const botChipBot = document.getElementById('mpResBotChipBot');
+    const botChipBotSep = document.getElementById('mpResBotChipBotSep');
     const botPaceNote = document.getElementById('mpResBotPaceNote');
-    if (botMatchInfo) {
+    if (botMetaRow) {
         if (app.lastMatchWasBot) {
-            botMatchInfo.classList.remove('hidden');
-            botMatchInfo.querySelectorAll('[data-i18n]').forEach((el) => {
+            botMetaRow.classList.remove('hidden');
+            botMetaRow.querySelectorAll('[data-i18n]').forEach((el) => {
                 const key = el.getAttribute('data-i18n');
                 if (key) el.textContent = t(key);
             });
             if (botDiffPill) botDiffPill.textContent = mpResultsDifficultyLabel(selectedBotDifficulty);
-            if (botValTheme) botValTheme.textContent = mpResultsThemeTitle(selectedTheme);
-            if (botValLen) botValLen.textContent = selectedWordCount + ' ' + t('mpChars');
-            if (botValLang) botValLang.textContent = (selectedMultiplayerLang || 'ru').toUpperCase();
+            const themeStr = mpResultsThemeTitle(selectedTheme);
+            const lenStr = selectedWordCount + ' ' + t('mpChars');
+            const langStr = (selectedMultiplayerLang || 'ru').toUpperCase();
+            if (botChipTheme) {
+                botChipTheme.textContent = themeStr;
+                botChipTheme.title = t('mpResRowTheme') + ': ' + themeStr;
+            }
+            if (botChipLen) {
+                botChipLen.textContent = lenStr;
+                botChipLen.title = t('mpResRowLength') + ': ' + lenStr;
+            }
+            if (botChipLang) {
+                botChipLang.textContent = langStr;
+                botChipLang.title = t('mpResRowTextLang') + ': ' + langStr;
+            }
             const optParts = [];
             if (selectedTextOptComma) optParts.push(t('mpOptComma'));
             if (selectedTextOptPeriod) optParts.push(t('mpOptPeriod'));
             if (selectedTextOptDigits) optParts.push(t('mpOptDigits'));
             if (selectedTextOptMixCase) optParts.push(t('mpOptMixCase'));
-            if (botValOpts) botValOpts.textContent = optParts.length ? optParts.join(', ') : t('mpResOptsPlain');
+            const optsFull = optParts.length ? optParts.join(', ') : t('mpResOptsPlain');
+            const optsChip = optParts.length ? optsFull : t('mpResOptsChip');
+            if (botChipOpts) {
+                botChipOpts.textContent = optsChip;
+                botChipOpts.title = t('mpResRowTextOpts') + ': ' + optsFull;
+            }
             const botNameTrim = app.botOpponentName && String(app.botOpponentName).trim();
-            if (botRowName && botValName) {
+            if (botChipBot && botChipBotSep) {
                 if (botNameTrim) {
-                    botValName.textContent = botNameTrim;
-                    botRowName.classList.remove('hidden');
+                    botChipBot.textContent = botNameTrim;
+                    botChipBot.title = t('mpResRowBot') + ': ' + botNameTrim;
+                    botChipBot.classList.remove('hidden');
+                    botChipBotSep.classList.remove('hidden');
                 } else {
-                    botRowName.classList.add('hidden');
+                    botChipBot.classList.add('hidden');
+                    botChipBotSep.classList.add('hidden');
                 }
             }
             if (botPaceNote) {
@@ -7259,7 +7279,7 @@ function openMultiplayerResultsModal(isWin) {
                 }
             }
         } else {
-            botMatchInfo.classList.add('hidden');
+            botMetaRow.classList.add('hidden');
             if (botPaceNote) botPaceNote.classList.add('hidden');
         }
     }
@@ -7849,3 +7869,4 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+
