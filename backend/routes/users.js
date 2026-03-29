@@ -1,6 +1,9 @@
 const express = require('express');
 const { query } = require('../db/connection');
-const { authMiddleware, getUserById, rowToUser } = require('./auth');
+const { authMiddleware, getUserById } = require('./auth');
+const { send500 } = require('../lib/httpError');
+const { getShopPriceForLesson } = require('../lib/shopPrices');
+const ALLOWED_AVATAR_PATHS = require('../lib/allowedAvatars');
 
 const router = express.Router();
 
@@ -17,8 +20,7 @@ router.get('/:uid/profile', async (req, res) => {
         if (!user) return res.status(404).json({ success: false, error: 'User not found' });
         return res.json({ success: true, data: user });
     } catch (err) {
-        console.error('Get profile error:', err);
-        return res.status(500).json({ success: false, error: err.message });
+        return send500(res, err, 'Get profile error');
     }
 });
 
@@ -28,13 +30,32 @@ router.put('/:uid/profile', async (req, res) => {
         if (req.uid !== req.params.uid) {
             return res.status(403).json({ success: false, error: 'Forbidden' });
         }
-        const { username, displayName, bio, balance } = req.body;
+        const { username, displayName, bio } = req.body || {};
         const updates = [];
         const params = { uid: req.params.uid };
-        if (username !== undefined) { updates.push('Username = @username'); params.username = username; }
-        if (displayName !== undefined) { updates.push('DisplayName = @displayName'); params.displayName = displayName; }
-        if (bio !== undefined) { updates.push('Bio = @bio'); params.bio = bio; }
-        if (balance !== undefined) { updates.push('Balance = @balance'); params.balance = balance; }
+        if (username !== undefined) {
+            const un = String(username).trim();
+            if (un.length < 3) {
+                return res.status(400).json({ success: false, error: 'Логин должен быть не менее 3 символов' });
+            }
+            const dup = await query(
+                `SELECT Uid FROM Users WHERE Username = @username AND Uid <> @uid`,
+                { username: un, uid: req.params.uid }
+            );
+            if (dup.recordset.length > 0) {
+                return res.status(400).json({ success: false, error: 'Этот логин уже занят' });
+            }
+            updates.push('Username = @username');
+            params.username = un;
+        }
+        if (displayName !== undefined) {
+            updates.push('DisplayName = @displayName');
+            params.displayName = String(displayName).trim().slice(0, 120);
+        }
+        if (bio !== undefined) {
+            updates.push('Bio = @bio');
+            params.bio = String(bio).slice(0, 4000);
+        }
         if (updates.length === 0) {
             const user = await getUserById(req.params.uid);
             return res.json({ success: true, user });
@@ -46,8 +67,7 @@ router.put('/:uid/profile', async (req, res) => {
         const user = await getUserById(req.params.uid);
         return res.json({ success: true, user });
     } catch (err) {
-        console.error('Update profile error:', err);
-        return res.status(500).json({ success: false, error: err.message });
+        return send500(res, err, 'Update profile error');
     }
 });
 
@@ -57,19 +77,20 @@ router.put('/:uid/avatar', async (req, res) => {
         if (req.uid !== req.params.uid) {
             return res.status(403).json({ success: false, error: 'Forbidden' });
         }
-        const { avatarIndex, photoURL } = req.body;
-        if (avatarIndex === undefined && !photoURL) {
+        const { avatarIndex } = req.body || {};
+        const idx = avatarIndex != null ? parseInt(avatarIndex, 10) : NaN;
+        if (!Number.isFinite(idx) || idx < 0 || idx >= ALLOWED_AVATAR_PATHS.length) {
             return res.status(400).json({ success: false, error: 'Неверный индекс аватара' });
         }
+        const photoURL = ALLOWED_AVATAR_PATHS[idx];
         await query(
             `UPDATE Users SET AvatarIndex = @avatarIndex, PhotoURL = @photoURL WHERE Uid = @uid`,
-            { uid: req.params.uid, avatarIndex: avatarIndex ?? 0, photoURL: photoURL || '' }
+            { uid: req.params.uid, avatarIndex: idx, photoURL }
         );
         const user = await getUserById(req.params.uid);
         return res.json({ success: true, photoURL: user.photoURL });
     } catch (err) {
-        console.error('Update avatar error:', err);
-        return res.status(500).json({ success: false, error: err.message });
+        return send500(res, err, 'Update avatar error');
     }
 });
 
@@ -115,8 +136,7 @@ router.post('/:uid/session', async (req, res) => {
         await applySessionToUser(req.params.uid, req.body);
         return res.json({ success: true });
     } catch (err) {
-        console.error('Add session error:', err);
-        return res.status(500).json({ success: false, error: err.message });
+        return send500(res, err, 'Add session error');
     }
 });
 
@@ -130,8 +150,7 @@ router.post('/:uid/sessions', async (req, res) => {
         }
         return res.json({ success: true });
     } catch (err) {
-        console.error('Add sessions error:', err);
-        return res.status(500).json({ success: false, error: err.message });
+        return send500(res, err, 'Add sessions error');
     }
 });
 
@@ -150,8 +169,7 @@ router.post('/:uid/coins', async (req, res) => {
         const user = await getUserById(req.params.uid);
         return res.json({ success: true, balance: user.balance });
     } catch (err) {
-        console.error('Add coins error:', err);
-        return res.status(500).json({ success: false, error: err.message });
+        return send500(res, err, 'Add coins error');
     }
 });
 
@@ -161,9 +179,13 @@ router.post('/:uid/purchase', async (req, res) => {
         if (req.uid !== req.params.uid) {
             return res.status(403).json({ success: false, error: 'Forbidden' });
         }
-        const { lessonId, price } = req.body;
-        if (!lessonId || price === undefined) {
-            return res.status(400).json({ success: false, error: 'lessonId and price required' });
+        const { lessonId } = req.body || {};
+        if (!lessonId) {
+            return res.status(400).json({ success: false, error: 'lessonId required' });
+        }
+        const price = getShopPriceForLesson(lessonId);
+        if (price == null) {
+            return res.status(400).json({ success: false, error: 'Неизвестный урок' });
         }
         const uid = req.params.uid;
         const userRow = await query(`SELECT Balance, PurchasedLessonsJson FROM Users WHERE Uid = @uid`, { uid });
@@ -186,8 +208,7 @@ router.post('/:uid/purchase', async (req, res) => {
         const user = await getUserById(uid);
         return res.json({ success: true, balance: user.balance });
     } catch (err) {
-        console.error('Purchase error:', err);
-        return res.status(500).json({ success: false, error: err.message });
+        return send500(res, err, 'Purchase error');
     }
 });
 
@@ -201,8 +222,7 @@ router.get('/:uid/balance', async (req, res) => {
         if (!user) return res.status(404).json({ success: false, error: 'User not found' });
         return res.json({ success: true, balance: user.balance });
     } catch (err) {
-        console.error('Balance error:', err);
-        return res.status(500).json({ success: false, error: err.message });
+        return send500(res, err, 'Balance error');
     }
 });
 
@@ -217,10 +237,8 @@ router.get('/:uid/lesson-purchased/:lessonId', async (req, res) => {
         const purchased = user.purchasedLessons && user.purchasedLessons.includes(req.params.lessonId);
         return res.json({ purchased: !!purchased });
     } catch (err) {
-        console.error('Lesson purchased check error:', err);
-        return res.status(500).json({ success: false, error: err.message });
+        return send500(res, err, 'Lesson purchased check error');
     }
 });
 
 module.exports = router;
-

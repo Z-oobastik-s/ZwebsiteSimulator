@@ -65,6 +65,15 @@ function deviceIcon(type) {
     return '💻';
 }
 
+function _escapeHtml(s) {
+    if (s == null) return '';
+    return String(s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
+
 function getStatsLang() {
     if (typeof window.app !== 'undefined' && window.app.lang) {
         return window.app.lang === 'ua' ? 'uk' : window.app.lang;
@@ -392,8 +401,9 @@ function _buildContent() {
             var u = entry[1] || {};
             var hasAccount  = !!(u.displayName || u.username);
             var name        = u.displayName || u.username || (_t('visitor') + ' #' + (i + 1));
-            var initial     = name.charAt(0).toUpperCase();
+            var initial     = String(name).charAt(0).toUpperCase();
             var avatarColor = nameToColor(name);
+            var nameSafe    = _escapeHtml(name);
             var flag        = u.flag || '🌍';
             var country     = (u.countryCode && u.countryCode !== 'XX') ? u.countryCode : '';
             var device      = deviceIcon(u.device || 'desktop');
@@ -403,12 +413,12 @@ function _buildContent() {
 
             // Avatar circle
             var avatarHTML = hasAccount
-                ? '<div style="width:38px;height:38px;border-radius:50%;background:' + avatarColor + ';display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#fff;flex-shrink:0;box-shadow:0 0 0 2px rgba(255,255,255,0.1)">' + initial + '</div>'
+                ? '<div style="width:38px;height:38px;border-radius:50%;background:' + avatarColor + ';display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#fff;flex-shrink:0;box-shadow:0 0 0 2px rgba(255,255,255,0.1)">' + _escapeHtml(initial) + '</div>'
                 : '<div style="width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">👤</div>';
 
             // Level badge
             var levelHTML = lvl
-                ? '<span style="font-size:10px;background:' + levelColor(lvl) + '22;color:' + levelColor(lvl) + ';border:1px solid ' + levelColor(lvl) + '55;border-radius:4px;padding:1px 5px;font-weight:600;white-space:nowrap">' + _t('level') + ' ' + lvl + (tier ? ' · ' + tier : '') + '</span>'
+                ? '<span style="font-size:10px;background:' + levelColor(lvl) + '22;color:' + levelColor(lvl) + ';border:1px solid ' + levelColor(lvl) + '55;border-radius:4px;padding:1px 5px;font-weight:600;white-space:nowrap">' + _t('level') + ' ' + lvl + (tier ? ' · ' + _escapeHtml(tier) : '') + '</span>'
                 : '';
 
             // Name + meta row
@@ -423,7 +433,7 @@ function _buildContent() {
                 avatarHTML +
                 '<div style="flex:1;min-width:0">' +
                     '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">' +
-                        '<span style="font-size:13px;font-weight:' + (hasAccount ? '600' : '400') + ';color:' + (hasAccount ? '#e2e8f0' : '#94a3b8') + ';white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px">' + name + '</span>' +
+                        '<span style="font-size:13px;font-weight:' + (hasAccount ? '600' : '400') + ';color:' + (hasAccount ? '#e2e8f0' : '#94a3b8') + ';white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px">' + nameSafe + '</span>' +
                         levelHTML +
                     '</div>' +
                     metaHTML +
@@ -530,4 +540,3 @@ if (typeof window !== 'undefined') {
     window.__siteStatsRefreshModal = _refreshModal;
 }
 export { pluralPlayers, updateUI };
-

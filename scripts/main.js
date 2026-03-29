@@ -2232,7 +2232,7 @@ function loadLessons() {
                     <span class="difficulty-card__icon">${levelIcons[level]}</span>
                 </div>
                 <h3 class="difficulty-card__title">${escapeHtml(levelName)}</h3>
-                <span class="difficulty-card__badge">${badgeText}</span>
+                <span class="difficulty-card__badge">${escapeHtml(badgeText)}</span>
             </div>
         `;
         
@@ -4197,9 +4197,11 @@ function showResults(speed, accuracy, time, errors, rewardCoins) {
         if (top.length > 0 || canReplay) {
             if (top.length > 0) {
                 topErrorsList.innerHTML = top.map(function (e) {
-                    return '<span class="results-error-pill">' +
-                        (e.key === ' ' ? '␣' : e.key) +
-                        '<span class="results-error-pill-count">×' + e.count + '</span></span>';
+                    var disp = e.key === ' ' ? '␣' : e.key;
+                    var safeKey = escapeHtml(String(disp == null ? '' : disp));
+                    var cnt = escapeHtml(String(e.count == null ? '' : e.count));
+                    return '<span class="results-error-pill">' + safeKey +
+                        '<span class="results-error-pill-count">×' + cnt + '</span></span>';
                 }).join('');
                 topErrorsList.classList.remove('hidden');
             } else {
@@ -7368,4 +7370,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-

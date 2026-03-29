@@ -59,9 +59,21 @@ async function apiFetch(path, options = {}) {
     };
     if (token) headers['Authorization'] = 'Bearer ' + token;
     const res = await fetch(url, { ...options, headers });
-    const data = await res.json().catch(() => ({}));
+    const text = await res.text();
+    const ct = (res.headers.get('content-type') || '').toLowerCase();
+    let data = {};
+    if (ct.includes('application/json')) {
+        if (text) {
+            try {
+                data = JSON.parse(text);
+            } catch (_e) {
+                data = {};
+            }
+        }
+    }
     if (!res.ok) {
-        const err = new Error(data.error || res.statusText || 'API Error');
+        const msg = (data && data.error) || (text && text.slice(0, 200)) || res.statusText || 'API Error';
+        const err = new Error(msg);
         err.status = res.status;
         err.data = data;
         throw err;
@@ -243,6 +255,16 @@ export function getCurrentUser() {
     return getCurrentUserFromStorage();
 }
 
+/** Поля профиля, разрешённые для изменения с клиента (без balance, isAdmin и т.д.). */
+function pickProfileUpdates(updates) {
+    if (!updates || typeof updates !== 'object') return {};
+    const out = {};
+    if (updates.username !== undefined) out.username = updates.username;
+    if (updates.displayName !== undefined) out.displayName = updates.displayName;
+    if (updates.bio !== undefined) out.bio = updates.bio;
+    return out;
+}
+
 // --------------- Профиль ---------------
 export async function getUserProfile(uid) {
     if (useApi()) {
@@ -259,11 +281,12 @@ export async function getUserProfile(uid) {
 }
 
 export async function updateUserProfile(uid, updates) {
+    const safe = pickProfileUpdates(updates);
     if (useApi()) {
         try {
             const data = await apiFetch(`/api/users/${uid}/profile`, {
                 method: 'PUT',
-                body: JSON.stringify(updates)
+                body: JSON.stringify(safe)
             });
             if (data.user) saveCurrentUserToStorage(data.user);
             notifyAuthStateListeners(data.user);
@@ -275,7 +298,7 @@ export async function updateUserProfile(uid, updates) {
     const users = getAllUsersStorage();
     const user = users[uid];
     if (!user) return { success: false, error: 'User not found' };
-    Object.assign(user, updates);
+    Object.assign(user, safe);
     users[uid] = user;
     if (!saveAllUsersStorage(users)) return { success: false, error: 'Ошибка сохранения данных' };
     const current = getCurrentUserFromStorage();
@@ -292,7 +315,7 @@ export async function updateProfileAvatar(uid, avatarIndex) {
         try {
             const data = await apiFetch(`/api/users/${uid}/avatar`, {
                 method: 'PUT',
-                body: JSON.stringify({ avatarIndex, photoURL })
+                body: JSON.stringify({ avatarIndex })
             });
             const user = getCurrentUserFromStorage();
             if (user && user.uid === uid) {
@@ -346,7 +369,9 @@ function debouncedSessionUpdate(uid) {
             batch.forEach(s => sessions.push({ ...s, timestamp: Date.now() }));
             const totalSessions = sessions.length;
             const totalTime = batch.reduce((sum, s) => sum + (s.time || 0), currentStats.totalTime || 0);
-            const bestSpeed = Math.max(currentStats.bestSpeed || 0, ...batch.map(s => s.speed || 0));
+            const speeds = sessions.map(s => Number(s.speed) || 0);
+            const bestFromSessions = speeds.length ? Math.max.apply(null, speeds) : 0;
+            const bestSpeed = Math.max(currentStats.bestSpeed || 0, bestFromSessions);
             const totalErrors = batch.reduce((sum, s) => sum + (s.errors || 0), currentStats.totalErrors || 0);
             const totalAccuracy = sessions.reduce((sum, s) => sum + (s.accuracy || 0), 0);
             const averageAccuracy = totalSessions > 0 ? Math.round(totalAccuracy / totalSessions) : 0;
@@ -485,7 +510,7 @@ export async function purchaseLesson(uid, lessonId) {
         try {
             const data = await apiFetch(`/api/users/${uid}/purchase`, {
                 method: 'POST',
-                body: JSON.stringify({ lessonId, price: shopLesson.price })
+                body: JSON.stringify({ lessonId })
             });
             const user = getCurrentUserFromStorage();
             if (user && user.uid === uid) {
@@ -560,4 +585,3 @@ window.authModule = {
     getUserBalance,
     isLessonPurchased
 };
-

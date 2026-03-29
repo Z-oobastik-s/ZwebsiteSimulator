@@ -7,6 +7,7 @@ if (!process.env.DB_PASSWORD || !process.env.DB_HOST) {
 
 const express = require('express');
 const cors = require('cors');
+const { send500 } = require('./lib/httpError');
 const authRoutes = require('./routes/auth');
 const usersRoutes = require('./routes/users');
 const adminRoutes = require('./routes/admin');
@@ -27,11 +28,9 @@ app.get('/api/health', (req, res) => {
 });
 
 app.use((err, req, res, next) => {
-    console.error(err);
-    res.status(500).json({ success: false, error: err.message || 'Internal error' });
+    send500(res, err, 'Unhandled error');
 });
 
 app.listen(PORT, () => {
     console.log(`Zoobastiks API: port ${PORT}, DB: ${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_DATABASE}`);
 });
-

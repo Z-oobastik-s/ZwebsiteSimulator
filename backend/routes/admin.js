@@ -1,6 +1,7 @@
 const express = require('express');
 const { query } = require('../db/connection');
 const { authMiddleware, getUserById, rowToUser } = require('./auth');
+const { send500 } = require('../lib/httpError');
 
 const router = express.Router();
 
@@ -28,8 +29,7 @@ router.get('/users', requireAdmin, async (req, res) => {
         }));
         return res.json({ success: true, users });
     } catch (err) {
-        console.error('Get all users error:', err);
-        return res.status(500).json({ success: false, error: err.message });
+        return send500(res, err, 'Get all users error');
     }
 });
 
@@ -40,10 +40,8 @@ router.delete('/users/:uid', requireAdmin, async (req, res) => {
         await query(`DELETE FROM Users WHERE Uid = @uid`, { uid });
         return res.json({ success: true });
     } catch (err) {
-        console.error('Delete user error:', err);
-        return res.status(500).json({ success: false, error: err.message });
+        return send500(res, err, 'Delete user error');
     }
 });
 
 module.exports = router;
-

@@ -2,9 +2,14 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { query } = require('../db/connection');
+const { send500 } = require('../lib/httpError');
 
 const router = express.Router();
-const JWT_SECRET = process.env.JWT_SECRET || 'change-me-in-production';
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET || String(JWT_SECRET).length < 16) {
+    console.error('Задайте JWT_SECRET в backend/.env (не короче 16 символов).');
+    process.exit(1);
+}
 
 function generateUid() {
     return 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
@@ -58,8 +63,7 @@ router.post('/register', async (req, res) => {
         const token = jwt.sign({ uid }, JWT_SECRET, { expiresIn: '30d' });
         return res.json({ success: true, user: user, token });
     } catch (err) {
-        console.error('Register error:', err);
-        return res.status(500).json({ success: false, error: err.message || 'Ошибка регистрации' });
+        return send500(res, err, 'Register error');
     }
 });
 
@@ -95,8 +99,7 @@ router.post('/login', async (req, res) => {
         const token = jwt.sign({ uid: row.Uid }, JWT_SECRET, { expiresIn: '30d' });
         return res.json({ success: true, user, token });
     } catch (err) {
-        console.error('Login error:', err);
-        return res.status(500).json({ success: false, error: err.message || 'Ошибка входа' });
+        return send500(res, err, 'Login error');
     }
 });
 
@@ -170,10 +173,8 @@ router.get('/me', authMiddleware, async (req, res) => {
         if (!user) return res.status(404).json({ success: false, error: 'User not found' });
         return res.json({ success: true, user });
     } catch (err) {
-        console.error('Me error:', err);
-        return res.status(500).json({ success: false, error: err.message });
+        return send500(res, err, 'Me error');
     }
 });
 
 module.exports = { router, authMiddleware, getUserById, rowToUser };
-
