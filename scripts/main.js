@@ -2746,12 +2746,9 @@ function showLessonList(levelData) {
                 : (app.lang === 'ru' ? 'легко' : app.lang === 'ua' ? 'легко' : 'easy');
         
         const missionNum = String(index + 1).padStart(2, '0');
-        var missionMeta = window.lessonMissionsModule
-            ? window.lessonMissionsModule.getMissionForLesson({ ...lesson, level: levelData.level }, levelData.level, app.lang)
-            : { code: '', brief: '' };
-        var missionBriefLine = (missionMeta && missionMeta.brief) ? missionMeta.brief : (lesson.description || '');
-        var missionCodeHtml = (missionMeta && missionMeta.code)
-            ? '<span class="lesson-card__mission-code">' + escapeHtml(missionMeta.code) + '</span>'
+        var descTrim = (lesson.description || '').trim();
+        var descHtml = descTrim
+            ? '<p class="lesson-card__desc lesson-card__desc--line">' + escapeHtml(descTrim) + '</p>'
             : '';
         var vibeMeta = getLessonCardVibe(lesson, lessonDifficulty, levelData.level);
         var vibeHint = typeof t === 'function' ? t(vibeMeta.hintKey) : '';
@@ -2764,9 +2761,8 @@ function showLessonList(levelData) {
                 <span class="lesson-card__mission-num">${missionNum}</span>
             </div>
             <div class="lesson-card__body">
-                <div class="flex flex-wrap items-center gap-1.5 mb-0.5 min-h-[1.1rem]">${missionCodeHtml}</div>
                 <h4 class="lesson-card__title">${escapeHtml(lesson.name)}</h4>
-                <p class="lesson-card__mission-brief">${escapeHtml(missionBriefLine)}</p>
+                ${descHtml}
                 <div class="lesson-card__tags">
                     <span class="lesson-card__tag lesson-card__tag--lang">${lesson.layout.toUpperCase()}</span>
                     <span class="lesson-card__tag lesson-card__tag--${difficultyClass}">${difficultyLabel}</span>
@@ -8187,4 +8183,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-

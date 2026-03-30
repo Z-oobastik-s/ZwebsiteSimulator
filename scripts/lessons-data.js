@@ -2419,4 +2419,3 @@ const LESSONS_DATA = {
         ]
     }
 };
-
