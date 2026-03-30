@@ -7846,13 +7846,12 @@ function showShop() {
     const categoryTabs = DOM.get('shopCategoryTabs');
     if (categoryTabs) categoryTabs.classList.remove('hidden');
     loadShopLessons();
-    // Повторная попытка через 50 мс, если уроки не подгрузились (например, shopModule ещё не готов)
-    setTimeout(function checkShopLoaded() {
+    requestAnimationFrame(function checkShopLoaded() {
         const grid = document.getElementById('shopLessonsGrid');
         if (grid && !grid.querySelector('.shop-card-wrap') && window.shopModule) {
             loadShopLessons();
         }
-    }, 50);
+    });
 }
 
 // Select shop language
@@ -8183,3 +8182,4 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+

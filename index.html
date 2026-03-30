@@ -1268,22 +1268,37 @@ Read
             box-shadow: 0 0 16px rgba(124, 58, 237, 0.2);
         }
         
-        /* ========== Магазин: компактные карты, светлая/тёмная тема, без тяжёлых эффектов (производительность) ========== */
+        /* ========== Магазин: лёгкий композитинг при скролле (без clip-path на каждой карте, один perspective, без blur) ========== */
+        #shopLessonsGrid {
+            perspective: 1000px;
+            contain: layout style;
+        }
+        /* «Стекло» в шапке/фильтрах тянет backdrop-filter на весь скролл - отключаем только в магазине */
+        #shopScreen .glass {
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            background: rgba(15, 23, 42, 0.92) !important;
+            border-color: rgba(34, 211, 238, 0.25) !important;
+        }
+        html:not(.dark) #shopScreen .glass {
+            background: rgba(255, 255, 255, 0.96) !important;
+            border-color: rgba(15, 23, 42, 0.12) !important;
+        }
         .shop-title { font-family: inherit; }
         .shop-balance-badge { box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12); }
         .shop-back-btn { color: rgba(0, 229, 255, 0.95); }
         .shop-filters .shop-lang-btn.border-cyan-500,
         .shop-filters .shop-category-btn.border-cyan-500 { border-color: rgba(0, 229, 255, 0.6); background: rgba(0, 229, 255, 0.1); color: #67e8f9; }
         .shop-card-wrap {
-            perspective: 1000px;
             content-visibility: auto;
             contain-intrinsic-size: 280px 168px;
+            contain: layout style;
         }
         .shop-card-inner {
             position: relative;
             width: 100%;
             min-height: 168px;
-            transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             transform-style: preserve-3d;
             contain: layout paint;
         }
@@ -1296,8 +1311,7 @@ Read
             inset: 0;
             backface-visibility: hidden;
             -webkit-backface-visibility: hidden;
-            clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0 calc(100% - 10px), 0 10px);
-            border-radius: 0;
+            border-radius: 8px;
             overflow: hidden;
             display: flex;
             flex-direction: column;
@@ -1309,29 +1323,29 @@ Read
         }
         html.dark .shop-card-front,
         html.dark .shop-card-back {
-            --shop-bg: linear-gradient(155deg, #070b14 0%, #0e1728 42%, #081018 100%);
+            --shop-bg: #0d1524;
             --shop-br: rgba(56, 189, 248, 0.22);
             --shop-br-strong: rgba(34, 211, 238, 0.38);
-            --shop-sh: 0 0 0 1px rgba(0, 0, 0, 0.45), 0 10px 26px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+            --shop-sh: 0 6px 18px rgba(0, 0, 0, 0.45);
             --shop-accent: #22d3ee;
             --shop-h1: #f8fafc;
             --shop-sub: #cbd5e1;
             --shop-muted: #94a3b8;
-            --shop-txt-shadow: 0 0 1px #000, 0 1px 2px rgba(0, 0, 0, 0.95), 0 0 10px rgba(0, 0, 0, 0.45);
-            --shop-txt-shadow-sub: 0 0 1px #000, 0 1px 2px rgba(0, 0, 0, 0.88), 0 0 8px rgba(0, 0, 0, 0.4);
+            --shop-txt-shadow: 0 1px 2px rgba(0, 0, 0, 0.85);
+            --shop-txt-shadow-sub: 0 1px 2px rgba(0, 0, 0, 0.75);
         }
         html:not(.dark) .shop-card-front,
         html:not(.dark) .shop-card-back {
-            --shop-bg: linear-gradient(155deg, #f8fafc 0%, #e8eef5 48%, #f1f5f9 100%);
+            --shop-bg: #f1f5f9;
             --shop-br: rgba(14, 116, 144, 0.22);
             --shop-br-strong: rgba(8, 145, 178, 0.42);
-            --shop-sh: 0 0 0 1px rgba(0, 0, 0, 0.05), 0 8px 22px rgba(15, 23, 42, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.75);
+            --shop-sh: 0 4px 14px rgba(15, 23, 42, 0.1);
             --shop-accent: #0891b2;
             --shop-h1: #0f172a;
             --shop-sub: #475569;
             --shop-muted: #64748b;
-            --shop-txt-shadow: 0 0 1px #fff, 0 1px 1px rgba(255, 255, 255, 0.9), 0 0 8px rgba(255, 255, 255, 0.55), 0 1px 3px rgba(15, 23, 42, 0.35);
-            --shop-txt-shadow-sub: 0 0 1px #fff, 0 1px 1px rgba(255, 255, 255, 0.85), 0 0 6px rgba(255, 255, 255, 0.45), 0 1px 2px rgba(15, 23, 42, 0.28);
+            --shop-txt-shadow: 0 1px 1px rgba(255, 255, 255, 0.9), 0 1px 2px rgba(15, 23, 42, 0.18);
+            --shop-txt-shadow-sub: 0 1px 1px rgba(255, 255, 255, 0.85), 0 1px 2px rgba(15, 23, 42, 0.12);
         }
         .shop-card-back {
             transform: rotateY(180deg);
@@ -1355,9 +1369,7 @@ Read
             flex: 1;
             min-width: 0;
             text-shadow: var(--shop-txt-shadow);
-            -webkit-text-stroke: 0.35px rgba(0, 0, 0, 0.35);
         }
-        html:not(.dark) .shop-card-title { -webkit-text-stroke: 0.3px rgba(255, 255, 255, 0.5); }
         .shop-card-corner { flex-shrink: 0; display: flex; align-items: center; justify-content: flex-end; }
         .shop-card-price {
             color: #ca8a04;
@@ -1407,39 +1419,45 @@ Read
             width: 100%;
             margin-top: auto;
             flex-shrink: 0;
-            border: 1px solid rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.14);
             border-radius: 4px;
             font-weight: 800;
             font-size: 0.64rem;
             padding: 0.46rem 0.5rem;
             cursor: pointer;
-            transition: filter 0.12s ease, opacity 0.12s ease, transform 0.12s ease;
+            transition: background-color 0.12s ease, opacity 0.12s ease, transform 0.12s ease;
             text-transform: uppercase;
             letter-spacing: 0.11em;
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 3px 10px rgba(0, 0, 0, 0.35);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
         }
-        .shop-card-btn:hover { filter: brightness(1.08); }
-        .shop-card-btn:active { filter: brightness(0.96); transform: translateY(1px); }
         .shop-card-btn--buy {
-            background: linear-gradient(180deg, #06b6d4 0%, #0891b2 45%, #0e7490 100%);
+            background: #0891b2;
             color: #ecfeff;
         }
+        .shop-card-btn--buy:hover { background: #06b6d4; }
+        .shop-card-btn--buy:active { background: #0e7490; transform: translateY(1px); }
         html.dark .shop-card-btn--buy {
-            background: linear-gradient(180deg, #0891b2 0%, #0e7490 50%, #155e75 100%);
+            background: #0e7490;
             color: #ecfeff;
         }
+        html.dark .shop-card-btn--buy:hover { background: #0891b2; }
+        html.dark .shop-card-btn--buy:active { background: #155e75; }
         .shop-card-btn--buy:disabled,
         .shop-card-btn--buy.shop-card-btn--disabled { background: #64748b; color: #e2e8f0; cursor: not-allowed; filter: none; }
         html:not(.dark) .shop-card-btn--buy:disabled,
         html:not(.dark) .shop-card-btn--buy.shop-card-btn--disabled { background: #94a3b8; color: #f8fafc; }
         .shop-card-btn--go {
-            background: linear-gradient(180deg, #34d399 0%, #059669 45%, #047857 100%);
+            background: #059669;
             color: #ecfdf5;
         }
+        .shop-card-btn--go:hover { background: #10b981; }
+        .shop-card-btn--go:active { background: #047857; transform: translateY(1px); }
         html.dark .shop-card-btn--go {
-            background: linear-gradient(180deg, #10b981 0%, #059669 50%, #065f46 100%);
+            background: #059669;
             color: #ecfdf5;
         }
+        html.dark .shop-card-btn--go:hover { background: #10b981; }
+        html.dark .shop-card-btn--go:active { background: #065f46; }
         .shop-card-back .shop-tip-text { font-size: 0.78rem; color: var(--shop-sub); line-height: 1.35; padding: 0.35rem; max-width: 100%; text-shadow: var(--shop-txt-shadow-sub); }
         html.dark .shop-card-back .shop-tip-text { color: #cbd5e1; }
         .shop-card-back .shop-tip-icon { font-size: 1.25rem; margin-bottom: 0.35rem; line-height: 1; }
@@ -1476,6 +1494,10 @@ Read
         .shop-card-fly { position: fixed; z-index: 9999; pointer-events: none; transition: none; }
         .shop-card-fly.shop-fly-anim { transition: top 0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94), left 0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.55s ease, opacity 0.55s ease; }
         .no-animations .shop-card-wrap:hover .shop-card-inner { transform: none !important; }
+        @media (prefers-reduced-motion: reduce) {
+            .shop-card-inner { transition: none !important; }
+            .shop-card-wrap:hover .shop-card-inner { transform: none !important; }
+        }
         
         /* Disable animations when .no-animations class is present */
         .no-animations *,
@@ -4757,7 +4779,7 @@ Read
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
                     <span data-i18n="back">Назад</span>
                 </button>
-                <h2 class="shop-title text-xl font-black uppercase tracking-widest text-cyan-400" style="text-shadow: 0 0 20px rgba(0,229,255,0.5);">
+                <h2 class="shop-title text-xl font-black uppercase tracking-widest text-cyan-400" style="text-shadow: 0 1px 2px rgba(0,0,0,0.4);">
                     <span class="opacity-80">[</span> <span data-i18n="shopTitle">Магазин уроков</span> <span class="opacity-80">]</span>
                 </h2>
                 <div id="shopBalanceWrap" class="shop-balance-badge flex items-center gap-2 px-4 py-2 rounded-lg border border-amber-500/50 bg-amber-500/10">
@@ -5128,3 +5150,4 @@ Read
     </script>
 </body>
 </html>
+
