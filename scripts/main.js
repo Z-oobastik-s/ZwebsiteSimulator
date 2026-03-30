@@ -300,7 +300,7 @@ let welcomePlayed = false;
 /** Ссылка на обработчик ended у welcome - снимаем при общем «выкл звук», чтобы не включать музыку по старому событию */
 var _welcomeEndedHandler = null;
 
-/** v=… подставляется из version.json — после деплоя подтягиваются новые ogg/mp3 без ручного сброса кэша */
+/** v=… подставляется из version.json - после деплоя подтягиваются новые ogg/mp3 без ручного сброса кэша */
 function soundAssetUrl(path) {
     if (!path || typeof path !== 'string') return path;
     var v = typeof window !== 'undefined' && window.__zoobAssetBust != null ? window.__zoobAssetBust : 0;
@@ -1279,7 +1279,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initSiteRating();
     // Футер/фон уже запланированы в scheduleBackgroundAfterFirstPaint
     
-    // Аудио после version.json — к звукам добавляется ?v=build, чтобы SW/браузер не отдавали старые файлы
+    // Аудио после version.json - к звукам добавляется ?v=build, чтобы SW/браузер не отдавали старые файлы
     fetchDeployBuild().then(function (data) {
         var b = _parseDeployBuild(data);
         if (b != null) {
@@ -1664,7 +1664,7 @@ function fetchDeployBuild() {
 
 function initDeployVersionCheck() {
     if (__zoobDeployPollTimer) clearInterval(__zoobDeployPollTimer);
-    // Базовый build задаётся до вызова — см. fetch версии перед initializeAudio
+    // Базовый build задаётся до вызова - см. fetch версии перед initializeAudio
     setTimeout(function () {
         __zoobDeployPollTimer = setInterval(function () {
             if (window.__zoobUpdateReloading) return;
@@ -2788,7 +2788,7 @@ function showLessonList(levelData) {
     container.appendChild(fragment);
 }
 
-/** Полоса «операции» на экране практики — код + бриф. */
+/** Полоса «операции» на экране практики - код + бриф. */
 function syncPracticeMissionBar() {
     var bar = document.getElementById('practiceMissionBar');
     var cEl = document.getElementById('practiceMissionCode');
@@ -2926,7 +2926,7 @@ function generateUaBeginnerLessonText(poolText, minChars = 100, maxChars = 200) 
 // Shared helpers for all language beginner generators
 // ------------------------------
 
-// Циклічне повторення малого набору слів у фіксованому порядку (ряди клавіатури) — без рандому.
+// Циклічне повторення малого набору слів у фіксованому порядку (ряди клавіатури) - без рандому.
 function generateCyclicWordText(words, minChars, maxChars) {
     const list = (words || []).filter(Boolean);
     const outWords = [];
@@ -7954,20 +7954,9 @@ function loadShopLessons() {
         const shopVibeLine = shopVibeText
             ? `<div class="shop-card-vibe shop-card-vibe--${shopVibeTone}" title="${escapeHtml(shopVibeHint)}">${escapeHtml(shopVibeText)}</div>`
             : '';
-        var shopLevel = lesson.difficulty === 'hard' ? 'advanced' : lesson.difficulty === 'medium' ? 'medium' : 'beginner';
-        var shopMission = window.lessonMissionsModule
-            ? window.lessonMissionsModule.getMissionForLesson(
-                { id: lesson.id, isShopLesson: true, difficulty: lesson.difficulty, layout: lesson.layout, level: shopLevel },
-                shopLevel,
-                app.lang
-            )
-            : { code: '', brief: '' };
         var diffKey = lesson.difficulty || 'easy';
         var shopDiffClass = difficultyClassMap[diffKey] || difficultyClassMap.easy;
         var shopDiffLabel = difficultyNames[diffKey] || difficultyNames.easy;
-        var shopMissionBlock = (shopMission && (shopMission.code || shopMission.brief))
-            ? '<div class="shop-card-op"><span class="shop-card-op-code">' + escapeHtml(shopMission.code || '') + '</span><span class="shop-card-op-brief">' + escapeHtml(shopMission.brief || '') + '</span></div>'
-            : '';
         const frontContent = `
             <div class="shop-card-head">
                 <h3 class="shop-card-title">${escapeHtml(lesson.name)}</h3>
@@ -7977,13 +7966,11 @@ function loadShopLessons() {
                         : '<span class="shop-card-price">' + lesson.price + ' ' + COIN_ICON_IMG + '</span>'}
                 </div>
             </div>
-            ${shopMissionBlock}
             <p class="shop-card-blurb">${escapeHtml(lesson.description)}</p>
             <div class="shop-card-badges">
                 <span class="shop-card-diff ${shopDiffClass}">${shopDiffLabel}</span>
                 ${shopVibeLine}
             </div>
-            <blockquote class="shop-card-quote">"${escapeHtml(lesson.preview)}"</blockquote>
             ${isPurchased ? `
                 <button type="button" class="shop-card-btn shop-card-btn--go shop-purchase-go" onclick="startPurchasedLesson('${lesson.id}')">${t('startLesson')}</button>
             ` : `
@@ -8200,3 +8187,4 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+

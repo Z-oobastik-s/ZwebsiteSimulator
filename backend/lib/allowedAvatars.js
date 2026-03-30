@@ -1,6 +1,6 @@
 /**
  * Должен совпадать с AVAILABLE_AVATARS в scripts/auth.js.
- * Сервер не доверяет photoURL с клиента — только индекс в этом списке.
+ * Сервер не доверяет photoURL с клиента - только индекс в этом списке.
  */
 module.exports = [
     'assets/images/profile photo/profile_1.png',
@@ -24,3 +24,4 @@ module.exports = [
     'assets/images/profile photo/profile_19.jpg',
     'assets/images/profile photo/profile_20.jpg'
 ];
+

@@ -1,5 +1,5 @@
 /**
- * Цены платных уроков — держите в синхроне с scripts/shop-data.js (каждый id и поле price).
+ * Цены платных уроков - держите в синхроне с scripts/shop-data.js (каждый id и поле price).
  */
 const SHOP_LESSON_PRICE_BY_ID = {
     anime_1: 50,
@@ -234,3 +234,4 @@ function getShopPriceForLesson(lessonId) {
 }
 
 module.exports = { getShopPriceForLesson, SHOP_LESSON_PRICE_BY_ID };
+

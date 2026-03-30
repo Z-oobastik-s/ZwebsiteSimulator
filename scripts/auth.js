@@ -349,7 +349,7 @@ export async function updateProfileAvatar(uid, avatarIndex) {
 }
 
 // --------------- Сессии (прогресс) ---------------
-/** Очередь и таймер отдельно на каждый uid — сессии разных аккаунтов не сливаются в один batch при быстрой смене пользователя. */
+/** Очередь и таймер отдельно на каждый uid - сессии разных аккаунтов не сливаются в один batch при быстрой смене пользователя. */
 const sessionQueuesByUid = new Map();
 const sessionUpdateTimeoutsByUid = new Map();
 
@@ -667,3 +667,4 @@ window.authModule = {
     getUserBalance,
     isLessonPurchased
 };
+
