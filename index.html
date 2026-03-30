@@ -1273,11 +1273,27 @@
         .shop-back-btn { color: rgba(0, 229, 255, 0.95); }
         .shop-filters .shop-lang-btn.border-cyan-500,
         .shop-filters .shop-category-btn.border-cyan-500 { border-color: rgba(0, 229, 255, 0.6); background: rgba(0, 229, 255, 0.1); color: #67e8f9; }
-        .shop-card-wrap { perspective: 1000px; min-height: 200px; }
-        .shop-card-inner { position: relative; width: 100%; height: 100%; min-height: 200px; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); transform-style: preserve-3d; }
+        /* Достаточная высота под заголовок + миссию + бейджи + цитату + кнопку (раньше 200px обрезало низ) */
+        .shop-card-wrap { perspective: 1000px; min-height: 380px; }
+        .shop-card-inner { position: relative; width: 100%; min-height: 380px; height: 100%; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); transform-style: preserve-3d; }
+        @media (min-width: 640px) {
+            .shop-card-wrap, .shop-card-inner { min-height: 400px; }
+        }
         .shop-card-wrap:hover .shop-card-inner { transform: rotateY(180deg); }
-        .shop-card-front, .shop-card-back { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; padding: 1rem; border: 1px solid rgba(0, 229, 255, 0.25); background: linear-gradient(145deg, rgba(10, 15, 28, 0.95) 0%, rgba(15, 23, 42, 0.9) 100%); box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4), 0 0 20px rgba(0, 229, 255, 0.08); }
-        .shop-card-back { transform: rotateY(180deg); justify-content: center; align-items: center; text-align: center; border-color: rgba(251, 191, 36, 0.35); box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4), 0 0 20px rgba(251, 191, 36, 0.1); }
+        .shop-card-front, .shop-card-back { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: 12px; overflow-x: hidden; overflow-y: auto; display: flex; flex-direction: column; padding: 1rem; border: 1px solid rgba(0, 229, 255, 0.25); background: linear-gradient(145deg, rgba(10, 15, 28, 0.95) 0%, rgba(15, 23, 42, 0.9) 100%); box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4), 0 0 20px rgba(0, 229, 255, 0.08); }
+        .shop-card-back { transform: rotateY(180deg); justify-content: center; align-items: center; text-align: center; border-color: rgba(251, 191, 36, 0.35); box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4), 0 0 20px rgba(251, 191, 36, 0.1); -webkit-overflow-scrolling: touch; }
+        .shop-card-front { justify-content: flex-start; gap: 0.35rem; }
+        .shop-card-quote {
+            flex: 1 1 auto;
+            min-height: 2.75rem;
+            max-height: 5.5rem;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            border: 1px solid rgba(148, 163, 184, 0.22);
+            background: rgba(15, 23, 42, 0.65);
+            color: rgba(241, 245, 249, 0.95);
+            scrollbar-width: thin;
+        }
         .shop-card-back .shop-tip-text { font-size: 0.8rem; color: rgba(251, 191, 36, 0.95); line-height: 1.4; padding: 0.5rem; }
         .shop-card-back .shop-tip-icon { font-size: 1.5rem; margin-bottom: 0.5rem; opacity: 0.9; }
         .shop-card-back .shop-card-back-actions { width: 100%; }
@@ -4959,3 +4975,4 @@
     </script>
 </body>
 </html>
+

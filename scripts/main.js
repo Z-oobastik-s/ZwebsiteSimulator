@@ -7963,28 +7963,30 @@ function loadShopLessons() {
             )
             : { code: '', brief: '' };
         var shopMissionLine = (shopMission && (shopMission.code || shopMission.brief))
-            ? '<p class="text-xs text-cyan-300/95 mt-1 leading-snug line-clamp-2"><span class="font-mono font-bold text-cyan-200/95">' + escapeHtml(shopMission.code || '') + '</span> · ' + escapeHtml(shopMission.brief || '') + '</p>'
+            ? '<p class="shop-card-mission text-xs mt-0.5 mb-1 leading-snug"><span class="font-mono font-bold text-cyan-200">' + escapeHtml(shopMission.code || '') + '</span><span class="text-cyan-100/90"> · </span><span class="text-slate-200">' + escapeHtml(shopMission.brief || '') + '</span></p>'
             : '';
         const frontContent = `
-            <div class="flex justify-between items-start mb-2">
-                <div class="flex-1 min-w-0 pr-2">
-                    <h3 class="text-base font-bold mb-1 text-gray-100 line-clamp-1">${escapeHtml(lesson.name)}</h3>
-                    <p class="text-xs text-gray-400 mb-1 line-clamp-2">${escapeHtml(lesson.description)}</p>
+            <div class="flex justify-between items-start gap-2 shrink-0">
+                <div class="flex-1 min-w-0 pr-1">
+                    <h3 class="text-base font-bold mb-1 text-gray-50 line-clamp-2 leading-tight">${escapeHtml(lesson.name)}</h3>
+                    <p class="text-xs text-slate-300 mb-1 line-clamp-2 leading-snug">${escapeHtml(lesson.description)}</p>
                     ${shopMissionLine}
+                    <div class="flex flex-wrap items-center gap-1.5 mt-1">
                     <span class="text-xs ${difficultyColors[lesson.difficulty]} font-semibold">${difficultyNames[lesson.difficulty]}</span>
                     ${shopVibeLine}
+                    </div>
                 </div>
                 ${isPurchased ? `
-                    <div class="shop-card-owned bg-success/20 text-success px-2 py-1 rounded-full text-xs font-bold whitespace-nowrap">✓</div>
+                    <div class="shop-card-owned bg-success/20 text-success px-2 py-1 rounded-full text-xs font-bold whitespace-nowrap shrink-0">✓</div>
                 ` : `
-                    <div class="shop-card-price text-right flex-shrink-0 flex items-center justify-end gap-1">${lesson.price} ${COIN_ICON_IMG}</div>
+                    <div class="shop-card-price text-right flex-shrink-0 flex items-center justify-end gap-1 self-start">${lesson.price} ${COIN_ICON_IMG}</div>
                 `}
             </div>
-            <div class="bg-gray-800/50 rounded-lg p-2 mb-2 text-xs text-gray-300 italic line-clamp-2">"${escapeHtml(lesson.preview)}"</div>
+            <div class="shop-card-quote rounded-lg p-2 mb-1 text-xs leading-relaxed italic shrink-0">"${escapeHtml(lesson.preview)}"</div>
             ${isPurchased ? `
-                <button onclick="startPurchasedLesson('${lesson.id}')" class="w-full mt-auto bg-gradient-to-r from-success to-green-500 hover:from-green-500 hover:to-emerald-500 text-white font-semibold py-2 rounded-lg transition-all shadow-lg hover:shadow-xl text-sm">${t('startLesson')}</button>
+                <button type="button" onclick="startPurchasedLesson('${lesson.id}')" class="w-full mt-auto shrink-0 bg-gradient-to-r from-success to-green-500 hover:from-green-500 hover:to-emerald-500 text-white font-semibold py-2.5 rounded-lg transition-all shadow-lg hover:shadow-xl text-sm">${t('startLesson')}</button>
             ` : `
-                <button onclick="purchaseLesson('${lesson.id}')" class="shop-purchase-btn w-full mt-auto font-semibold py-2 rounded-lg transition-all shadow-lg text-sm ${hasCoins ? 'bg-gradient-to-r from-cyan-600 to-cyan-500 hover:from-cyan-500 hover:to-teal-500 text-white hover:shadow-xl' : 'bg-gray-600 text-gray-400 cursor-not-allowed'}" data-lesson-id="${lesson.id}" data-can-buy="${hasCoins}">${hasCoins ? t('buy') : t('notEnoughCoins')}</button>
+                <button type="button" onclick="purchaseLesson('${lesson.id}')" class="shop-purchase-btn w-full mt-auto shrink-0 font-semibold py-2.5 rounded-lg transition-all shadow-lg text-sm ${hasCoins ? 'bg-gradient-to-r from-cyan-600 to-cyan-500 hover:from-cyan-500 hover:to-teal-500 text-white hover:shadow-xl' : 'bg-gray-600 text-gray-400 cursor-not-allowed'}" data-lesson-id="${lesson.id}" data-can-buy="${hasCoins}">${hasCoins ? t('buy') : t('notEnoughCoins')}</button>
             `}
         `;
         
@@ -8197,3 +8199,4 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+
