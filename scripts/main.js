@@ -7935,8 +7935,8 @@ function loadShopLessons() {
     
     grid.innerHTML = '';
     const fragment = document.createDocumentFragment();
-    const difficultyColors = { easy: 'text-success', medium: 'text-warning', hard: 'text-red-400' };
     const difficultyNames = { easy: 'Легкий', medium: 'Средний', hard: 'Продвинутый' };
+    const difficultyClassMap = { easy: 'shop-card-diff--easy', medium: 'shop-card-diff--medium', hard: 'shop-card-diff--hard' };
     
     filteredLessons.forEach(lesson => {
         const isPurchased = purchasedLessons.includes(lesson.id);
@@ -7962,42 +7962,43 @@ function loadShopLessons() {
                 app.lang
             )
             : { code: '', brief: '' };
-        var shopMissionLine = (shopMission && (shopMission.code || shopMission.brief))
-            ? '<p class="shop-card-mission text-xs mt-0.5 mb-1 leading-snug"><span class="font-mono font-bold text-cyan-200">' + escapeHtml(shopMission.code || '') + '</span><span class="text-cyan-100/90"> · </span><span class="text-slate-200">' + escapeHtml(shopMission.brief || '') + '</span></p>'
+        var diffKey = lesson.difficulty || 'easy';
+        var shopDiffClass = difficultyClassMap[diffKey] || difficultyClassMap.easy;
+        var shopDiffLabel = difficultyNames[diffKey] || difficultyNames.easy;
+        var shopMissionBlock = (shopMission && (shopMission.code || shopMission.brief))
+            ? '<div class="shop-card-op"><span class="shop-card-op-code">' + escapeHtml(shopMission.code || '') + '</span><span class="shop-card-op-brief">' + escapeHtml(shopMission.brief || '') + '</span></div>'
             : '';
         const frontContent = `
-            <div class="flex justify-between items-start gap-2 shrink-0">
-                <div class="flex-1 min-w-0 pr-1">
-                    <h3 class="text-base font-bold mb-1 text-gray-50 line-clamp-2 leading-tight">${escapeHtml(lesson.name)}</h3>
-                    <p class="text-xs text-slate-300 mb-1 line-clamp-2 leading-snug">${escapeHtml(lesson.description)}</p>
-                    ${shopMissionLine}
-                    <div class="flex flex-wrap items-center gap-1.5 mt-1">
-                    <span class="text-xs ${difficultyColors[lesson.difficulty]} font-semibold">${difficultyNames[lesson.difficulty]}</span>
-                    ${shopVibeLine}
-                    </div>
+            <div class="shop-card-head">
+                <h3 class="shop-card-title">${escapeHtml(lesson.name)}</h3>
+                <div class="shop-card-corner">
+                    ${isPurchased
+                        ? '<span class="shop-card-owned" title="">✓</span>'
+                        : '<span class="shop-card-price">' + lesson.price + ' ' + COIN_ICON_IMG + '</span>'}
                 </div>
-                ${isPurchased ? `
-                    <div class="shop-card-owned bg-success/20 text-success px-2 py-1 rounded-full text-xs font-bold whitespace-nowrap shrink-0">✓</div>
-                ` : `
-                    <div class="shop-card-price text-right flex-shrink-0 flex items-center justify-end gap-1 self-start">${lesson.price} ${COIN_ICON_IMG}</div>
-                `}
             </div>
-            <div class="shop-card-quote rounded-lg p-2 mb-1 text-xs leading-relaxed italic shrink-0">"${escapeHtml(lesson.preview)}"</div>
+            ${shopMissionBlock}
+            <p class="shop-card-blurb">${escapeHtml(lesson.description)}</p>
+            <div class="shop-card-badges">
+                <span class="shop-card-diff ${shopDiffClass}">${shopDiffLabel}</span>
+                ${shopVibeLine}
+            </div>
+            <blockquote class="shop-card-quote">"${escapeHtml(lesson.preview)}"</blockquote>
             ${isPurchased ? `
-                <button type="button" onclick="startPurchasedLesson('${lesson.id}')" class="w-full mt-auto shrink-0 bg-gradient-to-r from-success to-green-500 hover:from-green-500 hover:to-emerald-500 text-white font-semibold py-2.5 rounded-lg transition-all shadow-lg hover:shadow-xl text-sm">${t('startLesson')}</button>
+                <button type="button" class="shop-card-btn shop-card-btn--go shop-purchase-go" onclick="startPurchasedLesson('${lesson.id}')">${t('startLesson')}</button>
             ` : `
-                <button type="button" onclick="purchaseLesson('${lesson.id}')" class="shop-purchase-btn w-full mt-auto shrink-0 font-semibold py-2.5 rounded-lg transition-all shadow-lg text-sm ${hasCoins ? 'bg-gradient-to-r from-cyan-600 to-cyan-500 hover:from-cyan-500 hover:to-teal-500 text-white hover:shadow-xl' : 'bg-gray-600 text-gray-400 cursor-not-allowed'}" data-lesson-id="${lesson.id}" data-can-buy="${hasCoins}">${hasCoins ? t('buy') : t('notEnoughCoins')}</button>
+                <button type="button" class="shop-card-btn shop-card-btn--buy shop-purchase-btn ${hasCoins ? '' : 'shop-card-btn--disabled'}" onclick="purchaseLesson('${lesson.id}')" data-lesson-id="${lesson.id}" data-can-buy="${hasCoins}" ${hasCoins ? '' : 'disabled'}>${hasCoins ? t('buy') : t('notEnoughCoins')}</button>
             `}
         `;
         
         const backContent = `
-            <div class="shop-tip-icon">💡</div>
+            <div class="shop-tip-icon" aria-hidden="true">💡</div>
             <div class="shop-tip-text">${escapeHtml(tip)}</div>
-            <div class="shop-card-back-actions mt-auto pt-3">
+            <div class="shop-card-back-actions">
                 ${isPurchased ? `
-                    <button onclick="startPurchasedLesson('${lesson.id}')" class="shop-card-back-btn w-full bg-gradient-to-r from-success to-green-500 hover:from-green-500 hover:to-emerald-500 text-white font-semibold py-2 rounded-lg transition-all shadow-lg hover:shadow-xl text-sm">${t('startLesson')}</button>
+                    <button type="button" class="shop-card-btn shop-card-btn--go shop-card-back-btn" onclick="startPurchasedLesson('${lesson.id}')">${t('startLesson')}</button>
                 ` : `
-                    <button onclick="purchaseLesson('${lesson.id}')" class="shop-card-back-btn w-full font-semibold py-2 rounded-lg transition-all shadow-lg text-sm ${hasCoins ? 'bg-gradient-to-r from-cyan-600 to-cyan-500 hover:from-cyan-500 hover:to-teal-500 text-white hover:shadow-xl' : 'bg-gray-600 text-gray-400 cursor-not-allowed'}" data-lesson-id="${lesson.id}" data-can-buy="${hasCoins}">${hasCoins ? t('buy') : t('notEnoughCoins')}</button>
+                    <button type="button" class="shop-card-btn shop-card-btn--buy shop-card-back-btn ${hasCoins ? '' : 'shop-card-btn--disabled'}" onclick="purchaseLesson('${lesson.id}')" data-lesson-id="${lesson.id}" data-can-buy="${hasCoins}" ${hasCoins ? '' : 'disabled'}>${hasCoins ? t('buy') : t('notEnoughCoins')}</button>
                 `}
             </div>
         `;
@@ -8199,4 +8200,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-

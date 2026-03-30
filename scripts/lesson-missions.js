@@ -34,7 +34,11 @@
 
     function opCode(lesson, levelKey) {
         if (lesson && lesson.isShopLesson) {
-            return 'OP-P-' + String(lesson.id).padStart(2, '0');
+            var sid = String(lesson.id);
+            var dig = sid.replace(/\D/g, '');
+            var num = dig.length ? parseInt(dig.slice(-3), 10) : (poolIndex('sid_' + sid, 900) + 1);
+            if (!num || num < 0) num = 1;
+            return 'OP-P-' + String(num).padStart(3, '0');
         }
         var letter = levelKey === 'medium' ? 'M' : levelKey === 'advanced' ? 'A' : 'B';
         return 'OP-' + letter + '-' + String(lesson.id).padStart(3, '0');
@@ -654,4 +658,3 @@
         tierFromLevel: tierFromLevel
     };
 })(typeof window !== 'undefined' ? window : globalThis);
-
