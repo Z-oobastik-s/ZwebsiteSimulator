@@ -349,15 +349,22 @@ export async function updateProfileAvatar(uid, avatarIndex) {
 }
 
 // --------------- Сессии (прогресс) ---------------
-let sessionQueue = [];
-let sessionUpdateTimeout = null;
+/** Очередь и таймер отдельно на каждый uid — сессии разных аккаунтов не сливаются в один batch при быстрой смене пользователя. */
+const sessionQueuesByUid = new Map();
+const sessionUpdateTimeoutsByUid = new Map();
 
 function debouncedSessionUpdate(uid) {
-    if (sessionUpdateTimeout) clearTimeout(sessionUpdateTimeout);
-    sessionUpdateTimeout = setTimeout(async () => {
-        if (sessionQueue.length === 0) return;
-        const batch = [...sessionQueue];
-        sessionQueue = [];
+    const prevTimer = sessionUpdateTimeoutsByUid.get(uid);
+    if (prevTimer) clearTimeout(prevTimer);
+    sessionUpdateTimeoutsByUid.set(uid, setTimeout(async () => {
+        sessionUpdateTimeoutsByUid.delete(uid);
+        const queue = sessionQueuesByUid.get(uid);
+        if (!queue || queue.length === 0) {
+            sessionQueuesByUid.delete(uid);
+            return;
+        }
+        const batch = [...queue];
+        sessionQueuesByUid.delete(uid);
 
         if (useApi()) {
             try {
@@ -403,11 +410,16 @@ function debouncedSessionUpdate(uid) {
         } catch (e) {
             console.error('Failed to update user session:', e);
         }
-    }, 2000);
+    }, 2000));
 }
 
 export async function addUserSession(uid, sessionData) {
-    sessionQueue.push(sessionData);
+    let q = sessionQueuesByUid.get(uid);
+    if (!q) {
+        q = [];
+        sessionQueuesByUid.set(uid, q);
+    }
+    q.push(sessionData);
     debouncedSessionUpdate(uid);
     return { success: true };
 }
@@ -655,4 +667,3 @@ window.authModule = {
     getUserBalance,
     isLessonPurchased
 };
-

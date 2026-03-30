@@ -1070,6 +1070,70 @@
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
+        .lesson-card__mission-brief {
+            font-size: 0.72rem;
+            font-weight: 650;
+            color: rgba(34, 211, 238, 0.92);
+            line-height: 1.28;
+            margin-bottom: 0.32rem;
+            text-shadow: 0 0 14px rgba(6, 182, 212, 0.2);
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .lesson-card__mission-code {
+            font-family: ui-monospace, 'Roboto Mono', monospace;
+            font-size: 0.62rem;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            color: rgba(167, 243, 208, 0.95);
+            background: rgba(6, 182, 212, 0.12);
+            border: 1px solid rgba(34, 211, 238, 0.35);
+            border-radius: 6px;
+            padding: 0.1rem 0.35rem;
+            margin-right: 0.35rem;
+            vertical-align: middle;
+        }
+        #practiceMissionBar {
+            border-radius: 14px;
+            border: 1px solid rgba(34, 211, 238, 0.28);
+            background: linear-gradient(120deg, rgba(6, 182, 212, 0.14), rgba(15, 23, 42, 0.55));
+            padding: 0.55rem 1rem;
+            margin-bottom: 0.75rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.5rem 0.75rem;
+        }
+        #practiceMissionBar.hidden { display: none !important; }
+        #practiceMissionCode {
+            font-family: ui-monospace, 'Roboto Mono', monospace;
+            font-size: 0.75rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            color: #67e8f9;
+            text-shadow: 0 0 12px rgba(34, 211, 238, 0.35);
+        }
+        #practiceMissionBrief {
+            font-size: 0.82rem;
+            font-weight: 650;
+            color: rgba(226, 232, 240, 0.95);
+            line-height: 1.35;
+            flex: 1;
+            min-width: 140px;
+        }
+        #resultMissionLine {
+            text-align: center;
+            font-size: 0.875rem;
+            font-weight: 650;
+            line-height: 1.35;
+            color: rgba(167, 243, 208, 0.96);
+            padding: 0.5rem 0.75rem;
+            border-radius: 12px;
+            background: linear-gradient(90deg, rgba(6, 182, 212, 0.12), rgba(139, 92, 246, 0.1));
+            border: 1px solid rgba(34, 211, 238, 0.22);
+        }
         .lesson-card__tags {
             display: flex;
             align-items: center;
@@ -3578,6 +3642,10 @@
         <!-- Practice Screen -->
         <div id="practiceScreen" class="hidden fade-in">
             <div class="max-w-5xl mx-auto">
+                <div id="practiceMissionBar" class="hidden" aria-live="polite">
+                    <span id="practiceMissionCode"></span>
+                    <span id="practiceMissionBrief"></span>
+                </div>
                 <div class="flex items-center justify-between mb-6">
                     <button onclick="exitPractice()" class="glass px-4 py-2 rounded-lg hover:bg-white/20 dark:hover:bg-black/20">
                         ← <span data-i18n="exit">Выйти</span>
@@ -4109,6 +4177,7 @@
             </div>
 
             <div class="results-modal-body px-4 py-3 sm:px-5 sm:py-4 flex flex-col gap-3 sm:gap-4 min-w-0 flex-1 min-h-0">
+                <p id="resultMissionLine" class="hidden" role="status"></p>
                 <!-- Верх: метрики и график -->
                 <div class="grid grid-cols-1 min-[420px]:grid-cols-12 gap-3 min-[420px]:gap-4 items-start min-w-0">
                     <div class="min-[420px]:col-span-4 min-w-0">
@@ -4861,6 +4930,7 @@
     <script src="scripts/lessons-data.js" defer></script>
     <script src="assets/js/themed-texts.min.js" defer></script>
     <script src="scripts/shop-data.js" defer></script>
+    <script src="scripts/lesson-missions.js" defer></script>
     <script src="assets/js/keyboard.min.js" defer></script>
     <script src="scripts/stats.js" defer></script>
     <script src="scripts/achievements.js" defer></script>
@@ -4889,4 +4959,3 @@
     </script>
 </body>
 </html>
-

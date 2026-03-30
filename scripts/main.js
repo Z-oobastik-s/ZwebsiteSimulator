@@ -2746,6 +2746,13 @@ function showLessonList(levelData) {
                 : (app.lang === 'ru' ? 'легко' : app.lang === 'ua' ? 'легко' : 'easy');
         
         const missionNum = String(index + 1).padStart(2, '0');
+        var missionMeta = window.lessonMissionsModule
+            ? window.lessonMissionsModule.getMissionForLesson({ ...lesson, level: levelData.level }, levelData.level, app.lang)
+            : { code: '', brief: '' };
+        var missionBriefLine = (missionMeta && missionMeta.brief) ? missionMeta.brief : (lesson.description || '');
+        var missionCodeHtml = (missionMeta && missionMeta.code)
+            ? '<span class="lesson-card__mission-code">' + escapeHtml(missionMeta.code) + '</span>'
+            : '';
         var vibeMeta = getLessonCardVibe(lesson, lessonDifficulty, levelData.level);
         var vibeHint = typeof t === 'function' ? t(vibeMeta.hintKey) : '';
         var vibeLabel = typeof t === 'function' ? t(vibeMeta.key) : '';
@@ -2757,8 +2764,9 @@ function showLessonList(levelData) {
                 <span class="lesson-card__mission-num">${missionNum}</span>
             </div>
             <div class="lesson-card__body">
+                <div class="flex flex-wrap items-center gap-1.5 mb-0.5 min-h-[1.1rem]">${missionCodeHtml}</div>
                 <h4 class="lesson-card__title">${escapeHtml(lesson.name)}</h4>
-                <p class="lesson-card__desc">${escapeHtml(lesson.description)}</p>
+                <p class="lesson-card__mission-brief">${escapeHtml(missionBriefLine)}</p>
                 <div class="lesson-card__tags">
                     <span class="lesson-card__tag lesson-card__tag--lang">${lesson.layout.toUpperCase()}</span>
                     <span class="lesson-card__tag lesson-card__tag--${difficultyClass}">${difficultyLabel}</span>
@@ -2778,6 +2786,35 @@ function showLessonList(levelData) {
     // Batch update - один раз заменяем весь контент
     container.innerHTML = '';
     container.appendChild(fragment);
+}
+
+/** Полоса «операции» на экране практики — код + бриф. */
+function syncPracticeMissionBar() {
+    var bar = document.getElementById('practiceMissionBar');
+    var cEl = document.getElementById('practiceMissionCode');
+    var bEl = document.getElementById('practiceMissionBrief');
+    if (!bar || !cEl || !bEl) return;
+    var lesson = app.currentLesson;
+    var mode = app.currentMode;
+    if (!lesson || (mode !== 'lesson' && mode !== 'practice') || mode === 'replay-errors' || !window.lessonMissionsModule) {
+        bar.classList.add('hidden');
+        cEl.textContent = '';
+        bEl.textContent = '';
+        return;
+    }
+    var levelKey = lesson.level;
+    if (!levelKey && currentLevelData && currentLevelData.level) levelKey = currentLevelData.level;
+    if (lesson.isShopLesson) {
+        if (lesson.level) levelKey = lesson.level;
+        else if (lesson.difficulty === 'hard') levelKey = 'advanced';
+        else if (lesson.difficulty === 'medium') levelKey = 'medium';
+        else levelKey = 'beginner';
+    }
+    if (!levelKey) levelKey = 'beginner';
+    var m = window.lessonMissionsModule.getMissionForLesson(lesson, levelKey, app.lang);
+    cEl.textContent = m.code || '';
+    bEl.textContent = m.brief || '';
+    bar.classList.remove('hidden');
 }
 
 // ------------------------------
@@ -3631,6 +3668,7 @@ function startPractice(text, mode, lesson = null) {
     } else {
         startStatsTimer();
     }
+    syncPracticeMissionBar();
     // Фокус на body, чтобы нажатия клавиш сразу обрабатывались (особенно после «Повторить»).
     setTimeout(function () { document.body.focus(); }, 0);
 }
@@ -4050,6 +4088,8 @@ function restartPractice() {
 
 // Exit practice - ОПТИМИЗИРОВАНА
 function exitPractice() {
+    var pmb = document.getElementById('practiceMissionBar');
+    if (pmb) pmb.classList.add('hidden');
     // Сбрасываем паузу при выходе
     app.isPaused = false;
     app._replayDeadline = null;
@@ -4223,15 +4263,41 @@ async function finishPractice() {
     // Останавливаем запись скорости
     if (window.wpmChartModule) window.wpmChartModule.stopRecording();
 
-    showResults(speed, accuracy, elapsed, app.errors, rewardCoins);
+    showResults(speed, accuracy, elapsed, app.errors, rewardCoins, { missionFirstClear: isFirstTimeCompletion });
 }
 
 // Last result data for copy to clipboard
 let lastResultData = { speed: 0, accuracy: 0, time: 0, errors: 0 };
 
 // Show results modal - ОПТИМИЗИРОВАНА. rewardCoins - уже посчитанная награда из finishPractice (чтобы не пересчитывать после addSession).
-function showResults(speed, accuracy, time, errors, rewardCoins) {
+function showResults(speed, accuracy, time, errors, rewardCoins, options) {
+    options = options || {};
     lastResultData = { speed, accuracy, time: Math.round(time), errors };
+    var rMission = document.getElementById('resultMissionLine');
+    if (rMission) {
+        if (app.currentLesson && (app.currentMode === 'lesson' || app.currentMode === 'practice') && window.lessonMissionsModule) {
+            var lk = app.currentLesson.level;
+            if (!lk && currentLevelData && currentLevelData.level) lk = currentLevelData.level;
+            if (app.currentLesson.isShopLesson) {
+                if (app.currentLesson.level) lk = app.currentLesson.level;
+                else if (app.currentLesson.difficulty === 'hard') lk = 'advanced';
+                else if (app.currentLesson.difficulty === 'medium') lk = 'medium';
+                else lk = 'beginner';
+            }
+            if (!lk) lk = 'beginner';
+            var mLine = window.lessonMissionsModule.getMissionCompleteLine(app.currentLesson, lk, app.lang, { firstClear: !!options.missionFirstClear });
+            if (mLine) {
+                rMission.textContent = mLine;
+                rMission.classList.remove('hidden');
+            } else {
+                rMission.textContent = '';
+                rMission.classList.add('hidden');
+            }
+        } else {
+            rMission.textContent = '';
+            rMission.classList.add('hidden');
+        }
+    }
     const speedEl = DOM.get('resultSpeed');
     const accuracyEl = DOM.get('resultAccuracy');
     const timeEl = DOM.get('resultTime');
@@ -7888,11 +7954,23 @@ function loadShopLessons() {
         const shopVibeLine = shopVibeText
             ? `<div class="shop-card-vibe shop-card-vibe--${shopVibeTone}" title="${escapeHtml(shopVibeHint)}">${escapeHtml(shopVibeText)}</div>`
             : '';
+        var shopLevel = lesson.difficulty === 'hard' ? 'advanced' : lesson.difficulty === 'medium' ? 'medium' : 'beginner';
+        var shopMission = window.lessonMissionsModule
+            ? window.lessonMissionsModule.getMissionForLesson(
+                { id: lesson.id, isShopLesson: true, difficulty: lesson.difficulty, layout: lesson.layout, level: shopLevel },
+                shopLevel,
+                app.lang
+            )
+            : { code: '', brief: '' };
+        var shopMissionLine = (shopMission && (shopMission.code || shopMission.brief))
+            ? '<p class="text-xs text-cyan-300/95 mt-1 leading-snug line-clamp-2"><span class="font-mono font-bold text-cyan-200/95">' + escapeHtml(shopMission.code || '') + '</span> · ' + escapeHtml(shopMission.brief || '') + '</p>'
+            : '';
         const frontContent = `
             <div class="flex justify-between items-start mb-2">
                 <div class="flex-1 min-w-0 pr-2">
                     <h3 class="text-base font-bold mb-1 text-gray-100 line-clamp-1">${escapeHtml(lesson.name)}</h3>
                     <p class="text-xs text-gray-400 mb-1 line-clamp-2">${escapeHtml(lesson.description)}</p>
+                    ${shopMissionLine}
                     <span class="text-xs ${difficultyColors[lesson.difficulty]} font-semibold">${difficultyNames[lesson.difficulty]}</span>
                     ${shopVibeLine}
                 </div>
@@ -8112,10 +8190,10 @@ function startPurchasedLesson(lessonId) {
         layout: lesson.layout,
         text: lesson.text,
         difficulty: lesson.difficulty,
+        level: level,
         key: `shop_lesson_${lesson.id}`,
         isShopLesson: true
     };
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-
