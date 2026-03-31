@@ -189,7 +189,7 @@ export async function registerUser(username, password, email = '') {
     const user = {
         uid, username, displayName: username, passwordHash: hashedPassword, email: email || '',
         photoURL: AVAILABLE_AVATARS[0], avatarIndex: 0, bio: '', createdAt: Date.now(), lastLogin: Date.now(),
-        isAdmin: false, balance: 50, purchasedLessons: [],
+        isAdmin: false, balance: 50, purchasedLessons: [], collectedCards: [],
         stats: { totalSessions: 0, totalTime: 0, bestSpeed: 0, averageAccuracy: 0, completedLessons: 0, totalErrors: 0, sessions: [] }
     };
     users[uid] = user;
@@ -580,6 +580,71 @@ export async function deductCoins(uid, amount) {
     });
 }
 
+/** Бустер коллекционных карт: списание монет, случайная карта или дубликат (+ монеты). */
+export async function pullCollectibleBooster(uid) {
+    const COST = (typeof window !== 'undefined' && window.collectibleCardsModule && window.collectibleCardsModule.BOOSTER_COST) || 95;
+    const DUP = (typeof window !== 'undefined' && window.collectibleCardsModule && window.collectibleCardsModule.DUPLICATE_REFUND) || 30;
+    return withBalanceLock(async () => {
+        if (useApi()) {
+            try {
+                const data = await apiFetch(`/api/users/${uid}/cards/pull`, {
+                    method: 'POST',
+                    body: JSON.stringify({})
+                });
+                const user = getCurrentUserFromStorage();
+                if (user && user.uid === uid) {
+                    user.balance = data.balance;
+                    user.collectedCards = data.collectedCards || user.collectedCards || [];
+                    saveCurrentUserToStorage(user);
+                    notifyAuthStateListeners(user);
+                }
+                return {
+                    success: true,
+                    cardId: data.cardId,
+                    duplicate: !!data.duplicate,
+                    refundCoins: data.refundCoins || 0,
+                    balance: data.balance,
+                    collectedCards: data.collectedCards
+                };
+            } catch (err) {
+                return { success: false, error: (err.data && err.data.error) || err.message };
+            }
+        }
+        const users = getAllUsersStorage();
+        const user = users[uid];
+        if (!user) return { success: false, error: 'User not found' };
+        const b = user.balance || 0;
+        if (b < COST) return { success: false, error: 'Недостаточно монет' };
+        if (!user.collectedCards) user.collectedCards = [];
+        user.balance = b - COST;
+        const pick = (typeof window !== 'undefined' && window.collectibleCardsModule && window.collectibleCardsModule.pickRandomCardIdForPull)
+            ? window.collectibleCardsModule.pickRandomCardIdForPull()
+            : String(1 + Math.floor(Math.random() * 52));
+        let duplicate = false;
+        if (user.collectedCards.indexOf(pick) === -1) {
+            user.collectedCards.push(pick);
+        } else {
+            duplicate = true;
+            user.balance += DUP;
+        }
+        users[uid] = user;
+        if (!saveAllUsersStorage(users)) return { success: false, error: 'Ошибка сохранения данных' };
+        const current = getCurrentUserFromStorage();
+        if (current && current.uid === uid) {
+            saveCurrentUserToStorage(user);
+            notifyAuthStateListeners(user);
+        }
+        return {
+            success: true,
+            cardId: pick,
+            duplicate,
+            refundCoins: duplicate ? DUP : 0,
+            balance: user.balance,
+            collectedCards: user.collectedCards.slice()
+        };
+    });
+}
+
 export async function purchaseLesson(uid, lessonId) {
     const shopLesson = window.shopModule && window.shopModule.getLessonById && window.shopModule.getLessonById(lessonId);
     if (!shopLesson) return { success: false, error: 'Урок не найден в магазине' };
@@ -664,7 +729,7 @@ window.authModule = {
     addCoins,
     deductCoins,
     purchaseLesson,
+    pullCollectibleBooster,
     getUserBalance,
     isLessonPurchased
 };
-

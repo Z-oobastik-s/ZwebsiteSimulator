@@ -948,7 +948,13 @@ function calculateLessonRewardCoins(lesson, accuracy, isFirstTime) {
     if (!isFirstTime) {
         coins = Math.max(1, Math.round(coins * 0.25));
     }
-    
+
+    var colMult = 1;
+    if (typeof window !== 'undefined' && window.collectibleCardsModule && window.collectibleCardsModule.getLessonCoinMultiplier) {
+        colMult = window.collectibleCardsModule.getLessonCoinMultiplier();
+    }
+    coins = Math.max(1, Math.round(coins * colMult));
+
     return coins;
 }
 
@@ -2279,7 +2285,7 @@ function hideAllScreens() {
     const screens = [
         'homeScreen', 'lessonsScreen', 'practiceScreen',
         'multiplayerMenuScreen', 'multiplayerWaitingScreen', 'multiplayerGameScreen',
-        'profileScreen', 'adminPanelScreen', 'shopScreen'
+        'profileScreen', 'adminPanelScreen', 'shopScreen', 'collectibleScreen'
     ];
     
     screens.forEach(id => {
@@ -7854,6 +7860,115 @@ function showShop() {
     });
 }
 
+function showCollectibles() {
+    if (!window.authModule || !window.authModule.getCurrentUser()) {
+        showLoginModal();
+        showToast(t('collectiblesLogin'), 'info', t('login'));
+        return;
+    }
+    playMenuClickSound();
+    hideAllScreens();
+    var el = document.getElementById('collectibleScreen');
+    if (el) el.classList.remove('hidden');
+    toggleFooter(false);
+    if (typeof updateTranslations === 'function') updateTranslations();
+    renderCollectiblesGrid();
+}
+
+function renderCollectiblesGrid() {
+    var mod = window.collectibleCardsModule;
+    if (!mod) return;
+    var user = window.authModule && window.authModule.getCurrentUser();
+    var owned = user && user.collectedCards ? mod.normalizeOwned(user.collectedCards) : [];
+    var ownedSet = Object.create(null);
+    owned.forEach(function (id) { ownedSet[id] = 1; });
+    var grid = document.getElementById('collectibleGrid');
+    if (!grid) return;
+    var ids = mod.getAllCardIds();
+    grid.innerHTML = ids.map(function (id) {
+        var have = !!ownedSet[id];
+        var r = mod.getRarityKey(id);
+        var path = mod.cardPath(id);
+        return (
+            '<div class="cc-slot ' + (have ? 'cc-slot--owned cc-rarity-' + r : 'cc-slot--locked cc-rarity-locked') + '" data-card-id="' + id + '">' +
+            (have
+                ? '<img src="' + path + '" alt="" loading="lazy" decoding="async" width="240" height="320">'
+                : '<div class="cc-slot__placeholder" aria-hidden="true"><span class="cc-slot__q">?</span></div>') +
+            '<span class="cc-slot__ring"></span>' +
+            '<span class="cc-slot__badge">' + (have ? r : '-') + '</span></div>'
+        );
+    }).join('');
+    var prog = document.getElementById('collectibleProgressText');
+    if (prog) prog.textContent = owned.length + ' / ' + mod.TOTAL;
+    var bonus = document.getElementById('collectibleBonusLine');
+    if (bonus) {
+        bonus.textContent = trReplace('collectiblesBonusLine', { pct: String(mod.getCollectionBonusPercent(owned.length)) });
+    }
+    var bal = user ? (user.balance || 0) : 0;
+    var balHdr = document.getElementById('collectibleScreenBalance');
+    if (balHdr) balHdr.textContent = String(bal);
+    var btn = document.getElementById('collectibleBoosterBtn');
+    if (btn) {
+        btn.disabled = bal < mod.BOOSTER_COST;
+        var spanPrice = btn.querySelector('.cc-booster-price-num');
+        if (spanPrice) spanPrice.textContent = String(mod.BOOSTER_COST);
+    }
+}
+
+function closeCollectibleReveal() {
+    var m = document.getElementById('collectibleReveal');
+    if (m) m.classList.add('hidden');
+}
+
+function tryPullCollectibleBooster() {
+    var mod = window.collectibleCardsModule;
+    var auth = window.authModule;
+    if (!mod || !auth) return;
+    var user = auth.getCurrentUser();
+    if (!user) {
+        showLoginModal();
+        return;
+    }
+    var btn = document.getElementById('collectibleBoosterBtn');
+    if (btn) {
+        btn.disabled = true;
+        var lab = btn.querySelector('.cc-booster-label');
+        if (lab) lab.textContent = t('collectiblesPulling');
+    }
+    auth.pullCollectibleBooster(user.uid).then(function (res) {
+        if (!res.success) {
+            showToast(res.error || t('collectiblesOpenError'), 'error', t('tip'));
+            return;
+        }
+        var updated = auth.getCurrentUser();
+        if (updated) updateUserUI(updated, updated);
+        var img = document.getElementById('collectibleRevealImg');
+        var tx = document.getElementById('collectibleRevealText');
+        var m = document.getElementById('collectibleReveal');
+        if (img && mod.cardPath) img.src = mod.cardPath(res.cardId);
+        if (tx) {
+            tx.textContent = res.duplicate
+                ? t('collectiblesDuplicate') + ' +' + (res.refundCoins || 0)
+                : t('collectiblesNewCard');
+        }
+        if (m) m.classList.remove('hidden');
+        if (res.duplicate) {
+            showToast('+' + (res.refundCoins || 0) + ' ' + (app.lang === 'en' ? 'coins' : 'монет'), 'success', t('reward'));
+        } else {
+            showToast(t('collectiblesNewCard'), 'success', t('collectiblesTitle'));
+        }
+    }).catch(function () {
+        showToast(t('collectiblesOpenError'), 'error', t('tip'));
+    }).finally(function () {
+        var b = document.getElementById('collectibleBoosterBtn');
+        if (b) {
+            var lab = b.querySelector('.cc-booster-label');
+            if (lab) lab.textContent = t('collectiblesBooster');
+        }
+        renderCollectiblesGrid();
+    });
+}
+
 // Select shop language
 function selectShopLanguage(lang) {
     currentShopLanguage = lang;
@@ -8182,4 +8297,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-

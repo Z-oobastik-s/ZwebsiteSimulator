@@ -51,8 +51,8 @@ router.post('/register', async (req, res) => {
         const now = Date.now();
 
         await query(
-            `INSERT INTO Users (Uid, Username, DisplayName, PasswordHash, Email, PhotoURL, AvatarIndex, Bio, Balance, CreatedAt, LastLogin, IsAdmin, PurchasedLessonsJson, TotalSessions, TotalTime, BestSpeed, AverageAccuracy, CompletedLessonsCount, TotalErrors, RecentSessionsJson)
-             VALUES (@uid, @username, @displayName, @passwordHash, @email, @photoURL, 0, '', 50, @now, @now, 0, '[]', 0, 0, 0, 0, 0, 0, '[]')`,
+            `INSERT INTO Users (Uid, Username, DisplayName, PasswordHash, Email, PhotoURL, AvatarIndex, Bio, Balance, CreatedAt, LastLogin, IsAdmin, PurchasedLessonsJson, CollectedCardsJson, TotalSessions, TotalTime, BestSpeed, AverageAccuracy, CompletedLessonsCount, TotalErrors, RecentSessionsJson)
+             VALUES (@uid, @username, @displayName, @passwordHash, @email, @photoURL, 0, '', 50, @now, @now, 0, '[]', '[]', 0, 0, 0, 0, 0, 0, '[]')`,
             {
                 uid, username, displayName: username, passwordHash, email: email || '',
                 photoURL: 'assets/images/profile photo/profile_1.png', now
@@ -79,7 +79,7 @@ router.post('/login', async (req, res) => {
 
         const result = await query(
             `SELECT Uid, Username, DisplayName, PasswordHash, Email, PhotoURL, AvatarIndex, Bio, Balance, CreatedAt, LastLogin, IsAdmin, Ip, Country, City,
-             PurchasedLessonsJson, TotalSessions, TotalTime, BestSpeed, AverageAccuracy, CompletedLessonsCount, TotalErrors, RecentSessionsJson
+             PurchasedLessonsJson, CollectedCardsJson, TotalSessions, TotalTime, BestSpeed, AverageAccuracy, CompletedLessonsCount, TotalErrors, RecentSessionsJson
              FROM Users WHERE Username = @username`,
             { username }
         );
@@ -108,6 +108,11 @@ function rowToUser(row) {
     try {
         if (row.PurchasedLessonsJson) purchasedLessons = JSON.parse(row.PurchasedLessonsJson);
     } catch (e) {}
+    let collectedCards = [];
+    try {
+        if (row.CollectedCardsJson) collectedCards = JSON.parse(row.CollectedCardsJson);
+    } catch (e) {}
+    if (!Array.isArray(collectedCards)) collectedCards = [];
     let sessions = [];
     try {
         if (row.RecentSessionsJson) sessions = JSON.parse(row.RecentSessionsJson);
@@ -128,6 +133,7 @@ function rowToUser(row) {
         country: row.Country || '',
         city: row.City || '',
         purchasedLessons,
+        collectedCards,
         stats: {
             totalSessions: row.TotalSessions ?? 0,
             totalTime: row.TotalTime ?? 0,
@@ -143,7 +149,7 @@ function rowToUser(row) {
 async function getUserById(uid) {
     const result = await query(
         `SELECT Uid, Username, DisplayName, Email, PhotoURL, AvatarIndex, Bio, Balance, CreatedAt, LastLogin, IsAdmin, Ip, Country, City,
-         PurchasedLessonsJson, TotalSessions, TotalTime, BestSpeed, AverageAccuracy, CompletedLessonsCount, TotalErrors, RecentSessionsJson
+         PurchasedLessonsJson, CollectedCardsJson, TotalSessions, TotalTime, BestSpeed, AverageAccuracy, CompletedLessonsCount, TotalErrors, RecentSessionsJson
          FROM Users WHERE Uid = @uid`,
         { uid }
     );
@@ -178,4 +184,3 @@ router.get('/me', authMiddleware, async (req, res) => {
 });
 
 module.exports = { router, authMiddleware, getUserById, rowToUser };
-

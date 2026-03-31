@@ -4,11 +4,81 @@ const { authMiddleware, getUserById } = require('./auth');
 const { send500 } = require('../lib/httpError');
 const { getShopPriceForLesson } = require('../lib/shopPrices');
 const ALLOWED_AVATAR_PATHS = require('../lib/allowedAvatars');
+const { pickRandomCardId, BOOSTER_COST, DUPLICATE_REFUND, TOTAL } = require('../lib/collectiblePull');
 
 const router = express.Router();
 
 // Все роуты требуют авторизации
 router.use(authMiddleware);
+
+function normalizeCollectedIds(arr) {
+    if (!Array.isArray(arr)) return [];
+    const seen = Object.create(null);
+    const out = [];
+    for (const x of arr) {
+        const id = String(x).replace(/\D/g, '');
+        const n = parseInt(id, 10);
+        if (!n || n < 1 || n > TOTAL) continue;
+        const s = String(n);
+        if (seen[s]) continue;
+        seen[s] = 1;
+        out.push(s);
+    }
+    return out;
+}
+
+// POST /api/users/:uid/cards/pull — купить бустер: случайная карта или дубликат (+ монеты)
+router.post('/:uid/cards/pull', async (req, res) => {
+    try {
+        if (req.uid !== req.params.uid) {
+            return res.status(403).json({ success: false, error: 'Forbidden' });
+        }
+        const uid = req.params.uid;
+        const row = await query(
+            `SELECT Balance, CollectedCardsJson FROM Users WHERE Uid = @uid`,
+            { uid }
+        );
+        if (row.recordset.length === 0) {
+            return res.status(404).json({ success: false, error: 'User not found' });
+        }
+        const balance = row.recordset[0].Balance ?? 0;
+        let collected = [];
+        try {
+            collected = JSON.parse(row.recordset[0].CollectedCardsJson || '[]');
+        } catch (e) {
+            collected = [];
+        }
+        collected = normalizeCollectedIds(collected);
+        if (balance < BOOSTER_COST) {
+            return res.status(400).json({ success: false, error: 'Недостаточно монет' });
+        }
+        let newBalance = balance - BOOSTER_COST;
+        const cardId = pickRandomCardId();
+        const had = collected.includes(cardId);
+        let duplicate = false;
+        if (!had) {
+            collected.push(cardId);
+        } else {
+            duplicate = true;
+            newBalance += DUPLICATE_REFUND;
+        }
+        await query(
+            `UPDATE Users SET Balance = @bal, CollectedCardsJson = @json WHERE Uid = @uid`,
+            { uid, bal: newBalance, json: JSON.stringify(collected) }
+        );
+        const user = await getUserById(uid);
+        return res.json({
+            success: true,
+            cardId,
+            duplicate,
+            refundCoins: duplicate ? DUPLICATE_REFUND : 0,
+            balance: user.balance,
+            collectedCards: user.collectedCards || collected
+        });
+    } catch (err) {
+        return send500(res, err, 'Cards pull error');
+    }
+});
 
 // GET /api/users/:uid/profile
 router.get('/:uid/profile', async (req, res) => {
@@ -253,4 +323,3 @@ router.get('/:uid/lesson-purchased/:lessonId', async (req, res) => {
 });
 
 module.exports = router;
-

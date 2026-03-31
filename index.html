@@ -1284,6 +1284,182 @@ Read
             background: rgba(255, 255, 255, 0.96) !important;
             border-color: rgba(15, 23, 42, 0.12) !important;
         }
+        /* Коллекция карт — без backdrop-filter в «стекле», сетка легковесная */
+        #collectibleScreen .glass {
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            background: rgba(15, 23, 42, 0.92) !important;
+            border-color: rgba(217, 70, 239, 0.22) !important;
+        }
+        html:not(.dark) #collectibleScreen .glass {
+            background: rgba(255, 255, 255, 0.96) !important;
+            border-color: rgba(15, 23, 42, 0.12) !important;
+        }
+        .cc-header-title {
+            font-weight: 900;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            background: linear-gradient(120deg, #e9d5ff 0%, #22d3ee 45%, #f472b6 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: none;
+            filter: drop-shadow(0 0 20px rgba(244, 114, 182, 0.35));
+        }
+        html:not(.dark) .cc-header-title {
+            background: linear-gradient(120deg, #7c3aed 0%, #0891b2 50%, #be185d 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            filter: none;
+        }
+        .cc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 0.65rem;
+            contain: layout style;
+        }
+        @media (min-width: 640px) {
+            .cc-grid { grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 0.85rem; }
+        }
+        @media (min-width: 1024px) {
+            .cc-grid { grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); gap: 1rem; }
+        }
+        .cc-slot {
+            position: relative;
+            aspect-ratio: 3 / 4;
+            border-radius: 14px;
+            overflow: hidden;
+            isolation: isolate;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+            transition: transform 0.22s ease, box-shadow 0.22s ease;
+            content-visibility: auto;
+            contain-intrinsic-size: 120px 160px;
+        }
+        @media (hover: hover) and (pointer: fine) {
+            .cc-slot--owned:hover {
+                transform: translateY(-3px) scale(1.02);
+                z-index: 2;
+            }
+        }
+        .cc-slot img {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center top;
+        }
+        .cc-slot__ring {
+            pointer-events: none;
+            position: absolute;
+            inset: 0;
+            border-radius: 14px;
+            border: 2px solid rgba(255, 255, 255, 0.12);
+            box-shadow: inset 0 0 24px rgba(0, 0, 0, 0.5);
+        }
+        .cc-slot__badge {
+            position: absolute;
+            left: 6px;
+            bottom: 5px;
+            font-size: 9px;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            padding: 2px 6px;
+            border-radius: 6px;
+            background: rgba(0, 0, 0, 0.65);
+            color: #e2e8f0;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            line-height: 1.2;
+        }
+        .cc-slot__placeholder {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(ellipse at 50% 30%, rgba(30, 41, 59, 0.9), #020617 75%);
+        }
+        .cc-slot__q {
+            font-size: 2.25rem;
+            font-weight: 900;
+            color: rgba(148, 163, 184, 0.35);
+            text-shadow: 0 0 18px rgba(0, 0, 0, 0.9);
+        }
+        .cc-slot--locked .cc-slot__ring { border-color: rgba(71, 85, 105, 0.5); }
+        .cc-rarity-common.cc-slot--owned .cc-slot__ring {
+            border-color: rgba(34, 211, 238, 0.45);
+            box-shadow: inset 0 0 20px rgba(34, 211, 238, 0.08), 0 0 16px rgba(34, 211, 238, 0.12);
+        }
+        .cc-rarity-uncommon.cc-slot--owned .cc-slot__ring {
+            border-color: rgba(52, 211, 153, 0.55);
+            box-shadow: inset 0 0 22px rgba(52, 211, 153, 0.1), 0 0 18px rgba(52, 211, 153, 0.18);
+        }
+        .cc-rarity-rare.cc-slot--owned .cc-slot__ring {
+            border-color: rgba(167, 139, 250, 0.65);
+            box-shadow: inset 0 0 22px rgba(167, 139, 250, 0.12), 0 0 22px rgba(139, 92, 246, 0.25);
+        }
+        .cc-rarity-mythic.cc-slot--owned .cc-slot__ring {
+            border-color: rgba(251, 191, 36, 0.8);
+            box-shadow: inset 0 0 26px rgba(251, 191, 36, 0.15), 0 0 28px rgba(245, 158, 11, 0.35);
+            animation: cc-mythic-pulse 2.8s ease-in-out infinite;
+        }
+        @keyframes cc-mythic-pulse {
+            0%, 100% { box-shadow: inset 0 0 26px rgba(251, 191, 36, 0.12), 0 0 20px rgba(245, 158, 11, 0.25); }
+            50% { box-shadow: inset 0 0 30px rgba(251, 191, 36, 0.22), 0 0 36px rgba(251, 191, 36, 0.45); }
+        }
+        .cc-booster-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 0.5rem 0.75rem;
+            padding: 0.65rem 1.25rem;
+            border-radius: 12px;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #f8fafc;
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.55), rgba(6, 182, 212, 0.45));
+            border: 2px solid rgba(244, 114, 182, 0.55);
+            box-shadow: 0 0 28px rgba(168, 85, 247, 0.35), 0 6px 20px rgba(0, 0, 0, 0.35);
+            transition: transform 0.15s ease, filter 0.15s ease, opacity 0.15s;
+        }
+        .cc-booster-btn:hover:not(:disabled) {
+            filter: brightness(1.08);
+            transform: translateY(-1px);
+        }
+        .cc-booster-btn:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+            filter: grayscale(0.4);
+        }
+        .cc-reveal-panel {
+            width: 100%;
+            max-width: 22rem;
+            border-radius: 20px;
+            padding: 1.25rem;
+            background: radial-gradient(ellipse 120% 80% at 50% 0%, rgba(88, 28, 135, 0.45), rgba(15, 23, 42, 0.97));
+            border: 2px solid rgba(244, 114, 182, 0.45);
+            box-shadow: 0 0 60px rgba(168, 85, 247, 0.35), 0 25px 50px rgba(0, 0, 0, 0.55);
+        }
+        .cc-reveal-img-wrap {
+            position: relative;
+            aspect-ratio: 3 / 4;
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 0.75rem;
+            border: 2px solid rgba(251, 191, 36, 0.35);
+            box-shadow: 0 0 32px rgba(6, 182, 212, 0.2), inset 0 0 40px rgba(0, 0, 0, 0.35);
+        }
+        .cc-reveal-img-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center top;
+        }
+        #collectibleReveal:not(.hidden) { display: flex !important; }
         .shop-title { font-family: inherit; }
         .shop-balance-badge { box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12); }
         .shop-back-btn { color: rgba(0, 229, 255, 0.95); }
@@ -3653,7 +3829,7 @@ Read
                 </p>
             </div>
             
-            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4 max-w-6xl mx-auto">
+            <div class="grid md:grid-cols-3 lg:grid-cols-5 gap-4 max-w-6xl mx-auto">
                 <!-- Lessons Mode -->
                 <div class="glass rounded-xl p-5 hover:scale-105 transition-transform cursor-pointer" onclick="showLessons()">
                     <div class="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center mb-3 mx-auto">
@@ -3697,6 +3873,18 @@ Read
                     </div>
                     <h3 class="text-xl font-semibold mb-1 text-center" data-i18n="multiplayer">Мультиплеер</h3>
                     <p class="text-sm text-gray-600 dark:text-gray-400 text-center" data-i18n="multiplayerDesc">Соревнуйся с друзьями!</p>
+                </div>
+                
+                <!-- Collectible cards -->
+                <div class="glass rounded-xl p-5 hover:scale-105 transition-transform cursor-pointer relative overflow-hidden border border-fuchsia-500/25 shadow-lg shadow-fuchsia-500/10" onclick="showCollectibles()">
+                    <div class="absolute -right-6 -top-6 w-24 h-24 rounded-full bg-gradient-to-br from-fuchsia-600/30 to-cyan-500/20 blur-2xl pointer-events-none"></div>
+                    <div class="w-12 h-12 bg-gradient-to-br from-fuchsia-500/25 to-cyan-500/20 rounded-full flex items-center justify-center mb-3 mx-auto ring-1 ring-fuchsia-400/40">
+                        <svg class="w-6 h-6 text-fuchsia-300" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                            <path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm3 2h6v4H7V5zm0 6h6v4H7v-4z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-1 text-center" data-i18n="collectiblesTitle">Коллекция карт</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 text-center" data-i18n="collectiblesHomeDesc">Бустеры, редкости и бонус к монетам</p>
                 </div>
             </div>
             
@@ -4700,6 +4888,9 @@ Read
                 <button onclick="showShop()" class="profile-quick-btn glass px-4 py-2 rounded-lg text-sm flex items-center gap-2">
                     <span data-i18n="shop">Магазин</span>
                 </button>
+                <button onclick="showCollectibles()" class="profile-quick-btn glass px-4 py-2 rounded-lg text-sm flex items-center gap-2 border border-fuchsia-500/35">
+                    <span data-i18n="collectiblesTitle">Коллекция карт</span>
+                </button>
             </div>
             
             <!-- Bio -->
@@ -4806,6 +4997,51 @@ Read
             </div>
         <!-- Контейнер для летящей карточки при покупке -->
         <div id="shopFlyTarget" class="fixed pointer-events-none z-[100]" style="top: 1.25rem; right: 8rem; width: 2rem; height: 2rem;"></div>
+    </div>
+    
+    <!-- Collectible cards: бустеры, сетка, бонус к монетам за уроки -->
+    <div id="collectibleScreen" class="hidden fade-in">
+        <div class="max-w-6xl mx-auto">
+            <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+                <button type="button" onclick="showHome()" class="shop-back-btn glass px-4 py-2 rounded-lg border border-fuchsia-500/35 hover:bg-fuchsia-500/15 flex items-center gap-2 transition-all">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                    <span data-i18n="back">Назад</span>
+                </button>
+                <h2 class="cc-header-title text-lg sm:text-xl md:text-2xl px-2 text-center flex-1 min-w-0">
+                    <span data-i18n="collectiblesTitle">Коллекция карт</span>
+                </h2>
+                <div class="shop-balance-badge flex items-center gap-2 px-4 py-2 rounded-lg border border-amber-500/50 bg-amber-500/10">
+                    <img src="assets/images/money.png" alt="" class="w-6 h-6 object-contain shrink-0" width="24" height="24" decoding="async" loading="lazy">
+                    <span id="collectibleScreenBalance" class="font-bold text-amber-400 tabular-nums text-lg">0</span>
+                </div>
+            </div>
+            <div class="glass rounded-2xl p-5 mb-5 border border-fuchsia-500/20">
+                <p class="text-sm text-gray-600 dark:text-gray-300 mb-2 leading-relaxed" data-i18n="collectiblesDesc">Открывай бустеры…</p>
+                <p id="collectibleBonusLine" class="text-sm font-semibold text-cyan-300 dark:text-cyan-300 mb-1"></p>
+                <p id="collectibleProgressText" class="text-xs text-gray-500 dark:text-gray-400 font-mono tabular-nums mb-4">0 / 52</p>
+                <button type="button" id="collectibleBoosterBtn" onclick="tryPullCollectibleBooster()" class="cc-booster-btn w-full sm:w-auto">
+                    <span class="cc-booster-label" data-i18n="collectiblesBooster">Бустер</span>
+                    <span class="inline-flex items-center gap-1.5 opacity-95">
+                        <img src="assets/images/money.png" alt="" class="w-5 h-5 object-contain" width="20" height="20" decoding="async" loading="lazy">
+                        <span class="cc-booster-price-num tabular-nums">95</span>
+                    </span>
+                </button>
+            </div>
+            <div id="collectibleGrid" class="cc-grid pb-8"></div>
+        </div>
+    </div>
+    
+    <div id="collectibleReveal" class="fixed inset-0 z-[220] hidden items-center justify-center p-4 bg-black/80 backdrop-blur-md" role="dialog" aria-modal="true" aria-labelledby="collectibleRevealText">
+        <div class="cc-reveal-panel relative">
+            <button type="button" onclick="closeCollectibleReveal()" class="absolute top-2 right-2 p-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-colors z-10" aria-label="Close">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+            <div class="cc-reveal-img-wrap">
+                <img id="collectibleRevealImg" src="" alt="" width="320" height="427" decoding="async">
+            </div>
+            <p id="collectibleRevealText" class="text-center text-sm font-bold text-fuchsia-200 uppercase tracking-wide"></p>
+            <button type="button" onclick="closeCollectibleReveal()" class="mt-4 w-full py-3 rounded-xl font-bold uppercase tracking-wider text-white bg-gradient-to-r from-fuchsia-600 to-cyan-600 hover:from-fuchsia-500 hover:to-cyan-500 border border-white/10 shadow-lg transition-all" data-i18n="collectiblesClose">Круто!</button>
+        </div>
     </div>
     
     <!-- Admin Panel Screen -->
@@ -5126,6 +5362,7 @@ Read
     <script src="scripts/stats.js" defer></script>
     <script src="scripts/achievements.js" defer></script>
     <script src="scripts/level.js" defer></script>
+    <script src="scripts/collectible-cards.js" defer></script>
     <script type="module" src="assets/js/auth.min.js"></script>
     <!-- UI data modules (extracted from main.js; load before main) -->
     <script src="scripts/ui/translations.js" defer></script>
@@ -5150,4 +5387,3 @@ Read
     </script>
 </body>
 </html>
-

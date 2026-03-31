@@ -20,7 +20,7 @@ router.get('/users', requireAdmin, async (req, res) => {
     try {
         const result = await query(
             `SELECT Uid, Username, DisplayName, Email, CreatedAt, LastLogin, IsAdmin, Ip, Country, City,
-             Balance, PurchasedLessonsJson, TotalSessions, TotalTime, BestSpeed, AverageAccuracy, CompletedLessonsCount, TotalErrors, RecentSessionsJson
+             Balance, PurchasedLessonsJson, CollectedCardsJson, TotalSessions, TotalTime, BestSpeed, AverageAccuracy, CompletedLessonsCount, TotalErrors, RecentSessionsJson
              FROM Users ORDER BY LastLogin DESC`
         );
         const users = result.recordset.map(row => ({
@@ -45,4 +45,3 @@ router.delete('/users/:uid', requireAdmin, async (req, res) => {
 });
 
 module.exports = router;
-
