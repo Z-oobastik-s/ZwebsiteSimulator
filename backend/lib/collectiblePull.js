@@ -24,3 +24,4 @@ function pickRandomCardId() {
 }
 
 module.exports = { TOTAL, BOOSTER_COST, DUPLICATE_REFUND, pickRandomCardId, weightForNum };
+

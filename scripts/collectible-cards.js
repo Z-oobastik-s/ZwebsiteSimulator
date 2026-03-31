@@ -96,3 +96,4 @@
         getAllCardIds: getAllCardIds
     };
 })(typeof window !== 'undefined' ? window : this);
+
