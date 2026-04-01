@@ -7889,8 +7889,13 @@ function renderCollectiblesGrid() {
         var have = !!ownedSet[id];
         var r = mod.getRarityKey(id);
         var path = mod.cardPath(id);
+        var phase = '';
+        if (have) {
+            var ni = parseInt(id, 10) || 0;
+            phase = ' style="--cc-d:' + (-(ni % 11) * 0.34).toFixed(2) + 's"';
+        }
         return (
-            '<div class="cc-slot ' + (have ? 'cc-slot--owned cc-rarity-' + r : 'cc-slot--locked cc-rarity-locked') + '" data-card-id="' + id + '">' +
+            '<div class="cc-slot ' + (have ? 'cc-slot--owned cc-rarity-' + r : 'cc-slot--locked cc-rarity-locked') + '"' + phase + ' data-card-id="' + id + '">' +
             (have
                 ? '<img src="' + path + '" alt="" loading="lazy" decoding="async" width="240" height="320">'
                 : '<div class="cc-slot__placeholder" aria-hidden="true"><span class="cc-slot__q">?</span></div>') +
@@ -8297,3 +8302,4 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+

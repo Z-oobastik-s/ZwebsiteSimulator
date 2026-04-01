@@ -1349,6 +1349,28 @@ Read
             height: 100%;
             object-fit: cover;
             object-position: center top;
+            backface-visibility: hidden;
+            transform: translateZ(0);
+        }
+        /* «Живость»: только transform/opacity — один композитный слой на картинку, без тяжёлых теней в keyframes */
+        .cc-slot--owned img {
+            animation: cc-card-breathe 5.8s ease-in-out infinite;
+            animation-delay: var(--cc-d, 0s);
+            transform-origin: 50% 42%;
+        }
+        .cc-rarity-rare.cc-slot--owned img,
+        .cc-rarity-uncommon.cc-slot--owned img { animation-duration: 5.1s; }
+        .cc-rarity-mythic.cc-slot--owned img {
+            animation-name: cc-card-breathe-strong;
+            animation-duration: 4.4s;
+        }
+        @keyframes cc-card-breathe {
+            0%, 100% { transform: translateZ(0) scale(1); }
+            50% { transform: translateZ(0) scale(1.02); }
+        }
+        @keyframes cc-card-breathe-strong {
+            0%, 100% { transform: translateZ(0) scale(1.01); }
+            50% { transform: translateZ(0) scale(1.045); }
         }
         .cc-slot__ring {
             pointer-events: none;
@@ -1386,6 +1408,11 @@ Read
             font-weight: 900;
             color: rgba(148, 163, 184, 0.35);
             text-shadow: 0 0 18px rgba(0, 0, 0, 0.9);
+            animation: cc-lock-twinkle 6s ease-in-out infinite;
+        }
+        @keyframes cc-lock-twinkle {
+            0%, 100% { opacity: 0.75; transform: translateZ(0) scale(1); }
+            50% { opacity: 1; transform: translateZ(0) scale(1.05); }
         }
         .cc-slot--locked .cc-slot__ring { border-color: rgba(71, 85, 105, 0.5); }
         .cc-rarity-common.cc-slot--owned .cc-slot__ring {
@@ -1403,11 +1430,33 @@ Read
         .cc-rarity-mythic.cc-slot--owned .cc-slot__ring {
             border-color: rgba(251, 191, 36, 0.8);
             box-shadow: inset 0 0 26px rgba(251, 191, 36, 0.15), 0 0 28px rgba(245, 158, 11, 0.35);
-            animation: cc-mythic-pulse 2.8s ease-in-out infinite;
         }
-        @keyframes cc-mythic-pulse {
-            0%, 100% { box-shadow: inset 0 0 26px rgba(251, 191, 36, 0.12), 0 0 20px rgba(245, 158, 11, 0.25); }
-            50% { box-shadow: inset 0 0 30px rgba(251, 191, 36, 0.22), 0 0 36px rgba(251, 191, 36, 0.45); }
+        .cc-rarity-mythic.cc-slot--owned .cc-slot__ring::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 12px;
+            pointer-events: none;
+            box-sizing: border-box;
+            border: 1px solid rgba(251, 191, 36, 0.55);
+            opacity: 0.35;
+            animation: cc-mythic-ring-glow 3.1s ease-in-out infinite;
+        }
+        @keyframes cc-mythic-ring-glow {
+            0%, 100% { opacity: 0.22; transform: scale(1); }
+            50% { opacity: 0.72; transform: scale(1.035); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .cc-slot--owned img,
+            .cc-slot--locked .cc-slot__q,
+            .cc-rarity-mythic.cc-slot--owned .cc-slot__ring::after {
+                animation: none !important;
+            }
+            .cc-rarity-mythic.cc-slot--owned .cc-slot__ring::after {
+                opacity: 0.4;
+                transform: none;
+            }
+            .cc-slot--locked .cc-slot__q { opacity: 0.9; transform: none; }
         }
         .cc-booster-btn {
             display: inline-flex;
@@ -5387,3 +5436,4 @@ Read
     </script>
 </body>
 </html>
+
