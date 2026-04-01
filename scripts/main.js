@@ -4405,7 +4405,7 @@ function showResults(speed, accuracy, time, errors, rewardCoins, options) {
         rewardEl.classList.add('hidden');
     }
     
-    // === PB (личный рекорд) сравнение ===
+    // === PB (личный рекорд) сравнение (бейдж в одной строке со скоростью) ===
     const pbBadge = document.getElementById('resultPbBadge');
     if (pbBadge) {
         try {
@@ -4420,16 +4420,18 @@ function showResults(speed, accuracy, time, errors, rewardCoins, options) {
             // Считаем: если speed >= bestSpeed - новый рекорд
             if (speed > 0 && speed >= bestSpeed && bestSpeed > 0) {
                 pbBadge.textContent = speed > bestSpeed ? '🏆 Новый рекорд!' : '🏆 Рекорд!';
-                pbBadge.className = 'mt-0.5 text-[8px] font-semibold px-1 py-0.5 rounded-full bg-yellow-400/20 text-yellow-300 leading-tight';
+                pbBadge.className = 'results-stat-pb-inline results-stat-pb--record shrink-0';
             } else if (bestSpeed > 0 && speed < bestSpeed) {
                 const diff = bestSpeed - speed;
-                pbBadge.textContent = '–' + diff + ' до рекорда';
-                pbBadge.className = 'mt-0.5 text-[8px] font-semibold px-1 py-0.5 rounded-full bg-gray-500/20 text-gray-400 leading-tight';
+                pbBadge.textContent = '-' + diff + ' до рекорда';
+                pbBadge.className = 'results-stat-pb-inline results-stat-pb--behind shrink-0';
             } else {
-                pbBadge.className = 'hidden';
+                pbBadge.textContent = '';
+                pbBadge.className = 'hidden results-stat-pb-inline shrink-0';
             }
         } catch (_e) {
-            pbBadge.className = 'hidden';
+            pbBadge.textContent = '';
+            pbBadge.className = 'hidden results-stat-pb-inline shrink-0';
         }
     }
 
@@ -4524,6 +4526,8 @@ function showResults(speed, accuracy, time, errors, rewardCoins, options) {
     if (modal) {
         modal.classList.remove('hidden');
         modal.classList.add('flex');
+        bindResultsModalViewportScale();
+        setTimeout(function () { syncResultsModalShellScale(); }, 0);
         var rTitle = document.getElementById('resultsModalTitle');
         if (rTitle) {
             rTitle.setAttribute('tabindex', '-1');
@@ -4533,6 +4537,51 @@ function showResults(speed, accuracy, time, errors, rewardCoins, options) {
         }
     }
     updateResultsModalHotkeysHint();
+}
+
+function bindResultsModalViewportScale() {
+    if (window._resultsModalVvBound) return;
+    window._resultsModalVvBound = true;
+    var sync = function () { syncResultsModalShellScale(); };
+    window.addEventListener('resize', sync);
+    var vv = window.visualViewport;
+    if (vv) {
+        vv.addEventListener('resize', sync);
+        vv.addEventListener('scroll', sync);
+    }
+}
+
+/** Компенсация pinch/масштаба страницы: карточка остаётся читаемой (где браузер отдаёт visualViewport.scale). */
+function syncResultsModalShellScale() {
+    var modal = document.getElementById('resultsModal');
+    if (!modal || modal.classList.contains('hidden')) return;
+    var shell = modal.querySelector('.results-modal-shell');
+    if (!shell) return;
+    var vv = window.visualViewport;
+    if (!vv) {
+        shell.style.removeProperty('transform');
+        shell.style.removeProperty('transform-origin');
+        return;
+    }
+    var s = vv.scale;
+    if (typeof s === 'number' && s > 0.15 && s < 0.998) {
+        var inv = Math.min(1.85, Math.max(1, 1 / s));
+        shell.style.transformOrigin = 'center center';
+        shell.style.transform = 'scale(' + inv + ')';
+        return;
+    }
+    var docW = document.documentElement.clientWidth;
+    var vwW = vv.width;
+    if (window.innerWidth >= 768 && docW > 0 && vwW > 0 && docW > vwW + 6) {
+        var z = docW / vwW;
+        if (z > 1.02 && z < 2.6) {
+            shell.style.transformOrigin = 'center center';
+            shell.style.transform = 'scale(' + Math.min(1.75, z) + ')';
+            return;
+        }
+    }
+    shell.style.removeProperty('transform');
+    shell.style.removeProperty('transform-origin');
 }
 
 function _countCharInString(str, c) {
@@ -4834,6 +4883,11 @@ function copyResultsToClipboard() {
 function closeResults(skipExit) {
     const modal = DOM.get('resultsModal');
     if (modal) {
+        var shell = modal.querySelector('.results-modal-shell');
+        if (shell) {
+            shell.style.removeProperty('transform');
+            shell.style.removeProperty('transform-origin');
+        }
         modal.classList.add('hidden');
         modal.classList.remove('flex');
     }
@@ -8403,4 +8457,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-

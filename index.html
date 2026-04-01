@@ -722,7 +722,7 @@
         }
         #resultsModal .results-modal-shell {
             width: 100% !important;
-            max-width: min(100vw - 1rem, 36rem) !important;
+            max-width: min(96vw - 0.75rem, 38rem) !important;
             border: none !important;
             border-radius: 1.25rem !important;
             box-shadow:
@@ -737,19 +737,68 @@
             flex-direction: column !important;
             overflow: hidden !important;
             flex-shrink: 0 !important;
+            font-size: clamp(0.8125rem, 1.15vw, 0.9375rem);
         }
         @media (min-width: 640px) {
             #resultsModal .results-modal-shell {
-                max-width: min(100vw - 1.5rem, 48rem) !important;
+                max-width: min(96vw - 1.25rem, 52rem) !important;
             }
         }
         @media (min-width: 900px) {
             #resultsModal .results-modal-shell {
-                max-width: min(100vw - 2rem, 52rem) !important;
+                max-width: min(96vw - 2rem, 60rem) !important;
+            }
+        }
+        @media (min-width: 1280px) {
+            #resultsModal .results-modal-shell {
+                max-width: min(94vw - 2rem, 64rem) !important;
             }
         }
         #resultsModal .results-stat-cell {
             min-width: 0;
+        }
+        /* Бейдж рекорда в одной строке со скоростью - высота как у соседних ячеек */
+        #resultsModal .results-stat-value-row {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            align-items: baseline;
+            justify-content: center;
+            gap: 0.125rem 0.35rem;
+            width: 100%;
+            min-width: 0;
+            line-height: 1.1;
+        }
+        #resultsModal .results-stat-pb-inline {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            max-width: 100%;
+            font-size: 0.55rem;
+            font-weight: 700;
+            letter-spacing: 0.01em;
+            line-height: 1.15;
+            padding: 0.1rem 0.3rem;
+            border-radius: 0.3rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        #resultsModal .results-stat-pb-inline.results-stat-pb--record {
+            background: rgba(234, 179, 8, 0.22);
+            color: #fde68a;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+        }
+        #resultsModal .results-stat-pb-inline.results-stat-pb--behind {
+            background: rgba(75, 85, 99, 0.45);
+            color: rgba(229, 231, 235, 0.92);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+        }
+        #resultsModal #resultMetricsGrid {
+            align-items: stretch;
+        }
+        #resultsModal #resultMetricsGrid > .results-stat-cell {
+            min-height: 4.25rem;
         }
         /* Без светлых обводок у «коробок» - только мягкая тень и лёгкий внутренний блик */
         #resultsModal .results-panel-surface {
@@ -826,9 +875,8 @@
             }
         }
         #resultsModal .results-stat-cell--compact {
-            min-height: 3.35rem !important;
-            padding-top: 0.4rem !important;
-            padding-bottom: 0.4rem !important;
+            padding-top: 0.45rem !important;
+            padding-bottom: 0.45rem !important;
         }
         #resultsModal #resultProgressSubline {
             display: block;
@@ -4793,11 +4841,11 @@ Read
                         <div id="resultMetricsGrid" class="grid grid-cols-4 gap-1.5">
                             <div class="results-stat-cell results-stat-cell--compact results-panel-surface flex flex-col items-center justify-center px-1 rounded-xl min-w-0">
                                 <span class="text-[9px] text-gray-200 mb-0.5 text-center leading-tight font-medium" data-i18n="speed">Скорость</span>
-                                <div class="flex flex-row flex-nowrap items-baseline justify-center gap-0.5 leading-none whitespace-nowrap">
-                                    <span class="text-lg sm:text-xl font-bold text-primary tabular-nums drop-shadow-sm" id="resultSpeed">0</span>
+                                <div class="results-stat-value-row">
+                                    <span class="text-lg sm:text-xl font-bold text-primary tabular-nums drop-shadow-sm shrink-0" id="resultSpeed">0</span>
                                     <span class="text-[10px] text-gray-200 font-semibold shrink-0" data-i18n="cpm">зн/мин</span>
+                                    <span id="resultPbBadge" class="hidden results-stat-pb-inline shrink-0" aria-live="polite"></span>
                                 </div>
-                                <span id="resultPbBadge" class="hidden mt-0.5 text-[7px] font-semibold px-1 py-0.5 rounded-full text-center leading-tight max-w-full truncate"></span>
                             </div>
                             <div class="results-stat-cell results-stat-cell--compact results-panel-surface flex flex-col items-center justify-center px-1 rounded-xl min-w-0">
                                 <span class="text-[9px] text-gray-200 mb-0.5 text-center leading-tight font-medium" data-i18n="accuracy">Точность</span>
@@ -5622,4 +5670,3 @@ Read
     </script>
 </body>
 </html>
-
