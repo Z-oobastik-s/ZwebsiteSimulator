@@ -4349,44 +4349,44 @@ function showResults(speed, accuracy, time, errors, rewardCoins, options) {
     var metricsGrid = document.getElementById('resultMetricsGrid');
     var progCell = document.getElementById('resultProgressCell');
     var progEl = document.getElementById('resultProgress');
-    var progCmp = document.getElementById('resultProgressCompare');
-    var progChars = document.getElementById('resultProgressChars');
+    var progSub = document.getElementById('resultProgressSubline');
     var _isSpeedResult = app.currentMode === 'speedtest';
     var _progPct = options.speedTestProgressPct;
-    if (metricsGrid && progCell && progEl && progCmp) {
+    if (metricsGrid && progCell && progEl) {
         if (_isSpeedResult && typeof _progPct === 'number') {
             metricsGrid.classList.remove('grid-cols-4');
             metricsGrid.classList.add('grid-cols-5');
             progCell.classList.remove('hidden');
             progEl.textContent = _progPct + '%';
+            var _charsS = trReplace('resultProgressCharsShort', {
+                typed: String(options.speedTestTyped != null ? options.speedTestTyped : 0),
+                total: String(options.speedTestTotal != null ? options.speedTestTotal : 0)
+            });
             var _prevP = options.speedTestPrevPct;
+            var _cmp = '';
             if (typeof _prevP !== 'number') {
-                progCmp.textContent = t('resultProgressNoBaseline');
+                _cmp = t('resultProgressNoBaseline');
             } else {
                 var _delta = _progPct - _prevP;
                 if (_delta > 0) {
-                    progCmp.textContent = trReplace('resultProgressBeatPrev', { prev: String(_prevP), delta: String(_delta), curr: String(_progPct) });
+                    _cmp = trReplace('resultProgressBeatPrev', { prev: String(_prevP), delta: String(_delta), curr: String(_progPct) });
                 } else if (_delta < 0) {
-                    progCmp.textContent = trReplace('resultProgressBehindPrev', { prev: String(_prevP), delta: String(_delta), curr: String(_progPct) });
+                    _cmp = trReplace('resultProgressBehindPrev', { prev: String(_prevP), delta: String(_delta), curr: String(_progPct) });
                 } else {
-                    progCmp.textContent = trReplace('resultProgressTiePrev', { prev: String(_prevP) });
+                    _cmp = trReplace('resultProgressTiePrev', { prev: String(_prevP) });
                 }
             }
-            if (progChars) {
-                progChars.textContent = trReplace('resultProgressCharsLine', {
-                    typed: String(options.speedTestTyped != null ? options.speedTestTyped : 0),
-                    total: String(options.speedTestTotal != null ? options.speedTestTotal : 0)
-                });
-                progChars.classList.remove('hidden');
+            if (progSub) {
+                progSub.textContent = _cmp + ' \u00b7 ' + _charsS;
+                progSub.setAttribute('title', _cmp + ' | ' + _charsS);
             }
         } else {
             metricsGrid.classList.add('grid-cols-4');
             metricsGrid.classList.remove('grid-cols-5');
             progCell.classList.add('hidden');
-            progCmp.textContent = '';
-            if (progChars) {
-                progChars.textContent = '';
-                progChars.classList.add('hidden');
+            if (progSub) {
+                progSub.textContent = '';
+                progSub.removeAttribute('title');
             }
         }
     }
@@ -8403,4 +8403,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-
