@@ -4405,7 +4405,7 @@ function showResults(speed, accuracy, time, errors, rewardCoins, options) {
         rewardEl.classList.add('hidden');
     }
     
-    // === PB (личный рекорд) сравнение (бейдж в одной строке со скоростью) ===
+    // === PB (личный рекорд): бейдж под строкой «число + зн/мин», на всю ширину ячейки ===
     const pbBadge = document.getElementById('resultPbBadge');
     if (pbBadge) {
         try {
@@ -4420,18 +4420,22 @@ function showResults(speed, accuracy, time, errors, rewardCoins, options) {
             // Считаем: если speed >= bestSpeed - новый рекорд
             if (speed > 0 && speed >= bestSpeed && bestSpeed > 0) {
                 pbBadge.textContent = speed > bestSpeed ? '🏆 Новый рекорд!' : '🏆 Рекорд!';
-                pbBadge.className = 'results-stat-pb-inline results-stat-pb--record shrink-0';
+                pbBadge.className = 'results-stat-pb-inline results-stat-pb--record';
+                pbBadge.setAttribute('title', pbBadge.textContent);
             } else if (bestSpeed > 0 && speed < bestSpeed) {
                 const diff = bestSpeed - speed;
                 pbBadge.textContent = '-' + diff + ' до рекорда';
-                pbBadge.className = 'results-stat-pb-inline results-stat-pb--behind shrink-0';
+                pbBadge.className = 'results-stat-pb-inline results-stat-pb--behind';
+                pbBadge.setAttribute('title', pbBadge.textContent);
             } else {
                 pbBadge.textContent = '';
-                pbBadge.className = 'hidden results-stat-pb-inline shrink-0';
+                pbBadge.className = 'hidden results-stat-pb-inline';
+                pbBadge.removeAttribute('title');
             }
         } catch (_e) {
             pbBadge.textContent = '';
-            pbBadge.className = 'hidden results-stat-pb-inline shrink-0';
+            pbBadge.className = 'hidden results-stat-pb-inline';
+            pbBadge.removeAttribute('title');
         }
     }
 
@@ -8457,3 +8461,4 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+
