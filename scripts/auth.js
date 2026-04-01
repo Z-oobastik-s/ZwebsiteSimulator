@@ -173,8 +173,13 @@ export async function registerUser(username, password, email = '') {
             });
             if (data.token) localStorage.setItem(STORAGE_KEY_TOKEN, data.token);
             if (data.user) saveCurrentUserToStorage(data.user);
-            notifyAuthStateListeners(data.user);
-            return { success: true, user: data.user };
+            let claimed = 0;
+            if (data.user && data.user.uid) {
+                claimed = await mergeGuestPromisedCoinsIntoUser(data.user.uid);
+            }
+            if (claimed === 0 && data.user) notifyAuthStateListeners(data.user);
+            const u = getCurrentUserFromStorage();
+            return { success: true, user: u || data.user, claimedPromisedCoins: claimed };
         } catch (err) {
             return { success: false, error: (err.data && err.data.error) || err.message || 'Ошибка регистрации' };
         }
@@ -195,8 +200,10 @@ export async function registerUser(username, password, email = '') {
     users[uid] = user;
     if (!saveAllUsersStorage(users)) return { success: false, error: 'Ошибка сохранения данных' };
     saveCurrentUserToStorage(user);
-    notifyAuthStateListeners(user);
-    return { success: true, user };
+    const claimed = await mergeGuestPromisedCoinsIntoUser(user.uid);
+    if (claimed === 0) notifyAuthStateListeners(user);
+    const u = getCurrentUserFromStorage();
+    return { success: true, user: u || user, claimedPromisedCoins: claimed };
 }
 
 // --------------- Вход ---------------
@@ -213,8 +220,13 @@ export async function loginUser(username, password) {
             });
             if (data.token) localStorage.setItem(STORAGE_KEY_TOKEN, data.token);
             if (data.user) saveCurrentUserToStorage(data.user);
-            notifyAuthStateListeners(data.user);
-            return { success: true, user: data.user };
+            let claimed = 0;
+            if (data.user && data.user.uid) {
+                claimed = await mergeGuestPromisedCoinsIntoUser(data.user.uid);
+            }
+            if (claimed === 0 && data.user) notifyAuthStateListeners(data.user);
+            const u = getCurrentUserFromStorage();
+            return { success: true, user: u || data.user, claimedPromisedCoins: claimed };
         } catch (err) {
             return { success: false, error: (err.data && err.data.error) || err.message || 'Неверный логин или пароль' };
         }
@@ -229,8 +241,10 @@ export async function loginUser(username, password) {
     users[user.uid] = user;
     if (!saveAllUsersStorage(users)) return { success: false, error: 'Ошибка сохранения данных' };
     saveCurrentUserToStorage(user);
-    notifyAuthStateListeners(user);
-    return { success: true, user };
+    const claimed = await mergeGuestPromisedCoinsIntoUser(user.uid);
+    if (claimed === 0) notifyAuthStateListeners(user);
+    const u = getCurrentUserFromStorage();
+    return { success: true, user: u || user, claimedPromisedCoins: claimed };
 }
 
 // --------------- Выход ---------------
@@ -483,10 +497,12 @@ checkAuthState();
 
 // При использовании API: если есть токен, но нет пользователя в кэше - подгрузить с сервера
 if (useApi() && getToken() && !getCurrentUserFromStorage()) {
-    apiFetch('/api/auth/me').then(data => {
+    apiFetch('/api/auth/me').then(async data => {
         if (data.user) {
             saveCurrentUserToStorage(data.user);
-            notifyAuthStateListeners(data.user);
+            const claimed = await mergeGuestPromisedCoinsIntoUser(data.user.uid);
+            if (claimed === 0) notifyAuthStateListeners(data.user);
+            else notifyAuthStateListeners(getCurrentUserFromStorage());
         }
     }).catch(() => {
         localStorage.removeItem(STORAGE_KEY_TOKEN);
@@ -541,6 +557,24 @@ export async function addCoins(uid, amount) {
         notifyAuthStateListeners(user);
         return { success: true, balance: user.balance };
     });
+}
+
+/**
+ * Переносит обещанные гостевые монеты в аккаунт после входа/регистрации.
+ * При сбое addCoins возвращает сумму обратно в guest storage.
+ */
+async function mergeGuestPromisedCoinsIntoUser(uid) {
+    if (!uid) return 0;
+    const g = typeof window !== 'undefined' && window.guestPromisedCoins;
+    if (!g || typeof g.drainTotal !== 'function') return 0;
+    const n = g.drainTotal();
+    if (!n || n <= 0) return 0;
+    try {
+        const res = await addCoins(uid, n);
+        if (res && res.success) return n;
+    } catch (_e) {}
+    g.add(n);
+    return 0;
 }
 
 /** Списание монет (покупка фона и т.п.); в API через POST /coins с отрицательным amount. */
@@ -733,3 +767,4 @@ window.authModule = {
     getUserBalance,
     isLessonPurchased
 };
+

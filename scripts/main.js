@@ -44,6 +44,7 @@ const app = {
     lastMatchWasBot: false,
     botOpponentName: ''
 };
+window.app = app;
 
 // Streak (серия дней) + «заморозка»: 1 раз за календарную неделю можно не сбросить серию при пропуске ровно одного дня
 const STREAK_KEY = 'zoobastiks_streak';
@@ -435,6 +436,10 @@ const translations = window.translations || {
         levelUpRewardTitle: 'Награда за уровень',
         levelUpCoinsGranted: '+{{n}} монет на баланс',
         levelUpCoinsGuest: '+{{n}} монет зачислим при входе в аккаунт',
+        guestPromisedHeaderTitle: 'Монеты к зачислению на баланс после входа в аккаунт',
+        guestPromisedShortLabel: 'при входе',
+        resultRewardGuestHint: 'Сохраним в накопление до входа - затем зачислим на баланс.',
+        promisedCoinsClaimedToast: '+{{n}} монет с накопления зачислено на баланс',
         tapToContinue: 'Нажмите чтобы продолжить',
         unlockAtLevel: 'Разблокируется на уровне',
         levelShort: 'Ур.',
@@ -684,6 +689,10 @@ const translations = window.translations || {
         levelUpRewardTitle: 'Level-up reward',
         levelUpCoinsGranted: '+{{n}} coins on balance',
         levelUpCoinsGuest: '+{{n}} coins when you sign in',
+        guestPromisedHeaderTitle: 'Coins waiting to be added to your balance after sign-in',
+        guestPromisedShortLabel: 'on sign-in',
+        resultRewardGuestHint: 'We save these to your pending balance until you sign in - then they go to your account.',
+        promisedCoinsClaimedToast: '+{{n}} pending coins added to your balance',
         tapToContinue: 'Tap to continue',
         unlockAtLevel: 'Unlock at level',
         levelShort: 'Lvl.',
@@ -1367,10 +1376,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (adminBtn) adminBtn.classList.add('hidden');
                 if (balanceDisplay) balanceDisplay.classList.add('hidden');
                 if (shopBtn) shopBtn.classList.add('hidden');
+                if (typeof updateGuestPromisedHeader === 'function') updateGuestPromisedHeader();
             }
         });
     }
     
+    if (typeof updateGuestPromisedHeader === 'function') updateGuestPromisedHeader();
+
     // Воспроизводим welcome звук при загрузке главной страницы
     setTimeout(() => {
         playWelcomeSound();
@@ -2006,6 +2018,7 @@ function updateTranslations() {
     }
     refreshLessonLangButtonStyles();
     if (typeof updateLessonFilterHint === 'function') updateLessonFilterHint();
+    if (typeof updateGuestPromisedHeader === 'function') updateGuestPromisedHeader();
 }
 
 // Navigation functions
@@ -4158,18 +4171,29 @@ function exitPractice() {
 }
 
 function grantCoinsForNewAchievements(newlyAchievements) {
-    const user = window.authModule?.getCurrentUser();
-    if (!user || !window.authModule || !newlyAchievements || newlyAchievements.length === 0) return;
+    if (!newlyAchievements || newlyAchievements.length === 0) return;
     if (!window.achievementsModule || !window.achievementsModule.COINS_PER_ACHIEVEMENT) return;
     var totalCoins = window.achievementsModule.COINS_PER_ACHIEVEMENT * newlyAchievements.length;
-    window.authModule.addCoins(user.uid, totalCoins).then(function (result) {
-        if (result.success) {
-            var updatedUser = window.authModule.getCurrentUser();
-            if (updatedUser) updateUserUI(updatedUser, updatedUser);
-            var msg = app.lang === 'en' ? '+' + totalCoins + ' coins for achievements!' : '+' + totalCoins + ' монет за достижения!';
-            showToast(msg, 'success', '🪙');
-        }
-    }).catch(function (err) { console.error('Achievement coins:', err); });
+    const user = window.authModule?.getCurrentUser();
+    if (user && window.authModule) {
+        window.authModule.addCoins(user.uid, totalCoins).then(function (result) {
+            if (result.success) {
+                var updatedUser = window.authModule.getCurrentUser();
+                if (updatedUser) updateUserUI(updatedUser, updatedUser);
+                var msg = app.lang === 'en' ? '+' + totalCoins + ' coins for achievements!' : '+' + totalCoins + ' монет за достижения!';
+                showToast(msg, 'success', '🪙');
+            }
+        }).catch(function (err) { console.error('Achievement coins:', err); });
+        return;
+    }
+    if (totalCoins > 0 && window.guestPromisedCoins) {
+        window.guestPromisedCoins.add(totalCoins);
+        if (typeof updateGuestPromisedHeader === 'function') updateGuestPromisedHeader();
+        var msgG = app.lang === 'en' ? '+' + totalCoins + ' coins for achievements (saved for sign-in)!' : app.lang === 'ua'
+            ? '+' + totalCoins + ' монет за досягнення (збережено до входу)!'
+            : '+' + totalCoins + ' монет за достижения (сохранено до входа)!';
+        showToast(msgG, 'success', '🪙');
+    }
 }
 
 // Finish practice - ОПТИМИЗИРОВАНА
@@ -4266,6 +4290,16 @@ async function finishPractice() {
             }).catch(err => {
                 console.error('Failed to add coins:', err);
             });
+        }
+        grantCoinsForNewAchievements(newlyAchievements);
+    } else {
+        if (rewardCoins > 0 && window.guestPromisedCoins) {
+            window.guestPromisedCoins.add(rewardCoins);
+            if (typeof updateGuestPromisedHeader === 'function') updateGuestPromisedHeader();
+            const message = isFirstTimeCompletion
+                ? `+${rewardCoins} ${app.lang === 'ru' ? 'монет за урок!' : app.lang === 'en' ? 'coins for lesson!' : 'монет за урок!'}`
+                : `+${rewardCoins} ${app.lang === 'ru' ? 'монет за повторное прохождение' : app.lang === 'en' ? 'coins for replay' : 'монет за повторне проходження'}`;
+            showToast(message, 'success', app.lang === 'ru' ? 'К накоплению' : app.lang === 'en' ? 'Saved' : 'До входу');
         }
         grantCoinsForNewAchievements(newlyAchievements);
     }
@@ -4403,11 +4437,22 @@ function showResults(speed, accuracy, time, errors, rewardCoins, options) {
         const coins = rewardCoins !== undefined ? rewardCoins : (app.currentLesson && (app.currentMode === 'lesson' || app.currentMode === 'practice')
             ? (() => { const k = app.currentLesson.key || `lesson_${app.currentLesson.id}`; const s = window.statsModule.getLessonStats(k); return calculateLessonRewardCoins(app.currentLesson, accuracy, !s || !s.completed); })()
             : 0);
+        var guestHint = document.getElementById('resultGuestPromisedHint');
         if (coins > 0) {
             rewardAmountEl.textContent = `+${coins} ${app.lang === 'ru' ? 'монет' : app.lang === 'en' ? 'coins' : 'монет'}`;
             rewardEl.classList.remove('hidden');
+            var isGuest = !(window.authModule && window.authModule.getCurrentUser && window.authModule.getCurrentUser());
+            if (guestHint) {
+                if (isGuest) {
+                    guestHint.classList.remove('hidden');
+                    guestHint.textContent = t('resultRewardGuestHint');
+                } else {
+                    guestHint.classList.add('hidden');
+                }
+            }
         } else {
             rewardEl.classList.add('hidden');
+            if (guestHint) guestHint.classList.add('hidden');
         }
     } else if (rewardEl) {
         rewardEl.classList.add('hidden');
@@ -4945,6 +4990,9 @@ function applySessionXpAndLevelReward(xpAmount) {
                 if (u && typeof updateUserUI === 'function') updateUserUI(u, u);
             }
         }).catch(function () {});
+    } else if (app.pendingLevelUpRewardCoins > 0 && window.guestPromisedCoins) {
+        window.guestPromisedCoins.add(app.pendingLevelUpRewardCoins);
+        if (typeof updateGuestPromisedHeader === 'function') updateGuestPromisedHeader();
     }
 }
 
@@ -5348,6 +5396,27 @@ let avatarModalEscapeHandler = null;
 
 // Auth state listener will be initialized in DOMContentLoaded
 
+/** Бейдж «обещанных» монет для гостей (до входа). */
+function updateGuestPromisedHeader() {
+    var wrap = document.getElementById('guestPromisedCoinsWrap');
+    var amtEl = document.getElementById('guestPromisedCoinsAmount');
+    if (!wrap || !amtEl) return;
+    var g = window.guestPromisedCoins;
+    var n = g && typeof g.peekTotal === 'function' ? g.peekTotal() : 0;
+    if (window.authModule && window.authModule.getCurrentUser && window.authModule.getCurrentUser()) {
+        wrap.classList.add('hidden');
+        return;
+    }
+    if (n > 0) {
+        amtEl.textContent = String(n);
+        wrap.classList.remove('hidden');
+        wrap.setAttribute('title', t('guestPromisedHeaderTitle'));
+    } else {
+        wrap.classList.add('hidden');
+        amtEl.textContent = '0';
+    }
+}
+
 // Update user UI in header - ОПТИМИЗИРОВАНА
 function updateUserUI(user, profile) {
     const profileBtn = DOM.get('userProfileBtn');
@@ -5357,6 +5426,8 @@ function updateUserUI(user, profile) {
     const balanceDisplay = DOM.get('balanceDisplay');
     const userBalance = DOM.get('userBalance');
     const shopBtn = DOM.get('shopBtn');
+    const guestPromisedWrap = document.getElementById('guestPromisedCoinsWrap');
+    if (guestPromisedWrap) guestPromisedWrap.classList.add('hidden');
     
     if (!profileBtn || !loginBtn || !userName || !userAvatar) return;
     
@@ -5456,6 +5527,9 @@ async function handleLogin() {
     if (result.success) {
         closeLoginModal();
         showToast(t('loginSuccess'), 'success');
+        if (result.claimedPromisedCoins > 0) {
+            showToast(trReplace('promisedCoinsClaimedToast', { n: result.claimedPromisedCoins }), 'success', '\uD83E\uDE99');
+        }
         if (result.user) {
             currentUserProfile = result.user;
             updateUserUI(result.user, result.user);
@@ -5509,6 +5583,9 @@ async function handleRegister() {
     if (result.success) {
         closeLoginModal();
         showToast(t('registerSuccess'), 'success');
+        if (result.claimedPromisedCoins > 0) {
+            showToast(trReplace('promisedCoinsClaimedToast', { n: result.claimedPromisedCoins }), 'success', '\uD83E\uDE99');
+        }
         if (result.user) {
             currentUserProfile = result.user;
             updateUserUI(result.user, result.user);
@@ -5528,6 +5605,7 @@ async function logoutUser() {
         currentUserProfile = null;
         showHome();
         showToast(t('logoutSuccess'), 'info');
+        if (typeof updateGuestPromisedHeader === 'function') updateGuestPromisedHeader();
     }
 }
 
@@ -8540,3 +8618,10 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+
+window.applySessionXpAndLevelReward = applySessionXpAndLevelReward;
+window.showLevelUpSequence = showLevelUpSequence;
+window.renderLevelBlock = renderLevelBlock;
+window.updateUserUI = updateUserUI;
+window.updateGuestPromisedHeader = updateGuestPromisedHeader;
+

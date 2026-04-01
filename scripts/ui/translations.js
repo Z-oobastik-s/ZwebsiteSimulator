@@ -113,6 +113,10 @@ window.translations = {
         levelUpRewardTitle: 'Награда за уровень',
         levelUpCoinsGranted: '+{{n}} монет на баланс',
         levelUpCoinsGuest: '+{{n}} монет зачислим при входе в аккаунт',
+        guestPromisedHeaderTitle: 'Монеты к зачислению на баланс после входа в аккаунт',
+        guestPromisedShortLabel: 'при входе',
+        resultRewardGuestHint: 'Сохраним в накопление до входа - затем зачислим на баланс.',
+        promisedCoinsClaimedToast: '+{{n}} монет с накопления зачислено на баланс',
         tapToContinue: 'Нажмите чтобы продолжить',
         unlockAtLevel: 'Разблокируется на уровне',
         levelShort: 'Ур.',
@@ -465,6 +469,10 @@ window.translations = {
         levelUpRewardTitle: 'Level-up reward',
         levelUpCoinsGranted: '+{{n}} coins on balance',
         levelUpCoinsGuest: '+{{n}} coins when you sign in',
+        guestPromisedHeaderTitle: 'Coins waiting to be added to your balance after sign-in',
+        guestPromisedShortLabel: 'on sign-in',
+        resultRewardGuestHint: 'We save these to your pending balance until you sign in - then they go to your account.',
+        promisedCoinsClaimedToast: '+{{n}} pending coins added to your balance',
         tapToContinue: 'Tap to continue',
         unlockAtLevel: 'Unlock at level',
         levelShort: 'Lvl.',
@@ -813,6 +821,10 @@ window.translations = {
         levelUpRewardTitle: 'Нагорода за рівень',
         levelUpCoinsGranted: '+{{n}} монет на баланс',
         levelUpCoinsGuest: '+{{n}} монет надійдуть після входу в акаунт',
+        guestPromisedHeaderTitle: 'Монети буде зараховано на баланс після входу в акаунт',
+        guestPromisedShortLabel: 'після входу',
+        resultRewardGuestHint: 'Зберігаємо в накопичення до входу - потім зарахуємо на баланс.',
+        promisedCoinsClaimedToast: '+{{n}} монет з накопичення зараховано на баланс',
         tapToContinue: 'Натисніть, щоб продовжити',
         unlockAtLevel: 'Відкривається на рівні',
         levelShort: 'Рів.',
@@ -1054,3 +1066,4 @@ window.translations = {
         profileTabOnSite: 'на сайті'
     }
 };
+

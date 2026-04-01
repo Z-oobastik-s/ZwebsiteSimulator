@@ -27,6 +27,7 @@ backend/.env.*
 backend/node_modules/
 
 # Local / dev only - not for GitHub
+cheat.txt
 upload-to-github.bat
 .sync-mode
 scripts/*.bat
@@ -34,3 +35,4 @@ scripts/*.sh
 serve.bat
 serve.sh
 SEO_SETUP.md
+

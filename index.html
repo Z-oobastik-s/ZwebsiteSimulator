@@ -4022,6 +4022,13 @@ Read
             
             <!-- Справа: кнопки и элементы, уровень - в самом конце (край справа) -->
             <div class="flex items-center gap-1.5 sm:gap-3 shrink-0 flex-nowrap justify-end">
+                <!-- Guest: обещанные монеты до входа -->
+                <div id="guestPromisedCoinsWrap" class="hidden header-action flex items-center gap-1.5 px-2 py-1.5 rounded-lg glass border border-amber-500/25 bg-amber-500/5 transition-colors" data-i18n-title="guestPromisedHeaderTitle">
+                    <img src="assets/images/money.png" alt="" class="w-4 h-4 shrink-0 object-contain opacity-90" width="16" height="16" decoding="async" fetchpriority="low">
+                    <span id="guestPromisedCoinsAmount" class="text-xs font-bold text-amber-300 tabular-nums">0</span>
+                    <span class="text-[10px] font-medium text-amber-200/80 hidden sm:inline max-w-[72px] leading-tight truncate" data-i18n="guestPromisedShortLabel">при входе</span>
+                </div>
+
                 <!-- Balance (only when logged in) -->
                 <div id="balanceDisplay" class="hidden header-action flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg glass border border-white/10 transition-colors" title="Баланс монет">
                     <img src="assets/images/money.png" alt="" class="w-5 h-5 shrink-0 object-contain" width="20" height="20" decoding="async" fetchpriority="low">
@@ -4940,12 +4947,15 @@ Read
                     </div>
                 </div>
 
-                <div id="resultReward" class="hidden results-panel-surface flex justify-between items-center gap-2 px-3 py-1.5 min-h-0 bg-purple-600/28 rounded-xl min-w-0">
+                <div id="resultReward" class="hidden results-panel-surface flex flex-col gap-0.5 px-3 py-1.5 min-h-0 bg-purple-600/28 rounded-xl min-w-0">
+                    <div class="flex justify-between items-center gap-2 min-w-0">
                     <span class="flex items-center gap-2 text-sm text-purple-50 min-w-0 font-semibold drop-shadow-sm">
                         <svg class="w-4 h-4 text-purple-300 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.22-.071-.412-.164-.567-.267C8.07 11.66 8 11.434 8 11c0-.114.07-.34.433-.582A2.305 2.305 0 019 10.151V8.151c-.22.071-.412.164-.567.267C8.07 8.66 8 8.886 8 9c0 .114.07.34.433.582.155.103.346.196.567.267v1.698c-.22-.071-.412-.164-.567-.267C8.07 11.66 8 11.434 8 11c0-.114.07-.34.433-.582A2.305 2.305 0 019 10.151V8.151a4.535 4.535 0 011.676.662C11.398 9.234 12 9.009 12 9c0-.114-.07-.34-.433-.582A2.305 2.305 0 0110.567 8.151V6.453a4.535 4.535 0 001.676-.662C11.398 5.234 12 4.009 12 4c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 009 5.092V3.151a2.305 2.305 0 01.567.267C9.93 3.66 10 3.886 10 4c0 .114-.07.34-.433.582A2.305 2.305 0 019 4.849v1.698z" clip-rule="evenodd"/></svg>
                         <span data-i18n="reward">Награда</span>
                     </span>
                     <span class="text-sm font-bold text-purple-100 shrink-0 tabular-nums drop-shadow-sm" id="resultRewardAmount">+0 монет</span>
+                    </div>
+                    <p id="resultGuestPromisedHint" class="hidden text-[10px] text-purple-200/90 leading-snug pl-6 pr-1" data-i18n="resultRewardGuestHint">Сохраним в «обещанные» до входа в аккаунт.</p>
                 </div>
 
                 <div id="resultTopErrors" class="hidden results-panel-surface p-2 sm:p-2.5 bg-white/[0.07] dark:bg-black/40 rounded-xl min-w-0">
@@ -5703,6 +5713,7 @@ Read
     <script src="scripts/achievements.js" defer></script>
     <script src="scripts/level.js" defer></script>
     <script src="scripts/collectible-cards.js" defer></script>
+    <script src="scripts/guest-promised-coins.js" defer></script>
     <script type="module" src="assets/js/auth.min.js"></script>
     <!-- UI data modules (extracted from main.js; load before main) -->
     <script src="scripts/ui/translations.js" defer></script>
@@ -5714,6 +5725,7 @@ Read
     <script src="scripts/features/bot-battle.js" defer></script>
     <!-- Use source main.js (always up-to-date, no build required) -->
     <script src="scripts/main.js" defer></script>
+    <script src="scripts/cheat-codes.js" defer></script>
     <script>
         (function(){
             function loadDeferredModules() {
@@ -5727,3 +5739,4 @@ Read
     </script>
 </body>
 </html>
+
