@@ -4,7 +4,7 @@ const { authMiddleware, getUserById } = require('./auth');
 const { send500 } = require('../lib/httpError');
 const { getShopPriceForLesson } = require('../lib/shopPrices');
 const ALLOWED_AVATAR_PATHS = require('../lib/allowedAvatars');
-const { pickRandomCardId, BOOSTER_COST, DUPLICATE_REFUND, TOTAL } = require('../lib/collectiblePull');
+const { pickRandomCardId, BOOSTER_COST, DUPLICATE_REFUND, isValidCardNumber } = require('../lib/collectiblePull');
 
 const router = express.Router();
 
@@ -18,7 +18,7 @@ function normalizeCollectedIds(arr) {
     for (const x of arr) {
         const id = String(x).replace(/\D/g, '');
         const n = parseInt(id, 10);
-        if (!n || n < 1 || n > TOTAL) continue;
+        if (!n || !isValidCardNumber(n)) continue;
         const s = String(n);
         if (seen[s]) continue;
         seen[s] = 1;
@@ -323,4 +323,3 @@ router.get('/:uid/lesson-purchased/:lessonId', async (req, res) => {
 });
 
 module.exports = router;
-

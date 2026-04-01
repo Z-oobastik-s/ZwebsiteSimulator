@@ -1,11 +1,23 @@
 /**
- * Коллекционные карты: assets/images/card/card_1.png … card_52.png
+ * Коллекционные карты: card_1…card_52 и card_54…card_98 (card_53 нет в наборе).
  * Бустер за монеты, бонус к награде за уроки по числу уникальных карт.
  */
 (function (global) {
     'use strict';
 
-    var TOTAL = 52;
+    function buildCardNums() {
+        var a = [];
+        var i;
+        for (i = 1; i <= 52; i++) a.push(i);
+        for (i = 54; i <= 98; i++) a.push(i);
+        return a;
+    }
+
+    var CARD_NUMS = buildCardNums();
+    var TOTAL = CARD_NUMS.length;
+    var VALID = Object.create(null);
+    CARD_NUMS.forEach(function (n) { VALID[String(n)] = 1; });
+
     var BOOSTER_COST = 95;
     var DUPLICATE_REFUND = 30;
     /** Макс. бонус к монетам за урок (точность ≥90%), % */
@@ -15,32 +27,38 @@
         return 'assets/images/card/card_' + id + '.png';
     }
 
-    function weightForNum(n) {
-        if (n <= 26) return 12;
-        if (n <= 39) return 10;
-        if (n <= 49) return 6;
+    /** Вес по позиции в колоде (как на сервере): чем «правее» — тем реже. */
+    function weightForIndex(idx) {
+        if (TOTAL <= 1) return 12;
+        var p = idx / (TOTAL - 1);
+        if (p < 0.26) return 12;
+        if (p < 0.52) return 10;
+        if (p < 0.78) return 6;
         return 3;
     }
 
-    /** Случайная карта 1..52 с весами редкости (как на сервере). */
     function pickRandomCardIdForPull() {
         var totalW = 0;
         var i;
-        for (i = 1; i <= TOTAL; i++) totalW += weightForNum(i);
+        for (i = 0; i < TOTAL; i++) totalW += weightForIndex(i);
         var r = Math.random() * totalW;
-        for (i = 1; i <= TOTAL; i++) {
-            r -= weightForNum(i);
-            if (r <= 0) return String(i);
+        for (i = 0; i < TOTAL; i++) {
+            r -= weightForIndex(i);
+            if (r <= 0) return String(CARD_NUMS[i]);
         }
-        return String(TOTAL);
+        return String(CARD_NUMS[TOTAL - 1]);
     }
 
     function getRarityKey(id) {
         var n = parseInt(id, 10);
-        if (!n || n < 1) return 'common';
-        if (n <= 26) return 'common';
-        if (n <= 39) return 'uncommon';
-        if (n <= 49) return 'rare';
+        if (!n || !VALID[String(n)]) return 'common';
+        var idx = CARD_NUMS.indexOf(n);
+        if (idx < 0) return 'common';
+        if (TOTAL <= 1) return 'common';
+        var p = idx / (TOTAL - 1);
+        if (p < 0.26) return 'common';
+        if (p < 0.52) return 'uncommon';
+        if (p < 0.78) return 'rare';
         return 'mythic';
     }
 
@@ -49,11 +67,11 @@
         var out = [];
         var seen = Object.create(null);
         raw.forEach(function (x) {
-            var id = String(x).replace(/\D/g, '');
-            if (!id) return;
-            var n = parseInt(id, 10);
-            if (n < 1 || n > TOTAL) return;
-            id = String(n);
+            var raw = String(x).replace(/\D/g, '');
+            if (!raw) return;
+            var n = parseInt(raw, 10);
+            var id = String(n);
+            if (!VALID[id]) return;
             if (seen[id]) return;
             seen[id] = 1;
             out.push(id);
@@ -77,9 +95,7 @@
     }
 
     function getAllCardIds() {
-        var a = [];
-        for (var i = 1; i <= TOTAL; i++) a.push(String(i));
-        return a;
+        return CARD_NUMS.map(function (n) { return String(n); });
     }
 
     global.collectibleCardsModule = {
@@ -96,4 +112,3 @@
         getAllCardIds: getAllCardIds
     };
 })(typeof window !== 'undefined' ? window : this);
-
