@@ -3,8 +3,8 @@
  * Пути:
  *   siteStats/visits          - общий счётчик
  *   siteStats/daily/YYYY-MM-DD - дневные посещения
- *   online/{visitorId}        - присутствие: lastSeen, joinedAt, countryCode, flag, device,
- *                               displayName, username, avatarIndex, level, tierName (если вошёл)
+ *   online/{visitorId}        - присутствие: lastSeen (обновляется heartbeat), joinedAt, …
+ *                               В UI «онлайн» только если lastSeen не старше ONLINE_PRESENCE_TTL_MS.
  */
 
 import { initializeApp, getApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
@@ -207,6 +207,49 @@ var _visits     = 0;
 var _onlineData = {};
 var _dailyData  = {};
 
+/** Нет обновления lastSeen дольше — не считаем онлайн (onDisconnect часто не срабатывает). */
+var ONLINE_PRESENCE_TTL_MS   = 3 * 60 * 1000;
+var PRESENCE_HEARTBEAT_MS    = 45 * 1000;
+var _presenceHeartbeatId     = null;
+var _presenceVisibilityBound = false;
+
+function presenceLastSeenMs(u) {
+    if (!u || u.lastSeen == null) return null;
+    var ls = u.lastSeen;
+    if (typeof ls === 'number' && isFinite(ls)) return ls;
+    return null;
+}
+
+function isPresenceFresh(u) {
+    var ms = presenceLastSeenMs(u);
+    if (ms != null) return (Date.now() - ms) <= ONLINE_PRESENCE_TTL_MS;
+    return isLegacyPresenceFresh(u);
+}
+
+/** Подстраховка для старых записей без lastSeen: только очень «молодой» joinedAt (одна вкладка). */
+function isLegacyPresenceFresh(u) {
+    var j = u && u.joinedAt;
+    if (typeof j !== 'number' || !isFinite(j)) return false;
+    return (Date.now() - j) <= ONLINE_PRESENCE_TTL_MS;
+}
+
+function getFreshOnlineEntries() {
+    return Object.entries(_onlineData).filter(function (e) {
+        return isPresenceFresh(e[1]);
+    });
+}
+
+function getFreshOnlineCount() {
+    return getFreshOnlineEntries().length;
+}
+
+function syncOnlineUiFromCache() {
+    var n = getFreshOnlineCount();
+    window.__siteStatsOnline = n;
+    updateUI(_visits, n);
+    _refreshModal();
+}
+
 var _firebaseError = null;
 
 function _onFirebaseError(err) {
@@ -220,8 +263,7 @@ onValue(visitsRef, function (snap) {
     _firebaseError = null;
     _visits = typeof snap.val() === 'number' ? snap.val() : 0;
     window.__siteStatsVisits = _visits;
-    updateUI(_visits, Object.keys(_onlineData).length);
-    _refreshModal();
+    syncOnlineUiFromCache();
 }, _onFirebaseError);
 
 onValue(dailyRef, function (snap) {
@@ -233,12 +275,15 @@ onValue(dailyRef, function (snap) {
 onValue(onlineRef, function (snap) {
     _firebaseError = null;
     _onlineData = snap.val() || {};
-    var count = Object.keys(_onlineData).length;
-    window.__siteStatsOnline = count;
     window.__siteStatsOnlineData = _onlineData;
-    updateUI(_visits, count);
-    _refreshModal();
+    syncOnlineUiFromCache();
 }, _onFirebaseError);
+
+// Пересчёт «онлайн» по таймеру: без нового события Firebase записи «призраки» исчезают из списка.
+setInterval(function () {
+    if (_firebaseError) return;
+    syncOnlineUiFromCache();
+}, 30000);
 
 // ── Visit recording ─────────────────────────────────────────────────────────
 
@@ -254,6 +299,23 @@ function recordVisit() {
 
 var _myPresenceRef = null;
 var _geoData       = null;
+
+function touchPresenceLastSeen() {
+    if (!_myPresenceRef) return;
+    update(_myPresenceRef, { lastSeen: serverTimestamp() }).catch(function () {});
+}
+
+function startPresenceHeartbeat() {
+    if (_presenceHeartbeatId) clearInterval(_presenceHeartbeatId);
+    touchPresenceLastSeen();
+    _presenceHeartbeatId = setInterval(touchPresenceLastSeen, PRESENCE_HEARTBEAT_MS);
+    if (!_presenceVisibilityBound) {
+        _presenceVisibilityBound = true;
+        document.addEventListener('visibilitychange', function () {
+            if (document.visibilityState === 'visible') touchPresenceLastSeen();
+        });
+    }
+}
 
 async function registerPresence() {
     var visitorId = getOrCreateVisitorId();
@@ -280,6 +342,7 @@ async function registerPresence() {
 
     set(_myPresenceRef, data).then(function () {
         onDisconnect(_myPresenceRef).remove().catch(function () {});
+        startPresenceHeartbeat();
     }).catch(function () {});
 }
 
@@ -308,6 +371,7 @@ window.__updatePresenceUser = function (user) {
         updates.level       = null;
         updates.tierName    = null;
     }
+    updates.lastSeen = serverTimestamp();
     update(_myPresenceRef, updates).catch(function () {});
 };
 
@@ -391,8 +455,8 @@ function _buildContent() {
         '</div>';
     }).join('');
 
-    // Online users
-    var users = Object.entries(_onlineData);
+    // Online users (только свежий lastSeen; см. ONLINE_PRESENCE_TTL_MS)
+    var users = getFreshOnlineEntries();
     var onlineCount = users.length;
 
     var onlineHTML = onlineCount === 0
@@ -540,4 +604,3 @@ if (typeof window !== 'undefined') {
     window.__siteStatsRefreshModal = _refreshModal;
 }
 export { pluralPlayers, updateUI };
-

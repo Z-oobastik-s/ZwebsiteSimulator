@@ -109,6 +109,10 @@ window.translations = {
         levelUpLabel: 'Уровень',
         levelRank: 'Ранг',
         levelUpCongrats: 'Продолжайте в том же духе!',
+        levelUpNewRank: 'Новый ранг',
+        levelUpRewardTitle: 'Награда за уровень',
+        levelUpCoinsGranted: '+{{n}} монет на баланс',
+        levelUpCoinsGuest: '+{{n}} монет зачислим при входе в аккаунт',
         tapToContinue: 'Нажмите чтобы продолжить',
         unlockAtLevel: 'Разблокируется на уровне',
         levelShort: 'Ур.',
@@ -457,6 +461,10 @@ window.translations = {
         levelUpLabel: 'Level',
         levelRank: 'Rank',
         levelUpCongrats: 'Keep up the great work!',
+        levelUpNewRank: 'New rank',
+        levelUpRewardTitle: 'Level-up reward',
+        levelUpCoinsGranted: '+{{n}} coins on balance',
+        levelUpCoinsGuest: '+{{n}} coins when you sign in',
         tapToContinue: 'Tap to continue',
         unlockAtLevel: 'Unlock at level',
         levelShort: 'Lvl.',
@@ -801,6 +809,10 @@ window.translations = {
         levelUpLabel: 'Рівень',
         levelRank: 'Ранг',
         levelUpCongrats: 'Так тримати!',
+        levelUpNewRank: 'Новий ранг',
+        levelUpRewardTitle: 'Нагорода за рівень',
+        levelUpCoinsGranted: '+{{n}} монет на баланс',
+        levelUpCoinsGuest: '+{{n}} монет надійдуть після входу в акаунт',
         tapToContinue: 'Натисніть, щоб продовжити',
         unlockAtLevel: 'Відкривається на рівні',
         levelShort: 'Рів.',
@@ -1042,4 +1054,3 @@ window.translations = {
         profileTabOnSite: 'на сайті'
     }
 };
-

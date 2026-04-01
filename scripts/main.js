@@ -35,6 +35,9 @@ const app = {
     cachedDOM: {},
     animationFrameId: null,
     pendingLevelUp: null,
+    pendingLevelUpRewardCoins: 0,
+    /** После модалки level-up: 'repeat' = снова запустить раунд (без exitPractice). */
+    _afterLevelUpAction: null,
     totalLessonPauseDuration: 0,
     _pauseStartAt: null,
     botBattleActive: false,
@@ -428,6 +431,10 @@ const translations = window.translations || {
         levelUpLabel: 'Уровень',
         levelRank: 'Ранг',
         levelUpCongrats: 'Продолжайте в том же духе!',
+        levelUpNewRank: 'Новый ранг',
+        levelUpRewardTitle: 'Награда за уровень',
+        levelUpCoinsGranted: '+{{n}} монет на баланс',
+        levelUpCoinsGuest: '+{{n}} монет зачислим при входе в аккаунт',
         tapToContinue: 'Нажмите чтобы продолжить',
         unlockAtLevel: 'Разблокируется на уровне',
         levelShort: 'Ур.',
@@ -673,6 +680,10 @@ const translations = window.translations || {
         levelUpLabel: 'Level',
         levelRank: 'Rank',
         levelUpCongrats: 'Keep up the great work!',
+        levelUpNewRank: 'New rank',
+        levelUpRewardTitle: 'Level-up reward',
+        levelUpCoinsGranted: '+{{n}} coins on balance',
+        levelUpCoinsGuest: '+{{n}} coins when you sign in',
         tapToContinue: 'Tap to continue',
         unlockAtLevel: 'Unlock at level',
         levelShort: 'Lvl.',
@@ -4226,10 +4237,7 @@ async function finishPractice() {
     window.statsModule.addSession(sessionData);
     updateStreak();
     if (window.levelModule) {
-        var xp = window.levelModule.calculateSessionXP(sessionData);
-        var xpResult = window.levelModule.addPlayerXP(xp);
-        if (xpResult.leveledUp) app.pendingLevelUp = xpResult.newLevel;
-        renderLevelBlock();
+        applySessionXpAndLevelReward(window.levelModule.calculateSessionXP(sessionData));
     }
     var newlyAchievements = window.achievementsModule ? window.achievementsModule.checkAndNotify() : [];
     if (newlyAchievements && newlyAchievements.length > 0 && app.soundEnabled && audioCompleteAdvanced) {
@@ -4907,9 +4915,37 @@ function closeResults(skipExit) {
 // Repeat practice - не вызываем exitPractice(), только скрываем модалку и перезапускаем раунд.
 function repeatPractice() {
     closeResults(true);
+    // Level-up титр/модалку нельзя пропускать: иначе игрок не видит награду и новый ранг.
+    if (app.pendingLevelUp) {
+        var lv = app.pendingLevelUp;
+        app.pendingLevelUp = null;
+        app._afterLevelUpAction = 'repeat';
+        showLevelUpSequence(lv);
+        return;
+    }
     restartPractice();
     // Фокус на body, чтобы нажатия клавиш обрабатывались и раунд был активен.
     setTimeout(function () { document.body.focus(); }, 0);
+}
+
+/** XP после сессии: уровень, награда монетами (залогиненные), очередь на титр. */
+function applySessionXpAndLevelReward(xpAmount) {
+    if (!window.levelModule) return;
+    var xpResult = window.levelModule.addPlayerXP(xpAmount);
+    renderLevelBlock();
+    if (!xpResult.leveledUp) return;
+    app.pendingLevelUp = xpResult.newLevel;
+    var fromLv = typeof xpResult.fromLevel === 'number' ? xpResult.fromLevel : xpResult.newLevel - (xpResult.levelsGained || 1);
+    app.pendingLevelUpRewardCoins = window.levelModule.getLevelUpBonusCoins(fromLv, xpResult.newLevel);
+    var user = window.authModule && window.authModule.getCurrentUser && window.authModule.getCurrentUser();
+    if (user && window.authModule.addCoins && app.pendingLevelUpRewardCoins > 0) {
+        window.authModule.addCoins(user.uid, app.pendingLevelUpRewardCoins).then(function (res) {
+            if (res.success) {
+                var u = window.authModule.getCurrentUser && window.authModule.getCurrentUser();
+                if (u && typeof updateUserUI === 'function') updateUserUI(u, u);
+            }
+        }).catch(function () {});
+    }
 }
 
 // Level block and level-up modal
@@ -4968,8 +5004,11 @@ var levelUpTitrKeydown = null;
 function finishLevelUpTitr() {
     var titr = DOM.get('levelUpTitr');
     if (titr) {
+        titr.classList.remove('level-up-titr--epic');
         titr.classList.add('hidden');
         titr.classList.remove('flex');
+        var innerEpic = titr.querySelector('.level-up-titr-content');
+        if (innerEpic) innerEpic.classList.remove('level-up-titr-content--epic');
     }
     if (levelUpTitrTimeout) {
         clearTimeout(levelUpTitrTimeout);
@@ -4997,14 +5036,25 @@ function showLevelUpSequence(level) {
         rankEl.textContent = window.levelModule.getTierName(level);
     }
     if (titr) {
+        titr.classList.add('level-up-titr--epic');
         titr.classList.remove('hidden');
         titr.classList.add('flex');
+        var inner = titr.querySelector('.level-up-titr-content');
+        if (inner) inner.classList.add('level-up-titr-content--epic');
     }
     if (app.soundEnabled && audioVictory) {
         audioVictory.currentTime = 0;
         audioVictory.play().catch(function() {});
     }
-    levelUpTitrTimeout = setTimeout(finishLevelUpTitr, 2500);
+    if (app.soundEnabled && audioCompleteAdvanced) {
+        try {
+            var ding = audioCompleteAdvanced.cloneNode();
+            ding.volume = SFX_VOLUME * 0.85;
+            ding.currentTime = 0;
+            setTimeout(function () { ding.play().catch(function () {}); }, 320);
+        } catch (_e) {}
+    }
+    levelUpTitrTimeout = setTimeout(finishLevelUpTitr, 2800);
     levelUpTitrKeydown = function (e) {
         if (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
@@ -5017,8 +5067,28 @@ function showLevelUpSequence(level) {
 function showLevelUpModal(level) {
     var modal = DOM.get('levelUpModal');
     var numEl = DOM.get('levelUpNumber');
+    var tierEl = DOM.get('levelUpTierName');
+    var rewardBlock = DOM.get('levelUpRewardBlock');
+    var rewardCoinsEl = DOM.get('levelUpRewardCoins');
     if (numEl) numEl.textContent = level;
+    if (tierEl && window.levelModule) {
+        tierEl.textContent = window.levelModule.getTierName(level);
+    }
+    var rc = app.pendingLevelUpRewardCoins || 0;
+    var user = window.authModule && window.authModule.getCurrentUser && window.authModule.getCurrentUser();
+    if (rewardBlock && rewardCoinsEl) {
+        if (rc > 0) {
+            rewardBlock.classList.remove('hidden');
+            rewardCoinsEl.textContent = user
+                ? trReplace('levelUpCoinsGranted', { n: rc })
+                : trReplace('levelUpCoinsGuest', { n: rc });
+        } else {
+            rewardBlock.classList.add('hidden');
+        }
+    }
     if (modal) {
+        var card = modal.querySelector('.level-up-card');
+        if (card) card.classList.add('level-up-card--epic');
         modal.classList.remove('hidden');
         modal.classList.add('flex');
         focusFirstInModal(modal);
@@ -5028,8 +5098,18 @@ function showLevelUpModal(level) {
 function closeLevelUpModal() {
     var modal = DOM.get('levelUpModal');
     if (modal) {
+        var card = modal.querySelector('.level-up-card');
+        if (card) card.classList.remove('level-up-card--epic');
         modal.classList.add('hidden');
         modal.classList.remove('flex');
+    }
+    app.pendingLevelUpRewardCoins = 0;
+    var resume = app._afterLevelUpAction;
+    app._afterLevelUpAction = null;
+    if (resume === 'repeat') {
+        restartPractice();
+        setTimeout(function () { document.body.focus(); }, 0);
+        return;
     }
     exitPractice();
 }
@@ -5090,8 +5170,10 @@ function fillLevelListModal() {
     var current = window.levelModule.getLevelInfo(window.levelModule.getPlayerXP()).level;
     var getTier = window.levelModule.getTierName;
     var getXP = window.levelModule.getXPThreshold;
+    var cap = (window.levelModule.getMaxTierLevel && window.levelModule.getMaxTierLevel()) || 150;
+    var maxLv = Math.min(280, Math.max(cap, current));
     var html = '<div class="level-list-scroll space-y-1.5 max-h-[60vh] pr-1">';
-    for (var lvl = 1; lvl <= 50; lvl++) {
+    for (var lvl = 1; lvl <= maxLv; lvl++) {
         var tier = getTier(lvl);
         var xpFrom = getXP(lvl);
         var xpTo = getXP(lvl + 1);
@@ -7596,10 +7678,7 @@ function recordBotMultiplayerSessionIfNeeded() {
     }
     updateStreak();
     if (window.levelModule) {
-        var xp = window.levelModule.calculateSessionXP(sessionData);
-        var xpResult = window.levelModule.addPlayerXP(xp);
-        if (xpResult.leveledUp) app.pendingLevelUp = xpResult.newLevel;
-        renderLevelBlock();
+        applySessionXpAndLevelReward(window.levelModule.calculateSessionXP(sessionData));
     }
     var newlyAchievements = window.achievementsModule && typeof window.achievementsModule.checkAndNotify === 'function'
         ? window.achievementsModule.checkAndNotify()
@@ -8461,4 +8540,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-
