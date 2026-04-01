@@ -843,6 +843,39 @@
             display: none;
             height: 0;
         }
+        /* Дублируем разметку «метрики | график»: в tailwind.min.css классы должны быть из сборки; иначе снова всё в одну колонку */
+        #resultsModal .results-main-split {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 0.5rem;
+            min-width: 0;
+        }
+        @media (min-width: 640px) {
+            #resultsModal .results-main-split {
+                flex-direction: row;
+                gap: 0.75rem;
+            }
+        }
+        #resultsModal .results-metrics-col {
+            width: 100%;
+            min-width: 0;
+            flex-shrink: 0;
+        }
+        @media (min-width: 640px) {
+            #resultsModal .results-metrics-col {
+                width: min(100%, 21rem);
+                max-width: 46%;
+            }
+        }
+        @media (min-width: 1024px) {
+            #resultsModal .results-metrics-col {
+                width: min(100%, 22.5rem);
+            }
+        }
+        #resultsModal #resultMetricsGrid.grid-cols-5 {
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+        }
         #resultsModal .results-error-pill {
             padding: 0.28rem 0.55rem !important;
             font-size: 0.8rem !important;
@@ -4755,8 +4788,8 @@ Read
 
             <div class="results-modal-body px-3 py-2 sm:px-4 flex flex-col gap-2 min-w-0 flex-1 min-h-0">
                 <p id="resultMissionLine" class="hidden text-xs text-cyan-200/90" role="status"></p>
-                <div class="flex flex-col md:flex-row md:items-stretch gap-2 md:gap-3 min-w-0">
-                    <div class="md:w-[min(100%,268px)] lg:w-[290px] shrink-0 md:max-w-[46%] min-w-0">
+                <div class="results-main-split flex flex-col sm:flex-row md:flex-row md:items-stretch gap-2 md:gap-3 min-w-0">
+                    <div class="results-metrics-col md:w-[min(100%,22.5rem)] shrink-0 min-w-0">
                         <div id="resultMetricsGrid" class="grid grid-cols-4 gap-1.5">
                             <div class="results-stat-cell results-stat-cell--compact results-panel-surface flex flex-col items-center justify-center px-1 rounded-xl min-w-0">
                                 <span class="text-[9px] text-gray-200 mb-0.5 text-center leading-tight font-medium" data-i18n="speed">Скорость</span>
@@ -4779,8 +4812,10 @@ Read
                             </div>
                             <div id="resultProgressCell" class="hidden results-stat-cell results-stat-cell--compact results-panel-surface flex flex-col items-center justify-center px-0.5 rounded-xl min-w-0 ring-1 ring-purple-400/30 bg-gradient-to-b from-purple-500/18 to-white/[0.04] dark:from-purple-500/12 dark:to-black/35">
                                 <span class="text-[9px] text-gray-200 mb-0.5 text-center leading-tight font-medium" data-i18n="progress">Прогресс</span>
-                                <span class="text-base sm:text-lg font-bold text-purple-300 tabular-nums leading-none" id="resultProgress">0%</span>
-                                <span id="resultProgressSubline" class="mt-0.5 w-full text-[8px] sm:text-[9px] text-center text-gray-400 tabular-nums leading-none px-0.5" title=""></span>
+                                <div class="flex flex-row flex-nowrap items-baseline justify-center gap-0.5 w-full min-w-0 max-w-full leading-none">
+                                    <span class="text-sm sm:text-base font-bold text-purple-300 tabular-nums shrink-0" id="resultProgress">0%</span>
+                                    <span id="resultProgressSubline" class="min-w-0 flex-1 text-[7px] sm:text-[8px] text-gray-400 tabular-nums text-left" title=""></span>
+                                </div>
                             </div>
                             <div class="results-stat-cell results-stat-cell--compact results-panel-surface flex flex-col items-center justify-center px-1 rounded-xl min-w-0">
                                 <span class="text-[9px] text-gray-200 mb-0.5 text-center leading-tight font-medium" data-i18n="errors">Ошибки</span>
@@ -5587,3 +5622,4 @@ Read
     </script>
 </body>
 </html>
+
