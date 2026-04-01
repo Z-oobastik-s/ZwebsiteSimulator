@@ -228,6 +228,11 @@ window.translations = {
         resultReplayErrors: 'Повторить проблемные места',
         resultCoachTitle: 'Совет тренера',
         resultChartTitle: 'Скорость по времени',
+        resultProgressNoBaseline: 'Первый зафиксированный тест — в следующий раз здесь будет сравнение.',
+        resultProgressBeatPrev: 'В прошлый раз {{prev}}% — сейчас на {{delta}}% дальше ({{curr}}%).',
+        resultProgressBehindPrev: 'В прошлый раз {{prev}}% — сейчас {{curr}}% ({{delta}}% к прошлому).',
+        resultProgressTiePrev: 'Как в прошлый раз: {{prev}}%.',
+        resultProgressCharsLine: '{{typed}} / {{total}} симв.',
         resultProblemKeysTitle: 'Проблемные клавиши этой сессии:',
         resultErrorsTotalHint: 'Всего ошибок в сессии',
         resultTrainWeakKeys: 'Тренировать слабые клавиши',
@@ -568,6 +573,11 @@ window.translations = {
         resultReplayErrors: 'Drill mistake spots',
         resultCoachTitle: 'Coach tip',
         resultChartTitle: 'Speed over time',
+        resultProgressNoBaseline: 'First saved run — next time you will see a comparison here.',
+        resultProgressBeatPrev: 'Last time {{prev}}% — you went {{delta}}% further ({{curr}}% now).',
+        resultProgressBehindPrev: 'Last time {{prev}}% — now {{curr}}% ({{delta}}% vs last).',
+        resultProgressTiePrev: 'Same as last time: {{prev}}%.',
+        resultProgressCharsLine: '{{typed}} / {{total}} chars',
         resultProblemKeysTitle: 'Problem keys this session:',
         resultErrorsTotalHint: 'Total errors this session',
         resultTrainWeakKeys: 'Train weak keys',
@@ -908,6 +918,11 @@ window.translations = {
         resultReplayErrors: 'Повторити проблемні місця',
         resultCoachTitle: 'Порада тренера',
         resultChartTitle: 'Швидкість з часом',
+        resultProgressNoBaseline: 'Перший зафіксований тест — наступного разу тут буде порівняння.',
+        resultProgressBeatPrev: 'Минулого разу {{prev}}% — зараз на {{delta}}% далі ({{curr}}%).',
+        resultProgressBehindPrev: 'Минулого разу {{prev}}% — зараз {{curr}}% ({{delta}}% до минулого).',
+        resultProgressTiePrev: 'Як минулого разу: {{prev}}%.',
+        resultProgressCharsLine: '{{typed}} / {{total}} симв.',
         resultProblemKeysTitle: 'Проблемні клавіші цієї сесії:',
         resultErrorsTotalHint: 'Усього помилок за сесію',
         resultTrainWeakKeys: 'Тренувати слабкі клавіші',
@@ -1024,3 +1039,4 @@ window.translations = {
         profileTabOnSite: 'на сайті'
     }
 };
+

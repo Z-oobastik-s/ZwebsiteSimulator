@@ -3610,6 +3610,21 @@ function startPractice(text, mode, lesson = null) {
     app.totalChars = effectiveText.length;
     app.typedText = '';
 
+    if (mode === 'speedtest') {
+        app._speedTestPrevProgressPct = null;
+        try {
+            var _lsPrev = localStorage.getItem('zoobastiks_speedtest_last_progress');
+            if (_lsPrev) {
+                var _pj = JSON.parse(_lsPrev);
+                if (_pj && typeof _pj.pct === 'number' && _pj.pct >= 0 && _pj.pct <= 100) {
+                    app._speedTestPrevProgressPct = _pj.pct;
+                }
+            }
+        } catch (_e) {}
+    } else {
+        app._speedTestPrevProgressPct = null;
+    }
+
     app._errorSnippetList = [];
     app._errorPairCounts = {};
     app._errorsAfterSpaceCount = 0;
@@ -4265,16 +4280,32 @@ async function finishPractice() {
     // Останавливаем запись скорости
     if (window.wpmChartModule) window.wpmChartModule.stopRecording();
 
-    showResults(speed, accuracy, elapsed, app.errors, rewardCoins, { missionFirstClear: isFirstTimeCompletion });
+    var _resultOpts = { missionFirstClear: isFirstTimeCompletion };
+    if (app.currentMode === 'speedtest') {
+        var _tchars = Math.max(1, app.totalChars || 1);
+        var _progPct = Math.min(100, Math.round((app.currentPosition / _tchars) * 100));
+        _resultOpts.speedTestProgressPct = _progPct;
+        _resultOpts.speedTestPrevPct = app._speedTestPrevProgressPct;
+        _resultOpts.speedTestTyped = app.currentPosition;
+        _resultOpts.speedTestTotal = app.totalChars || 0;
+        try {
+            localStorage.setItem('zoobastiks_speedtest_last_progress', JSON.stringify({ pct: _progPct, t: Date.now() }));
+        } catch (_lsE) {}
+    }
+    showResults(speed, accuracy, elapsed, app.errors, rewardCoins, _resultOpts);
 }
 
 // Last result data for copy to clipboard
-let lastResultData = { speed: 0, accuracy: 0, time: 0, errors: 0 };
+let lastResultData = { speed: 0, accuracy: 0, time: 0, errors: 0, progressPct: null, progressPrevPct: null };
 
 // Show results modal - ОПТИМИЗИРОВАНА. rewardCoins - уже посчитанная награда из finishPractice (чтобы не пересчитывать после addSession).
 function showResults(speed, accuracy, time, errors, rewardCoins, options) {
     options = options || {};
-    lastResultData = { speed, accuracy, time: Math.round(time), errors };
+    lastResultData = { speed, accuracy, time: Math.round(time), errors, progressPct: null, progressPrevPct: null };
+    if (app.currentMode === 'speedtest' && typeof options.speedTestProgressPct === 'number') {
+        lastResultData.progressPct = options.speedTestProgressPct;
+        if (typeof options.speedTestPrevPct === 'number') lastResultData.progressPrevPct = options.speedTestPrevPct;
+    }
     var rMission = document.getElementById('resultMissionLine');
     if (rMission) {
         if (app.currentLesson && (app.currentMode === 'lesson' || app.currentMode === 'practice') && window.lessonMissionsModule) {
@@ -4314,6 +4345,51 @@ function showResults(speed, accuracy, time, errors, rewardCoins, options) {
     const secs = Math.floor(time % 60);
     if (timeEl) timeEl.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
     if (errorsEl) errorsEl.textContent = errors;
+
+    var metricsGrid = document.getElementById('resultMetricsGrid');
+    var progCell = document.getElementById('resultProgressCell');
+    var progEl = document.getElementById('resultProgress');
+    var progCmp = document.getElementById('resultProgressCompare');
+    var progChars = document.getElementById('resultProgressChars');
+    var _isSpeedResult = app.currentMode === 'speedtest';
+    var _progPct = options.speedTestProgressPct;
+    if (metricsGrid && progCell && progEl && progCmp) {
+        if (_isSpeedResult && typeof _progPct === 'number') {
+            metricsGrid.classList.remove('grid-cols-4');
+            metricsGrid.classList.add('grid-cols-5');
+            progCell.classList.remove('hidden');
+            progEl.textContent = _progPct + '%';
+            var _prevP = options.speedTestPrevPct;
+            if (typeof _prevP !== 'number') {
+                progCmp.textContent = t('resultProgressNoBaseline');
+            } else {
+                var _delta = _progPct - _prevP;
+                if (_delta > 0) {
+                    progCmp.textContent = trReplace('resultProgressBeatPrev', { prev: String(_prevP), delta: String(_delta), curr: String(_progPct) });
+                } else if (_delta < 0) {
+                    progCmp.textContent = trReplace('resultProgressBehindPrev', { prev: String(_prevP), delta: String(_delta), curr: String(_progPct) });
+                } else {
+                    progCmp.textContent = trReplace('resultProgressTiePrev', { prev: String(_prevP) });
+                }
+            }
+            if (progChars) {
+                progChars.textContent = trReplace('resultProgressCharsLine', {
+                    typed: String(options.speedTestTyped != null ? options.speedTestTyped : 0),
+                    total: String(options.speedTestTotal != null ? options.speedTestTotal : 0)
+                });
+                progChars.classList.remove('hidden');
+            }
+        } else {
+            metricsGrid.classList.add('grid-cols-4');
+            metricsGrid.classList.remove('grid-cols-5');
+            progCell.classList.add('hidden');
+            progCmp.textContent = '';
+            if (progChars) {
+                progChars.textContent = '';
+                progChars.classList.add('hidden');
+            }
+        }
+    }
     
     if (rewardEl && rewardAmountEl) {
         const coins = rewardCoins !== undefined ? rewardCoins : (app.currentLesson && (app.currentMode === 'lesson' || app.currentMode === 'practice')
@@ -4702,11 +4778,19 @@ function copyResultsToClipboard() {
     const secs = Math.floor(d.time % 60);
     const timeStr = mins + ':' + (secs < 10 ? '0' : '') + secs;
     const site = 'Zoobastiks';
+    var _progLine = '';
+    if (d.progressPct != null && typeof d.progressPct === 'number') {
+        _progLine = app.lang === 'en'
+            ? ', progress ' + d.progressPct + '%'
+            : app.lang === 'ua'
+                ? ', прогрес ' + d.progressPct + '%'
+                : ', прогресс ' + d.progressPct + '%';
+    }
     const text = app.lang === 'en'
-        ? site + ' - ' + d.speed + ' cpm, ' + d.accuracy + '% accuracy, ' + timeStr + ', ' + d.errors + ' errors'
+        ? site + ' - ' + d.speed + ' cpm, ' + d.accuracy + '% accuracy, ' + timeStr + ', ' + d.errors + ' errors' + _progLine
         : app.lang === 'ua'
-            ? site + ' - ' + d.speed + ' зн/хв, точність ' + d.accuracy + '%, час ' + timeStr + ', помилок ' + d.errors
-            : site + ' - ' + d.speed + ' зн/мин, точность ' + d.accuracy + '%, время ' + timeStr + ', ошибок ' + d.errors;
+            ? site + ' - ' + d.speed + ' зн/хв, точність ' + d.accuracy + '%, час ' + timeStr + ', помилок ' + d.errors + _progLine
+            : site + ' - ' + d.speed + ' зн/мин, точность ' + d.accuracy + '%, время ' + timeStr + ', ошибок ' + d.errors + _progLine;
 
     function onSuccess() {
         showToast(t('resultCopied'), 'success', '');
@@ -8319,3 +8403,4 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
+
