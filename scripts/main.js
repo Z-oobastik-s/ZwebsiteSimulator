@@ -7900,7 +7900,7 @@ function renderCollectiblesGrid() {
                 ? '<img src="' + path + '" alt="" loading="lazy" decoding="async" width="240" height="320">'
                 : '<div class="cc-slot__placeholder" aria-hidden="true"><span class="cc-slot__q">?</span></div>') +
             '<span class="cc-slot__ring"></span>' +
-            '<span class="cc-slot__badge">' + (have ? r : '-') + '</span></div>'
+            '<span class="cc-slot__badge' + (have ? ' cc-badge--' + r : ' cc-badge--locked') + '">' + (have ? r : '-') + '</span></div>'
         );
     }).join('');
     var prog = document.getElementById('collectibleProgressText');
@@ -7920,9 +7920,21 @@ function renderCollectiblesGrid() {
     }
 }
 
+function playCollectibleRevealEntrance() {
+    var panel = document.querySelector('#collectibleReveal .cc-reveal-panel');
+    if (!panel) return;
+    panel.classList.remove('cc-reveal-slam');
+    void panel.offsetWidth;
+    panel.classList.add('cc-reveal-slam');
+}
+
 function closeCollectibleReveal() {
     var m = document.getElementById('collectibleReveal');
-    if (m) m.classList.add('hidden');
+    if (m) {
+        var panel = m.querySelector('.cc-reveal-panel');
+        if (panel) panel.classList.remove('cc-reveal-slam');
+        m.classList.add('hidden');
+    }
 }
 
 function tryPullCollectibleBooster() {
@@ -7956,7 +7968,12 @@ function tryPullCollectibleBooster() {
                 ? t('collectiblesDuplicate') + ' +' + (res.refundCoins || 0)
                 : t('collectiblesNewCard');
         }
-        if (m) m.classList.remove('hidden');
+        if (m) {
+            m.classList.remove('hidden');
+            requestAnimationFrame(function () {
+                requestAnimationFrame(playCollectibleRevealEntrance);
+            });
+        }
         if (res.duplicate) {
             showToast('+' + (res.refundCoins || 0) + ' ' + (app.lang === 'en' ? 'coins' : 'монет'), 'success', t('reward'));
         } else {
@@ -8302,4 +8319,3 @@ function startPurchasedLesson(lessonId) {
     
     startPractice(lesson.text, 'lesson', lessonObj);
 }
-
