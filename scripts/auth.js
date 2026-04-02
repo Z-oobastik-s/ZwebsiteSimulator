@@ -156,13 +156,13 @@ function generateUserId() {
 // --------------- Регистрация ---------------
 export async function registerUser(username, password, email = '') {
     if (!username || !password) {
-        return { success: false, error: 'Логин и пароль обязательны' };
+        return { success: false, error: 'register_fields_required' };
     }
     if (username.length < 3) {
-        return { success: false, error: 'Логин должен быть не менее 3 символов' };
+        return { success: false, error: 'username_too_short' };
     }
     if (password.length < 6) {
-        return { success: false, error: 'Пароль должен быть не менее 6 символов' };
+        return { success: false, error: 'password_too_short' };
     }
 
     if (useApi()) {
@@ -181,13 +181,13 @@ export async function registerUser(username, password, email = '') {
             const u = getCurrentUserFromStorage();
             return { success: true, user: u || data.user, claimedPromisedCoins: claimed };
         } catch (err) {
-            return { success: false, error: (err.data && err.data.error) || err.message || 'Ошибка регистрации' };
+            return { success: false, error: (err.data && err.data.error) || err.message || 'register_failed' };
         }
     }
 
     const users = getAllUsersStorage();
     if (Object.values(users).some(u => u.username === username)) {
-        return { success: false, error: 'Этот логин уже занят' };
+        return { success: false, error: 'username_taken' };
     }
     const hashedPassword = await hashPassword(password);
     const uid = generateUserId();
@@ -198,7 +198,7 @@ export async function registerUser(username, password, email = '') {
         stats: { totalSessions: 0, totalTime: 0, bestSpeed: 0, averageAccuracy: 0, completedLessons: 0, totalErrors: 0, sessions: [] }
     };
     users[uid] = user;
-    if (!saveAllUsersStorage(users)) return { success: false, error: 'Ошибка сохранения данных' };
+    if (!saveAllUsersStorage(users)) return { success: false, error: 'save_failed' };
     saveCurrentUserToStorage(user);
     const claimed = await mergeGuestPromisedCoinsIntoUser(user.uid);
     if (claimed === 0) notifyAuthStateListeners(user);
@@ -209,7 +209,7 @@ export async function registerUser(username, password, email = '') {
 // --------------- Вход ---------------
 export async function loginUser(username, password) {
     if (!username || !password) {
-        return { success: false, error: 'Введите логин и пароль' };
+        return { success: false, error: 'fill_credentials' };
     }
 
     if (useApi()) {
@@ -228,18 +228,18 @@ export async function loginUser(username, password) {
             const u = getCurrentUserFromStorage();
             return { success: true, user: u || data.user, claimedPromisedCoins: claimed };
         } catch (err) {
-            return { success: false, error: (err.data && err.data.error) || err.message || 'Неверный логин или пароль' };
+            return { success: false, error: (err.data && err.data.error) || err.message || 'invalid_credentials' };
         }
     }
 
     const users = getAllUsersStorage();
     const user = Object.values(users).find(u => u.username === username);
-    if (!user) return { success: false, error: 'Неверный логин или пароль' };
+    if (!user) return { success: false, error: 'invalid_credentials' };
     const hashedPassword = await hashPassword(password);
-    if (user.passwordHash !== hashedPassword) return { success: false, error: 'Неверный логин или пароль' };
+    if (user.passwordHash !== hashedPassword) return { success: false, error: 'invalid_credentials' };
     user.lastLogin = Date.now();
     users[user.uid] = user;
-    if (!saveAllUsersStorage(users)) return { success: false, error: 'Ошибка сохранения данных' };
+    if (!saveAllUsersStorage(users)) return { success: false, error: 'save_failed' };
     saveCurrentUserToStorage(user);
     const claimed = await mergeGuestPromisedCoinsIntoUser(user.uid);
     if (claimed === 0) notifyAuthStateListeners(user);
@@ -767,3 +767,4 @@ window.authModule = {
     getUserBalance,
     isLessonPurchased
 };
+

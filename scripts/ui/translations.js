@@ -135,6 +135,9 @@ window.translations = {
         logoutSuccess: 'Выход выполнен',
         loginError: 'Ошибка входа',
         registerError: 'Ошибка регистрации',
+        authInvalidCredentials: 'Неверный логин или пароль',
+        authSaveFailed: 'Ошибка сохранения данных',
+        authUsernameTaken: 'Этот логин уже занят',
         fillAllFields: 'Заполните все поля',
         passwordTooShort: 'Пароль должен быть не менее 6 символов',
         usernameTooShort: 'Логин: минимум 3 символа (латиница и цифры)',
@@ -517,6 +520,9 @@ window.translations = {
         onbLetsGo: "Let's go!",
         loginError: 'Login error',
         registerError: 'Registration error',
+        authInvalidCredentials: 'Wrong username or password',
+        authSaveFailed: 'Could not save data',
+        authUsernameTaken: 'This username is already taken',
         fillAllFields: 'Please fill all fields',
         passwordTooShort: 'Password must be at least 6 characters',
         usernameTooShort: 'Username: at least 3 characters (letters and numbers)',
@@ -899,6 +905,9 @@ window.translations = {
         logoutSuccess: 'Ви вийшли з акаунта',
         loginError: 'Помилка входу',
         registerError: 'Помилка реєстрації',
+        authInvalidCredentials: 'Невірний логін або пароль',
+        authSaveFailed: 'Не вдалося зберегти дані',
+        authUsernameTaken: 'Цей логін уже зайнятий',
         fillAllFields: 'Заповніть усі поля',
         passwordTooShort: 'Пароль має бути не менше 6 символів',
         usernameTooShort: 'Логін: мінімум 3 символи (латиниця й цифри)',
@@ -1150,3 +1159,4 @@ window.translations = {
         profileTabOnSite: 'на сайті'
     }
 };
+

@@ -5814,6 +5814,34 @@ function switchToRegister() {
     updateRegisterPasswordStrength(true);
 }
 
+/** Сообщения auth API / auth.js: коды и старые русские строки - в текст текущего языка сайта. */
+function translateAuthMessage(raw) {
+    if (raw == null || raw === '') return '';
+    var byCode = {
+        invalid_credentials: 'authInvalidCredentials',
+        fill_credentials: 'fillAllFields',
+        register_fields_required: 'fillAllFields',
+        username_too_short: 'usernameTooShort',
+        password_too_short: 'passwordTooShort',
+        username_taken: 'authUsernameTaken',
+        register_failed: 'registerError',
+        save_failed: 'authSaveFailed'
+    };
+    if (byCode[raw]) return t(byCode[raw]);
+    var legacyRu = {
+        'Неверный логин или пароль': 'authInvalidCredentials',
+        'Введите логин и пароль': 'fillAllFields',
+        'Логин и пароль обязательны': 'fillAllFields',
+        'Логин должен быть не менее 3 символов': 'usernameTooShort',
+        'Пароль должен быть не менее 6 символов': 'passwordTooShort',
+        'Этот логин уже занят': 'authUsernameTaken',
+        'Ошибка регистрации': 'registerError',
+        'Ошибка сохранения данных': 'authSaveFailed'
+    };
+    if (legacyRu[raw]) return t(legacyRu[raw]);
+    return String(raw);
+}
+
 // Handle login
 async function handleLogin() {
     if (!window.authModule) {
@@ -5847,7 +5875,7 @@ async function handleLogin() {
         }
     } else {
         if (errorEl) {
-            errorEl.textContent = result.error || t('loginError');
+            errorEl.textContent = translateAuthMessage(result.error) || t('loginError');
             errorEl.classList.remove('hidden');
         }
     }
@@ -5903,7 +5931,7 @@ async function handleRegister() {
         }
     } else {
         if (errorEl) {
-            errorEl.textContent = result.error || t('registerError');
+            errorEl.textContent = translateAuthMessage(result.error) || t('registerError');
             errorEl.classList.remove('hidden');
         }
     }
@@ -8980,3 +9008,4 @@ window.showLevelUpSequence = showLevelUpSequence;
 window.renderLevelBlock = renderLevelBlock;
 window.updateUserUI = updateUserUI;
 window.updateGuestPromisedHeader = updateGuestPromisedHeader;
+

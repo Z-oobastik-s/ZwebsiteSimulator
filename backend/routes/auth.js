@@ -23,13 +23,13 @@ router.post('/register', async (req, res) => {
         const password = body.password != null ? String(body.password) : '';
         const email = body.email != null ? String(body.email).trim() : '';
         if (!username || !password) {
-            return res.status(400).json({ success: false, error: 'Логин и пароль обязательны' });
+            return res.status(400).json({ success: false, error: 'register_fields_required' });
         }
         if (username.length < 3) {
-            return res.status(400).json({ success: false, error: 'Логин должен быть не менее 3 символов' });
+            return res.status(400).json({ success: false, error: 'username_too_short' });
         }
         if (password.length < 6) {
-            return res.status(400).json({ success: false, error: 'Пароль должен быть не менее 6 символов' });
+            return res.status(400).json({ success: false, error: 'password_too_short' });
         }
 
         const existing = await query(
@@ -37,7 +37,7 @@ router.post('/register', async (req, res) => {
             { username }
         );
         if (existing.recordset.length > 0) {
-            return res.status(400).json({ success: false, error: 'Этот логин уже занят' });
+            return res.status(400).json({ success: false, error: 'username_taken' });
         }
 
         let passwordHash;
@@ -45,7 +45,7 @@ router.post('/register', async (req, res) => {
             passwordHash = await bcrypt.hash(String(password), 10);
         } catch (hashErr) {
             console.error('bcrypt hash error:', hashErr);
-            return res.status(500).json({ success: false, error: 'Ошибка регистрации' });
+            return res.status(500).json({ success: false, error: 'register_failed' });
         }
         const uid = generateUid();
         const now = Date.now();
@@ -74,7 +74,7 @@ router.post('/login', async (req, res) => {
         const username = body.username != null ? String(body.username).trim() : '';
         const password = body.password != null ? String(body.password) : '';
         if (!username || !password) {
-            return res.status(400).json({ success: false, error: 'Введите логин и пароль' });
+            return res.status(400).json({ success: false, error: 'fill_credentials' });
         }
 
         const result = await query(
@@ -84,13 +84,13 @@ router.post('/login', async (req, res) => {
             { username }
         );
         if (result.recordset.length === 0) {
-            return res.status(401).json({ success: false, error: 'Неверный логин или пароль' });
+            return res.status(401).json({ success: false, error: 'invalid_credentials' });
         }
 
         const row = result.recordset[0];
         const match = await bcrypt.compare(password, row.PasswordHash);
         if (!match) {
-            return res.status(401).json({ success: false, error: 'Неверный логин или пароль' });
+            return res.status(401).json({ success: false, error: 'invalid_credentials' });
         }
 
         await query(`UPDATE Users SET LastLogin = @now WHERE Uid = @uid`, { now: Date.now(), uid: row.Uid });
@@ -184,3 +184,4 @@ router.get('/me', authMiddleware, async (req, res) => {
 });
 
 module.exports = { router, authMiddleware, getUserById, rowToUser };
+
