@@ -161,6 +161,7 @@ window.translations = {
         authPasswordMedium: 'Средний',
         authPasswordStrong: 'Сильный',
         authRandomHint: 'Логин - латиница и цифры (от 3 символов). Пароль - от 6 символов. Email по желанию.',
+        authCredentialsHintShort: 'Логин 3+, пароль 6+. Email не обязателен.',
         authHudGuest: 'Гостевая синхронизация',
         authPhLoginUser: 'Логин в систему',
         authPhRegUser: 'Логин (латиница и цифры, от 3)',
@@ -542,6 +543,7 @@ window.translations = {
         authPasswordMedium: 'Medium',
         authPasswordStrong: 'Strong',
         authRandomHint: 'Username - letters and numbers (min 3). Password - min 6 chars. Email optional.',
+        authCredentialsHintShort: 'Login 3+, password 6+. Email optional.',
         authHudGuest: 'Guest sync',
         authPhLoginUser: 'Operator ID',
         authPhRegUser: 'Username (letters and digits, min 3)',
@@ -923,6 +925,7 @@ window.translations = {
         authPasswordMedium: 'Середній',
         authPasswordStrong: 'Сильний',
         authRandomHint: 'Логін - латиниця й цифри (від 3). Пароль - від 6 символів. Email за бажанням.',
+        authCredentialsHintShort: 'Логін 3+, пароль 6+. Email не обов\'язковий.',
         authHudGuest: 'Гостьова синхронізація',
         authPhLoginUser: 'Логін до системи',
         authPhRegUser: 'Логін (латиниця й цифри, від 3)',
@@ -1147,4 +1150,3 @@ window.translations = {
         profileTabOnSite: 'на сайті'
     }
 };
-

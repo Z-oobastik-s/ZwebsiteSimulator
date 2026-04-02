@@ -5543,11 +5543,48 @@ function updateAuthHudBar() {
     if (syncEl && typeof t === 'function') syncEl.textContent = t('authHudGuest');
 }
 
+var _authModalVpBound = false;
+
+/** Реальная высота окна (visualViewport / innerHeight), чтобы карточка не вылезала за экран на любых DPI и после ресайза. */
+function syncAuthModalMaxHeight() {
+    var modal = document.getElementById('loginModal');
+    if (!modal) return;
+    var vv = window.visualViewport;
+    var h = vv && typeof vv.height === 'number' ? vv.height : window.innerHeight;
+    var slack = 36;
+    var px = Math.max(220, Math.round(h - slack));
+    modal.style.setProperty('--auth-modal-max-h', px + 'px');
+}
+
+function bindAuthModalViewportListeners() {
+    if (_authModalVpBound) return;
+    _authModalVpBound = true;
+    var vv = window.visualViewport;
+    if (vv && vv.addEventListener) {
+        vv.addEventListener('resize', syncAuthModalMaxHeight);
+        vv.addEventListener('scroll', syncAuthModalMaxHeight);
+    }
+    window.addEventListener('resize', syncAuthModalMaxHeight);
+}
+
+function unbindAuthModalViewportListeners() {
+    if (!_authModalVpBound) return;
+    _authModalVpBound = false;
+    var vv = window.visualViewport;
+    if (vv && vv.removeEventListener) {
+        vv.removeEventListener('resize', syncAuthModalMaxHeight);
+        vv.removeEventListener('scroll', syncAuthModalMaxHeight);
+    }
+    window.removeEventListener('resize', syncAuthModalMaxHeight);
+}
+
 // Show login modal
 function showLoginModal() {
     var modal = document.getElementById('loginModal');
     if (!modal) return;
     initAuthModalControls();
+    syncAuthModalMaxHeight();
+    bindAuthModalViewportListeners();
     modal.classList.remove('hidden');
     modal.classList.add('flex');
     switchToLogin();
@@ -5560,6 +5597,8 @@ function showLoginModal() {
 function closeLoginModal() {
     var modal = document.getElementById('loginModal');
     if (modal) {
+        unbindAuthModalViewportListeners();
+        modal.style.removeProperty('--auth-modal-max-h');
         modal.classList.add('hidden');
         modal.classList.remove('flex');
     }
@@ -8941,4 +8980,3 @@ window.showLevelUpSequence = showLevelUpSequence;
 window.renderLevelBlock = renderLevelBlock;
 window.updateUserUI = updateUserUI;
 window.updateGuestPromisedHeader = updateGuestPromisedHeader;
-

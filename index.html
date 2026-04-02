@@ -661,6 +661,9 @@
         /* Auth modal - компакт, тёмная тема (как основной сайт) */
         #loginModal.auth-portal-backdrop {
             position: fixed;
+            inset: 0;
+            width: 100%;
+            box-sizing: border-box;
             flex-direction: column;
             align-items: center;
             justify-content: flex-start;
@@ -693,9 +696,12 @@
             z-index: 1;
             margin-top: auto;
             margin-bottom: auto;
-            flex-shrink: 0;
+            flex-shrink: 1;
             width: 100%;
-            max-height: min(90vh, calc(100dvh - 2rem));
+            /* Сначала vh - работает везде; svh/dvh - точнее на мобильных. Без этого в старых браузерах min(..., 100dvh) ломал max-height целиком. */
+            max-height: calc(100vh - 2rem);
+            max-height: calc(100svh - 2rem);
+            max-height: calc(100dvh - 2rem);
             display: flex;
             flex-direction: column;
             min-height: 0;
@@ -705,6 +711,10 @@
             box-shadow:
                 0 0 0 1px rgba(255, 255, 255, 0.06),
                 0 20px 40px rgba(0, 0, 0, 0.85);
+        }
+        /* Пиксельное ограничение с visualViewport / innerHeight - перебитывает max-height выше, когда модалка открыта */
+        #loginModal:not(.hidden) .auth-portal-frame {
+            max-height: var(--auth-modal-max-h, calc(100vh - 2rem));
         }
         .auth-hud-corner {
             position: absolute;
@@ -733,7 +743,7 @@
         /* Оболочка: почти чёрная, прокрутка внутри */
         #loginModal .auth-modal-shell {
             position: relative;
-            max-width: 26.5rem;
+            max-width: 40rem;
             width: 100%;
             min-height: 0;
             flex: 1 1 auto;
@@ -788,20 +798,84 @@
             overflow-x: hidden;
             overflow-y: auto;
             overscroll-behavior: contain;
-            padding: 1.15rem 1.2rem 1.1rem;
+            padding: 0.85rem 1rem 0.75rem;
         }
-        #loginModal .auth-brand-line {
-            font-family: ui-monospace, 'Roboto Mono', monospace;
-            letter-spacing: 0.14em;
-            color: rgba(148, 163, 184, 0.9);
+        #loginModal .auth-header-min {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin-bottom: 0.35rem;
         }
-        #loginModal .auth-modal-headline { letter-spacing: -0.02em; }
-        #loginModal .auth-title-gradient {
-            color: #f1f5f9;
-            text-shadow: none;
+        #loginModal .auth-login-grid,
+        #loginModal .auth-register-grid {
+            display: grid;
+            gap: 0.45rem 1rem;
+            grid-template-columns: 1fr;
         }
-        html:not(.dark) #loginModal .auth-title-gradient {
-            color: #0f172a;
+        @media (min-width: 520px) {
+            #loginModal .auth-login-grid,
+            #loginModal .auth-register-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        #loginModal .auth-random-tools--row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.35rem;
+            margin-top: 0.3rem;
+        }
+        #loginModal .auth-hint-one-line {
+            font-size: 0.62rem;
+            line-height: 1.35;
+            margin: 0.35rem 0 0;
+        }
+        #loginModal .auth-sticky-footer {
+            position: sticky;
+            bottom: 0;
+            z-index: 3;
+            margin-top: 0.4rem;
+            padding-top: 0.5rem;
+            padding-bottom: 0.05rem;
+            background: linear-gradient(180deg, rgba(3, 7, 18, 0) 0%, rgba(3, 7, 18, 0.82) 22%, rgba(3, 7, 18, 0.98) 100%);
+            border-top: 1px solid rgba(51, 65, 85, 0.45);
+        }
+        html:not(.dark) #loginModal .auth-sticky-footer {
+            background: linear-gradient(180deg, rgba(248, 250, 252, 0) 0%, rgba(248, 250, 252, 0.9) 25%, rgba(248, 250, 252, 1) 100%);
+            border-top-color: rgba(148, 163, 184, 0.35);
+        }
+        #loginModal .auth-sticky-footer .auth-alert:not(.hidden) {
+            margin-bottom: 0.4rem;
+        }
+        #loginModal .auth-action-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.45rem 0.75rem;
+        }
+        #loginModal .auth-action-row .auth-foot-link {
+            margin: 0;
+            flex: 1 1 9rem;
+            text-align: left;
+        }
+        #loginModal .auth-action-row .auth-cta {
+            margin-top: 0;
+            width: auto;
+            min-width: 8rem;
+            max-width: 100%;
+            flex: 0 0 auto;
+            padding: 0.58rem 0.95rem;
+        }
+        #loginModal .auth-strength--compact {
+            margin-top: 0.3rem;
+        }
+        #loginModal .auth-strength--compact .auth-strength-track {
+            height: 3px;
+        }
+        #loginModal .auth-strength--compact .auth-strength-label {
+            font-size: 0.58rem;
+            margin-top: 0.1rem;
         }
         /* HUD status strip */
         #loginModal .auth-hud-bar {
@@ -809,7 +883,7 @@
             align-items: center;
             gap: 0.45rem;
             flex-wrap: wrap;
-            margin: 0.5rem 0 0.65rem;
+            margin: 0.3rem 0 0.45rem;
             padding: 0.4rem 0.55rem;
             border-radius: 0.5rem;
             background: rgba(0, 0, 0, 0.45);
@@ -1051,7 +1125,7 @@
             display: flex;
             flex-wrap: wrap;
             gap: 0.45rem;
-            margin-top: 0.55rem;
+            margin-top: 0;
         }
         #loginModal .auth-tool-btn {
             position: relative;
@@ -6331,20 +6405,15 @@ Read
     
     <!-- Login/Register Modal -->
     <div id="loginModal" class="auth-portal-backdrop fixed inset-0 hidden items-center justify-center z-[120] p-4" role="dialog" aria-modal="true" aria-labelledby="authModalTitle" data-auth-tab="login" onclick="if(event.target===this) closeLoginModal()">
-        <div class="auth-portal-frame rounded-2xl w-full max-w-md">
+        <div class="auth-portal-frame rounded-2xl w-full max-w-2xl">
             <div class="auth-modal-shell w-full relative overflow-hidden rounded-[0.9375rem]">
             <div class="auth-modal-inner relative z-[2]">
                 <div class="auth-hud-corner auth-hud-corner--tl" aria-hidden="true"></div>
                 <div class="auth-hud-corner auth-hud-corner--tr" aria-hidden="true"></div>
                 <div class="auth-hud-corner auth-hud-corner--bl" aria-hidden="true"></div>
                 <div class="auth-hud-corner auth-hud-corner--br" aria-hidden="true"></div>
-                <div class="flex justify-between items-start gap-2 mb-0">
-                    <div class="min-w-0 pr-2">
-                        <p class="text-[0.6rem] font-extrabold uppercase tracking-[0.18em] auth-brand-line mb-0.5">Zoobastiks</p>
-                        <p class="text-[0.56rem] font-bold uppercase tracking-[0.32em] text-slate-500 dark:text-slate-400 mb-0.5" data-i18n="authPortalBadge">Доступ к облаку</p>
-                        <h3 class="text-xl md:text-2xl font-black leading-tight auth-title-gradient tracking-tight auth-modal-headline" id="authModalTitle">Войти</h3>
-                        <p class="text-[0.7rem] text-slate-500 dark:text-slate-400 mt-1 leading-snug max-w-[16rem]" data-i18n="authSubtitle">Вход и регистрация</p>
-                    </div>
+                <h2 class="sr-only" id="authModalTitle">Войти</h2>
+                <div class="auth-header-min">
                     <button type="button" onclick="closeLoginModal()" class="auth-close-btn shrink-0" data-i18n-aria-label="close" title="Закрыть"><span aria-hidden="true">✕</span></button>
                 </div>
                 <div class="auth-hud-bar" aria-live="polite">
@@ -6362,7 +6431,7 @@ Read
                     <div class="auth-panels-track" id="authPanelsTrack" data-panel="0">
                         <div class="auth-panel-col" id="authPanelLogin">
                             <div id="loginForm" class="auth-form-stack">
-                                <div class="space-y-2">
+                                <div class="auth-login-grid">
                                     <div>
                                         <label class="auth-field-label" for="loginUsername" data-i18n="username">Логин</label>
                                         <div class="auth-field">
@@ -6378,22 +6447,26 @@ Read
                                             <button type="button" class="auth-reveal" id="loginPasswordToggle" data-auth-act="toggle-pw-login" data-visible="false" onclick="__zoobAuthAct('toggle-pw-login', event)" data-i18n-title="authRevealPassword" title=""><span class="auth-reveal-hex" aria-hidden="true"></span><span class="sr-only" data-i18n="authRevealPassword">Показать</span></button>
                                         </div>
                                     </div>
+                                </div>
+                                <div class="auth-sticky-footer">
                                     <div id="loginError" class="auth-alert hidden" role="alert"></div>
-                                    <button type="button" onclick="handleLogin()" class="auth-cta"><span data-i18n="login">Войти</span></button>
-                                    <p class="auth-foot-link text-center pt-0.5">
-                                        <span data-i18n="noAccount">Нет аккаунта?</span>
-                                        <button type="button" onclick="switchToRegister()" class="ml-1" data-i18n="register">Зарегистрироваться</button>
-                                    </p>
+                                    <div class="auth-action-row">
+                                        <p class="auth-foot-link pt-0.5 mb-0">
+                                            <span data-i18n="noAccount">Нет аккаунта?</span>
+                                            <button type="button" onclick="switchToRegister()" class="ml-1" data-i18n="register">Зарегистрироваться</button>
+                                        </p>
+                                        <button type="button" onclick="handleLogin()" class="auth-cta"><span data-i18n="login">Войти</span></button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                         <div class="auth-panel-col" id="authPanelRegister" inert>
                             <div id="registerForm" class="auth-form-stack">
-                                <div class="space-y-2">
+                                <div class="auth-register-grid">
                                     <div>
                                         <div class="flex flex-wrap items-end justify-between gap-2 mb-0.5">
                                             <label class="auth-field-label mb-0" for="registerUsername" data-i18n="username">Логин</label>
-                                            <button type="button" class="auth-tool-btn auth-tool-btn--icon" data-auth-act="rnd-login" onclick="__zoobAuthAct('rnd-login', event)"><span class="auth-tool-ic" aria-hidden="true">&#x1F3B2;</span> <span data-i18n="authRandomLogin">Случайный логин</span></button>
+                                            <button type="button" class="auth-tool-btn auth-tool-btn--icon shrink-0" data-auth-act="rnd-login" onclick="__zoobAuthAct('rnd-login', event)"><span class="auth-tool-ic" aria-hidden="true">&#x1F3B2;</span> <span data-i18n="authRandomLogin">Случайный логин</span></button>
                                         </div>
                                         <div class="auth-field">
                                             <span class="auth-field-ic" aria-hidden="true"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg></span>
@@ -6407,23 +6480,26 @@ Read
                                             <input type="password" id="registerPassword" autocomplete="new-password" class="auth-field-input w-full font-mono text-[0.85rem]" placeholder="" data-i18n-placeholder="authPhRegPass" oninput="updateRegisterPasswordStrength()" onkeypress="if(event.key==='Enter') handleRegister()">
                                             <button type="button" class="auth-reveal" id="registerPasswordToggle" data-auth-act="toggle-pw-reg" data-visible="false" onclick="__zoobAuthAct('toggle-pw-reg', event)" data-i18n-title="authRevealPassword" title=""><span class="auth-reveal-hex" aria-hidden="true"></span><span class="sr-only" data-i18n="authRevealPassword">Показать</span></button>
                                         </div>
-                                        <div class="auth-random-tools">
-                                            <button type="button" class="auth-tool-btn auth-tool-btn--icon" data-auth-act="rnd-pass" onclick="__zoobAuthAct('rnd-pass', event)"><span class="auth-tool-ic" aria-hidden="true">&#x1F511;</span> <span data-i18n="authRandomPassword">Случайный пароль</span></button>
-                                            <button type="button" class="auth-tool-btn auth-tool-btn--icon" data-auth-act="copy-reg" onclick="__zoobAuthAct('copy-reg', event)"><span class="auth-tool-ic" aria-hidden="true">&#x1F4CB;</span> <span data-i18n="authCopyCredentials">Скопировать</span></button>
-                                        </div>
-                                        <div class="auth-strength">
+                                        <div class="auth-strength auth-strength--compact">
                                             <div class="auth-strength-track"><div id="authStrengthFill" class="auth-strength-fill"></div></div>
                                             <p id="authStrengthLabel" class="auth-strength-label" aria-live="polite"></p>
                                         </div>
                                     </div>
-                                    <p class="auth-hint-muted" data-i18n="authRandomHint">Подсказка</p>
-                                    <p class="auth-hint-muted"><span data-i18n="emailOptional">Email не обязателен</span></p>
+                                </div>
+                                <div class="auth-random-tools auth-random-tools--row">
+                                    <button type="button" class="auth-tool-btn auth-tool-btn--icon" data-auth-act="rnd-pass" onclick="__zoobAuthAct('rnd-pass', event)"><span class="auth-tool-ic" aria-hidden="true">&#x1F511;</span> <span data-i18n="authRandomPassword">Случайный пароль</span></button>
+                                    <button type="button" class="auth-tool-btn auth-tool-btn--icon" data-auth-act="copy-reg" onclick="__zoobAuthAct('copy-reg', event)"><span class="auth-tool-ic" aria-hidden="true">&#x1F4CB;</span> <span data-i18n="authCopyCredentials">Скопировать</span></button>
+                                </div>
+                                <p class="auth-hint-muted auth-hint-one-line" data-i18n="authCredentialsHintShort">Логин 3+, пароль 6+. Email не обязателен.</p>
+                                <div class="auth-sticky-footer">
                                     <div id="registerError" class="auth-alert hidden" role="alert"></div>
-                                    <button type="button" onclick="handleRegister()" class="auth-cta auth-cta--register"><span data-i18n="register">Зарегистрироваться</span></button>
-                                    <p class="auth-foot-link text-center pt-0.5">
-                                        <span data-i18n="haveAccount">Уже есть аккаунт?</span>
-                                        <button type="button" onclick="switchToLogin()" class="ml-1" data-i18n="login">Войти</button>
-                                    </p>
+                                    <div class="auth-action-row">
+                                        <p class="auth-foot-link pt-0.5 mb-0">
+                                            <span data-i18n="haveAccount">Уже есть аккаунт?</span>
+                                            <button type="button" onclick="switchToLogin()" class="ml-1" data-i18n="login">Войти</button>
+                                        </p>
+                                        <button type="button" onclick="handleRegister()" class="auth-cta auth-cta--register"><span data-i18n="register">Зарегистрироваться</span></button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -7016,4 +7092,3 @@ Read
     </script>
 </body>
 </html>
-
