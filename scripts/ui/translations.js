@@ -163,6 +163,9 @@ window.translations = {
         profileLoginLabel: 'Логин (для входа)',
         profileNicknameLabel: 'Никнейм (в игре)',
         profileNicknameHint: 'Это имя видят другие. Логин менять нельзя.',
+        profileUnsavedHint: 'Пока изменения только на этом экране - нажми «Сохранить», и они уйдут в облако. Не потеряй свой шедевр.',
+        profileCopyLogin: 'Копировать логин',
+        profileCopyLoginDone: 'Логин скопирован',
         admin: 'Админ',
         adminPanel: 'Админ-панель',
         allUsers: 'Все пользователи',
@@ -535,6 +538,9 @@ window.translations = {
         profileLoginLabel: 'Login (sign-in ID)',
         profileNicknameLabel: 'Nickname (shown in game)',
         profileNicknameHint: 'Others see this name. Login cannot be changed.',
+        profileUnsavedHint: 'Your edits live only on this screen for now - hit Save to send them to the cloud. Do not let your masterpiece vanish.',
+        profileCopyLogin: 'Copy login',
+        profileCopyLoginDone: 'Login copied',
         admin: 'Admin',
         adminPanel: 'Admin Panel',
         allUsers: 'All Users',
@@ -907,6 +913,9 @@ window.translations = {
         profileLoginLabel: 'Логін (для входу)',
         profileNicknameLabel: 'Нікнейм (у грі)',
         profileNicknameHint: 'Це ім\'я бачать інші. Логін змінити не можна.',
+        profileUnsavedHint: 'Поки зміни лише на цьому екрані - натисни «Зберегти», і вони полетять в хмару. Не втрать свій шедевр.',
+        profileCopyLogin: 'Скопіювати логін',
+        profileCopyLoginDone: 'Логін скопійовано',
         admin: 'Адмін',
         adminPanel: 'Адмін-панель',
         allUsers: 'Усі користувачі',
@@ -1120,3 +1129,4 @@ window.translations = {
         profileTabOnSite: 'на сайті'
     }
 };
+

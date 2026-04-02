@@ -1298,6 +1298,7 @@ document.addEventListener('DOMContentLoaded', function() {
     applyAnimationsSetting();
     initializeUI();
     updateTranslations();
+    if (typeof initAuthModalControls === 'function') initAuthModalControls();
     if (window.statsModule) window.statsModule.updateDisplay();
     if (window.achievementsModule) window.achievementsModule.render('achievementsBlock');
     if (window.levelModule) renderLevelBlock();
@@ -5470,10 +5471,39 @@ function focusFirstInModal(modal) {
     if (focusable) setTimeout(function () { focusable.focus(); }, 0);
 }
 
+/** Клики по «глаз», рандом и копирование: делегирование с data-auth-act (надёжнее inline при SVG внутри кнопок). */
+function initAuthModalControls() {
+    var root = document.getElementById('loginModal');
+    if (!root || root.getAttribute('data-auth-bound') === '1') return;
+    root.setAttribute('data-auth-bound', '1');
+    root.addEventListener('click', function (e) {
+        var btn = e.target && e.target.closest ? e.target.closest('[data-auth-act]') : null;
+        if (!btn || !root.contains(btn)) return;
+        var act = btn.getAttribute('data-auth-act');
+        if (act === 'toggle-pw-login') {
+            e.preventDefault();
+            toggleAuthPassword('loginPassword', 'loginPasswordToggle');
+        } else if (act === 'toggle-pw-reg') {
+            e.preventDefault();
+            toggleAuthPassword('registerPassword', 'registerPasswordToggle');
+        } else if (act === 'rnd-login') {
+            e.preventDefault();
+            fillRandomAuthLogin();
+        } else if (act === 'rnd-pass') {
+            e.preventDefault();
+            fillRandomAuthPassword();
+        } else if (act === 'copy-reg') {
+            e.preventDefault();
+            copyRegisterCredentials();
+        }
+    });
+}
+
 // Show login modal
 function showLoginModal() {
     var modal = document.getElementById('loginModal');
     if (!modal) return;
+    initAuthModalControls();
     modal.classList.remove('hidden');
     modal.classList.add('flex');
     switchToLogin();
@@ -5521,23 +5551,29 @@ function toggleAuthPassword(inputId, btnId) {
     }
 }
 
+function authSecureRandomInt(max) {
+    if (max <= 0) return 0;
+    if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+        var buf = new Uint32Array(1);
+        crypto.getRandomValues(buf);
+        return buf[0] % max;
+    }
+    return Math.floor(Math.random() * max);
+}
+
 function generateAuthUsername() {
     var chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
-    var len = 8 + Math.floor(Math.random() * 3);
-    var arr = new Uint8Array(len);
-    crypto.getRandomValues(arr);
+    var len = 8 + authSecureRandomInt(3);
     var s = '';
-    for (var i = 0; i < len; i++) s += chars[arr[i] % chars.length];
+    for (var i = 0; i < len; i++) s += chars[authSecureRandomInt(chars.length)];
     return s;
 }
 
 function generateAuthPassword() {
     var all = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%';
     var len = 14;
-    var arr = new Uint8Array(len);
-    crypto.getRandomValues(arr);
     var s = '';
-    for (var j = 0; j < len; j++) s += all[arr[j] % all.length];
+    for (var j = 0; j < len; j++) s += all[authSecureRandomInt(all.length)];
     return s;
 }
 
@@ -5614,6 +5650,32 @@ async function copyRegisterCredentials() {
         }
         showToast(t('authCopied'), 'success');
     } catch (e) {
+        showToast(t('saveError'), 'error');
+    }
+}
+
+async function copyProfileLogin() {
+    var el = document.getElementById('profileLoginValue');
+    var u = el ? String(el.textContent || '').trim() : '';
+    if (!u) {
+        showToast(t('saveError'), 'error');
+        return;
+    }
+    try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            await navigator.clipboard.writeText(u);
+        } else {
+            var ta = document.createElement('textarea');
+            ta.value = u;
+            ta.style.position = 'fixed';
+            ta.style.left = '-99999px';
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+        }
+        showToast(t('profileCopyLoginDone'), 'success');
+    } catch (err) {
         showToast(t('saveError'), 'error');
     }
 }
@@ -6591,20 +6653,48 @@ async function showProfile() {
     updateProfileBgPreview();
 }
 
+var _profileDraftBaseline = { displayName: '', bio: '' };
+
+function snapshotProfileDraftBaseline() {
+    var dnEl = document.getElementById('profileDisplayName');
+    var bioEl = document.getElementById('profileBio');
+    _profileDraftBaseline = {
+        displayName: (dnEl && dnEl.value || '').trim(),
+        bio: bioEl ? bioEl.value : ''
+    };
+    updateProfileDirtyState();
+}
+
+function updateProfileDirtyState() {
+    var hint = document.getElementById('profileUnsavedHint');
+    var dnEl = document.getElementById('profileDisplayName');
+    var bioEl = document.getElementById('profileBio');
+    if (!hint || !dnEl || !bioEl) return;
+    var curDn = (dnEl.value || '').trim();
+    var curBio = bioEl.value || '';
+    var dirty = curDn !== _profileDraftBaseline.displayName || curBio !== _profileDraftBaseline.bio;
+    if (dirty) hint.classList.remove('hidden');
+    else hint.classList.add('hidden');
+}
+
 // Load profile data into UI - ОПТИМИЗИРОВАНА
 function loadProfileData(profile) {
-    const usernameEl = DOM.get('profileUsername');
     const emailEl = DOM.get('profileEmail');
     const bioEl = DOM.get('profileBio');
     const loginValEl = DOM.get('profileLoginValue');
     const displayNameInput = DOM.get('profileDisplayName');
     
-    if (usernameEl) usernameEl.textContent = profile.displayName || profile.username || 'User';
-    if (loginValEl) loginValEl.textContent = profile.username || '';
+    var loginId = profile.username || profile.login || profile.userLogin || profile.accountUsername || '';
+    if (loginValEl) loginValEl.textContent = loginId;
     if (displayNameInput) {
-        displayNameInput.value = (profile.displayName || profile.username || '').trim();
+        var disp = (profile.displayName || profile.username || '').trim();
+        displayNameInput.value = disp;
     }
-    if (emailEl) emailEl.textContent = profile.email || '';
+    if (emailEl) {
+        var em = profile.email || '';
+        emailEl.textContent = em;
+        emailEl.classList.toggle('hidden', !em);
+    }
     if (bioEl) bioEl.value = (!profile.bio || profile.bio === 'null') ? '' : profile.bio;
     
     const photoEl = DOM.get('profilePhoto');
@@ -6664,6 +6754,8 @@ function loadProfileData(profile) {
 
     // Re-render dynamic overview tab with fresh profile data
     renderProfileOverview();
+
+    snapshotProfileDraftBaseline();
 }
 
 // Save profile
@@ -6688,9 +6780,8 @@ async function saveProfile() {
     if (result.success) {
         showToast(t('profileSaved'), 'success');
         currentUserProfile = { ...currentUserProfile, ...updates };
-        var titleEl = document.getElementById('profileUsername');
-        if (titleEl) titleEl.textContent = displayName;
         if (typeof updateUserUI === 'function') updateUserUI(user, currentUserProfile);
+        snapshotProfileDraftBaseline();
     } else {
         showToast(t('saveError'), 'error');
     }
@@ -8794,3 +8885,4 @@ window.showLevelUpSequence = showLevelUpSequence;
 window.renderLevelBlock = renderLevelBlock;
 window.updateUserUI = updateUserUI;
 window.updateGuestPromisedHeader = updateGuestPromisedHeader;
+

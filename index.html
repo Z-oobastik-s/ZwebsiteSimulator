@@ -655,18 +655,52 @@
         /* Auth modal */
         #loginModal .auth-modal-shell {
             position: relative;
-            max-width: 26rem;
+            max-width: 28rem;
             width: 100%;
-            padding: 1.75rem;
+            padding: 1.85rem;
             overflow: hidden;
-            border: 1px solid rgba(6, 182, 212, 0.28);
+            border: 1px solid rgba(6, 182, 212, 0.35);
             box-shadow:
-                0 0 0 1px rgba(139, 92, 246, 0.1),
-                0 25px 50px -12px rgba(0, 0, 0, 0.55),
-                0 0 90px -24px rgba(6, 182, 212, 0.38);
+                0 0 0 1px rgba(139, 92, 246, 0.14),
+                0 28px 64px -16px rgba(0, 0, 0, 0.65),
+                0 0 100px -20px rgba(6, 182, 212, 0.42),
+                inset 0 1px 0 rgba(255, 255, 255, 0.06);
         }
         .dark #loginModal .auth-modal-shell {
-            background: linear-gradient(155deg, rgba(15, 23, 42, 0.94), rgba(30, 27, 75, 0.9));
+            background: linear-gradient(160deg, rgba(10, 16, 28, 0.97), rgba(22, 18, 48, 0.94));
+        }
+        #loginModal .auth-modal-inner::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(6, 182, 212, 0.03) 2px,
+                rgba(6, 182, 212, 0.03) 4px
+            );
+            pointer-events: none;
+            opacity: 0.5;
+        }
+        #loginModal .auth-brand-line {
+            background: linear-gradient(90deg, #22d3ee, #a78bfa, #f472b6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 24px rgba(34, 211, 238, 0.25);
+        }
+        #loginModal .auth-title-gradient {
+            background: linear-gradient(105deg, #fff 0%, #e0f2fe 40%, #ddd6fe 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        html:not(.dark) #loginModal .auth-title-gradient {
+            background: linear-gradient(105deg, #0f172a 0%, #0c4a6e 45%, #5b21b6 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
         }
         #loginModal .auth-modal-shell::before {
             content: '';
@@ -709,7 +743,8 @@
             letter-spacing: 0.02em;
             color: rgba(255, 255, 255, 0.52);
             border: none;
-            background: transparent;
+            background: transparent !important;
+            box-shadow: none !important;
             cursor: pointer;
             transition: color 0.2s, background 0.2s, box-shadow 0.2s;
         }
@@ -717,21 +752,22 @@
             color: rgba(17, 24, 39, 0.55);
         }
         #loginModal .auth-tab-btn.auth-tab--active {
-            background: linear-gradient(95deg, rgba(6, 182, 212, 0.38), rgba(139, 92, 246, 0.35));
-            color: #fff;
-            box-shadow: 0 2px 14px rgba(6, 182, 212, 0.22);
+            background: linear-gradient(95deg, rgba(6, 182, 212, 0.45), rgba(139, 92, 246, 0.42)) !important;
+            color: #fff !important;
+            box-shadow: 0 2px 16px rgba(6, 182, 212, 0.28) !important;
         }
         html:not(.dark) #loginModal .auth-tab-btn.auth-tab--active {
-            color: #0f172a;
-            background: linear-gradient(95deg, rgba(6, 182, 212, 0.28), rgba(139, 92, 246, 0.24));
+            color: #0f172a !important;
+            background: linear-gradient(95deg, rgba(6, 182, 212, 0.35), rgba(139, 92, 246, 0.28)) !important;
         }
-        #loginModal .auth-password-wrap { position: relative; }
-        #loginModal .auth-password-wrap > input { padding-right: 2.75rem; }
+        #loginModal .auth-password-wrap { position: relative; z-index: 0; }
+        #loginModal .auth-password-wrap > input { padding-right: 2.75rem; position: relative; z-index: 0; }
         #loginModal .auth-password-toggle {
             position: absolute;
             right: 0.35rem;
             top: 50%;
             transform: translateY(-50%);
+            z-index: 6;
             width: 2.25rem;
             height: 2.25rem;
             border: none;
@@ -743,6 +779,10 @@
             align-items: center;
             justify-content: center;
             transition: background 0.2s, color 0.2s;
+        }
+        #loginModal .auth-password-toggle svg,
+        #loginModal .auth-password-toggle path {
+            pointer-events: none;
         }
         html:not(.dark) #loginModal .auth-password-toggle {
             background: rgba(0, 0, 0, 0.07);
@@ -762,6 +802,8 @@
             margin-top: 0.4rem;
         }
         #loginModal .auth-tool-btn {
+            position: relative;
+            z-index: 4;
             font-size: 0.68rem;
             font-weight: 600;
             letter-spacing: 0.03em;
@@ -783,6 +825,81 @@
             background: rgba(6, 182, 212, 0.24);
             border-color: rgba(6, 182, 212, 0.55);
             transform: translateY(-1px);
+        }
+        .profile-hero-panel--vault {
+            border: 1px solid rgba(6, 182, 212, 0.22);
+            box-shadow:
+                0 0 0 1px rgba(139, 92, 246, 0.08),
+                0 20px 50px -20px rgba(0, 0, 0, 0.55),
+                0 0 80px -30px rgba(6, 182, 212, 0.2);
+        }
+        .profile-hero-panel--vault .profile-hero-vault-bg {
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 120% 80% at 100% 0%, rgba(34, 211, 238, 0.12), transparent 50%),
+                radial-gradient(ellipse 100% 60% at 0% 100%, rgba(167, 139, 250, 0.1), transparent 45%);
+            pointer-events: none;
+        }
+        .profile-hero-field-label {
+            display: block;
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: rgba(34, 211, 238, 0.85);
+            margin-bottom: 0.35rem;
+        }
+        .profile-hero-name-input {
+            width: 100%;
+            font-size: 1.35rem;
+            line-height: 1.25;
+            font-weight: 800;
+            padding: 0.55rem 0.75rem;
+            border-radius: 0.75rem;
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid rgba(34, 211, 238, 0.35);
+            color: #fff;
+            box-shadow: inset 0 2px 12px rgba(0, 0, 0, 0.25);
+        }
+        .profile-hero-name-input:focus {
+            outline: none;
+            border-color: rgba(34, 211, 238, 0.65);
+            box-shadow: inset 0 2px 12px rgba(0, 0, 0, 0.25), 0 0 0 2px rgba(34, 211, 238, 0.2);
+        }
+        .profile-login-strip {
+            background: rgba(0, 0, 0, 0.28);
+        }
+        .profile-copy-login-btn {
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            padding: 0.35rem 0.6rem;
+            border-radius: 0.45rem;
+            border: 1px solid rgba(34, 211, 238, 0.4);
+            background: rgba(6, 182, 212, 0.15);
+            color: #a5f3fc;
+            cursor: pointer;
+            transition: background 0.2s, border-color 0.2s;
+        }
+        .profile-copy-login-btn:hover {
+            background: rgba(6, 182, 212, 0.28);
+            border-color: rgba(34, 211, 238, 0.6);
+        }
+        html:not(.dark) .profile-hero-name-input {
+            background: #f8fafc;
+            border-color: #bae6fd;
+            color: #0f172a;
+        }
+        html:not(.dark) .profile-login-strip {
+            background: #f1f5f9;
+            border-color: #e2e8f0 !important;
+        }
+        html:not(.dark) .profile-copy-login-btn {
+            color: #0e7490;
+            border-color: rgba(14, 116, 144, 0.45);
+            background: rgba(14, 116, 144, 0.1);
         }
         #loginModal .auth-strength { margin-top: 0.55rem; }
         #loginModal .auth-strength-track {
@@ -3267,14 +3384,25 @@ Read
         html:not(.dark) .profile-stat-tile .text-gray-400,
         html:not(.dark) .profile-stat-tile [class*="text-gray"] { color: #374151 !important; text-shadow: none; }
         html:not(.dark) .profile-2090-header { color: #0f172a !important; text-shadow: none; }
-        html:not(.dark) .profile-hero-panel #profileUsername,
+        html:not(.dark) .profile-hero-panel .profile-hero-name-input,
         html:not(.dark) .profile-hero-panel h3.text-white { color: #0f172a !important; text-shadow: none; }
         html:not(.dark) .profile-hero-panel .text-gray-400,
         html:not(.dark) .profile-hero-panel .text-gray-500 { color: #475569 !important; text-shadow: none; }
         html:not(.dark) .profile-quick-btn.text-cyan-400,
         html:not(.dark) .profile-quick-btn [class*="text-cyan"] { color: #0e7490 !important; }
-        html:not(.dark) #profileLoginLine { color: #0e7490 !important; }
-        html:not(.dark) #profileLoginValue { color: #0f172a !important; }
+        html:not(.dark) .profile-login-strip code#profileLoginValue { color: #0f172a !important; }
+        .profile-unsaved-hint {
+            animation: profileUnsavedPulse 2.5s ease-in-out infinite;
+        }
+        @keyframes profileUnsavedPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.22); }
+            50% { box-shadow: 0 0 12px 2px rgba(217, 70, 239, 0.15); }
+        }
+        html:not(.dark) #profileUnsavedHint {
+            color: #92400e !important;
+            background: linear-gradient(90deg, rgba(251, 191, 36, 0.2), rgba(232, 121, 249, 0.12)) !important;
+            border-color: rgba(180, 83, 9, 0.35) !important;
+        }
 
         /* ═══════════════════════════════════════════════════
            PROFILE TAB - CSS VARIABLES
@@ -5307,13 +5435,13 @@ Read
     </div>
     
     <!-- Login/Register Modal -->
-    <div id="loginModal" class="fixed inset-0 bg-black/55 backdrop-blur-md hidden items-center justify-center z-50 p-4" role="dialog" aria-modal="true" aria-labelledby="authModalTitle" onclick="if(event.target===this) closeLoginModal()">
+    <div id="loginModal" class="fixed inset-0 bg-black/60 backdrop-blur-lg hidden items-center justify-center z-[120] p-4" role="dialog" aria-modal="true" aria-labelledby="authModalTitle" onclick="if(event.target===this) closeLoginModal()">
         <div class="auth-modal-shell glass rounded-2xl w-full max-w-md fade-in" onclick="event.stopPropagation()">
-            <div class="auth-modal-inner">
+            <div class="auth-modal-inner relative z-[1]">
                 <div class="flex justify-between items-start gap-3 mb-1">
                     <div class="min-w-0">
-                        <p class="text-[0.65rem] font-bold uppercase tracking-[0.2em] text-cyan-400/90 mb-1">Zoobastiks</p>
-                        <h3 class="text-xl md:text-2xl font-bold text-white leading-tight" id="authModalTitle">Войти</h3>
+                        <p class="text-[0.68rem] font-extrabold uppercase tracking-[0.28em] auth-brand-line mb-1">Zoobastiks</p>
+                        <h3 class="text-xl md:text-2xl font-extrabold leading-tight auth-title-gradient" id="authModalTitle">Войти</h3>
                         <p class="text-xs text-gray-400 mt-1.5 leading-snug" data-i18n="authSubtitle">Вход и регистрация</p>
                     </div>
                     <button type="button" onclick="closeLoginModal()" class="auth-close-btn shrink-0" data-i18n-aria-label="close" title="Закрыть"><span aria-hidden="true">✕</span></button>
@@ -5332,7 +5460,7 @@ Read
                         <label class="block text-sm font-medium mb-1.5" data-i18n="password">Пароль</label>
                         <div class="auth-password-wrap">
                             <input type="password" id="loginPassword" autocomplete="current-password" class="w-full px-4 py-2.5 rounded-xl bg-gray-700/50 border border-gray-600/80 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500/45 transition-all" placeholder="••••••••" onkeypress="if(event.key==='Enter') handleLogin()">
-                            <button type="button" class="auth-password-toggle" id="loginPasswordToggle" onclick="toggleAuthPassword('loginPassword','loginPasswordToggle')" data-i18n-title="authRevealPassword" title=""><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button>
+                            <button type="button" class="auth-password-toggle" id="loginPasswordToggle" data-auth-act="toggle-pw-login" data-i18n-title="authRevealPassword" title=""><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button>
                         </div>
                     </div>
                     <div id="loginError" class="text-red-400 text-sm hidden"></div>
@@ -5350,7 +5478,7 @@ Read
                     <div>
                         <div class="flex flex-wrap items-center justify-between gap-2 mb-1.5">
                             <label class="block text-sm font-medium" data-i18n="username">Логин</label>
-                            <button type="button" class="auth-tool-btn" onclick="fillRandomAuthLogin()" data-i18n="authRandomLogin">Случайный логин</button>
+                            <button type="button" class="auth-tool-btn" data-auth-act="rnd-login" data-i18n="authRandomLogin">Случайный логин</button>
                         </div>
                         <input type="text" id="registerUsername" autocomplete="username" class="w-full px-4 py-2.5 rounded-xl bg-gray-700/50 border border-gray-600/80 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500/45 transition-all font-mono text-sm" placeholder="Логин (мин. 3 символа)">
                     </div>
@@ -5358,11 +5486,11 @@ Read
                         <label class="block text-sm font-medium mb-1.5" data-i18n="password">Пароль</label>
                         <div class="auth-password-wrap">
                             <input type="password" id="registerPassword" autocomplete="new-password" class="w-full px-4 py-2.5 rounded-xl bg-gray-700/50 border border-gray-600/80 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500/45 transition-all font-mono text-sm" placeholder="Мин. 6 символов" oninput="updateRegisterPasswordStrength()" onkeypress="if(event.key==='Enter') handleRegister()">
-                            <button type="button" class="auth-password-toggle" id="registerPasswordToggle" onclick="toggleAuthPassword('registerPassword','registerPasswordToggle')" data-i18n-title="authRevealPassword" title=""><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button>
+                            <button type="button" class="auth-password-toggle" id="registerPasswordToggle" data-auth-act="toggle-pw-reg" data-i18n-title="authRevealPassword" title=""><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button>
                         </div>
                         <div class="auth-random-tools">
-                            <button type="button" class="auth-tool-btn" onclick="fillRandomAuthPassword()" data-i18n="authRandomPassword">Случайный пароль</button>
-                            <button type="button" class="auth-tool-btn" onclick="copyRegisterCredentials()" data-i18n="authCopyCredentials">Скопировать</button>
+                            <button type="button" class="auth-tool-btn" data-auth-act="rnd-pass" data-i18n="authRandomPassword">Случайный пароль</button>
+                            <button type="button" class="auth-tool-btn" data-auth-act="copy-reg" data-i18n="authCopyCredentials">Скопировать</button>
                         </div>
                         <div class="auth-strength">
                             <div class="auth-strength-track"><div id="authStrengthFill" class="auth-strength-fill"></div></div>
@@ -5410,31 +5538,37 @@ Read
                 </span>
             </button>
             
-            <!-- Hero panel: avatar + nickname + rank + level + balance + XP -->
-            <div class="profile-hero-panel rounded-2xl p-6 mb-5 relative overflow-hidden">
-                <div class="flex flex-wrap items-center gap-4 md:gap-6">
-                    <div class="relative shrink-0">
-                        <div class="profile-avatar-ring w-24 h-24 md:w-28 md:h-28 rounded-full overflow-hidden bg-gray-800/80 flex items-center justify-center">
-                            <img id="profilePhoto" src="" alt="" class="w-full h-full object-cover" style="display: none; width: 112px; height: 112px; object-fit: cover;">
+            <!-- Hero: vault ID card (никнейм + логин + статы) -->
+            <div class="profile-hero-panel profile-hero-panel--vault rounded-2xl p-6 mb-5 relative overflow-hidden">
+                <div class="profile-hero-vault-bg" aria-hidden="true"></div>
+                <div class="relative z-10 flex flex-col md:flex-row gap-6 md:gap-8 items-stretch">
+                    <div class="relative shrink-0 flex justify-center md:block">
+                        <div class="profile-avatar-ring w-28 h-28 md:w-32 md:h-32 rounded-full overflow-hidden bg-gray-800/80 flex items-center justify-center ring-2 ring-cyan-500/30 shadow-[0_0_28px_-4px_rgba(34,211,238,0.45)]">
+                            <img id="profilePhoto" src="" alt="" class="w-full h-full object-cover" style="display: none; width: 128px; height: 128px; object-fit: cover;">
                             <div id="profilePhotoPlaceholder" class="w-full h-full flex items-center justify-center text-4xl md:text-5xl">👤</div>
                         </div>
-                        <button onclick="showAvatarSelector()" class="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-cyan-500/90 hover:bg-cyan-400 flex items-center justify-center cursor-pointer shadow-lg">
+                        <button type="button" onclick="showAvatarSelector()" class="absolute -bottom-1 -right-1 w-9 h-9 rounded-full bg-cyan-500/90 hover:bg-cyan-400 flex items-center justify-center cursor-pointer shadow-lg ring-2 ring-slate-900/80">
                             <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14"/></svg>
                         </button>
                     </div>
-                    <div class="flex-1 min-w-0">
-                        <h3 id="profileUsername" class="text-2xl md:text-3xl font-bold text-white truncate"></h3>
-                        <p id="profileLoginLine" class="text-sm mt-1 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-cyan-200/85">
-                            <span class="text-gray-400 font-normal" data-i18n="profileLoginLabel">Логин</span>
-                            <span id="profileLoginValue" class="font-mono text-white font-medium tracking-tight"></span>
-                        </p>
-                        <p id="profileEmail" class="text-gray-400 text-sm truncate mt-0.5"></p>
-                        <div class="flex flex-wrap items-center gap-2 mt-2">
+                    <div class="flex-1 min-w-0 space-y-3">
+                        <div>
+                            <label for="profileDisplayName" class="profile-hero-field-label" data-i18n="profileNicknameLabel">Никнейм</label>
+                            <input type="text" id="profileDisplayName" maxlength="40" autocomplete="nickname" class="profile-hero-name-input focus:ring-0" placeholder="" oninput="updateProfileDirtyState()" />
+                            <p class="text-xs text-gray-500 mt-1.5 leading-relaxed" data-i18n="profileNicknameHint"></p>
+                        </div>
+                        <div class="profile-login-strip flex flex-wrap items-center gap-2 py-2.5 px-3 rounded-xl border border-cyan-500/20">
+                            <span class="text-[0.65rem] font-bold uppercase tracking-wider text-gray-500" data-i18n="profileLoginLabel">Логин</span>
+                            <code id="profileLoginValue" class="font-mono text-sm font-semibold text-cyan-100 tracking-tight break-all flex-1 min-w-0"></code>
+                            <button type="button" onclick="copyProfileLogin()" class="profile-copy-login-btn shrink-0" data-i18n="profileCopyLogin">Копировать</button>
+                        </div>
+                        <p id="profileEmail" class="text-gray-400 text-sm truncate hidden"></p>
+                        <div class="flex flex-wrap items-center gap-2 pt-1">
                             <span id="profileTierName" class="profile-2090-badge uppercase text-xs px-2 py-0.5 rounded">-</span>
                             <span id="profileLevelNumber" class="profile-level-badge text-amber-300 font-bold text-sm px-2.5 py-0.5 rounded">1</span>
                             <span id="profileBalance" class="profile-balance-badge text-amber-300/90 text-sm px-2 py-0.5 rounded flex items-center gap-1">0</span>
                         </div>
-                        <div class="mt-2 max-w-xs">
+                        <div class="max-w-full md:max-w-md pt-1">
                             <div class="profile-xp-bar-wrap w-full h-2">
                                 <div id="profileXPBar" class="profile-xp-bar-fill" style="width: 0%;"></div>
                             </div>
@@ -5442,12 +5576,6 @@ Read
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <div class="profile-nickname-card glass rounded-xl p-4 mb-4 border border-cyan-500/25">
-                <label for="profileDisplayName" class="block text-xs font-semibold uppercase tracking-wide text-cyan-400/90 mb-2" data-i18n="profileNicknameLabel">Никнейм</label>
-                <input type="text" id="profileDisplayName" maxlength="40" autocomplete="nickname" class="profile-bio-input w-full px-3 py-2 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500/40" />
-                <p class="text-xs text-gray-500 mt-2 leading-relaxed" data-i18n="profileNicknameHint"></p>
             </div>
             
             <!-- Quick actions -->
@@ -5466,7 +5594,11 @@ Read
             <!-- Bio -->
             <div class="mb-5">
                 <p class="profile-section-title mb-2" data-i18n="bio">О себе</p>
-                <textarea id="profileBio" rows="2" class="profile-bio-input w-full px-4 py-2 rounded-lg text-white resize-none focus:outline-none text-sm" placeholder="Расскажите о себе..."></textarea>
+                <textarea id="profileBio" rows="2" class="profile-bio-input w-full px-4 py-2 rounded-lg text-white resize-none focus:outline-none text-sm" placeholder="Расскажите о себе..." oninput="updateProfileDirtyState()"></textarea>
+                <div id="profileUnsavedHint" class="hidden profile-unsaved-hint mt-3 rounded-xl border border-amber-400/45 bg-gradient-to-r from-amber-500/15 via-fuchsia-500/10 to-cyan-500/10 px-3 py-2.5 text-sm text-amber-100/95 leading-snug" role="status">
+                    <span class="mr-1.5 inline-block" aria-hidden="true">✨</span>
+                    <span data-i18n="profileUnsavedHint">Изменения пока не сохранены.</span>
+                </div>
                 <button onclick="saveProfile()" class="mt-2 profile-quick-btn px-4 py-2 rounded-lg text-cyan-400 border-cyan-500/40 text-sm">
                     <span data-i18n="save">Сохранить</span>
                 </button>
@@ -5959,3 +6091,4 @@ Read
     </script>
 </body>
 </html>
+
