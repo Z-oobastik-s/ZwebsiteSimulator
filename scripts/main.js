@@ -5602,10 +5602,7 @@ function closeLoginModal() {
         modal.classList.add('hidden');
         modal.classList.remove('flex');
     }
-    var loginErr = document.getElementById('loginError');
-    var regErr = document.getElementById('registerError');
-    if (loginErr) loginErr.classList.add('hidden');
-    if (regErr) regErr.classList.add('hidden');
+    resetAuthInlineErrors();
     ['loginPassword', 'registerPassword'].forEach(function (id) {
         var inp = document.getElementById(id);
         if (inp) inp.type = 'password';
@@ -5774,13 +5771,27 @@ async function copyProfileLogin() {
     }
 }
 
+function resetAuthInlineErrors() {
+    ['loginError', 'registerError'].forEach(function (id) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        el.textContent = '';
+        el.classList.add('hidden');
+    });
+}
+
+function showAuthInlineError(el, message) {
+    if (!el || message == null || message === '') return;
+    el.textContent = message;
+    el.classList.remove('hidden');
+}
+
 // Switch to login form
 function switchToLogin() {
+    resetAuthInlineErrors();
     syncAuthModalPanels('login');
     var titleEl = document.getElementById('authModalTitle');
     if (titleEl) titleEl.textContent = t('authWelcomeBack');
-    var loginErr = document.getElementById('loginError');
-    if (loginErr) loginErr.classList.add('hidden');
     var tabL = document.getElementById('authTabLogin');
     var tabR = document.getElementById('authTabRegister');
     if (tabL) {
@@ -5796,11 +5807,10 @@ function switchToLogin() {
 
 // Switch to register form
 function switchToRegister() {
+    resetAuthInlineErrors();
     syncAuthModalPanels('register');
     var titleEl = document.getElementById('authModalTitle');
     if (titleEl) titleEl.textContent = t('authCreateAccount');
-    var regErr = document.getElementById('registerError');
-    if (regErr) regErr.classList.add('hidden');
     var tabL = document.getElementById('authTabLogin');
     var tabR = document.getElementById('authTabRegister');
     if (tabL) {
@@ -5854,10 +5864,7 @@ async function handleLogin() {
     const errorEl = DOM.get('loginError');
     
     if (!username || !password) {
-        if (errorEl) {
-            errorEl.textContent = t('fillAllFields');
-            errorEl.classList.remove('hidden');
-        }
+        showAuthInlineError(errorEl, t('fillAllFields'));
         return;
     }
     
@@ -5874,10 +5881,7 @@ async function handleLogin() {
             updateUserUI(result.user, result.user);
         }
     } else {
-        if (errorEl) {
-            errorEl.textContent = translateAuthMessage(result.error) || t('loginError');
-            errorEl.classList.remove('hidden');
-        }
+        showAuthInlineError(errorEl, translateAuthMessage(result.error) || t('loginError'));
     }
 }
 
@@ -5893,26 +5897,17 @@ async function handleRegister() {
     const errorEl = DOM.get('registerError');
     
     if (!username || !password) {
-        if (errorEl) {
-            errorEl.textContent = t('fillAllFields');
-            errorEl.classList.remove('hidden');
-        }
+        showAuthInlineError(errorEl, t('fillAllFields'));
         return;
     }
     
     if (username.length < 3) {
-        if (errorEl) {
-            errorEl.textContent = t('usernameTooShort');
-            errorEl.classList.remove('hidden');
-        }
+        showAuthInlineError(errorEl, t('usernameTooShort'));
         return;
     }
     
     if (password.length < 6) {
-        if (errorEl) {
-            errorEl.textContent = t('passwordTooShort');
-            errorEl.classList.remove('hidden');
-        }
+        showAuthInlineError(errorEl, t('passwordTooShort'));
         return;
     }
     
@@ -5930,10 +5925,7 @@ async function handleRegister() {
             updateUserUI(result.user, result.user);
         }
     } else {
-        if (errorEl) {
-            errorEl.textContent = translateAuthMessage(result.error) || t('registerError');
-            errorEl.classList.remove('hidden');
-        }
+        showAuthInlineError(errorEl, translateAuthMessage(result.error) || t('registerError'));
     }
 }
 
@@ -9008,4 +9000,3 @@ window.showLevelUpSequence = showLevelUpSequence;
 window.renderLevelBlock = renderLevelBlock;
 window.updateUserUI = updateUserUI;
 window.updateGuestPromisedHeader = updateGuestPromisedHeader;
-
