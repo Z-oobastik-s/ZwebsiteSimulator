@@ -5330,52 +5330,325 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
-// Toast notifications
+// --- Игровые уведомления: очередь, GPU-анимации, группировка монет ---
+var _notifyQueue = [];
+var _notifyBusy = false;
+var _notifyActiveTimer = null;
+var _notifyGapTimer = null;
+var NOTIFY_GAP_MS = 720;
+var COIN_BATCH_MS = 620;
+var _coinBatchItems = [];
+var _coinBatchTimer = null;
+
+function parseCoinAmount(s) {
+    var m = String(s).match(/\+(\d+)/);
+    return m ? parseInt(m[1], 10) : 0;
+}
+
+function flushCoinBatch() {
+    _coinBatchTimer = null;
+    if (!_coinBatchItems.length) return;
+    var total = 0;
+    _coinBatchItems.forEach(function (x) {
+        total += parseCoinAmount(x.message);
+    });
+    var first = _coinBatchItems[0];
+    var last = _coinBatchItems[_coinBatchItems.length - 1];
+    var lang = (app && app.lang) ? app.lang : 'ru';
+    var msg;
+    if (_coinBatchItems.length === 1) {
+        msg = first.message;
+    } else if (total > 0) {
+        if (lang === 'en') {
+            msg = '+' + total + ' coins (combined)';
+        } else if (lang === 'ua') {
+            msg = '+' + total + ' монет (разом)';
+        } else {
+            msg = '+' + total + ' монет (разом)';
+        }
+    } else {
+        msg = first.message;
+    }
+    var label = last.label || first.label || '';
+    _coinBatchItems = [];
+    _notifyQueue.push({ kind: 'reward', message: msg, label: label, icon: '', title: '', mergeCoins: false });
+    notifyPump();
+}
+
+function tryMergeCoinBatch(item) {
+    if (!item || item.kind !== 'reward' || !item.mergeCoins) return false;
+    _coinBatchItems.push({ message: item.message, label: item.label || '' });
+    clearTimeout(_coinBatchTimer);
+    _coinBatchTimer = setTimeout(flushCoinBatch, COIN_BATCH_MS);
+    return true;
+}
+
+function isCoinRewardText(m) {
+    m = String(m || '');
+    if (!/\+(\d+)/.test(m)) return false;
+    return /монет|монета|coins?\b/i.test(m);
+}
+
+function legacyToNotifyItem(message, type, title) {
+    var label = title != null && title !== undefined ? String(title) : '';
+    var msg = String(message || '');
+    if (type === 'error') {
+        return { kind: 'system_error', message: msg, label: label, icon: '', title: '', mergeCoins: false };
+    }
+    if (type === 'warning') {
+        return { kind: 'system_warning', message: msg, label: label, icon: '', title: '', mergeCoins: false };
+    }
+    if (type === 'info') {
+        return { kind: 'system_info', message: msg, label: label, icon: '', title: '', mergeCoins: false };
+    }
+    if (type === 'success') {
+        if (label === '✓' || label === '\u2713') {
+            return { kind: 'progress', message: msg, label: label, icon: '', title: '', mergeCoins: false };
+        }
+        if (isCoinRewardText(msg)) {
+            return { kind: 'reward', message: msg, label: label, icon: '', title: '', mergeCoins: true };
+        }
+        return { kind: 'faint_success', message: msg, label: label, icon: '', title: '', mergeCoins: false };
+    }
+    return { kind: 'system_info', message: msg, label: label, icon: '', title: '', mergeCoins: false };
+}
+
+function normalizeNotifyPayload(raw) {
+    return {
+        kind: raw.kind,
+        message: raw.message != null ? String(raw.message) : '',
+        label: raw.label != null ? String(raw.label) : '',
+        title: raw.title != null ? String(raw.title) : '',
+        icon: raw.icon != null ? String(raw.icon) : '',
+        mergeCoins: !!raw.mergeCoins,
+        durationMs: raw.durationMs > 0 ? raw.durationMs : null
+    };
+}
+
+function notifyEnqueue(raw) {
+    if (!raw || !raw.kind) return;
+    var item = normalizeNotifyPayload(raw);
+    if (tryMergeCoinBatch(item)) return;
+    _notifyQueue.push(item);
+    notifyPump();
+}
+
+function notifyPump() {
+    if (_notifyBusy) return;
+    var item = _notifyQueue.shift();
+    if (!item) return;
+    _notifyBusy = true;
+    renderNotifyCard(item, function () {
+        clearTimeout(_notifyGapTimer);
+        _notifyGapTimer = setTimeout(function () {
+            _notifyBusy = false;
+            notifyPump();
+        }, NOTIFY_GAP_MS);
+    });
+}
+
+function playNotifySfx(kind) {
+    if (!app.soundEnabled) return;
+    try {
+        var audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        var o = audioContext.createOscillator();
+        var g = audioContext.createGain();
+        o.connect(g);
+        g.connect(audioContext.destination);
+        o.type = 'sine';
+        var fq = 340;
+        if (kind === 'achievement') fq = 720;
+        else if (kind === 'reward') fq = 520;
+        else if (kind === 'progress' || kind === 'faint_success') fq = 600;
+        else if (kind === 'system_error') fq = 220;
+        else if (kind === 'system_warning') fq = 300;
+        else if (kind === 'system_info') fq = 400;
+        o.frequency.value = fq;
+        var t0 = audioContext.currentTime;
+        g.gain.setValueAtTime(0.0001, t0);
+        g.gain.exponentialRampToValueAtTime(0.07, t0 + 0.03);
+        g.gain.exponentialRampToValueAtTime(0.0001, t0 + (kind === 'achievement' ? 0.2 : 0.12));
+        o.start(t0);
+        o.stop(t0 + 0.22);
+    } catch (e) {}
+}
+
+function notifyKickerFor(kind) {
+    var lang = (app && app.lang) ? app.lang : 'ru';
+    var achievement = { ru: 'Достижение', en: 'Achievement', ua: 'Досягнення' };
+    var reward = { ru: 'Награда', en: 'Reward', ua: 'Нагорода' };
+    var progress = { ru: 'Прогресс', en: 'Progress', ua: 'Прогрес' };
+    var done = { ru: 'Готово', en: 'Done', ua: 'Готово' };
+    var system = { ru: 'Система', en: 'System', ua: 'Система' };
+    var pick = function (row) { return row[lang] || row.ru; };
+    if (kind === 'achievement') return pick(achievement);
+    if (kind === 'reward') return pick(reward);
+    if (kind === 'progress') return pick(progress);
+    if (kind === 'faint_success') return pick(done);
+    return pick(system);
+}
+
+function notifyDismissAria() {
+    var lang = (app && app.lang) ? app.lang : 'ru';
+    if (lang === 'en') return 'Dismiss';
+    if (lang === 'ua') return 'Закрити';
+    return 'Закрыть';
+}
+
+function notifyDurationFor(item) {
+    if (item.durationMs != null && item.durationMs > 0) return item.durationMs;
+    switch (item.kind) {
+        case 'achievement': return 5200;
+        case 'reward': return 3200;
+        case 'progress': return 2800;
+        case 'faint_success': return 2600;
+        case 'system_error': return 4000;
+        case 'system_warning': return 3600;
+        default: return 3000;
+    }
+}
+
+function updateNotifyContainerPlacement(container, item) {
+    var rm = document.getElementById('resultsModal');
+    var mp = document.getElementById('multiplayerResultsModal');
+    var resultsOpen = rm && !rm.classList.contains('hidden');
+    var mpOpen = mp && !mp.classList.contains('hidden');
+    var modalOpen = !!(resultsOpen || mpOpen);
+    container.classList.toggle('toast-container--dodge-modal', modalOpen);
+    container.classList.toggle('toast-container--epic', item.kind === 'achievement' && !modalOpen);
+}
+
+function renderNotifyCard(item, done) {
+    var container = document.getElementById('toastContainer');
+    if (!container) {
+        done();
+        return;
+    }
+    playNotifySfx(item.kind);
+    updateNotifyContainerPlacement(container, item);
+    container.innerHTML = '';
+
+    var card = document.createElement('div');
+    card.className = 'notify-card notify-card--' + item.kind;
+    if (item.kind === 'achievement') {
+        card.classList.add('notify-card--epic');
+    }
+    card.setAttribute('role', item.kind === 'system_error' ? 'alert' : 'status');
+
+    var h1 = document.createElement('div');
+    h1.className = 'notify-hud notify-hud--tl';
+    var h2 = document.createElement('div');
+    h2.className = 'notify-hud notify-hud--br';
+    card.appendChild(h1);
+    card.appendChild(h2);
+
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'notify-dismiss';
+    btn.setAttribute('aria-label', notifyDismissAria());
+    btn.textContent = '\u00d7';
+
+    var iconWrap = document.createElement('div');
+    iconWrap.className = 'notify-icon-slot';
+    var iconInner = document.createElement('div');
+    iconInner.className = 'notify-icon-inner';
+    var iconChar = item.icon;
+    if (!iconChar) {
+        if (item.kind === 'achievement') iconChar = '\uD83C\uDFC6';
+        else if (item.kind === 'reward') iconChar = '\uD83E\uDE99';
+        else if (item.kind === 'progress' || item.kind === 'faint_success') iconChar = '\u2713';
+        else if (item.kind === 'system_error') iconChar = '\u2715';
+        else if (item.kind === 'system_warning') iconChar = '\u26a0';
+        else iconChar = 'i';
+    }
+    iconInner.textContent = iconChar;
+    iconWrap.appendChild(iconInner);
+
+    var body = document.createElement('div');
+    body.className = 'notify-body';
+
+    var kicker = document.createElement('div');
+    kicker.className = 'notify-kicker';
+    var kKind = item.kind.indexOf('system') === 0 ? 'system' : item.kind;
+    if (item.kind === 'faint_success') kKind = 'faint_success';
+    kicker.textContent = notifyKickerFor(kKind);
+
+    var titleEl = null;
+    if (item.kind === 'achievement' && item.title) {
+        titleEl = document.createElement('div');
+        titleEl.className = 'notify-title';
+        titleEl.textContent = item.title;
+    } else if (item.label) {
+        titleEl = document.createElement('div');
+        titleEl.className = 'notify-title';
+        titleEl.textContent = item.label;
+    }
+
+    var msgEl = document.createElement('div');
+    msgEl.className = 'notify-msg';
+    msgEl.textContent = item.message || '';
+
+    body.appendChild(kicker);
+    if (titleEl) body.appendChild(titleEl);
+    body.appendChild(msgEl);
+
+    card.appendChild(btn);
+    card.appendChild(iconWrap);
+    card.appendChild(body);
+    container.appendChild(card);
+
+    var finished = false;
+    function cleanupAfterExit() {
+        container.classList.remove('toast-container--epic', 'toast-container--dodge-modal');
+        done();
+    }
+    function finish() {
+        if (finished) return;
+        finished = true;
+        clearTimeout(_notifyActiveTimer);
+        _notifyActiveTimer = null;
+        card.classList.remove('notify-card--in');
+        card.classList.add('notify-card--out');
+        var completed = false;
+        function complete() {
+            if (completed) return;
+            completed = true;
+            try { card.remove(); } catch (e) {}
+            cleanupAfterExit();
+        }
+        var fallback = setTimeout(complete, 450);
+        card.addEventListener('transitionend', function onEnd(ev) {
+            if (ev.target !== card) return;
+            if (ev.propertyName !== 'opacity' && ev.propertyName !== 'transform') return;
+            clearTimeout(fallback);
+            card.removeEventListener('transitionend', onEnd);
+            complete();
+        });
+    }
+
+    btn.addEventListener('click', function (ev) {
+        ev.stopPropagation();
+        finish();
+    });
+    card.addEventListener('click', finish);
+
+    requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+            card.classList.add('notify-card--in');
+        });
+    });
+
+    _notifyActiveTimer = setTimeout(finish, notifyDurationFor(item));
+}
+
 function showToast(message, type = 'info', title = '') {
     const container = document.getElementById('toastContainer');
     if (!container) return;
-    
-    const icons = {
-        success: '✓',
-        error: '✕',
-        warning: '⚠',
-        info: 'ℹ'
-    };
-    
-    const toast = document.createElement('div');
-    toast.className = `toast ${type}`;
-
-    const iconEl = document.createElement('div');
-    iconEl.className = 'toast-icon';
-    iconEl.textContent = icons[type] || icons.info;
-
-    const contentEl = document.createElement('div');
-    contentEl.className = 'toast-content';
-
-    if (title) {
-        const titleEl = document.createElement('div');
-        titleEl.className = 'toast-title';
-        titleEl.textContent = title;
-        contentEl.appendChild(titleEl);
+    if (message && typeof message === 'object' && !Array.isArray(message) && message.kind) {
+        notifyEnqueue(message);
+        return;
     }
-
-    const messageEl = document.createElement('div');
-    messageEl.className = 'toast-message';
-    messageEl.textContent = message;
-    contentEl.appendChild(messageEl);
-
-    toast.appendChild(iconEl);
-    toast.appendChild(contentEl);
-    
-    container.appendChild(toast);
-    
-    // Auto remove after 3 seconds
-    setTimeout(() => {
-        toast.classList.add('hiding');
-        setTimeout(() => {
-            toast.remove();
-        }, 300);
-    }, 3000);
+    notifyEnqueue(legacyToNotifyItem(message, type, title));
 }
 
 function t(key) {
@@ -9000,3 +9273,4 @@ window.showLevelUpSequence = showLevelUpSequence;
 window.renderLevelBlock = renderLevelBlock;
 window.updateUserUI = updateUserUI;
 window.updateGuestPromisedHeader = updateGuestPromisedHeader;
+

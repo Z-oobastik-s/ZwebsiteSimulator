@@ -130,7 +130,7 @@ function showAchievementToast(ach) {
     const title = lang === 'en' ? ach.titleEn : (lang === 'ua' ? ach.titleUa : ach.titleRu);
     const msg = lang === 'en' ? 'Achievement unlocked!' : (lang === 'ua' ? 'Досягнення розблоковано!' : 'Достижение получено!');
     if (typeof showToast === 'function') {
-        showToast(title + ' ' + ach.icon + ' - ' + msg, 'success', ach.icon);
+        showToast({ kind: 'achievement', title: title, message: msg, icon: ach.icon || '' });
     } else {
         try { console.log('[Achievement]', title, ach.icon); } catch (e) {}
     }
@@ -246,3 +246,4 @@ window.achievementsModule = {
     getAchievements: function () { return ACHIEVEMENTS; },
     COINS_PER_ACHIEVEMENT: COINS_PER_ACHIEVEMENT
 };
+
