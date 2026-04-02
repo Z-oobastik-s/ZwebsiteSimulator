@@ -2019,6 +2019,7 @@ function updateTranslations() {
     refreshLessonLangButtonStyles();
     if (typeof updateLessonFilterHint === 'function') updateLessonFilterHint();
     if (typeof updateGuestPromisedHeader === 'function') updateGuestPromisedHeader();
+    if (typeof syncAuthPasswordToggleTitles === 'function') syncAuthPasswordToggleTitles();
 }
 
 // Navigation functions
@@ -5438,7 +5439,7 @@ function updateUserUI(user, profile) {
     
     // user теперь объект из localStorage
     const displayUser = profile || user;
-    userName.textContent = displayUser?.username || displayUser?.displayName || 'User';
+    userName.textContent = displayUser?.displayName || displayUser?.username || 'User';
     
     // Обновляем баланс
     if (userBalance && displayUser) {
@@ -5476,31 +5477,187 @@ function showLoginModal() {
     modal.classList.remove('hidden');
     modal.classList.add('flex');
     switchToLogin();
+    syncAuthPasswordToggleTitles();
     focusFirstInModal(modal);
 }
 
 // Close login modal
 function closeLoginModal() {
-    document.getElementById('loginModal').classList.add('hidden');
-    document.getElementById('loginModal').classList.remove('flex');
-    document.getElementById('loginError').classList.add('hidden');
-    document.getElementById('registerError').classList.add('hidden');
+    var modal = document.getElementById('loginModal');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+    var loginErr = document.getElementById('loginError');
+    var regErr = document.getElementById('registerError');
+    if (loginErr) loginErr.classList.add('hidden');
+    if (regErr) regErr.classList.add('hidden');
+    ['loginPassword', 'registerPassword'].forEach(function (id) {
+        var inp = document.getElementById(id);
+        if (inp) inp.type = 'password';
+    });
+    syncAuthPasswordToggleTitles();
+    updateRegisterPasswordStrength(true);
+}
+
+function syncAuthPasswordToggleTitles() {
+    [['loginPassword', 'loginPasswordToggle'], ['registerPassword', 'registerPasswordToggle']].forEach(function (pair) {
+        var inp = document.getElementById(pair[0]);
+        var btn = document.getElementById(pair[1]);
+        if (inp && btn) {
+            btn.setAttribute('title', t(inp.type === 'password' ? 'authRevealPassword' : 'authHidePassword'));
+        }
+    });
+}
+
+function toggleAuthPassword(inputId, btnId) {
+    var inp = document.getElementById(inputId);
+    var btn = document.getElementById(btnId);
+    if (!inp) return;
+    inp.type = inp.type === 'password' ? 'text' : 'password';
+    if (btn) {
+        btn.setAttribute('title', t(inp.type === 'password' ? 'authRevealPassword' : 'authHidePassword'));
+        btn.setAttribute('aria-pressed', inp.type === 'text' ? 'true' : 'false');
+    }
+}
+
+function generateAuthUsername() {
+    var chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+    var len = 8 + Math.floor(Math.random() * 3);
+    var arr = new Uint8Array(len);
+    crypto.getRandomValues(arr);
+    var s = '';
+    for (var i = 0; i < len; i++) s += chars[arr[i] % chars.length];
+    return s;
+}
+
+function generateAuthPassword() {
+    var all = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%';
+    var len = 14;
+    var arr = new Uint8Array(len);
+    crypto.getRandomValues(arr);
+    var s = '';
+    for (var j = 0; j < len; j++) s += all[arr[j] % all.length];
+    return s;
+}
+
+function fillRandomAuthLogin() {
+    var el = document.getElementById('registerUsername');
+    if (el) el.value = generateAuthUsername();
+}
+
+function fillRandomAuthPassword() {
+    var el = document.getElementById('registerPassword');
+    if (el) {
+        el.value = generateAuthPassword();
+        updateRegisterPasswordStrength();
+    }
+}
+
+function updateRegisterPasswordStrength(clear) {
+    var el = document.getElementById('registerPassword');
+    var fill = document.getElementById('authStrengthFill');
+    var label = document.getElementById('authStrengthLabel');
+    if (!fill || !label) return;
+    if (clear || !el || !el.value) {
+        fill.style.width = '0%';
+        fill.className = 'auth-strength-fill';
+        label.textContent = '';
+        return;
+    }
+    var pwd = el.value;
+    var score = 0;
+    if (pwd.length >= 6) score++;
+    if (pwd.length >= 10) score++;
+    if (/[a-z]/.test(pwd) && /[A-Z]/.test(pwd)) score++;
+    if (/\d/.test(pwd)) score++;
+    if (/[^a-zA-Z0-9]/.test(pwd)) score++;
+    var tier = 'weak';
+    var pct = 28;
+    if (score >= 5) {
+        tier = 'strong';
+        pct = 100;
+    } else if (score >= 3) {
+        tier = 'medium';
+        pct = 62;
+    } else if (score >= 1) {
+        tier = 'weak';
+        pct = 34;
+    }
+    fill.className = 'auth-strength-fill ' + tier;
+    fill.style.width = pct + '%';
+    label.textContent = t(tier === 'weak' ? 'authPasswordWeak' : tier === 'medium' ? 'authPasswordMedium' : 'authPasswordStrong');
+}
+
+async function copyRegisterCredentials() {
+    var uEl = document.getElementById('registerUsername');
+    var pEl = document.getElementById('registerPassword');
+    var u = uEl ? uEl.value : '';
+    var p = pEl ? pEl.value : '';
+    if (!u.trim() || !p) {
+        showToast(t('fillAllFields'), 'error');
+        return;
+    }
+    var text = u.trim() + '\n' + p;
+    try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            await navigator.clipboard.writeText(text);
+        } else {
+            var ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.left = '-99999px';
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+        }
+        showToast(t('authCopied'), 'success');
+    } catch (e) {
+        showToast(t('saveError'), 'error');
+    }
 }
 
 // Switch to login form
 function switchToLogin() {
     document.getElementById('loginForm').classList.remove('hidden');
     document.getElementById('registerForm').classList.add('hidden');
-    document.getElementById('authModalTitle').textContent = t('login');
-    document.getElementById('loginError').classList.add('hidden');
+    var titleEl = document.getElementById('authModalTitle');
+    if (titleEl) titleEl.textContent = t('authWelcomeBack');
+    var loginErr = document.getElementById('loginError');
+    if (loginErr) loginErr.classList.add('hidden');
+    var tabL = document.getElementById('authTabLogin');
+    var tabR = document.getElementById('authTabRegister');
+    if (tabL) {
+        tabL.classList.add('auth-tab--active');
+        tabL.setAttribute('aria-selected', 'true');
+    }
+    if (tabR) {
+        tabR.classList.remove('auth-tab--active');
+        tabR.setAttribute('aria-selected', 'false');
+    }
+    updateRegisterPasswordStrength(true);
 }
 
 // Switch to register form
 function switchToRegister() {
     document.getElementById('loginForm').classList.add('hidden');
     document.getElementById('registerForm').classList.remove('hidden');
-    document.getElementById('authModalTitle').textContent = t('register');
-    document.getElementById('registerError').classList.add('hidden');
+    var titleEl = document.getElementById('authModalTitle');
+    if (titleEl) titleEl.textContent = t('authCreateAccount');
+    var regErr = document.getElementById('registerError');
+    if (regErr) regErr.classList.add('hidden');
+    var tabL = document.getElementById('authTabLogin');
+    var tabR = document.getElementById('authTabRegister');
+    if (tabL) {
+        tabL.classList.remove('auth-tab--active');
+        tabL.setAttribute('aria-selected', 'false');
+    }
+    if (tabR) {
+        tabR.classList.add('auth-tab--active');
+        tabR.setAttribute('aria-selected', 'true');
+    }
+    updateRegisterPasswordStrength(true);
 }
 
 // Handle login
@@ -5563,7 +5720,7 @@ async function handleRegister() {
     
     if (username.length < 3) {
         if (errorEl) {
-            errorEl.textContent = 'Логин должен быть не менее 3 символов';
+            errorEl.textContent = t('usernameTooShort');
             errorEl.classList.remove('hidden');
         }
         return;
@@ -6439,8 +6596,14 @@ function loadProfileData(profile) {
     const usernameEl = DOM.get('profileUsername');
     const emailEl = DOM.get('profileEmail');
     const bioEl = DOM.get('profileBio');
+    const loginValEl = DOM.get('profileLoginValue');
+    const displayNameInput = DOM.get('profileDisplayName');
     
-    if (usernameEl) usernameEl.textContent = profile.username || profile.displayName || 'User';
+    if (usernameEl) usernameEl.textContent = profile.displayName || profile.username || 'User';
+    if (loginValEl) loginValEl.textContent = profile.username || '';
+    if (displayNameInput) {
+        displayNameInput.value = (profile.displayName || profile.username || '').trim();
+    }
     if (emailEl) emailEl.textContent = profile.email || '';
     if (bioEl) bioEl.value = (!profile.bio || profile.bio === 'null') ? '' : profile.bio;
     
@@ -6509,11 +6672,15 @@ async function saveProfile() {
     if (!user) return;
     
     const bio = document.getElementById('profileBio').value;
-    const username = document.getElementById('profileUsername').textContent;
+    const displayName = (document.getElementById('profileDisplayName') && document.getElementById('profileDisplayName').value || '').trim();
+    if (!displayName) {
+        showToast(t('profileNicknameEmpty'), 'error');
+        return;
+    }
     
     const updates = {
         bio: bio,
-        username: username
+        displayName: displayName
     };
     
     const result = await window.authModule.updateUserProfile(user.uid, updates);
@@ -6521,6 +6688,9 @@ async function saveProfile() {
     if (result.success) {
         showToast(t('profileSaved'), 'success');
         currentUserProfile = { ...currentUserProfile, ...updates };
+        var titleEl = document.getElementById('profileUsername');
+        if (titleEl) titleEl.textContent = displayName;
+        if (typeof updateUserUI === 'function') updateUserUI(user, currentUserProfile);
     } else {
         showToast(t('saveError'), 'error');
     }
@@ -8624,4 +8794,3 @@ window.showLevelUpSequence = showLevelUpSequence;
 window.renderLevelBlock = renderLevelBlock;
 window.updateUserUI = updateUserUI;
 window.updateGuestPromisedHeader = updateGuestPromisedHeader;
-
