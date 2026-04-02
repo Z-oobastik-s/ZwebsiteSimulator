@@ -841,8 +841,11 @@
             justify-content: center;
             text-align: center;
             min-height: 2rem;
-            padding-left: 0.4rem;
-            padding-right: 0.4rem;
+            padding-left: 0.35rem;
+            padding-right: 0.35rem;
+            white-space: nowrap;
+            font-size: 0.54rem;
+            letter-spacing: 0.04em;
         }
         #loginModal .auth-random-tools--row {
             display: flex;
@@ -6514,7 +6517,7 @@ Read
                                 <div class="auth-register-actions">
                                     <button type="button" class="auth-tool-btn auth-tool-btn--icon" data-auth-act="rnd-login" onclick="__zoobAuthAct('rnd-login', event)"><span class="auth-tool-ic" aria-hidden="true">&#x1F3B2;</span> <span data-i18n="authRandomLogin">Случайный логин</span></button>
                                     <button type="button" class="auth-tool-btn auth-tool-btn--icon" data-auth-act="rnd-pass" onclick="__zoobAuthAct('rnd-pass', event)"><span class="auth-tool-ic" aria-hidden="true">&#x1F511;</span> <span data-i18n="authRandomPassword">Случайный пароль</span></button>
-                                    <button type="button" class="auth-tool-btn auth-tool-btn--icon" data-auth-act="copy-reg" onclick="__zoobAuthAct('copy-reg', event)"><span class="auth-tool-ic" aria-hidden="true">&#x1F4CB;</span> <span data-i18n="authCopyCredentials">Скопировать</span></button>
+                                    <button type="button" class="auth-tool-btn auth-tool-btn--icon" data-auth-act="copy-reg" onclick="__zoobAuthAct('copy-reg', event)" data-i18n-title="authCopyCredentialsTitle" data-i18n-aria-label="authCopyCredentialsTitle" title=""><span class="auth-tool-ic" aria-hidden="true">&#x1F4CB;</span> <span data-i18n="authCopyCredentials">Скопировать</span></button>
                                 </div>
                                 <p class="auth-hint-muted auth-hint-one-line" data-i18n="authCredentialsHintShort">Логин 3+, пароль 6+. Email не обязателен.</p>
                                 <div class="auth-sticky-footer">
@@ -7118,4 +7121,3 @@ Read
     </script>
 </body>
 </html>
-

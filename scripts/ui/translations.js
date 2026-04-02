@@ -156,7 +156,8 @@ window.translations = {
         authCreateAccount: 'Новый аккаунт',
         authRandomLogin: 'Случайный логин',
         authRandomPassword: 'Случайный пароль',
-        authCopyCredentials: 'Скопировать логин и пароль',
+        authCopyCredentials: 'Скопировать',
+        authCopyCredentialsTitle: 'Скопировать логин и пароль в буфер',
         authCopied: 'Скопировано',
         authRevealPassword: 'Показать пароль',
         authHidePassword: 'Скрыть пароль',
@@ -541,7 +542,8 @@ window.translations = {
         authCreateAccount: 'New account',
         authRandomLogin: 'Random username',
         authRandomPassword: 'Random password',
-        authCopyCredentials: 'Copy username and password',
+        authCopyCredentials: 'Copy',
+        authCopyCredentialsTitle: 'Copy username and password to clipboard',
         authCopied: 'Copied',
         authRevealPassword: 'Show password',
         authHidePassword: 'Hide password',
@@ -926,7 +928,8 @@ window.translations = {
         authCreateAccount: 'Новий акаунт',
         authRandomLogin: 'Випадковий логін',
         authRandomPassword: 'Випадковий пароль',
-        authCopyCredentials: 'Скопіювати логін і пароль',
+        authCopyCredentials: 'Скопіювати',
+        authCopyCredentialsTitle: 'Скопіювати логін і пароль у буфер',
         authCopied: 'Скопійовано',
         authRevealPassword: 'Показати пароль',
         authHidePassword: 'Приховати пароль',
@@ -1159,4 +1162,3 @@ window.translations = {
         profileTabOnSite: 'на сайті'
     }
 };
-
