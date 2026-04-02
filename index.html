@@ -3558,13 +3558,24 @@ Read
             width: 56px;
         }
         .notify-icon-inner {
-            font-size: 1.85rem;
-            line-height: 1;
-            filter: drop-shadow(0 0 10px var(--notify-glow));
+            width: 44px;
+            height: 44px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 0;
             animation: notifyIconPulse 1.4s ease-in-out infinite;
         }
+        .notify-icon-inner .notify-svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+            filter: drop-shadow(0 0 10px var(--notify-glow));
+        }
         .notify-card--epic .notify-icon-inner {
-            font-size: 2.25rem;
+            width: 52px;
+            height: 52px;
             animation: notifyIconPulseEpic 1.2s ease-in-out infinite;
         }
         @keyframes notifyIconPulse {
@@ -3572,8 +3583,8 @@ Read
             50% { transform: scale(1.06); opacity: 0.92; }
         }
         @keyframes notifyIconPulseEpic {
-            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 12px var(--notify-glow)); }
-            50% { transform: scale(1.1); filter: drop-shadow(0 0 20px rgba(167, 139, 250, 0.55)); }
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.08); }
         }
         .notify-body {
             flex: 1;
@@ -7275,4 +7286,3 @@ Read
     </script>
 </body>
 </html>
-

@@ -5518,6 +5518,57 @@ function updateNotifyContainerPlacement(container, item) {
     container.classList.toggle('toast-container--epic', item.kind === 'achievement' && !modalOpen);
 }
 
+/** Заголовок только из символов без букв (эмодзи, ✓) - на Win 8.1 даёт «квадратики», не показываем. */
+function notifyLabelIsIconOnly(label) {
+    if (label == null || label === undefined) return true;
+    var s = String(label).trim();
+    if (!s) return true;
+    if (/[a-zA-Z\u0400-\u04FF]/.test(s)) return false;
+    return true;
+}
+
+function notifySvgTrophy() {
+    return '<svg class="notify-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><defs><linearGradient id="ntg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#f5e9ff"/><stop offset="55%" stop-color="#c4b5fd"/><stop offset="100%" stop-color="#7c3aed"/></linearGradient></defs><path fill="url(#ntg)" stroke="rgba(167,139,250,0.95)" stroke-width="1.5" d="M18 14h28v8H18z"/><path fill="url(#ntg)" stroke="rgba(167,139,250,0.95)" stroke-width="1.5" d="M14 22h36v4c0 10-8 18-18 18S14 36 14 26v-4z"/><path fill="#6d28d9" opacity="0.88" d="M24 44h16v8H24z"/><path fill="none" stroke="rgba(196,181,253,0.75)" stroke-width="1.5" d="M20 22V18a12 12 0 0 1 24 0v4"/></svg>';
+}
+
+function notifySvgCoin() {
+    return '<svg class="notify-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><ellipse cx="36" cy="22" rx="20" ry="11" fill="#14532d" stroke="#4ade80" stroke-width="2"/><ellipse cx="28" cy="38" rx="20" ry="11" fill="#166534" stroke="#86efac" stroke-width="2"/><ellipse cx="32" cy="30" rx="17" ry="9" fill="none" stroke="#bbf7d0" stroke-width="1.75" opacity="0.95"/></svg>';
+}
+
+function notifySvgCheck() {
+    return '<svg class="notify-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><circle cx="32" cy="32" r="26" fill="none" stroke="#22d3ee" stroke-width="3"/><path fill="none" stroke="#22d3ee" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" d="M18 34l10 10 18-22"/></svg>';
+}
+
+function notifySvgCross() {
+    return '<svg class="notify-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><circle cx="32" cy="32" r="26" fill="none" stroke="#f87171" stroke-width="3"/><path fill="none" stroke="#f87171" stroke-width="4" stroke-linecap="round" d="M22 22l20 20M42 22L22 42"/></svg>';
+}
+
+function notifySvgWarn() {
+    return '<svg class="notify-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><path fill="rgba(251,191,36,0.12)" stroke="#fbbf24" stroke-width="2" stroke-linejoin="round" d="M32 10L54 54H10L32 10z"/><path stroke="#fbbf24" stroke-width="3.5" stroke-linecap="round" d="M32 24v14"/><circle cx="32" cy="46" r="2.5" fill="#fbbf24"/></svg>';
+}
+
+function notifySvgInfo() {
+    return '<svg class="notify-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><circle cx="32" cy="32" r="26" fill="none" stroke="#22d3ee" stroke-width="3"/><path fill="#22d3ee" d="M29 20h6v6h-6zm0 10h6v18h-6z"/></svg>';
+}
+
+function notifySvgClock() {
+    return '<svg class="notify-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><circle cx="32" cy="32" r="26" fill="none" stroke="#22d3ee" stroke-width="3"/><path stroke="#22d3ee" stroke-width="3" stroke-linecap="round" d="M32 20v14l10 6"/></svg>';
+}
+
+function notifyIconMarkup(item) {
+    var k = item.kind;
+    if (k === 'achievement') return notifySvgTrophy();
+    if (k === 'reward') return notifySvgCoin();
+    if (k === 'progress' || k === 'faint_success') return notifySvgCheck();
+    if (k === 'system_error') return notifySvgCross();
+    if (k === 'system_warning') return notifySvgWarn();
+    if (k === 'system_info') {
+        if (item.label && /[\u23F0-\u23F3\u231A\u231B\u23F1\u23F2]/.test(item.label)) return notifySvgClock();
+        return notifySvgInfo();
+    }
+    return notifySvgInfo();
+}
+
 function renderNotifyCard(item, done) {
     var container = document.getElementById('toastContainer');
     if (!container) {
@@ -5552,16 +5603,7 @@ function renderNotifyCard(item, done) {
     iconWrap.className = 'notify-icon-slot';
     var iconInner = document.createElement('div');
     iconInner.className = 'notify-icon-inner';
-    var iconChar = item.icon;
-    if (!iconChar) {
-        if (item.kind === 'achievement') iconChar = '\uD83C\uDFC6';
-        else if (item.kind === 'reward') iconChar = '\uD83E\uDE99';
-        else if (item.kind === 'progress' || item.kind === 'faint_success') iconChar = '\u2713';
-        else if (item.kind === 'system_error') iconChar = '\u2715';
-        else if (item.kind === 'system_warning') iconChar = '\u26a0';
-        else iconChar = 'i';
-    }
-    iconInner.textContent = iconChar;
+    iconInner.innerHTML = notifyIconMarkup(item);
     iconWrap.appendChild(iconInner);
 
     var body = document.createElement('div');
@@ -5578,7 +5620,7 @@ function renderNotifyCard(item, done) {
         titleEl = document.createElement('div');
         titleEl.className = 'notify-title';
         titleEl.textContent = item.title;
-    } else if (item.label) {
+    } else if (item.label && !notifyLabelIsIconOnly(item.label)) {
         titleEl = document.createElement('div');
         titleEl.className = 'notify-title';
         titleEl.textContent = item.label;
@@ -9273,4 +9315,3 @@ window.showLevelUpSequence = showLevelUpSequence;
 window.renderLevelBlock = renderLevelBlock;
 window.updateUserUI = updateUserUI;
 window.updateGuestPromisedHeader = updateGuestPromisedHeader;
-
