@@ -5654,6 +5654,14 @@ async function copyRegisterCredentials() {
     }
 }
 
+window.__zoobAuthActImpl = function (act) {
+    if (act === 'toggle-pw-login') toggleAuthPassword('loginPassword', 'loginPasswordToggle');
+    else if (act === 'toggle-pw-reg') toggleAuthPassword('registerPassword', 'registerPasswordToggle');
+    else if (act === 'rnd-login') fillRandomAuthLogin();
+    else if (act === 'rnd-pass') fillRandomAuthPassword();
+    else if (act === 'copy-reg') copyRegisterCredentials();
+};
+
 async function copyProfileLogin() {
     var el = document.getElementById('profileLoginValue');
     var u = el ? String(el.textContent || '').trim() : '';
@@ -8885,4 +8893,3 @@ window.showLevelUpSequence = showLevelUpSequence;
 window.renderLevelBlock = renderLevelBlock;
 window.updateUserUI = updateUserUI;
 window.updateGuestPromisedHeader = updateGuestPromisedHeader;
-

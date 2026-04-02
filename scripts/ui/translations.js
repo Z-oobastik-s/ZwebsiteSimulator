@@ -148,6 +148,7 @@ window.translations = {
         noAccount: 'Нет аккаунта?',
         haveAccount: 'Уже есть аккаунт?',
         authSubtitle: 'Вход и регистрация - прогресс в облаке',
+        authPortalBadge: 'Доступ к облаку',
         authWelcomeBack: 'С возвращением',
         authCreateAccount: 'Новый аккаунт',
         authRandomLogin: 'Случайный логин',
@@ -523,6 +524,7 @@ window.translations = {
         noAccount: 'No account?',
         haveAccount: 'Already have account?',
         authSubtitle: 'Sign in or register for cloud progress',
+        authPortalBadge: 'Cloud access',
         authWelcomeBack: 'Welcome back',
         authCreateAccount: 'New account',
         authRandomLogin: 'Random username',
@@ -898,6 +900,7 @@ window.translations = {
         noAccount: 'Немає акаунта?',
         haveAccount: 'Вже є акаунт?',
         authSubtitle: 'Вхід і реєстрація для хмарного прогресу',
+        authPortalBadge: 'Доступ до хмари',
         authWelcomeBack: 'З поверненням',
         authCreateAccount: 'Новий акаунт',
         authRandomLogin: 'Випадковий логін',
@@ -1129,4 +1132,3 @@ window.translations = {
         profileTabOnSite: 'на сайті'
     }
 };
-
