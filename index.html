@@ -658,69 +658,71 @@
         html:not(.dark) #freeModeModal label {
             color: #1f2937;
         }
-        /* Auth modal - portal (AAA glass / HUD) */
+        /* Auth modal - компакт, тёмная тема (как основной сайт) */
         #loginModal.auth-portal-backdrop {
             position: fixed;
-            background: rgba(2, 6, 14, 0.82);
-            backdrop-filter: blur(20px) saturate(1.2);
-            -webkit-backdrop-filter: blur(20px) saturate(1.2);
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            background: rgba(0, 0, 0, 0.78);
+            backdrop-filter: blur(12px) saturate(1.05);
+            -webkit-backdrop-filter: blur(12px) saturate(1.05);
+            overflow-x: hidden;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: max(0.75rem, env(safe-area-inset-top, 0px)) max(1rem, env(safe-area-inset-right, 0px)) max(0.75rem, env(safe-area-inset-bottom, 0px)) max(1rem, env(safe-area-inset-left, 0px));
         }
         #loginModal.auth-portal-backdrop::before {
             content: '';
-            position: absolute;
-            inset: -25%;
+            position: fixed;
+            inset: 0;
             background:
-                radial-gradient(ellipse 50% 40% at 25% 20%, rgba(34, 211, 238, 0.18), transparent 55%),
-                radial-gradient(ellipse 45% 50% at 85% 75%, rgba(124, 58, 237, 0.16), transparent 50%),
-                radial-gradient(ellipse 35% 30% at 60% 40%, rgba(244, 114, 182, 0.08), transparent 45%);
-            animation: authMeshDrift 22s ease-in-out infinite alternate;
+                radial-gradient(ellipse 80% 50% at 50% -10%, rgba(6, 182, 212, 0.06), transparent 50%),
+                radial-gradient(ellipse 60% 40% at 100% 100%, rgba(15, 23, 42, 0.5), transparent 45%);
             pointer-events: none;
-        }
-        @keyframes authMeshDrift {
-            0% { transform: translate(0, 0) scale(1); opacity: 1; }
-            100% { transform: translate(-4%, 3%) scale(1.03); opacity: 0.92; }
         }
         @media (prefers-reduced-motion: reduce) {
             #loginModal.auth-portal-backdrop::before { animation: none; }
         }
         html:not(.dark) #loginModal.auth-portal-backdrop {
-            background: rgba(15, 23, 42, 0.65);
+            background: rgba(15, 23, 42, 0.72);
         }
-        html:not(.dark) #loginModal.auth-portal-backdrop::before { opacity: 0.45; }
-        .auth-portal-frame {
+        html:not(.dark) #loginModal.auth-portal-backdrop::before { opacity: 0.8; }
+        #loginModal .auth-portal-frame {
             position: relative;
             z-index: 1;
-            background: linear-gradient(130deg, #06b6d4, #6366f1, #a855f7, #22d3ee);
-            background-size: 320% 320%;
-            animation: authPortalBorder 12s ease infinite;
+            margin-top: auto;
+            margin-bottom: auto;
+            flex-shrink: 0;
+            width: 100%;
+            max-height: min(90vh, calc(100dvh - 2rem));
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            padding: 1px;
+            border-radius: 1rem;
+            background: linear-gradient(165deg, rgba(30, 41, 59, 0.65), rgba(15, 23, 42, 0.95));
             box-shadow:
-                0 0 0 1px rgba(255, 255, 255, 0.12),
-                0 0 100px -28px rgba(34, 211, 238, 0.55),
-                0 32px 64px rgba(0, 0, 0, 0.65);
-        }
-        @keyframes authPortalBorder {
-            0%, 100% { background-position: 0% 45%; }
-            50% { background-position: 100% 55%; }
-        }
-        @media (prefers-reduced-motion: reduce) {
-            .auth-portal-frame { animation: none; background: linear-gradient(130deg, #06b6d4, #7c3aed, #22d3ee); }
+                0 0 0 1px rgba(255, 255, 255, 0.06),
+                0 20px 40px rgba(0, 0, 0, 0.85);
         }
         .auth-hud-corner {
             position: absolute;
-            width: 28px;
-            height: 28px;
+            width: 22px;
+            height: 22px;
             pointer-events: none;
             z-index: 4;
-            box-shadow: 0 0 12px rgba(34, 211, 238, 0.25);
+            opacity: 0.55;
         }
-        .auth-hud-corner--tl { top: 14px; left: 14px; border-top: 2px solid rgba(34, 211, 238, 0.85); border-left: 2px solid rgba(34, 211, 238, 0.85); border-radius: 4px 0 0 0; }
-        .auth-hud-corner--tr { top: 14px; right: 14px; border-top: 2px solid rgba(34, 211, 238, 0.85); border-right: 2px solid rgba(34, 211, 238, 0.85); border-radius: 0 4px 0 0; }
-        .auth-hud-corner--bl { bottom: 14px; left: 14px; border-bottom: 2px solid rgba(167, 139, 250, 0.65); border-left: 2px solid rgba(167, 139, 250, 0.65); border-radius: 0 0 0 4px; }
-        .auth-hud-corner--br { bottom: 14px; right: 14px; border-bottom: 2px solid rgba(167, 139, 250, 0.65); border-right: 2px solid rgba(167, 139, 250, 0.65); border-radius: 0 0 4px 0; }
+        .auth-hud-corner--tl { top: 10px; left: 10px; border-top: 1px solid rgba(148, 163, 184, 0.45); border-left: 1px solid rgba(148, 163, 184, 0.45); border-radius: 3px 0 0 0; }
+        .auth-hud-corner--tr { top: 10px; right: 10px; border-top: 1px solid rgba(148, 163, 184, 0.45); border-right: 1px solid rgba(148, 163, 184, 0.45); border-radius: 0 3px 0 0; }
+        .auth-hud-corner--bl { bottom: 10px; left: 10px; border-bottom: 1px solid rgba(71, 85, 105, 0.5); border-left: 1px solid rgba(71, 85, 105, 0.5); border-radius: 0 0 0 3px; }
+        .auth-hud-corner--br { bottom: 10px; right: 10px; border-bottom: 1px solid rgba(71, 85, 105, 0.5); border-right: 1px solid rgba(71, 85, 105, 0.5); border-radius: 0 0 3px 0; }
         #loginModal .auth-tool-ic {
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             line-height: 1;
-            filter: drop-shadow(0 0 8px rgba(34, 211, 238, 0.5));
+            filter: none;
+            opacity: 0.9;
         }
         #loginModal .auth-tool-btn--icon {
             display: inline-flex;
@@ -728,107 +730,107 @@
             gap: 0.35rem;
             min-height: 2.1rem;
         }
-        /* Glass shell */
+        /* Оболочка: почти чёрная, прокрутка внутри */
         #loginModal .auth-modal-shell {
             position: relative;
             max-width: 26.5rem;
             width: 100%;
-            padding: 1.65rem 1.5rem 1.5rem;
+            min-height: 0;
+            flex: 1 1 auto;
+            display: flex;
+            flex-direction: column;
+            padding: 0;
             overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.14);
-            border-radius: 1.35rem;
-            background: rgba(8, 12, 28, 0.52);
-            backdrop-filter: blur(28px) saturate(1.35);
-            -webkit-backdrop-filter: blur(28px) saturate(1.35);
-            box-shadow:
-                inset 0 1px 0 rgba(255, 255, 255, 0.08),
-                0 24px 48px rgba(0, 0, 0, 0.5),
-                0 0 80px -20px rgba(6, 182, 212, 0.35);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            border-radius: calc(1rem - 1px);
+            background: rgba(3, 7, 18, 0.94);
+            backdrop-filter: blur(16px) saturate(1.08);
+            -webkit-backdrop-filter: blur(16px) saturate(1.08);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
         }
         html:not(.dark) #loginModal .auth-modal-shell {
-            background: rgba(255, 255, 255, 0.78);
-            border-color: rgba(6, 182, 212, 0.28);
+            background: rgba(248, 250, 252, 0.96);
+            border-color: rgba(15, 23, 42, 0.12);
         }
         #loginModal .auth-modal-inner::before {
             content: '';
             position: absolute;
             inset: 0;
-            background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(6, 182, 212, 0.028) 3px, rgba(6, 182, 212, 0.028) 6px);
+            background: repeating-linear-gradient(0deg, transparent, transparent 4px, rgba(100, 116, 139, 0.02) 4px, rgba(100, 116, 139, 0.02) 8px);
             pointer-events: none;
-            opacity: 0.65;
+            opacity: 0.5;
         }
         #loginModal .auth-modal-shell::before {
             content: '';
             position: absolute;
-            width: 260px;
-            height: 260px;
-            top: -100px;
-            right: -80px;
-            background: radial-gradient(circle, rgba(34, 211, 238, 0.28) 0%, transparent 68%);
+            width: 140px;
+            height: 140px;
+            top: -50px;
+            right: -40px;
+            background: radial-gradient(circle, rgba(6, 182, 212, 0.07) 0%, transparent 70%);
             pointer-events: none;
         }
         #loginModal .auth-modal-shell::after {
             content: '';
             position: absolute;
-            width: 220px;
-            height: 220px;
-            bottom: -90px;
-            left: -60px;
-            background: radial-gradient(circle, rgba(139, 92, 246, 0.26) 0%, transparent 68%);
+            width: 120px;
+            height: 120px;
+            bottom: -40px;
+            left: -30px;
+            background: radial-gradient(circle, rgba(51, 65, 85, 0.2) 0%, transparent 70%);
             pointer-events: none;
         }
-        #loginModal .auth-modal-inner { position: relative; z-index: 2; }
+        #loginModal .auth-modal-inner {
+            position: relative;
+            z-index: 2;
+            flex: 1 1 auto;
+            min-height: 0;
+            overflow-x: hidden;
+            overflow-y: auto;
+            overscroll-behavior: contain;
+            padding: 1.15rem 1.2rem 1.1rem;
+        }
         #loginModal .auth-brand-line {
             font-family: ui-monospace, 'Roboto Mono', monospace;
-            letter-spacing: 0.18em;
-            background: linear-gradient(90deg, #22d3ee, #a78bfa, #f0abfc);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
+            letter-spacing: 0.14em;
+            color: rgba(148, 163, 184, 0.9);
         }
         #loginModal .auth-modal-headline { letter-spacing: -0.02em; }
         #loginModal .auth-title-gradient {
-            background: linear-gradient(102deg, #ffffff 0%, #caf4ff 38%, #e9d5ff 100%);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            filter: drop-shadow(0 0 24px rgba(34, 211, 238, 0.2));
+            color: #f1f5f9;
+            text-shadow: none;
         }
         html:not(.dark) #loginModal .auth-title-gradient {
-            background: linear-gradient(102deg, #0f172a 0%, #0e7490 40%, #5b21b6 100%);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            filter: none;
+            color: #0f172a;
         }
         /* HUD status strip */
         #loginModal .auth-hud-bar {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.45rem;
             flex-wrap: wrap;
-            margin: 0.75rem 0 1rem;
-            padding: 0.45rem 0.65rem;
-            border-radius: 0.65rem;
-            background: rgba(0, 0, 0, 0.35);
-            border: 1px solid rgba(34, 211, 238, 0.2);
-            font-size: 0.65rem;
+            margin: 0.5rem 0 0.65rem;
+            padding: 0.4rem 0.55rem;
+            border-radius: 0.5rem;
+            background: rgba(0, 0, 0, 0.45);
+            border: 1px solid rgba(71, 85, 105, 0.45);
+            font-size: 0.62rem;
             font-weight: 700;
-            letter-spacing: 0.12em;
+            letter-spacing: 0.1em;
             text-transform: uppercase;
-            color: rgba(226, 232, 240, 0.88);
+            color: rgba(203, 213, 225, 0.9);
         }
         html:not(.dark) #loginModal .auth-hud-bar {
-            background: rgba(241, 245, 249, 0.9);
-            border-color: rgba(6, 182, 212, 0.25);
+            background: rgba(241, 245, 249, 0.95);
+            border-color: rgba(148, 163, 184, 0.35);
             color: #334155;
         }
         #loginModal .auth-hud-pip {
-            width: 7px;
-            height: 7px;
+            width: 6px;
+            height: 6px;
             border-radius: 50%;
-            background: #34d399;
-            box-shadow: 0 0 10px #34d399;
+            background: rgba(45, 212, 191, 0.75);
+            box-shadow: 0 0 6px rgba(45, 212, 191, 0.35);
             animation: authPipPulse 2.8s ease-in-out infinite;
         }
         @keyframes authPipPulse {
@@ -839,7 +841,7 @@
             #loginModal .auth-hud-pip { animation: none; }
         }
         #loginModal .auth-hud-sep { opacity: 0.45; font-weight: 400; }
-        #loginModal .auth-hud-tier { color: rgba(129, 230, 217, 0.95); }
+        #loginModal .auth-hud-tier { color: rgba(94, 234, 212, 0.82); }
         html:not(.dark) #loginModal .auth-hud-tier { color: #0f766e; }
         #loginModal .auth-hud-sync { color: rgba(203, 213, 225, 0.75); font-weight: 600; }
         html:not(.dark) #loginModal .auth-hud-sync { color: #64748b; }
@@ -847,11 +849,11 @@
         #loginModal .auth-segment {
             position: relative;
             display: flex;
-            margin: 0.5rem 0 0.85rem;
-            padding: 4px;
+            margin: 0.35rem 0 0.65rem;
+            padding: 3px;
             border-radius: 9999px;
-            background: rgba(0, 0, 0, 0.38);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(51, 65, 85, 0.5);
         }
         html:not(.dark) #loginModal .auth-segment {
             background: rgba(0, 0, 0, 0.06);
@@ -859,13 +861,14 @@
         }
         #loginModal .auth-segment-thumb {
             position: absolute;
-            top: 4px;
-            bottom: 4px;
-            left: 4px;
-            width: calc((100% - 8px) / 2);
+            top: 3px;
+            bottom: 3px;
+            left: 3px;
+            width: calc((100% - 6px) / 2);
             border-radius: 9999px;
-            background: linear-gradient(100deg, rgba(6, 182, 212, 0.55), rgba(124, 58, 237, 0.5));
-            box-shadow: 0 0 20px rgba(34, 211, 238, 0.35), inset 0 1px 0 rgba(255,255,255,0.2);
+            background: rgba(30, 41, 59, 0.92);
+            border: 1px solid rgba(6, 182, 212, 0.22);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
             transition: transform 0.42s cubic-bezier(0.22, 1, 0.36, 1);
             pointer-events: none;
         }
@@ -876,13 +879,13 @@
             position: relative;
             z-index: 1;
             flex: 1;
-            padding: 0.55rem 0.5rem;
+            padding: 0.48rem 0.45rem;
             border-radius: 9999px;
-            font-size: 0.78rem;
+            font-size: 0.74rem;
             font-weight: 700;
             letter-spacing: 0.06em;
             text-transform: uppercase;
-            color: rgba(255, 255, 255, 0.45);
+            color: rgba(148, 163, 184, 0.75);
             border: none;
             background: transparent !important;
             cursor: pointer;
@@ -892,8 +895,7 @@
             color: rgba(15, 23, 42, 0.45);
         }
         #loginModal .auth-tab-btn.auth-tab--active {
-            color: #fff !important;
-            text-shadow: 0 0 18px rgba(34, 211, 238, 0.45);
+            color: #f8fafc !important;
         }
         html:not(.dark) #loginModal .auth-tab-btn.auth-tab--active {
             color: #0f172a !important;
@@ -928,24 +930,24 @@
         /* Fields */
         #loginModal .auth-field-label {
             display: block;
-            font-size: 0.62rem;
+            font-size: 0.6rem;
             font-weight: 800;
-            letter-spacing: 0.14em;
+            letter-spacing: 0.12em;
             text-transform: uppercase;
-            color: rgba(34, 211, 238, 0.78);
-            margin-bottom: 0.4rem;
+            color: rgba(100, 116, 139, 0.95);
+            margin-bottom: 0.32rem;
         }
         html:not(.dark) #loginModal .auth-field-label { color: #0e7490; }
         #loginModal .auth-field {
             display: flex;
             align-items: center;
-            gap: 0.55rem;
-            padding: 0.15rem 0.6rem 0.15rem 0.55rem;
-            border-radius: 0.85rem;
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            background: rgba(0, 0, 0, 0.32);
-            box-shadow: inset 0 2px 12px rgba(0, 0, 0, 0.25);
-            transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+            gap: 0.45rem;
+            padding: 0.1rem 0.5rem 0.1rem 0.45rem;
+            border-radius: 0.65rem;
+            border: 1px solid rgba(51, 65, 85, 0.55);
+            background: rgba(0, 0, 0, 0.4);
+            box-shadow: inset 0 1px 8px rgba(0, 0, 0, 0.35);
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
         html:not(.dark) #loginModal .auth-field {
             background: rgba(255, 255, 255, 0.72);
@@ -953,12 +955,10 @@
             box-shadow: inset 0 1px 4px rgba(0,0,0,0.04);
         }
         #loginModal .auth-field:focus-within {
-            border-color: rgba(34, 211, 238, 0.65);
+            border-color: rgba(6, 182, 212, 0.35);
             box-shadow:
-                inset 0 2px 12px rgba(0, 0, 0, 0.25),
-                0 0 0 2px rgba(34, 211, 238, 0.22),
-                0 0 28px -6px rgba(34, 211, 238, 0.45);
-            transform: translateY(-1px);
+                inset 0 1px 8px rgba(0, 0, 0, 0.35),
+                0 0 0 1px rgba(6, 182, 212, 0.2);
         }
         html:not(.dark) #loginModal .auth-field:focus-within {
             border-color: rgba(14, 116, 144, 0.5);
@@ -966,13 +966,13 @@
         }
         #loginModal .auth-field-ic {
             flex-shrink: 0;
-            width: 1.35rem;
-            height: 1.35rem;
+            width: 1.25rem;
+            height: 1.25rem;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: rgba(34, 211, 238, 0.75);
-            opacity: 0.9;
+            color: rgba(100, 116, 139, 0.88);
+            opacity: 0.95;
         }
         html:not(.dark) #loginModal .auth-field-ic { color: #0e7490; }
         #loginModal .auth-field-ic svg { width: 1.1rem; height: 1.1rem; }
@@ -982,8 +982,8 @@
             background: transparent !important;
             border: none !important;
             box-shadow: none !important;
-            padding: 0.65rem 0.25rem;
-            font-size: 0.9rem;
+            padding: 0.52rem 0.2rem;
+            font-size: 0.875rem;
             color: #f1f5f9;
         }
         html:not(.dark) #loginModal .auth-field-input { color: #0f172a; }
@@ -1031,18 +1031,17 @@
             width: 12px;
             height: 8px;
             margin: 0 auto;
-            border: 2px solid rgba(34, 211, 238, 0.85);
+            border: 2px solid rgba(6, 182, 212, 0.55);
             border-radius: 2px;
-            box-shadow: 0 0 8px rgba(34, 211, 238, 0.4);
+            box-shadow: none;
         }
         #loginModal .auth-reveal[data-visible="true"] .auth-reveal-hex {
-            border-color: rgba(167, 139, 250, 0.95);
-            box-shadow: 0 0 10px rgba(167, 139, 250, 0.5);
+            border-color: rgba(94, 234, 212, 0.85);
         }
         #loginModal .auth-reveal:hover {
-            background: rgba(34, 211, 238, 0.2);
-            transform: scale(1.06);
-            box-shadow: 0 0 16px rgba(34, 211, 238, 0.25);
+            background: rgba(51, 65, 85, 0.35);
+            transform: scale(1.04);
+            box-shadow: none;
         }
         html:not(.dark) #loginModal .auth-reveal { background: rgba(0,0,0,0.06); }
         html:not(.dark) #loginModal .auth-reveal::before { background: rgba(255,255,255,0.85); }
@@ -1057,15 +1056,15 @@
         #loginModal .auth-tool-btn {
             position: relative;
             z-index: 4;
-            font-size: 0.62rem;
+            font-size: 0.58rem;
             font-weight: 700;
             letter-spacing: 0.06em;
             text-transform: uppercase;
-            padding: 0.42rem 0.65rem;
+            padding: 0.36rem 0.55rem;
             border-radius: 9999px;
-            border: 1px solid rgba(6, 182, 212, 0.45);
-            background: rgba(6, 182, 212, 0.1);
-            color: rgba(207, 250, 254, 0.95);
+            border: 1px solid rgba(71, 85, 105, 0.65);
+            background: rgba(15, 23, 42, 0.65);
+            color: rgba(203, 213, 225, 0.95);
             cursor: pointer;
             transition: transform 0.15s ease, border-color 0.2s, background 0.2s, box-shadow 0.2s;
         }
@@ -1075,24 +1074,23 @@
             background: rgba(6, 182, 212, 0.08);
         }
         #loginModal .auth-tool-btn:hover {
-            background: rgba(6, 182, 212, 0.24);
-            border-color: rgba(34, 211, 238, 0.65);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 18px -6px rgba(34, 211, 238, 0.45);
+            background: rgba(30, 41, 59, 0.85);
+            border-color: rgba(6, 182, 212, 0.35);
+            transform: translateY(-1px);
         }
         /* Alerts */
         #loginModal .auth-alert {
             display: flex;
             align-items: flex-start;
-            gap: 0.55rem;
-            padding: 0.55rem 0.65rem;
-            border-radius: 0.65rem;
-            font-size: 0.8rem;
+            gap: 0.5rem;
+            padding: 0.48rem 0.55rem;
+            border-radius: 0.5rem;
+            font-size: 0.78rem;
             line-height: 1.35;
-            border: 1px solid rgba(248, 113, 113, 0.45);
-            background: rgba(127, 29, 29, 0.28);
-            color: #fecaca;
-            box-shadow: 0 0 24px -8px rgba(248, 113, 113, 0.5);
+            border: 1px solid rgba(185, 28, 28, 0.45);
+            background: rgba(30, 20, 20, 0.88);
+            color: #fca5a5;
+            box-shadow: none;
         }
         html:not(.dark) #loginModal .auth-alert {
             background: rgba(254, 226, 226, 0.95);
@@ -1116,49 +1114,45 @@
         #loginModal .auth-cta {
             position: relative;
             width: 100%;
-            margin-top: 0.35rem;
-            padding: 0.9rem 1rem;
-            border-radius: 0.9rem;
-            border: none;
-            font-size: 0.84rem;
+            margin-top: 0.25rem;
+            padding: 0.72rem 0.9rem;
+            border-radius: 0.65rem;
+            border: 1px solid rgba(6, 182, 212, 0.35);
+            font-size: 0.78rem;
             font-weight: 800;
-            letter-spacing: 0.14em;
+            letter-spacing: 0.12em;
             text-transform: uppercase;
-            color: #fff;
+            color: #e2e8f0;
             cursor: pointer;
             overflow: hidden;
-            background: linear-gradient(100deg, #0891b2, #6366f1, #9333ea);
-            background-size: 160% 100%;
-            box-shadow:
-                0 0 0 1px rgba(255,255,255,0.15),
-                0 10px 36px -10px rgba(34, 211, 238, 0.55),
-                0 14px 40px -12px rgba(124, 58, 237, 0.45);
-            transition: transform 0.2s ease, box-shadow 0.25s ease, background-position 0.5s ease;
+            background: linear-gradient(180deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.98));
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+            transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
         }
         #loginModal .auth-cta--register {
-            background: linear-gradient(100deg, #059669, #0d9488, #6366f1);
-            box-shadow:
-                0 0 0 1px rgba(255,255,255,0.12),
-                0 10px 36px -10px rgba(16, 185, 129, 0.45),
-                0 14px 40px -12px rgba(99, 102, 241, 0.4);
+            border-color: rgba(45, 212, 191, 0.32);
+            color: #ecfdf5;
+            background: linear-gradient(180deg, rgba(15, 50, 45, 0.95), rgba(6, 24, 22, 0.98));
         }
         #loginModal .auth-cta::after {
             content: '';
             position: absolute;
             inset: 0;
-            background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.18) 50%, transparent 60%);
+            background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.06) 50%, transparent 60%);
             transition: transform 0.55s ease;
             transform: translateX(-100%);
+            pointer-events: none;
         }
         #loginModal .auth-cta:hover {
-            transform: translateY(-2px) scale(1.015);
-            background-position: 90% 0;
-            box-shadow:
-                0 0 0 1px rgba(255,255,255,0.22),
-                0 16px 48px -12px rgba(34, 211, 238, 0.6);
+            transform: translateY(-1px);
+            border-color: rgba(6, 182, 212, 0.5);
+            color: #f8fafc;
+        }
+        #loginModal .auth-cta--register:hover {
+            border-color: rgba(45, 212, 191, 0.48);
         }
         #loginModal .auth-cta:hover::after { transform: translateX(100%); }
-        #loginModal .auth-cta:active { transform: translateY(0) scale(0.99); }
+        #loginModal .auth-cta:active { transform: translateY(0) scale(0.995); }
         @media (prefers-reduced-motion: reduce) {
             #loginModal .auth-cta::after { display: none; }
             #loginModal .auth-cta:hover { transform: none; }
@@ -1169,7 +1163,7 @@
             color: rgba(148, 163, 184, 0.9);
         }
         #loginModal .auth-foot-link button {
-            color: #22d3ee;
+            color: rgba(94, 234, 212, 0.9);
             font-weight: 700;
             background: none;
             border: none;
@@ -1177,14 +1171,14 @@
             padding: 0;
             text-decoration: underline;
             text-underline-offset: 3px;
-            text-decoration-color: rgba(34, 211, 238, 0.4);
+            text-decoration-color: rgba(6, 182, 212, 0.35);
             transition: color 0.2s, text-decoration-color 0.2s;
         }
-        #loginModal .auth-foot-link button:hover { color: #67e8f9; text-decoration-color: #67e8f9; }
+        #loginModal .auth-foot-link button:hover { color: #5eead4; text-decoration-color: rgba(94, 234, 212, 0.65); }
         html:not(.dark) #loginModal .auth-foot-link button { color: #0e7490; }
         /* Modal enter animation */
         #loginModal:not(.hidden) .auth-portal-frame {
-            animation: authCardIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both, authPortalBorder 12s ease infinite;
+            animation: authCardIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
         }
         @keyframes authCardIn {
             from { opacity: 0; transform: scale(0.94) translateY(14px); }
@@ -6337,19 +6331,19 @@ Read
     
     <!-- Login/Register Modal -->
     <div id="loginModal" class="auth-portal-backdrop fixed inset-0 hidden items-center justify-center z-[120] p-4" role="dialog" aria-modal="true" aria-labelledby="authModalTitle" data-auth-tab="login" onclick="if(event.target===this) closeLoginModal()">
-        <div class="auth-portal-frame rounded-[1.35rem] w-full max-w-md p-[2px]">
-            <div class="auth-modal-shell w-full relative overflow-hidden rounded-[1.25rem]">
+        <div class="auth-portal-frame rounded-2xl w-full max-w-md">
+            <div class="auth-modal-shell w-full relative overflow-hidden rounded-[0.9375rem]">
             <div class="auth-modal-inner relative z-[2]">
                 <div class="auth-hud-corner auth-hud-corner--tl" aria-hidden="true"></div>
                 <div class="auth-hud-corner auth-hud-corner--tr" aria-hidden="true"></div>
                 <div class="auth-hud-corner auth-hud-corner--bl" aria-hidden="true"></div>
                 <div class="auth-hud-corner auth-hud-corner--br" aria-hidden="true"></div>
-                <div class="flex justify-between items-start gap-3 mb-0">
+                <div class="flex justify-between items-start gap-2 mb-0">
                     <div class="min-w-0 pr-2">
-                        <p class="text-[0.62rem] font-extrabold uppercase tracking-[0.22em] auth-brand-line mb-0.5">Zoobastiks</p>
-                        <p class="text-[0.58rem] font-bold uppercase tracking-[0.38em] text-cyan-400/85 mb-1" data-i18n="authPortalBadge">Доступ к облаку</p>
-                        <h3 class="text-2xl md:text-[1.75rem] font-black leading-tight auth-title-gradient tracking-tight auth-modal-headline" id="authModalTitle">Войти</h3>
-                        <p class="text-[0.72rem] text-slate-400 mt-1.5 leading-snug max-w-[16rem]" data-i18n="authSubtitle">Вход и регистрация</p>
+                        <p class="text-[0.6rem] font-extrabold uppercase tracking-[0.18em] auth-brand-line mb-0.5">Zoobastiks</p>
+                        <p class="text-[0.56rem] font-bold uppercase tracking-[0.32em] text-slate-500 dark:text-slate-400 mb-0.5" data-i18n="authPortalBadge">Доступ к облаку</p>
+                        <h3 class="text-xl md:text-2xl font-black leading-tight auth-title-gradient tracking-tight auth-modal-headline" id="authModalTitle">Войти</h3>
+                        <p class="text-[0.7rem] text-slate-500 dark:text-slate-400 mt-1 leading-snug max-w-[16rem]" data-i18n="authSubtitle">Вход и регистрация</p>
                     </div>
                     <button type="button" onclick="closeLoginModal()" class="auth-close-btn shrink-0" data-i18n-aria-label="close" title="Закрыть"><span aria-hidden="true">✕</span></button>
                 </div>
@@ -6368,7 +6362,7 @@ Read
                     <div class="auth-panels-track" id="authPanelsTrack" data-panel="0">
                         <div class="auth-panel-col" id="authPanelLogin">
                             <div id="loginForm" class="auth-form-stack">
-                                <div class="space-y-3">
+                                <div class="space-y-2">
                                     <div>
                                         <label class="auth-field-label" for="loginUsername" data-i18n="username">Логин</label>
                                         <div class="auth-field">
@@ -6395,9 +6389,9 @@ Read
                         </div>
                         <div class="auth-panel-col" id="authPanelRegister" inert>
                             <div id="registerForm" class="auth-form-stack">
-                                <div class="space-y-3">
+                                <div class="space-y-2">
                                     <div>
-                                        <div class="flex flex-wrap items-end justify-between gap-2 mb-1">
+                                        <div class="flex flex-wrap items-end justify-between gap-2 mb-0.5">
                                             <label class="auth-field-label mb-0" for="registerUsername" data-i18n="username">Логин</label>
                                             <button type="button" class="auth-tool-btn auth-tool-btn--icon" data-auth-act="rnd-login" onclick="__zoobAuthAct('rnd-login', event)"><span class="auth-tool-ic" aria-hidden="true">&#x1F3B2;</span> <span data-i18n="authRandomLogin">Случайный логин</span></button>
                                         </div>
@@ -7022,3 +7016,4 @@ Read
     </script>
 </body>
 </html>
+
