@@ -2000,6 +2000,12 @@ function updateTranslations() {
             el.setAttribute('aria-label', translations[app.lang][key]);
         }
     });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        if (translations[app.lang] && translations[app.lang][key]) {
+            el.setAttribute('placeholder', translations[app.lang][key]);
+        }
+    });
     updateResultsModalHotkeysHint();
     if (window.levelModule) renderLevelBlock();
     if (window.achievementsModule && typeof window.achievementsModule.render === 'function') {
@@ -2011,6 +2017,7 @@ function updateTranslations() {
     }
     if (typeof refreshMpRoomSettingsChrome === 'function') refreshMpRoomSettingsChrome();
     if (mpRoomSettingsMode === 'bot' && typeof refreshMpBotVoiceSelect === 'function') refreshMpBotVoiceSelect();
+    if (typeof updateAuthHudBar === 'function') updateAuthHudBar();
     var _ps = document.getElementById('profileScreen');
     if (_ps && !_ps.classList.contains('hidden') && typeof showProfileTab === 'function') {
         showProfileTab(_lastProfileTab);
@@ -5501,6 +5508,41 @@ function initAuthModalControls() {
     });
 }
 
+function syncAuthModalPanels(mode) {
+    var modal = document.getElementById('loginModal');
+    var track = document.getElementById('authPanelsTrack');
+    var loginCol = document.getElementById('authPanelLogin');
+    var regCol = document.getElementById('authPanelRegister');
+    if (modal) modal.setAttribute('data-auth-tab', mode === 'register' ? 'register' : 'login');
+    if (track) track.setAttribute('data-panel', mode === 'register' ? '1' : '0');
+    if (loginCol) {
+        if ('inert' in loginCol) loginCol.inert = mode === 'register';
+        loginCol.setAttribute('aria-hidden', mode === 'register' ? 'true' : 'false');
+    }
+    if (regCol) {
+        if ('inert' in regCol) regCol.inert = mode === 'login';
+        regCol.setAttribute('aria-hidden', mode === 'login' ? 'true' : 'false');
+    }
+}
+
+function updateAuthHudBar() {
+    var tierEl = document.getElementById('authHudTier');
+    var syncEl = document.getElementById('authHudSync');
+    if (!tierEl) return;
+    var level = 1;
+    var tierName = '';
+    try {
+        var L = window.levelModule;
+        if (L && typeof L.getPlayerXP === 'function' && typeof L.getLevelInfo === 'function') {
+            var info = L.getLevelInfo(L.getPlayerXP());
+            level = info.level || 1;
+            tierName = info.tierName || '';
+        }
+    } catch (_e) {}
+    tierEl.textContent = tierName ? 'LV.' + level + ' · ' + tierName : 'LV.' + level;
+    if (syncEl && typeof t === 'function') syncEl.textContent = t('authHudGuest');
+}
+
 // Show login modal
 function showLoginModal() {
     var modal = document.getElementById('loginModal');
@@ -5510,6 +5552,7 @@ function showLoginModal() {
     modal.classList.add('flex');
     switchToLogin();
     syncAuthPasswordToggleTitles();
+    updateAuthHudBar();
     focusFirstInModal(modal);
 }
 
@@ -5538,6 +5581,7 @@ function syncAuthPasswordToggleTitles() {
         var btn = document.getElementById(pair[1]);
         if (inp && btn) {
             btn.setAttribute('title', t(inp.type === 'password' ? 'authRevealPassword' : 'authHidePassword'));
+            btn.setAttribute('data-visible', inp.type === 'text' ? 'true' : 'false');
         }
     });
 }
@@ -5550,6 +5594,7 @@ function toggleAuthPassword(inputId, btnId) {
     if (btn) {
         btn.setAttribute('title', t(inp.type === 'password' ? 'authRevealPassword' : 'authHidePassword'));
         btn.setAttribute('aria-pressed', inp.type === 'text' ? 'true' : 'false');
+        btn.setAttribute('data-visible', inp.type === 'text' ? 'true' : 'false');
     }
 }
 
@@ -5692,8 +5737,7 @@ async function copyProfileLogin() {
 
 // Switch to login form
 function switchToLogin() {
-    document.getElementById('loginForm').classList.remove('hidden');
-    document.getElementById('registerForm').classList.add('hidden');
+    syncAuthModalPanels('login');
     var titleEl = document.getElementById('authModalTitle');
     if (titleEl) titleEl.textContent = t('authWelcomeBack');
     var loginErr = document.getElementById('loginError');
@@ -5713,8 +5757,7 @@ function switchToLogin() {
 
 // Switch to register form
 function switchToRegister() {
-    document.getElementById('loginForm').classList.add('hidden');
-    document.getElementById('registerForm').classList.remove('hidden');
+    syncAuthModalPanels('register');
     var titleEl = document.getElementById('authModalTitle');
     if (titleEl) titleEl.textContent = t('authCreateAccount');
     var regErr = document.getElementById('registerError');
@@ -8898,4 +8941,3 @@ window.showLevelUpSequence = showLevelUpSequence;
 window.renderLevelBlock = renderLevelBlock;
 window.updateUserUI = updateUserUI;
 window.updateGuestPromisedHeader = updateGuestPromisedHeader;
-

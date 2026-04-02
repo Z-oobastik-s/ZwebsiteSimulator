@@ -160,7 +160,11 @@ window.translations = {
         authPasswordWeak: 'Слабый',
         authPasswordMedium: 'Средний',
         authPasswordStrong: 'Сильный',
-        authRandomHint: 'Логин - только латиница и цифры. Пароль хранится у Firebase.',
+        authRandomHint: 'Логин - латиница и цифры (от 3 символов). Пароль - от 6 символов. Email по желанию.',
+        authHudGuest: 'Гостевая синхронизация',
+        authPhLoginUser: 'Логин в систему',
+        authPhRegUser: 'Логин (латиница и цифры, от 3)',
+        authPhRegPass: 'Пароль от 6 символов',
         profileLoginLabel: 'Логин (для входа)',
         profileNicknameLabel: 'Никнейм (в игре)',
         profileNicknameHint: 'Это имя видят другие. Логин менять нельзя.',
@@ -537,7 +541,11 @@ window.translations = {
         authPasswordWeak: 'Weak',
         authPasswordMedium: 'Medium',
         authPasswordStrong: 'Strong',
-        authRandomHint: 'Username - letters and numbers only. Password is stored by Firebase.',
+        authRandomHint: 'Username - letters and numbers (min 3). Password - min 6 chars. Email optional.',
+        authHudGuest: 'Guest sync',
+        authPhLoginUser: 'Operator ID',
+        authPhRegUser: 'Username (letters and digits, min 3)',
+        authPhRegPass: 'Password (min 6 characters)',
         profileLoginLabel: 'Login (sign-in ID)',
         profileNicknameLabel: 'Nickname (shown in game)',
         profileNicknameHint: 'Others see this name. Login cannot be changed.',
@@ -914,7 +922,11 @@ window.translations = {
         authPasswordWeak: 'Слабкий',
         authPasswordMedium: 'Середній',
         authPasswordStrong: 'Сильний',
-        authRandomHint: 'Логін - лише латиниця й цифри. Пароль зберігається на Firebase.',
+        authRandomHint: 'Логін - латиниця й цифри (від 3). Пароль - від 6 символів. Email за бажанням.',
+        authHudGuest: 'Гостьова синхронізація',
+        authPhLoginUser: 'Логін до системи',
+        authPhRegUser: 'Логін (латиниця й цифри, від 3)',
+        authPhRegPass: 'Пароль від 6 символів',
         profileLoginLabel: 'Логін (для входу)',
         profileNicknameLabel: 'Нікнейм (у грі)',
         profileNicknameHint: 'Це ім\'я бачать інші. Логін змінити не можна.',
@@ -1135,4 +1147,3 @@ window.translations = {
         profileTabOnSite: 'на сайті'
     }
 };
-
