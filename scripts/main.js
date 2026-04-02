@@ -565,6 +565,7 @@ const translations = window.translations || {
         profileTabOverview: 'Обзор',
         profileTabHistory: 'История',
         profileTabErrors: 'Ошибки',
+        profileXpTrack: 'Прогресс',
         profileTabNoSessions: 'Пока нет сессий - пройди урок!',
         profileTabNoAchiev: 'Достижений пока нет',
         profileTabNoErrors: 'Пройди урок - и здесь появится аналитика ошибок',
@@ -816,6 +817,7 @@ const translations = window.translations || {
         profileTabOverview: 'Overview',
         profileTabHistory: 'History',
         profileTabErrors: 'Errors',
+        profileXpTrack: 'Progress',
         profileTabNoSessions: 'No sessions yet - complete a lesson!',
         profileTabNoAchiev: 'No achievements yet',
         profileTabNoErrors: 'Complete a lesson to see key error analytics',
@@ -6754,10 +6756,13 @@ function loadProfileData(profile) {
     var balanceEl = DOM.get('profileBalance');
     var xpBarEl = DOM.get('profileXPBar');
     var xpLabelEl = DOM.get('profileXPLabel');
+    var deckEl = DOM.get('profileDeck');
+    var xpPct = levelInfo.progressPct != null ? levelInfo.progressPct : 0;
     if (tierEl) tierEl.textContent = levelInfo.tierName || '-';
     if (levelEl) levelEl.textContent = levelInfo.level || 1;
     if (balanceEl) balanceEl.innerHTML = (profile.balance != null ? profile.balance : 0) + ' ' + COIN_ICON_IMG;
-    if (xpBarEl) xpBarEl.style.width = (levelInfo.progressPct != null ? levelInfo.progressPct : 0) + '%';
+    if (xpBarEl) xpBarEl.style.width = xpPct + '%';
+    if (deckEl && deckEl.style) deckEl.style.setProperty('--xp-pct', String(Math.min(1, Math.max(0, xpPct / 100))));
     if (xpLabelEl) xpLabelEl.textContent = (levelInfo.xpInLevel != null ? levelInfo.xpInLevel : 0) + ' / ' + (levelInfo.xpToNext != null ? levelInfo.xpToNext : 300) + ' XP';
 
     // Re-render dynamic overview tab with fresh profile data
@@ -8893,3 +8898,4 @@ window.showLevelUpSequence = showLevelUpSequence;
 window.renderLevelBlock = renderLevelBlock;
 window.updateUserUI = updateUserUI;
 window.updateGuestPromisedHeader = updateGuestPromisedHeader;
+

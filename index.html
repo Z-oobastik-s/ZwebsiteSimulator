@@ -3463,6 +3463,526 @@ Read
             border-color: rgba(180, 83, 9, 0.35) !important;
         }
 
+        /* ── Profile NX: компактный «deck», cyber / AAA ── */
+        #profileScreen.profile-nx {
+            --nx-cyan: #22d3ee;
+            --nx-violet: #a78bfa;
+            --nx-amber: #fbbf24;
+            --nx-pink: #f472b6;
+            --nx-glass: rgba(8, 12, 24, 0.72);
+            --nx-line: rgba(34, 211, 238, 0.22);
+        }
+        #profileDeck {
+            --xp-pct: 0;
+        }
+        .profile-nx-wrap {
+            position: relative;
+        }
+        .profile-nx-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+            padding: 0.25rem 0;
+        }
+        .profile-nx-title {
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.42em;
+            text-transform: uppercase;
+            color: rgba(226, 232, 240, 0.92);
+            text-shadow: 0 0 20px rgba(34, 211, 238, 0.35);
+            margin: 0;
+        }
+        .profile-nx-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.35rem;
+            padding: 0.45rem 0.75rem;
+            border-radius: 0.65rem;
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.35);
+            color: #e2e8f0;
+            cursor: pointer;
+            transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease, opacity 0.18s ease;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+        .profile-nx-btn:hover {
+            transform: translateY(-1px);
+            border-color: rgba(34, 211, 238, 0.45);
+            background: rgba(34, 211, 238, 0.1);
+        }
+        .profile-nx-btn:active {
+            transform: translateY(0);
+            opacity: 0.92;
+        }
+        .profile-nx-btn--ghost { color: #94a3b8; }
+        .profile-nx-btn--danger {
+            border-color: rgba(248, 113, 113, 0.35);
+            color: #fca5a5;
+            background: rgba(127, 29, 29, 0.2);
+        }
+        .profile-nx-btn--danger:hover {
+            border-color: rgba(248, 113, 113, 0.55);
+            background: rgba(220, 38, 38, 0.22);
+        }
+        .profile-nx-btn__ic { width: 14px; height: 14px; flex-shrink: 0; opacity: 0.85; }
+        .profile-nx-deck {
+            position: relative;
+            border-radius: 1.1rem;
+            padding: 1rem 1rem 1rem;
+            background: linear-gradient(155deg, rgba(6, 10, 22, 0.94) 0%, rgba(15, 23, 48, 0.9) 45%, rgba(20, 15, 40, 0.88) 100%);
+            border: 1px solid rgba(34, 211, 238, 0.2);
+            box-shadow:
+                0 0 0 1px rgba(167, 139, 250, 0.08),
+                0 4px 24px rgba(0, 0, 0, 0.45),
+                inset 0 1px 0 rgba(255, 255, 255, 0.06);
+            overflow: hidden;
+            margin-bottom: 0.75rem;
+        }
+        .profile-nx-deck-glow {
+            position: absolute;
+            inset: -40% -20% auto -20%;
+            height: 70%;
+            background: radial-gradient(ellipse at 50% 0%, rgba(34, 211, 238, 0.12), transparent 55%);
+            pointer-events: none;
+            opacity: 0.9;
+        }
+        .profile-nx-grid {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 0.85rem 1rem;
+            align-items: start;
+        }
+        @media (max-width: 640px) {
+            .profile-nx-grid {
+                grid-template-columns: 1fr;
+                justify-items: center;
+                text-align: center;
+            }
+            .profile-nx-main { width: 100%; text-align: left; }
+        }
+        .profile-nx-avatar-col {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .profile-nx-avatar-wrap {
+            position: relative;
+            width: 5.5rem;
+            height: 5.5rem;
+        }
+        @media (min-width: 641px) {
+            .profile-nx-avatar-wrap { width: 6rem; height: 6rem; }
+        }
+        .profile-nx-avatar-ring {
+            position: absolute;
+            inset: -5px;
+            border-radius: 50%;
+            background: conic-gradient(from 210deg, rgba(34, 211, 238, 0.55), rgba(167, 139, 250, 0.5), rgba(244, 114, 182, 0.45), rgba(34, 211, 238, 0.55));
+            opacity: 0.55;
+            animation: profileNxRingSpin 10s linear infinite;
+            will-change: transform;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .profile-nx-avatar-ring { animation: none; opacity: 0.35; }
+        }
+        @keyframes profileNxRingSpin {
+            to { transform: rotate(360deg); }
+        }
+        .profile-nx-avatar-ring--pulse {
+            position: absolute;
+            inset: -12px;
+            border-radius: 50%;
+            border: 1px solid rgba(34, 211, 238, 0.25);
+            animation: profileNxHalo 3.2s ease-in-out infinite;
+            pointer-events: none;
+            will-change: transform, opacity;
+        }
+        @keyframes profileNxHalo {
+            0%, 100% { transform: scale(1); opacity: 0.35; }
+            50% { transform: scale(1.06); opacity: 0.7; }
+        }
+        .profile-nx-avatar-inner {
+            position: absolute;
+            inset: 3px;
+            border-radius: 50%;
+            overflow: hidden;
+            background: rgba(15, 23, 42, 0.95);
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.45);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .profile-nx-avatar-inner #profilePhoto {
+            width: 100% !important;
+            height: 100% !important;
+            max-width: none;
+            border-radius: 50%;
+        }
+        .profile-nx-status {
+            position: absolute;
+            right: 6px;
+            top: 8px;
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: #34d399;
+            box-shadow: 0 0 10px rgba(52, 211, 153, 0.85);
+            border: 2px solid rgba(15, 23, 42, 0.95);
+            z-index: 3;
+        }
+        .profile-nx-avatar-edit {
+            position: absolute;
+            right: -2px;
+            bottom: -2px;
+            z-index: 4;
+            width: 1.85rem;
+            height: 1.85rem;
+            border-radius: 50%;
+            border: 2px solid rgba(15, 23, 42, 0.95);
+            background: linear-gradient(145deg, #0891b2, #6366f1);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(34, 211, 238, 0.35);
+            transition: transform 0.18s ease, filter 0.18s ease;
+        }
+        .profile-nx-avatar-edit:hover { transform: scale(1.08); filter: brightness(1.1); }
+        .profile-nx-avatar-edit:active { transform: scale(0.96); }
+        .profile-nx-main { min-width: 0; display: flex; flex-direction: column; gap: 0.55rem; }
+        .profile-nx-identity { margin-bottom: 0.1rem; }
+        .profile-nx-lbl {
+            display: block;
+            font-size: 0.58rem;
+            font-weight: 800;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: rgba(34, 211, 238, 0.75);
+            margin-bottom: 0.25rem;
+        }
+        .profile-nx-nick-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.5rem 0.75rem;
+        }
+        .profile-nx-nick-input {
+            flex: 1;
+            min-width: 0;
+            font-size: 1.25rem;
+            font-weight: 900;
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+            padding: 0.4rem 0.55rem;
+            border-radius: 0.55rem;
+            border: 1px solid rgba(34, 211, 238, 0.28);
+            background: rgba(0, 0, 0, 0.4);
+            color: #f8fafc;
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.35);
+            transition: border-color 0.18s ease, box-shadow 0.18s ease;
+        }
+        .profile-nx-nick-input:focus {
+            outline: none;
+            border-color: rgba(34, 211, 238, 0.6);
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.35), 0 0 0 2px rgba(34, 211, 238, 0.15);
+        }
+        .profile-nx-level-pill {
+            flex-shrink: 0;
+            display: flex;
+            align-items: baseline;
+            gap: 0.15rem;
+            padding: 0.28rem 0.55rem;
+            border-radius: 9999px;
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.18), rgba(245, 158, 11, 0.12));
+            border: 1px solid rgba(251, 191, 36, 0.45);
+            box-shadow: 0 0 18px rgba(251, 191, 36, 0.15);
+        }
+        .profile-nx-level-pill span:first-child {
+            font-size: 0.55rem;
+            font-weight: 800;
+            letter-spacing: 0.12em;
+            color: rgba(251, 191, 36, 0.9);
+        }
+        .profile-nx-level-pill #profileLevelNumber {
+            font-size: 1rem;
+            font-weight: 900;
+            color: #fde68a;
+            text-shadow: 0 0 14px rgba(251, 191, 36, 0.45);
+        }
+        .profile-nx-hint {
+            font-size: 0.65rem;
+            line-height: 1.35;
+            color: rgba(148, 163, 184, 0.95);
+            margin-top: 0.3rem;
+        }
+        .profile-nx-ribbon {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .profile-nx-chip--tier {
+            font-size: 0.6rem;
+            font-weight: 800;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            padding: 0.32rem 0.5rem;
+            border-radius: 0.45rem;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(167, 139, 250, 0.35);
+            color: #e9d5ff;
+        }
+        .profile-nx-coins {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.28rem 0.55rem;
+            border-radius: 0.5rem;
+            font-size: 0.8rem;
+            font-weight: 800;
+            color: #fde68a;
+            background: linear-gradient(180deg, rgba(180, 83, 9, 0.25), rgba(120, 53, 15, 0.2));
+            border: 1px solid rgba(251, 191, 36, 0.45);
+            box-shadow: 0 0 20px rgba(251, 191, 36, 0.12);
+            transition: transform 0.18s ease;
+        }
+        .profile-nx-coins:hover { transform: scale(1.03); }
+        .profile-nx-xp { margin-top: 0.1rem; }
+        .profile-nx-xp-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.58rem;
+            font-weight: 800;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: rgba(148, 163, 184, 0.85);
+            margin-bottom: 0.28rem;
+        }
+        .profile-nx-xp-head span:last-child {
+            letter-spacing: 0.06em;
+            color: rgba(251, 191, 36, 0.9);
+        }
+        .profile-nx-xp-track {
+            position: relative;
+            height: 8px;
+            border-radius: 9999px;
+            background: rgba(0, 0, 0, 0.45);
+            overflow: hidden;
+            border: 1px solid rgba(34, 211, 238, 0.12);
+        }
+        .profile-nx-xp-fill {
+            height: 100%;
+            width: 0%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, #0891b2, #22d3ee, #a78bfa, #fbbf24);
+            background-size: 200% 100%;
+            box-shadow: 0 0 16px rgba(34, 211, 238, 0.35);
+            transition: width 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+            will-change: width;
+            position: relative;
+        }
+        .profile-nx-xp-fill::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+            width: 40%;
+            transform: translateX(-120%);
+            animation: profileXpShimmer 2.8s ease-in-out infinite;
+            will-change: transform;
+            border-radius: inherit;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .profile-nx-xp-fill::after { animation: none; opacity: 0; }
+        }
+        @keyframes profileXpShimmer {
+            0%, 100% { transform: translateX(-120%); opacity: 0; }
+            50% { transform: translateX(280%); opacity: 1; }
+        }
+        .profile-nx-login {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            flex-wrap: wrap;
+            padding: 0.4rem 0.5rem;
+            border-radius: 0.55rem;
+            background: rgba(0, 0, 0, 0.32);
+            border: 1px solid rgba(34, 211, 238, 0.14);
+        }
+        .profile-nx-login-lbl {
+            font-size: 0.55rem;
+            font-weight: 800;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: rgba(100, 116, 139, 0.95);
+            flex-shrink: 0;
+        }
+        .profile-nx-login code#profileLoginValue {
+            flex: 1;
+            min-width: 0;
+            font-family: ui-monospace, monospace;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: #a5f3fc;
+            background: transparent;
+            word-break: break-all;
+        }
+        .profile-nx-copy {
+            flex-shrink: 0;
+            padding: 0.28rem 0.45rem;
+            font-size: 0.55rem;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            border-radius: 0.4rem;
+            border: 1px solid rgba(34, 211, 238, 0.35);
+            background: rgba(6, 182, 212, 0.15);
+            color: #a5f3fc;
+            cursor: pointer;
+            transition: transform 0.15s ease, background 0.15s ease;
+        }
+        .profile-nx-copy:hover { transform: translateY(-1px); background: rgba(6, 182, 212, 0.28); }
+        .profile-nx-copy:active { transform: translateY(0); }
+        .profile-nx-actions {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.45rem;
+            margin-bottom: 0.65rem;
+        }
+        @media (max-width: 480px) {
+            .profile-nx-actions { grid-template-columns: 1fr; }
+        }
+        .profile-nx-tile {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.55rem 0.65rem;
+            border-radius: 0.65rem;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: linear-gradient(145deg, rgba(15, 23, 42, 0.8), rgba(8, 12, 24, 0.85));
+            color: #e2e8f0;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            cursor: pointer;
+            text-align: left;
+            transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .profile-nx-tile:hover {
+            transform: translateY(-2px);
+            border-color: rgba(34, 211, 238, 0.35);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), 0 0 20px rgba(34, 211, 238, 0.08);
+        }
+        .profile-nx-tile:active { transform: translateY(0); }
+        .profile-nx-tile--cards {
+            border-color: rgba(217, 70, 239, 0.25);
+        }
+        .profile-nx-tile--cards:hover {
+            border-color: rgba(217, 70, 239, 0.45);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), 0 0 20px rgba(217, 70, 239, 0.1);
+        }
+        .profile-nx-tile__ic {
+            font-size: 1.15rem;
+            line-height: 1;
+            filter: drop-shadow(0 0 8px rgba(34, 211, 238, 0.35));
+        }
+        .profile-nx-tile--cards .profile-nx-tile__ic {
+            filter: drop-shadow(0 0 8px rgba(217, 70, 239, 0.4));
+        }
+        .profile-nx-bio {
+            border-radius: 0.75rem;
+            padding: 0.65rem 0.75rem;
+            margin-bottom: 0.65rem;
+            border: 1px solid rgba(34, 211, 238, 0.14);
+            background: rgba(0, 0, 0, 0.28);
+        }
+        .profile-nx-bio .profile-section-title {
+            margin-bottom: 0.35rem;
+            font-size: 0.58rem;
+        }
+        .profile-nx-bio textarea#profileBio {
+            min-height: 2.75rem;
+            border-radius: 0.5rem;
+        }
+        .profile-nx-save {
+            margin-top: 0.45rem;
+            padding: 0.45rem 0.85rem;
+            font-size: 0.65rem;
+            font-weight: 800;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            border-radius: 0.5rem;
+            border: 1px solid rgba(34, 211, 238, 0.4);
+            background: linear-gradient(135deg, rgba(8, 145, 178, 0.35), rgba(99, 102, 241, 0.3));
+            color: #ecfeff;
+            cursor: pointer;
+            transition: transform 0.15s ease, filter 0.15s ease;
+        }
+        .profile-nx-save:hover { transform: translateY(-1px); filter: brightness(1.08); }
+        .profile-nx-save:active { transform: translateY(0); }
+        .profile-nx-seg {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.35rem;
+            padding: 0.25rem;
+            margin-top: 0.35rem;
+            margin-bottom: 0.35rem;
+            border-radius: 0.75rem;
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .profile-nx-seg .profile-tab-btn {
+            flex: 1;
+            min-width: 5rem;
+            margin-bottom: 0;
+            border-radius: 0.55rem;
+            border-bottom: none;
+            border: 1px solid transparent;
+            transition: transform 0.15s ease, background 0.15s ease, color 0.15s ease;
+        }
+        .profile-nx-seg .profile-tab-btn:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.05);
+            transform: translateY(-1px);
+        }
+        .profile-nx-seg .profile-tab-btn.active {
+            background: linear-gradient(135deg, rgba(34, 211, 238, 0.22), rgba(167, 139, 250, 0.18));
+            border-color: rgba(34, 211, 238, 0.35);
+            color: #e0f2fe;
+            text-shadow: 0 0 12px rgba(34, 211, 238, 0.35);
+        }
+        html:not(.dark) #profileScreen.profile-nx .profile-nx-deck {
+            background: linear-gradient(155deg, #ffffff 0%, #f1f5f9 100%);
+            border-color: #bae6fd;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+        }
+        html:not(.dark) #profileScreen.profile-nx .profile-nx-title { color: #0f172a; text-shadow: none; }
+        html:not(.dark) #profileScreen.profile-nx .profile-nx-nick-input {
+            background: #fff;
+            color: #0f172a;
+            border-color: #bae6fd;
+        }
+        html:not(.dark) #profileScreen.profile-nx .profile-nx-login code#profileLoginValue { color: #0e7490; }
+        html:not(.dark) #profileScreen.profile-nx .profile-nx-tile {
+            background: #fff;
+            border-color: #e2e8f0;
+            color: #1e293b;
+        }
+
         /* ═══════════════════════════════════════════════════
            PROFILE TAB - CSS VARIABLES
            ═══════════════════════════════════════════════════ */
@@ -5581,110 +6101,117 @@ Read
         </div>
     </div>
     
-    <!-- Profile Screen - 2090 HUD style -->
-    <div id="profileScreen" class="hidden fade-in">
-        <div class="max-w-5xl mx-auto px-4">
-            <!-- Top bar -->
-            <div class="flex items-center justify-between mb-4 profile-topbar">
-                <button onclick="showHome()" class="profile-quick-btn glass px-4 py-2 rounded-lg flex items-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+    <!-- Profile Screen - NX compact deck -->
+    <div id="profileScreen" class="hidden fade-in profile-nx">
+        <div class="profile-nx-wrap max-w-4xl mx-auto px-4">
+            <div class="profile-nx-top">
+                <button type="button" onclick="showHome()" class="profile-nx-btn profile-nx-btn--ghost">
+                    <svg class="profile-nx-btn__ic" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
                     <span data-i18n="back">Назад</span>
                 </button>
-                <h2 class="profile-2090-header text-xl font-bold text-white uppercase" data-i18n="profile">Профиль</h2>
-                <button onclick="logoutUser()" class="profile-quick-btn px-4 py-2 rounded-lg text-red-400 hover:bg-red-500/20 border border-red-500/30">
+                <h2 class="profile-nx-title" data-i18n="profile">Профиль</h2>
+                <button type="button" onclick="logoutUser()" class="profile-nx-btn profile-nx-btn--danger">
                     <span data-i18n="logout">Выйти</span>
                 </button>
             </div>
 
-            <!-- Guaranteed mobile back button -->
-            <button id="mobileProfileBackBtn" onclick="showHome()" class="sm:hidden fixed left-3 top-[6.5rem] z-[200] glass px-3 py-2 rounded-lg">
+            <button type="button" id="mobileProfileBackBtn" onclick="showHome()" class="sm:hidden fixed left-3 top-[6.5rem] z-[200] profile-nx-btn profile-nx-btn--ghost">
                 <span class="inline-flex items-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                    <svg class="profile-nx-btn__ic" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
                     <span data-i18n="back">Назад</span>
                 </span>
             </button>
-            
-            <!-- Hero: vault ID card (никнейм + логин + статы) -->
-            <div class="profile-hero-panel profile-hero-panel--vault rounded-2xl p-6 mb-5 relative overflow-hidden">
-                <div class="profile-hero-vault-bg" aria-hidden="true"></div>
-                <div class="relative z-10 flex flex-col md:flex-row gap-6 md:gap-8 items-stretch">
-                    <div class="relative shrink-0 flex justify-center md:block">
-                        <div class="profile-avatar-ring w-28 h-28 md:w-32 md:h-32 rounded-full overflow-hidden bg-gray-800/80 flex items-center justify-center ring-2 ring-cyan-500/30 shadow-[0_0_28px_-4px_rgba(34,211,238,0.45)]">
-                            <img id="profilePhoto" src="" alt="" class="w-full h-full object-cover" style="display: none; width: 128px; height: 128px; object-fit: cover;">
-                            <div id="profilePhotoPlaceholder" class="w-full h-full flex items-center justify-center text-4xl md:text-5xl">👤</div>
+
+            <div id="profileDeck" class="profile-nx-deck" style="--xp-pct: 0;">
+                <div class="profile-nx-deck-glow" aria-hidden="true"></div>
+                <div class="profile-nx-grid">
+                    <div class="profile-nx-avatar-col">
+                        <div class="profile-nx-avatar-wrap">
+                            <div class="profile-nx-avatar-ring" aria-hidden="true"></div>
+                            <div class="profile-nx-avatar-ring--pulse" aria-hidden="true"></div>
+                            <div class="profile-nx-avatar-inner">
+                                <span class="profile-nx-status" title="Online" aria-hidden="true"></span>
+                                <img id="profilePhoto" src="" alt="" class="object-cover" style="display: none; width: 128px; height: 128px; object-fit: cover;">
+                                <div id="profilePhotoPlaceholder" class="w-full h-full flex items-center justify-center text-3xl sm:text-4xl">👤</div>
+                            </div>
+                            <button type="button" onclick="showAvatarSelector()" class="profile-nx-avatar-edit" aria-label="" data-i18n-aria-label="chooseAvatar">
+                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14"/></svg>
+                            </button>
                         </div>
-                        <button type="button" onclick="showAvatarSelector()" class="absolute -bottom-1 -right-1 w-9 h-9 rounded-full bg-cyan-500/90 hover:bg-cyan-400 flex items-center justify-center cursor-pointer shadow-lg ring-2 ring-slate-900/80">
-                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14"/></svg>
-                        </button>
                     </div>
-                    <div class="flex-1 min-w-0 space-y-3">
-                        <div>
-                            <label for="profileDisplayName" class="profile-hero-field-label" data-i18n="profileNicknameLabel">Никнейм</label>
-                            <input type="text" id="profileDisplayName" maxlength="40" autocomplete="nickname" class="profile-hero-name-input focus:ring-0" placeholder="" oninput="updateProfileDirtyState()" />
-                            <p class="text-xs text-gray-500 mt-1.5 leading-relaxed" data-i18n="profileNicknameHint"></p>
+                    <div class="profile-nx-main">
+                        <div class="profile-nx-identity">
+                            <label for="profileDisplayName" class="profile-nx-lbl" data-i18n="profileNicknameLabel">Никнейм</label>
+                            <div class="profile-nx-nick-row">
+                                <input type="text" id="profileDisplayName" maxlength="40" autocomplete="nickname" class="profile-nx-nick-input focus:ring-0" placeholder="" oninput="updateProfileDirtyState()" />
+                                <div class="profile-nx-level-pill">
+                                    <span data-i18n="levelShort">Ур.</span>
+                                    <span id="profileLevelNumber">1</span>
+                                </div>
+                            </div>
+                            <p class="profile-nx-hint" data-i18n="profileNicknameHint"></p>
                         </div>
-                        <div class="profile-login-strip flex flex-wrap items-center gap-2 py-2.5 px-3 rounded-xl border border-cyan-500/20">
-                            <span class="text-[0.65rem] font-bold uppercase tracking-wider text-gray-500" data-i18n="profileLoginLabel">Логин</span>
-                            <code id="profileLoginValue" class="font-mono text-sm font-semibold text-cyan-100 tracking-tight break-all flex-1 min-w-0"></code>
-                            <button type="button" onclick="copyProfileLogin()" class="profile-copy-login-btn shrink-0" data-i18n="profileCopyLogin">Копировать</button>
+                        <div class="profile-nx-ribbon">
+                            <span id="profileTierName" class="profile-nx-chip--tier">-</span>
+                            <span id="profileBalance" class="profile-nx-coins">0</span>
+                        </div>
+                        <div class="profile-nx-xp">
+                            <div class="profile-nx-xp-head">
+                                <span data-i18n="profileXpTrack">Прогресс</span>
+                                <span id="profileXPLabel">0 / 300 XP</span>
+                            </div>
+                            <div class="profile-nx-xp-track">
+                                <div id="profileXPBar" class="profile-nx-xp-fill" style="width: 0%;"></div>
+                            </div>
+                        </div>
+                        <div class="profile-nx-login">
+                            <span class="profile-nx-login-lbl" data-i18n="profileLoginLabel">Логин</span>
+                            <code id="profileLoginValue"></code>
+                            <button type="button" onclick="copyProfileLogin()" class="profile-nx-copy" data-i18n="profileCopyLogin">Копировать</button>
                         </div>
                         <p id="profileEmail" class="text-gray-400 text-sm truncate hidden"></p>
-                        <div class="flex flex-wrap items-center gap-2 pt-1">
-                            <span id="profileTierName" class="profile-2090-badge uppercase text-xs px-2 py-0.5 rounded">-</span>
-                            <span id="profileLevelNumber" class="profile-level-badge text-amber-300 font-bold text-sm px-2.5 py-0.5 rounded">1</span>
-                            <span id="profileBalance" class="profile-balance-badge text-amber-300/90 text-sm px-2 py-0.5 rounded flex items-center gap-1">0</span>
-                        </div>
-                        <div class="max-w-full md:max-w-md pt-1">
-                            <div class="profile-xp-bar-wrap w-full h-2">
-                                <div id="profileXPBar" class="profile-xp-bar-fill" style="width: 0%;"></div>
-                            </div>
-                            <p id="profileXPLabel" class="text-xs text-gray-500 mt-1">0 / 300 XP</p>
-                        </div>
                     </div>
                 </div>
             </div>
-            
-            <!-- Quick actions -->
-            <div class="flex flex-wrap gap-2 mb-4">
-                <button onclick="showHome(); document.getElementById('lessonsTab')?.click?.();" class="profile-quick-btn glass px-4 py-2 rounded-lg text-sm flex items-center gap-2">
+
+            <div class="profile-nx-actions">
+                <button type="button" onclick="showHome(); document.getElementById('lessonsTab')?.click?.();" class="profile-nx-tile">
+                    <span class="profile-nx-tile__ic" aria-hidden="true">📚</span>
                     <span data-i18n="lessons">Уроки</span>
                 </button>
-                <button onclick="showShop()" class="profile-quick-btn glass px-4 py-2 rounded-lg text-sm flex items-center gap-2">
+                <button type="button" onclick="showShop()" class="profile-nx-tile">
+                    <span class="profile-nx-tile__ic" aria-hidden="true">🛒</span>
                     <span data-i18n="shop">Магазин</span>
                 </button>
-                <button onclick="showCollectibles()" class="profile-quick-btn glass px-4 py-2 rounded-lg text-sm flex items-center gap-2 border border-fuchsia-500/35">
+                <button type="button" onclick="showCollectibles()" class="profile-nx-tile profile-nx-tile--cards">
+                    <span class="profile-nx-tile__ic" aria-hidden="true">🃏</span>
                     <span data-i18n="collectiblesTitle">Коллекция карт</span>
                 </button>
             </div>
-            
-            <!-- Bio -->
-            <div class="mb-5">
+
+            <div class="profile-nx-bio">
                 <p class="profile-section-title mb-2" data-i18n="bio">О себе</p>
                 <textarea id="profileBio" rows="2" class="profile-bio-input w-full px-4 py-2 rounded-lg text-white resize-none focus:outline-none text-sm" placeholder="Расскажите о себе..." oninput="updateProfileDirtyState()"></textarea>
                 <div id="profileUnsavedHint" class="hidden profile-unsaved-hint mt-3 rounded-xl border border-amber-400/45 bg-gradient-to-r from-amber-500/15 via-fuchsia-500/10 to-cyan-500/10 px-3 py-2.5 text-sm text-amber-100/95 leading-snug" role="status">
                     <span class="mr-1.5 inline-block" aria-hidden="true">✨</span>
                     <span data-i18n="profileUnsavedHint">Изменения пока не сохранены.</span>
                 </div>
-                <button onclick="saveProfile()" class="mt-2 profile-quick-btn px-4 py-2 rounded-lg text-cyan-400 border-cyan-500/40 text-sm">
+                <button type="button" onclick="saveProfile()" class="profile-nx-save">
                     <span data-i18n="save">Сохранить</span>
                 </button>
             </div>
-            
-            <!-- Profile Tabs Navigation -->
-            <div class="profile-tab-nav flex gap-0 mt-5">
-                <button onclick="showProfileTab('overview')" id="profileTab-overview" class="profile-tab-btn active">📊 <span data-i18n="profileTabOverview">Обзор</span></button>
-                <button onclick="showProfileTab('history')" id="profileTab-history" class="profile-tab-btn">📋 <span data-i18n="profileTabHistory">История</span></button>
-                <button onclick="showProfileTab('errors')" id="profileTab-errors" class="profile-tab-btn">🎯 <span data-i18n="profileTabErrors">Ошибки</span></button>
+
+            <div class="profile-nx-seg profile-tab-nav flex gap-0 mt-2">
+                <button type="button" onclick="showProfileTab('overview')" id="profileTab-overview" class="profile-tab-btn active">📊 <span data-i18n="profileTabOverview">Обзор</span></button>
+                <button type="button" onclick="showProfileTab('history')" id="profileTab-history" class="profile-tab-btn">📋 <span data-i18n="profileTabHistory">История</span></button>
+                <button type="button" onclick="showProfileTab('errors')" id="profileTab-errors" class="profile-tab-btn">🎯 <span data-i18n="profileTabErrors">Ошибки</span></button>
             </div>
 
-            <!-- Tab: Overview -->
             <div id="profileTabOverview" class="pt-5">
                 <div id="profileOverviewContent"></div>
             </div>
 
-            <!-- Tab: History -->
             <div id="profileTabHistory" class="hidden pt-5">
-                <!-- График прогресса по сессиям -->
                 <div class="mb-5 rounded-xl bg-white/5 dark:bg-black/20 p-3">
                     <p class="text-xs text-gray-400 mb-2">Скорость по последним сессиям</p>
                     <canvas id="profileProgressChart" style="width:100%;height:120px;display:block;"></canvas>
@@ -5692,7 +6219,6 @@ Read
                 <div id="profileHistoryContent"></div>
             </div>
 
-            <!-- Tab: Errors -->
             <div id="profileTabErrors" class="hidden pt-5">
                 <div id="profileErrorsContent"></div>
             </div>
@@ -6157,3 +6683,4 @@ Read
     </script>
 </body>
 </html>
+

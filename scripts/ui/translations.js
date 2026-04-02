@@ -366,6 +366,7 @@ window.translations = {
         profileTabOverview: 'Обзор',
         profileTabHistory: 'История',
         profileTabErrors: 'Ошибки',
+        profileXpTrack: 'Прогресс',
         profileTabNoSessions: 'Пока нет сессий - пройди урок!',
         profileTabNoAchiev: 'Достижений пока нет',
         profileTabNoErrors: 'Пройди урок - и здесь появится аналитика ошибок',
@@ -742,6 +743,7 @@ window.translations = {
         profileTabOverview: 'Overview',
         profileTabHistory: 'History',
         profileTabErrors: 'Errors',
+        profileXpTrack: 'Progress',
         profileTabNoSessions: 'No sessions yet - complete a lesson!',
         profileTabNoAchiev: 'No achievements yet',
         profileTabNoErrors: 'Complete a lesson to see key error analytics',
@@ -1118,6 +1120,7 @@ window.translations = {
         profileTabOverview: 'Огляд',
         profileTabHistory: 'Історія',
         profileTabErrors: 'Помилки',
+        profileXpTrack: 'Прогрес',
         profileTabNoSessions: 'Поки немає сесій - пройди урок!',
         profileTabNoAchiev: 'Поки немає досягнень',
         profileTabNoErrors: 'Пройди урок - тут з’явиться аналітика помилок',
@@ -1132,3 +1135,4 @@ window.translations = {
         profileTabOnSite: 'на сайті'
     }
 };
+
