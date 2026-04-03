@@ -2406,32 +2406,41 @@ Read
             0%, 100% { opacity: 0.75; transform: translateZ(0) scale(1); }
             50% { opacity: 1; transform: translateZ(0) scale(1.05); }
         }
+        /* Переворот: без (hover: hover) - на части ПК Windows запрос ложный, hover не работал */
         .cc-slot--locked.cc-flip-root {
+            -webkit-perspective: 1100px;
             perspective: 1100px;
             overflow: visible;
+            contain: none;
+            isolation: auto;
+            content-visibility: visible;
         }
-        @media (hover: hover) and (pointer: fine) {
-            .cc-slot--locked.cc-flip-root:hover { z-index: 8; }
+        .cc-slot--locked.cc-flip-root:hover,
+        .cc-slot--locked.cc-flip-root:focus-within {
+            z-index: 8;
         }
-        .cc-slot--locked.cc-flip-root:focus-within { z-index: 8; }
-        .cc-flip-inner {
-            position: relative;
+        .cc-slot--locked.cc-flip-root .cc-flip-inner {
+            position: absolute;
+            inset: 0;
             width: 100%;
             height: 100%;
             transform-style: preserve-3d;
+            -webkit-transform-style: preserve-3d;
+            transition: -webkit-transform 0.68s cubic-bezier(0.4, 0.2, 0.2, 1);
             transition: transform 0.68s cubic-bezier(0.4, 0.2, 0.2, 1);
             will-change: transform;
         }
-        @media (hover: hover) and (pointer: fine) {
-            .cc-slot--locked.cc-flip-root:hover .cc-flip-inner,
-            .cc-slot--locked.cc-flip-root:focus-within .cc-flip-inner {
-                transform: rotateY(180deg);
-            }
+        .cc-slot--locked.cc-flip-root:hover .cc-flip-inner,
+        .cc-slot--locked.cc-flip-root:focus-within .cc-flip-inner {
+            -webkit-transform: rotateY(180deg);
+            transform: rotateY(180deg);
         }
-        @media (hover: none) {
-            .cc-slot--locked.cc-flip-root:active .cc-flip-inner {
-                transform: rotateY(180deg);
-            }
+        .cc-slot--locked.cc-flip-root:active .cc-flip-inner {
+            -webkit-transform: rotateY(180deg);
+            transform: rotateY(180deg);
+        }
+        .cc-slot--locked .cc-slot__badge {
+            pointer-events: none;
         }
         .cc-flip-face {
             position: absolute;
@@ -2650,6 +2659,7 @@ Read
             }
             .cc-slot--locked .cc-slot__q-svg { animation: none !important; opacity: 0.88; transform: none; }
             .cc-slot--locked.cc-flip-root .cc-flip-inner {
+                -webkit-transform: none !important;
                 transform: none !important;
                 transition: none !important;
             }
@@ -7523,4 +7533,3 @@ Read
     </script>
 </body>
 </html>
-
