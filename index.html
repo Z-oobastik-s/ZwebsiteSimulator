@@ -2394,18 +2394,217 @@ Read
             justify-content: center;
             background: radial-gradient(ellipse at 50% 30%, rgba(30, 41, 59, 0.9), #020617 75%);
         }
-        .cc-slot__q {
-            font-size: 2.25rem;
-            font-weight: 900;
-            color: rgba(148, 163, 184, 0.35);
-            text-shadow: 0 0 18px rgba(0, 0, 0, 0.9);
+        .cc-slot__q-svg {
+            width: 54%;
+            max-width: 4.5rem;
+            height: auto;
+            display: block;
+            filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.65));
             animation: cc-lock-twinkle 6s ease-in-out infinite;
         }
         @keyframes cc-lock-twinkle {
             0%, 100% { opacity: 0.75; transform: translateZ(0) scale(1); }
             50% { opacity: 1; transform: translateZ(0) scale(1.05); }
         }
+        .cc-slot--locked.cc-flip-root {
+            perspective: 1100px;
+            overflow: visible;
+        }
+        @media (hover: hover) and (pointer: fine) {
+            .cc-slot--locked.cc-flip-root:hover { z-index: 8; }
+        }
+        .cc-slot--locked.cc-flip-root:focus-within { z-index: 8; }
+        .cc-flip-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            transition: transform 0.68s cubic-bezier(0.4, 0.2, 0.2, 1);
+            will-change: transform;
+        }
+        @media (hover: hover) and (pointer: fine) {
+            .cc-slot--locked.cc-flip-root:hover .cc-flip-inner,
+            .cc-slot--locked.cc-flip-root:focus-within .cc-flip-inner {
+                transform: rotateY(180deg);
+            }
+        }
+        @media (hover: none) {
+            .cc-slot--locked.cc-flip-root:active .cc-flip-inner {
+                transform: rotateY(180deg);
+            }
+        }
+        .cc-flip-face {
+            position: absolute;
+            inset: 0;
+            border-radius: 14px;
+            overflow: hidden;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            transform: translateZ(0.5px);
+        }
+        .cc-flip-face--back {
+            transform: rotateY(180deg) translateZ(0.5px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 0.45rem 0.35rem;
+            background: radial-gradient(ellipse 90% 72% at 50% 18%, rgba(30, 41, 59, 0.96), #020617 74%);
+            border: 1px solid rgba(148, 163, 184, 0.28);
+            box-shadow: inset 0 0 44px rgba(0, 0, 0, 0.55);
+        }
+        .cc-flip-back--common {
+            border-color: rgba(34, 211, 238, 0.42);
+            box-shadow: inset 0 0 34px rgba(34, 211, 238, 0.07), 0 0 22px rgba(34, 211, 238, 0.12);
+        }
+        .cc-flip-back--uncommon {
+            border-color: rgba(52, 211, 153, 0.48);
+            box-shadow: inset 0 0 34px rgba(52, 211, 153, 0.07), 0 0 22px rgba(52, 211, 153, 0.12);
+        }
+        .cc-flip-back--rare {
+            border-color: rgba(192, 132, 252, 0.52);
+            box-shadow: inset 0 0 38px rgba(139, 92, 246, 0.09), 0 0 26px rgba(139, 92, 246, 0.16);
+        }
+        .cc-flip-back--mythic {
+            border-color: rgba(253, 224, 71, 0.48);
+            box-shadow: inset 0 0 42px rgba(245, 158, 11, 0.11), 0 0 30px rgba(245, 158, 11, 0.2);
+        }
+        .cc-flip-back-hud {
+            position: absolute;
+            inset: 6px;
+            border-radius: 10px;
+            pointer-events: none;
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            background: linear-gradient(135deg, transparent 45%, rgba(255, 255, 255, 0.025) 50%, transparent 55%);
+        }
+        .cc-flip-chance-line {
+            position: relative;
+            z-index: 1;
+            font-size: 0.7rem;
+            font-weight: 900;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            margin: 0 0 0.3rem;
+            line-height: 1.2;
+            background: linear-gradient(90deg, #67e8f9, #c4b5fd);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            filter: drop-shadow(0 0 12px rgba(34, 211, 238, 0.35));
+        }
+        .cc-flip-back--mythic .cc-flip-chance-line {
+            background: linear-gradient(90deg, #fde047, #fb923c);
+            filter: drop-shadow(0 0 14px rgba(251, 191, 36, 0.4));
+        }
+        .cc-flip-rarity-name {
+            position: relative;
+            z-index: 1;
+            font-size: 0.62rem;
+            font-weight: 800;
+            letter-spacing: 0.11em;
+            text-transform: uppercase;
+            color: rgba(226, 232, 240, 0.92);
+            margin: 0 0 0.2rem;
+        }
+        .cc-flip-micro {
+            position: relative;
+            z-index: 1;
+            font-size: 0.55rem;
+            color: rgba(148, 163, 184, 0.78);
+            margin: 0;
+            letter-spacing: 0.05em;
+        }
+        .cc-badge-minus-ico {
+            width: 14px;
+            height: 14px;
+            display: block;
+        }
         .cc-slot--locked .cc-slot__ring { border-color: rgba(71, 85, 105, 0.5); }
+        .cc-legend {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(165deg, rgba(15, 23, 42, 0.92), rgba(3, 7, 18, 0.94));
+            border: 1px solid rgba(168, 85, 247, 0.28);
+            box-shadow: 0 0 44px rgba(168, 85, 247, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+        }
+        .cc-legend::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, rgba(34, 211, 238, 0.65), rgba(168, 85, 247, 0.75), rgba(244, 114, 182, 0.6), transparent);
+            opacity: 0.9;
+        }
+        .cc-legend-title {
+            font-size: 1rem;
+            font-weight: 900;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            margin: 0 0 0.55rem;
+            padding-top: 0.15rem;
+            background: linear-gradient(92deg, #f0abfc, #67e8f9);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .cc-legend-lead {
+            font-size: 0.8rem;
+            line-height: 1.55;
+            color: rgba(203, 213, 225, 0.92);
+            margin: 0 0 1rem;
+        }
+        .cc-legend-tiers {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        .cc-legend-row {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 0.6rem 0.85rem;
+            align-items: start;
+            padding: 0.65rem 0.8rem;
+            border-radius: 12px;
+            background: rgba(15, 23, 42, 0.55);
+            border: 1px solid rgba(71, 85, 105, 0.45);
+        }
+        .cc-legend-ico {
+            width: 10px;
+            height: 10px;
+            border-radius: 2px;
+            transform: rotate(45deg);
+            margin-top: 0.32rem;
+            flex-shrink: 0;
+            box-shadow: 0 0 14px currentColor;
+        }
+        .cc-legend-ico--common { background: #22d3ee; color: #22d3ee; }
+        .cc-legend-ico--uncommon { background: #34d399; color: #34d399; }
+        .cc-legend-ico--rare { background: #a78bfa; color: #a78bfa; }
+        .cc-legend-ico--mythic { background: #fbbf24; color: #fbbf24; }
+        .cc-legend-tier-name {
+            display: block;
+            font-size: 0.72rem;
+            font-weight: 900;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 0.18rem;
+        }
+        .cc-legend-row--common .cc-legend-tier-name { color: #7dd3fc; }
+        .cc-legend-row--uncommon .cc-legend-tier-name { color: #6ee7b7; }
+        .cc-legend-row--rare .cc-legend-tier-name { color: #ddd6fe; }
+        .cc-legend-row--mythic .cc-legend-tier-name { color: #fde047; }
+        .cc-legend-tier-desc {
+            font-size: 0.72rem;
+            line-height: 1.45;
+            color: rgba(186, 199, 216, 0.9);
+            margin: 0;
+        }
         .cc-rarity-common.cc-slot--owned .cc-slot__ring {
             border-color: rgba(34, 211, 238, 0.6);
             box-shadow: inset 0 0 26px rgba(34, 211, 238, 0.12), 0 0 22px rgba(34, 211, 238, 0.2);
@@ -2449,7 +2648,11 @@ Read
                 opacity: 0.4;
                 transform: none;
             }
-            .cc-slot--locked .cc-slot__q { opacity: 0.9; transform: none; }
+            .cc-slot--locked .cc-slot__q-svg { animation: none !important; opacity: 0.88; transform: none; }
+            .cc-slot--locked.cc-flip-root .cc-flip-inner {
+                transform: none !important;
+                transition: none !important;
+            }
             #collectibleReveal:not(.hidden) { animation: none !important; opacity: 1 !important; }
             .cc-reveal-panel.cc-reveal-slam,
             .cc-reveal-panel.cc-reveal-slam .cc-reveal-img-wrap {
@@ -6924,7 +7127,41 @@ Read
                     </span>
                 </button>
             </div>
-            <div id="collectibleGrid" class="cc-grid pb-8"></div>
+            <div id="collectibleGrid" class="cc-grid pb-6"></div>
+            <section id="collectibleRarityLegend" class="cc-legend rounded-2xl p-5 sm:p-6 mb-6" aria-labelledby="collectibleLegendHeading">
+                <h3 id="collectibleLegendHeading" class="cc-legend-title" data-i18n="collectiblesLegendTitle">Редкости и дроп</h3>
+                <p class="cc-legend-lead" data-i18n="collectiblesLegendLead">Каждое открытие бустера…</p>
+                <ul class="cc-legend-tiers">
+                    <li class="cc-legend-row cc-legend-row--common">
+                        <span class="cc-legend-ico cc-legend-ico--common" aria-hidden="true"></span>
+                        <div>
+                            <strong class="cc-legend-tier-name" data-i18n="collectiblesRarity_common">Обычная</strong>
+                            <p class="cc-legend-tier-desc" data-i18n="collectiblesLegendCommon"></p>
+                        </div>
+                    </li>
+                    <li class="cc-legend-row cc-legend-row--uncommon">
+                        <span class="cc-legend-ico cc-legend-ico--uncommon" aria-hidden="true"></span>
+                        <div>
+                            <strong class="cc-legend-tier-name" data-i18n="collectiblesRarity_uncommon">Необычная</strong>
+                            <p class="cc-legend-tier-desc" data-i18n="collectiblesLegendUncommon"></p>
+                        </div>
+                    </li>
+                    <li class="cc-legend-row cc-legend-row--rare">
+                        <span class="cc-legend-ico cc-legend-ico--rare" aria-hidden="true"></span>
+                        <div>
+                            <strong class="cc-legend-tier-name" data-i18n="collectiblesRarity_rare">Редкая</strong>
+                            <p class="cc-legend-tier-desc" data-i18n="collectiblesLegendRare"></p>
+                        </div>
+                    </li>
+                    <li class="cc-legend-row cc-legend-row--mythic">
+                        <span class="cc-legend-ico cc-legend-ico--mythic" aria-hidden="true"></span>
+                        <div>
+                            <strong class="cc-legend-tier-name" data-i18n="collectiblesRarity_mythic">Мифическая</strong>
+                            <p class="cc-legend-tier-desc" data-i18n="collectiblesLegendMythic"></p>
+                        </div>
+                    </li>
+                </ul>
+            </section>
         </div>
     </div>
     
@@ -7286,3 +7523,4 @@ Read
     </script>
 </body>
 </html>
+

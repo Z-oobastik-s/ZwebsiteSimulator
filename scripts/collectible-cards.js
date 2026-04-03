@@ -37,16 +37,41 @@
         return 3;
     }
 
-    function pickRandomCardIdForPull() {
-        var totalW = 0;
+    var TOTAL_PULL_WEIGHT = (function () {
+        var s = 0;
         var i;
-        for (i = 0; i < TOTAL; i++) totalW += weightForIndex(i);
+        for (i = 0; i < TOTAL; i++) s += weightForIndex(i);
+        return s;
+    })();
+
+    function pickRandomCardIdForPull() {
+        var totalW = TOTAL_PULL_WEIGHT;
         var r = Math.random() * totalW;
+        var i;
         for (i = 0; i < TOTAL; i++) {
             r -= weightForIndex(i);
             if (r <= 0) return String(CARD_NUMS[i]);
         }
         return String(CARD_NUMS[TOTAL - 1]);
+    }
+
+    /** Доля этой карты в суммарном весе бустера, % (для подсказки на обороте). */
+    function getDropChancePercentForId(id) {
+        var n = parseInt(id, 10);
+        var sid = String(n);
+        if (!n || !VALID[sid]) return 0;
+        var idx = CARD_NUMS.indexOf(n);
+        if (idx < 0) return 0;
+        if (TOTAL_PULL_WEIGHT <= 0) return 0;
+        return (weightForIndex(idx) / TOTAL_PULL_WEIGHT) * 100;
+    }
+
+    function formatDropChanceForDisplay(id, decimals) {
+        var d = decimals == null ? 2 : decimals;
+        var x = getDropChancePercentForId(id);
+        if (!isFinite(x) || x <= 0) return '0';
+        var pow = Math.pow(10, d);
+        return (Math.round(x * pow) / pow).toFixed(d);
     }
 
     function getRarityKey(id) {
@@ -109,6 +134,10 @@
         normalizeOwned: normalizeOwned,
         getCollectionBonusPercent: getCollectionBonusPercent,
         getLessonCoinMultiplier: getLessonCoinMultiplier,
-        getAllCardIds: getAllCardIds
+        getAllCardIds: getAllCardIds,
+        TOTAL_PULL_WEIGHT: TOTAL_PULL_WEIGHT,
+        getDropChancePercentForId: getDropChancePercentForId,
+        formatDropChanceForDisplay: formatDropChanceForDisplay
     };
 })(typeof window !== 'undefined' ? window : this);
+

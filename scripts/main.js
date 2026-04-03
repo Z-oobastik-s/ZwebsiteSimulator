@@ -8861,9 +8861,13 @@ function showCollectibles() {
     var el = document.getElementById('collectibleScreen');
     if (el) el.classList.remove('hidden');
     toggleFooter(false);
-    if (typeof updateTranslations === 'function') updateTranslations();
     renderCollectiblesGrid();
+    if (typeof updateTranslations === 'function') updateTranslations();
 }
+
+/** SVG «?» и значок пустого слота для карточек коллекции (без эмодзи, Win 8.1). */
+var CC_COLLECT_Q_SVG = '<svg xmlns="http://www.w3.org/2000/svg" class="cc-slot__q-svg" viewBox="0 0 64 64" aria-hidden="true"><path fill="rgba(148,163,184,0.48)" d="M30.2 15.2c-7.2 0-12.8 5.9-12.6 13.1.1 4 2.3 7.4 6 9.7l2.4 1.5c2 1.3 3.1 3.2 3 5.6v1.8h8.4v-2.1c.1-4.6-2.1-8-6.1-10.5l-2.6-1.6c-1.7-1-2.6-2.5-2.7-4.4-.1-3.4 2.6-6.1 7.1-6 4.2.1 7 2.8 7 6.5 0 2.1 1 3.8 2.9 4.9l1.3.8c3.7 2.2 5.7 5.7 5.7 10v3.7h-8.4v-3.4c0-2.6-1.2-4.8-3.6-6.1l-1.5-.9c-4.9-3-7.6-7.7-7.8-13.7-.2-8.2 5.9-14.7 14.5-14.7zm-2.3 37.4h8.4V44h-8.4v8.6z"/></svg>';
+var CC_COLLECT_BADGE_SVG = '<svg xmlns="http://www.w3.org/2000/svg" class="cc-badge-minus-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.25" fill="none" stroke="currentColor" stroke-width="1.65"/><path stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M7.75 12h8.5"/></svg>';
 
 function renderCollectiblesGrid() {
     var mod = window.collectibleCardsModule;
@@ -8884,13 +8888,33 @@ function renderCollectiblesGrid() {
             var ni = parseInt(id, 10) || 0;
             phase = ' style="--cc-d:' + (-(ni % 11) * 0.34).toFixed(2) + 's"';
         }
+        if (have) {
+            return (
+                '<div class="cc-slot cc-slot--owned cc-rarity-' + r + '"' + phase + ' data-card-id="' + id + '">' +
+                '<img src="' + path + '" alt="" loading="lazy" decoding="async" width="240" height="320">' +
+                '<span class="cc-slot__ring"></span>' +
+                '<span class="cc-slot__badge cc-badge--' + r + '">' + r + '</span></div>'
+            );
+        }
+        var chanceStr = mod.formatDropChanceForDisplay ? mod.formatDropChanceForDisplay(id, 2) : '0';
+        var chanceLine = trReplace('collectiblesChanceValue', { pct: chanceStr });
+        var rarityName = t('collectiblesRarity_' + r);
+        var cardTip = trReplace('collectiblesCardChanceTitle', { pct: chanceStr });
+        var flipMicro = escapeHtml(t('collectiblesFlipMicro'));
+        var tipAttr = String(cardTip).replace(/'/g, '&#39;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
         return (
-            '<div class="cc-slot ' + (have ? 'cc-slot--owned cc-rarity-' + r : 'cc-slot--locked cc-rarity-locked') + '"' + phase + ' data-card-id="' + id + '">' +
-            (have
-                ? '<img src="' + path + '" alt="" loading="lazy" decoding="async" width="240" height="320">'
-                : '<div class="cc-slot__placeholder" aria-hidden="true"><span class="cc-slot__q">?</span></div>') +
+            '<div class="cc-slot cc-slot--locked cc-flip-root cc-rarity-' + r + '" tabindex="0" data-card-id="' + id + '" title="' + tipAttr + '">' +
+            '<div class="cc-flip-inner">' +
+            '<div class="cc-flip-face cc-flip-face--front">' +
+            '<div class="cc-slot__placeholder" aria-hidden="true">' + CC_COLLECT_Q_SVG + '</div></div>' +
+            '<div class="cc-flip-face cc-flip-face--back cc-flip-back--' + r + '">' +
+            '<div class="cc-flip-back-hud" aria-hidden="true"></div>' +
+            '<p class="cc-flip-chance-line">' + escapeHtml(chanceLine) + '</p>' +
+            '<p class="cc-flip-rarity-name">' + escapeHtml(rarityName) + '</p>' +
+            '<p class="cc-flip-micro">' + flipMicro + '</p>' +
+            '</div></div>' +
             '<span class="cc-slot__ring"></span>' +
-            '<span class="cc-slot__badge' + (have ? ' cc-badge--' + r : ' cc-badge--locked') + '">' + (have ? r : '-') + '</span></div>'
+            '<span class="cc-slot__badge cc-badge--locked">' + CC_COLLECT_BADGE_SVG + '</span></div>'
         );
     }).join('');
     var prog = document.getElementById('collectibleProgressText');
@@ -9315,3 +9339,4 @@ window.showLevelUpSequence = showLevelUpSequence;
 window.renderLevelBlock = renderLevelBlock;
 window.updateUserUI = updateUserUI;
 window.updateGuestPromisedHeader = updateGuestPromisedHeader;
+
