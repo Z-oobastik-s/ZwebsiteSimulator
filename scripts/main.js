@@ -302,10 +302,11 @@ let audioClickMenu0 = null;
 let audioClickMenu1 = null;
 let welcomePlayed = false;
 var _homeMascotShowTimer = null;
-var _homeMascotRotateTimer = null;
+var _homeMascotAutoHideTimer = null;
 var _homeMascotIntroObs = null;
 var _homeMascotIntroFallbackTimer = null;
-var _homeMascotLineIdx = 0;
+var _homeMascotIntroPollTimer = null;
+var _homeMascotSlideEndHandler = null;
 var _homeMascotCurrentKey = '';
 /** Ссылка на обработчик ended у welcome - снимаем при общем «выкл звук», чтобы не включать музыку по старому событию */
 var _welcomeEndedHandler = null;
@@ -323,8 +324,7 @@ var WELCOME_INTRO_SOURCES = [
     'assets/sounds/welcome.ogg',
     'assets/sounds/welcome_1.ogg',
     'assets/sounds/welcome_2.ogg',
-    'assets/sounds/welcome_3.ogg',
-    'assets/sounds/violin_2.ogg'
+    'assets/sounds/welcome_3.ogg'
 ];
 
 function pickWelcomeIntroSource() {
@@ -368,6 +368,13 @@ const translations = window.translations || {
         homeMascotHi3: 'Ура, ты здесь! Выбери режим - я с тобой рядом.',
         homeMascotHi4: 'Пару строк в свободной печати - и день уже победил. Погнали?',
         homeMascotHi5: 'Не забывай про серию дней - я слежу, чтобы ты не сливался.',
+        homeMascotHi6: 'Тест на скорость на минуту - честная проверка, если хочешь цифры без сюсюканья.',
+        homeMascotHi7: 'В мультиплеере можно устроить дуэль - позови друга, будет веселее.',
+        homeMascotHi8: 'Тема и звук внизу - подстрой вайб, я только за.',
+        homeMascotHi9: 'Уроки копят награды - чем ровнее строка, тем приятнее прогресс.',
+        homeMascotHi10: 'Устали руки - сделай паузу. Я подожду, лишь бы не пропадал надолго.',
+        homeMascotHi11: 'Сегодня хватит и одного закрытого урока - это уже маленькая победа.',
+        homeMascotHi12: 'Клавиатура внизу подсказывает пальцы - спокойно смотри на экран.',
         chooseDifficultyEpic: 'Сюжетная кампания',
         lessonsSagaCampaignLine: 'Три главы. Один путь. Твои пальцы - главное оружие в этом мире.',
         chapterBannerAriaFallback: 'Сюжетная глава.',
@@ -645,6 +652,13 @@ const translations = window.translations || {
         homeMascotHi3: 'You are here! Pick a mode - I am right with you.',
         homeMascotHi4: 'A few lines in free typing and the day is already a win. Let us go?',
         homeMascotHi5: 'Keep that daily streak - I am watching so you do not slip.',
+        homeMascotHi6: 'The one minute speed test is a straight shootout if you want hard numbers.',
+        homeMascotHi7: 'Multiplayer duels exist - ping a friend and chase the win together.',
+        homeMascotHi8: 'Theme and sound live in the footer - tune the vibe, I am fine with it.',
+        homeMascotHi9: 'Lessons stack rewards - cleaner lines make the grind feel good.',
+        homeMascotHi10: 'Hands tired? Pause. I will wait - just do not ghost for weeks.',
+        homeMascotHi11: 'Finishing a single lesson today still counts as a win. Promise.',
+        homeMascotHi12: 'The keyboard below nudges your fingers - keep your eyes on the text.',
         chooseDifficultyEpic: 'Story campaign',
         lessonsSagaCampaignLine: 'Three chapters. One path. Your fingers are the ultimate weapon here.',
         chapterBannerAriaFallback: 'Story chapter.',
@@ -2390,7 +2404,53 @@ function showSpeedTest() {
 }
 
 function homeMascotGreetingKeys() {
-    return ['homeMascotHi1', 'homeMascotHi2', 'homeMascotHi3', 'homeMascotHi4', 'homeMascotHi5'];
+    var keys = [];
+    var n;
+    for (n = 1; n <= 12; n++) keys.push('homeMascotHi' + n);
+    return keys;
+}
+
+function _homeMascotClearSlideListener(w) {
+    if (!w || !_homeMascotSlideEndHandler) return;
+    w.removeEventListener('transitionend', _homeMascotSlideEndHandler);
+    _homeMascotSlideEndHandler = null;
+}
+
+function finalizeHomeMascotHidden() {
+    if (_homeMascotAutoHideTimer) {
+        clearTimeout(_homeMascotAutoHideTimer);
+        _homeMascotAutoHideTimer = null;
+    }
+    var w = document.getElementById('homeMascotWidget');
+    if (w) _homeMascotClearSlideListener(w);
+    if (w) {
+        w.classList.remove('home-mascot-widget--in', 'home-mascot-widget--leaving');
+        w.classList.add('hidden');
+        w.setAttribute('aria-hidden', 'true');
+    }
+}
+
+function beginHomeMascotSlideOut() {
+    var w = document.getElementById('homeMascotWidget');
+    if (!w || w.classList.contains('hidden')) return;
+    if (!w.classList.contains('home-mascot-widget--in')) return;
+    if (_homeMascotAutoHideTimer) {
+        clearTimeout(_homeMascotAutoHideTimer);
+        _homeMascotAutoHideTimer = null;
+    }
+    _homeMascotClearSlideListener(w);
+    _homeMascotSlideEndHandler = function (e) {
+        if (e.propertyName !== 'transform') return;
+        finalizeHomeMascotHidden();
+    };
+    w.addEventListener('transitionend', _homeMascotSlideEndHandler);
+    w.classList.remove('home-mascot-widget--in');
+    w.classList.add('home-mascot-widget--leaving');
+    setTimeout(function () {
+        if (w && !w.classList.contains('hidden') && w.classList.contains('home-mascot-widget--leaving')) {
+            finalizeHomeMascotHidden();
+        }
+    }, 950);
 }
 
 function hideHomeMascotWidget() {
@@ -2402,29 +2462,40 @@ function hideHomeMascotWidget() {
         clearTimeout(_homeMascotIntroFallbackTimer);
         _homeMascotIntroFallbackTimer = null;
     }
+    if (_homeMascotIntroPollTimer) {
+        clearInterval(_homeMascotIntroPollTimer);
+        _homeMascotIntroPollTimer = null;
+    }
     if (_homeMascotShowTimer) {
         clearTimeout(_homeMascotShowTimer);
         _homeMascotShowTimer = null;
     }
-    if (_homeMascotRotateTimer) {
-        clearInterval(_homeMascotRotateTimer);
-        _homeMascotRotateTimer = null;
+    if (_homeMascotAutoHideTimer) {
+        clearTimeout(_homeMascotAutoHideTimer);
+        _homeMascotAutoHideTimer = null;
     }
     var w = document.getElementById('homeMascotWidget');
+    if (w) _homeMascotClearSlideListener(w);
     if (w) {
         w.classList.add('hidden');
-        w.classList.remove('home-mascot-widget--in');
+        w.classList.remove('home-mascot-widget--in', 'home-mascot-widget--leaving');
         w.setAttribute('aria-hidden', 'true');
     }
 }
 
+function introOverlayEffectivelyGone() {
+    var el = document.getElementById('introOverlay');
+    if (!el || !el.isConnected) return true;
+    var st = window.getComputedStyle(el);
+    if (st.visibility === 'hidden') return true;
+    if (st.display === 'none') return true;
+    var op = parseFloat(st.opacity);
+    if (!isNaN(op) && op < 0.05) return true;
+    return false;
+}
+
 function whenIntroOverlayGone(cb) {
     if (typeof cb !== 'function') return;
-    var ov = document.getElementById('introOverlay');
-    if (!ov) {
-        cb();
-        return;
-    }
     if (_homeMascotIntroObs) {
         try { _homeMascotIntroObs.disconnect(); } catch (_e2) {}
         _homeMascotIntroObs = null;
@@ -2433,10 +2504,17 @@ function whenIntroOverlayGone(cb) {
         clearTimeout(_homeMascotIntroFallbackTimer);
         _homeMascotIntroFallbackTimer = null;
     }
+    if (_homeMascotIntroPollTimer) {
+        clearInterval(_homeMascotIntroPollTimer);
+        _homeMascotIntroPollTimer = null;
+    }
+    var ov = document.getElementById('introOverlay');
+    if (!ov) {
+        setTimeout(cb, 0);
+        return;
+    }
     var done = false;
-    function once() {
-        if (done) return;
-        done = true;
+    function cleanupIntroWatchers() {
         if (_homeMascotIntroObs) {
             try { _homeMascotIntroObs.disconnect(); } catch (_e3) {}
             _homeMascotIntroObs = null;
@@ -2445,13 +2523,29 @@ function whenIntroOverlayGone(cb) {
             clearTimeout(_homeMascotIntroFallbackTimer);
             _homeMascotIntroFallbackTimer = null;
         }
+        if (_homeMascotIntroPollTimer) {
+            clearInterval(_homeMascotIntroPollTimer);
+            _homeMascotIntroPollTimer = null;
+        }
+    }
+    function once() {
+        if (done) return;
+        done = true;
+        cleanupIntroWatchers();
         cb();
     }
+    if (introOverlayEffectivelyGone()) {
+        setTimeout(once, 380);
+        return;
+    }
     _homeMascotIntroObs = new MutationObserver(function () {
-        if (!document.body.contains(ov)) once();
+        if (introOverlayEffectivelyGone()) once();
     });
-    _homeMascotIntroObs.observe(document.body, { childList: true, subtree: true });
-    _homeMascotIntroFallbackTimer = setTimeout(once, 12000);
+    _homeMascotIntroObs.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['style', 'class'] });
+    _homeMascotIntroPollTimer = setInterval(function () {
+        if (introOverlayEffectivelyGone()) once();
+    }, 200);
+    _homeMascotIntroFallbackTimer = setTimeout(once, 13000);
 }
 
 function showHomeMascotWidget() {
@@ -2459,32 +2553,34 @@ function showHomeMascotWidget() {
     var b = document.getElementById('homeMascotBubble');
     var img = document.getElementById('homeMascotImg');
     if (!w || !b) return;
+    if (_homeMascotAutoHideTimer) {
+        clearTimeout(_homeMascotAutoHideTimer);
+        _homeMascotAutoHideTimer = null;
+    }
+    _homeMascotClearSlideListener(w);
     if (img) img.src = soundAssetUrl('assets/animation/Girl_Horse_Sticker.gif');
     var keys = homeMascotGreetingKeys();
-    _homeMascotLineIdx = Math.floor(Math.random() * keys.length);
-    function tickLine() {
-        var k = keys[_homeMascotLineIdx % keys.length];
-        _homeMascotLineIdx++;
-        _homeMascotCurrentKey = k;
-        b.textContent = typeof t === 'function' ? t(k) : '';
-    }
-    w.classList.remove('hidden');
+    var k = keys[Math.floor(Math.random() * keys.length)];
+    _homeMascotCurrentKey = k;
+    b.textContent = typeof t === 'function' ? t(k) : '';
+    w.classList.remove('hidden', 'home-mascot-widget--leaving');
+    w.classList.remove('home-mascot-widget--in');
     w.setAttribute('aria-hidden', 'false');
-    tickLine();
-    if (_homeMascotRotateTimer) clearInterval(_homeMascotRotateTimer);
-    _homeMascotRotateTimer = setInterval(tickLine, 4200);
     requestAnimationFrame(function () {
         requestAnimationFrame(function () {
             w.classList.add('home-mascot-widget--in');
         });
     });
+    var reduced = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var visibleMs = reduced ? 1400 : 2600;
+    _homeMascotAutoHideTimer = setTimeout(function () {
+        _homeMascotAutoHideTimer = null;
+        beginHomeMascotSlideOut();
+    }, visibleMs);
 }
 
 function scheduleHomeMascot() {
     hideHomeMascotWidget();
-    try {
-        if (sessionStorage.getItem('zoob_home_mascot_closed') === '1') return;
-    } catch (_s) {}
     if (app.currentMode !== 'home') return;
     var homeEl = document.getElementById('homeScreen');
     if (!homeEl || homeEl.classList.contains('hidden')) return;
@@ -2493,18 +2589,12 @@ function scheduleHomeMascot() {
         if (app.currentMode !== 'home') return;
         var h = document.getElementById('homeScreen');
         if (!h || h.classList.contains('hidden')) return;
-        try {
-            if (sessionStorage.getItem('zoob_home_mascot_closed') === '1') return;
-        } catch (_s2) {}
-        var extra = 800 + Math.floor(Math.random() * 1400);
+        var extra = 600 + Math.floor(Math.random() * 1000);
         _homeMascotShowTimer = setTimeout(function () {
             _homeMascotShowTimer = null;
             if (app.currentMode !== 'home') return;
             var el = document.getElementById('homeScreen');
             if (!el || el.classList.contains('hidden')) return;
-            try {
-                if (sessionStorage.getItem('zoob_home_mascot_closed') === '1') return;
-            } catch (_s3) {}
             showHomeMascotWidget();
         }, extra);
     });
@@ -2515,8 +2605,7 @@ function initHomeMascotCloseButton() {
     if (!btn || btn.getAttribute('data-mascot-bound') === '1') return;
     btn.setAttribute('data-mascot-bound', '1');
     btn.addEventListener('click', function () {
-        try { sessionStorage.setItem('zoob_home_mascot_closed', '1'); } catch (_e) {}
-        hideHomeMascotWidget();
+        beginHomeMascotSlideOut();
     });
 }
 
@@ -9610,4 +9699,3 @@ window.showLevelUpSequence = showLevelUpSequence;
 window.renderLevelBlock = renderLevelBlock;
 window.updateUserUI = updateUserUI;
 window.updateGuestPromisedHeader = updateGuestPromisedHeader;
-

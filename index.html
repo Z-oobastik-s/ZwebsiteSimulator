@@ -1934,6 +1934,14 @@
             transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.5s ease, visibility 0s linear 0s;
             pointer-events: auto;
         }
+        /* Уход за край после показа (без «обрыва» visibility до конца transform) */
+        .home-mascot-widget.home-mascot-widget--leaving {
+            transform: translate3d(58%, 42%, 0);
+            opacity: 0;
+            visibility: visible;
+            pointer-events: none;
+            transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.5s ease, visibility 0s linear 0s;
+        }
         .home-mascot-widget__stack {
             display: flex;
             flex-direction: column;
@@ -2029,6 +2037,9 @@
         @media (prefers-reduced-motion: reduce) {
             .home-mascot-widget { transition: opacity 0.25s ease; transform: translate3d(4%, 0, 0); }
             .home-mascot-widget:not(.home-mascot-widget--in) { transform: translate3d(4%, 0, 0); opacity: 0; }
+            .home-mascot-widget.home-mascot-widget--leaving {
+                transition: transform 0.2s ease, opacity 0.2s ease;
+            }
         }
 
         /* Карточки глав - «сага»: частицы, пульс рамки */
@@ -7900,4 +7911,3 @@ Read
     </script>
 </body>
 </html>
-
