@@ -1912,6 +1912,125 @@
             text-shadow: 0 0 12px rgba(6, 182, 212, 0.2);
         }
 
+        /* Главная: маскот с края экрана */
+        .home-mascot-widget {
+            position: fixed;
+            right: 0;
+            bottom: 0;
+            z-index: 130;
+            padding-right: max(0.35rem, env(safe-area-inset-right));
+            padding-bottom: max(0.25rem, env(safe-area-inset-bottom));
+            transform: translate3d(58%, 42%, 0);
+            opacity: 0;
+            visibility: hidden;
+            transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.45s ease, visibility 0s linear 0.5s;
+            pointer-events: none;
+            max-width: min(52vw, 220px);
+        }
+        .home-mascot-widget.home-mascot-widget--in {
+            transform: translate3d(4%, 0, 0);
+            opacity: 1;
+            visibility: visible;
+            transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.5s ease, visibility 0s linear 0s;
+            pointer-events: auto;
+        }
+        .home-mascot-widget__stack {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 0.2rem;
+        }
+        .home-mascot-widget__bubble {
+            max-width: 11.5rem;
+            font-size: 0.68rem;
+            line-height: 1.38;
+            font-weight: 600;
+            padding: 0.38rem 0.55rem 0.42rem;
+            margin-right: 0.15rem;
+            color: #e2e8f0;
+            background: linear-gradient(145deg, rgba(15, 23, 42, 0.94) 0%, rgba(30, 41, 59, 0.92) 100%);
+            border: 1px solid rgba(34, 211, 238, 0.35);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(0, 0, 0, 0.35), 0 0 18px rgba(34, 211, 238, 0.12);
+            text-align: right;
+            position: relative;
+        }
+        .home-mascot-widget__bubble::after {
+            content: '';
+            position: absolute;
+            right: 1.1rem;
+            bottom: -6px;
+            width: 10px;
+            height: 10px;
+            background: inherit;
+            border-right: 1px solid rgba(34, 211, 238, 0.3);
+            border-bottom: 1px solid rgba(34, 211, 238, 0.3);
+            transform: rotate(45deg);
+        }
+        html:not(.dark) .home-mascot-widget__bubble {
+            color: #0f172a;
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.96) 0%, rgba(224, 242, 254, 0.94) 100%);
+            border-color: rgba(6, 182, 212, 0.4);
+            box-shadow: 0 4px 18px rgba(6, 182, 212, 0.12), 0 0 0 1px rgba(6, 182, 212, 0.15);
+        }
+        html:not(.dark) .home-mascot-widget__bubble::after {
+            border-right-color: rgba(6, 182, 212, 0.28);
+            border-bottom-color: rgba(6, 182, 212, 0.28);
+        }
+        .home-mascot-widget__row {
+            position: relative;
+            display: flex;
+            align-items: flex-end;
+            justify-content: flex-end;
+        }
+        .home-mascot-widget__img {
+            width: min(46vw, 184px);
+            height: auto;
+            display: block;
+            vertical-align: bottom;
+            filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.55)) drop-shadow(0 0 12px rgba(34, 211, 238, 0.15));
+            user-select: none;
+            -webkit-user-drag: none;
+        }
+        .home-mascot-widget__close {
+            position: absolute;
+            left: -0.15rem;
+            top: -0.1rem;
+            width: 26px;
+            height: 26px;
+            padding: 0;
+            margin: 0;
+            border: none;
+            border-radius: 999px;
+            font-size: 1.1rem;
+            line-height: 1;
+            cursor: pointer;
+            color: rgba(226, 232, 240, 0.85);
+            background: rgba(15, 23, 42, 0.75);
+            border: 1px solid rgba(148, 163, 184, 0.35);
+            z-index: 2;
+            transition: background 0.15s ease, color 0.15s ease;
+        }
+        .home-mascot-widget__close:hover {
+            color: #fff;
+            background: rgba(239, 68, 68, 0.85);
+            border-color: rgba(252, 165, 165, 0.5);
+        }
+        html:not(.dark) .home-mascot-widget__close {
+            color: #334155;
+            background: rgba(255, 255, 255, 0.9);
+            border-color: rgba(100, 116, 139, 0.35);
+        }
+        @media (max-width: 480px) {
+            .home-mascot-widget { max-width: min(58vw, 200px); }
+            .home-mascot-widget__bubble { max-width: 9.5rem; font-size: 0.62rem; }
+            .home-mascot-widget.home-mascot-widget--in { transform: translate3d(2%, 0, 0); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .home-mascot-widget { transition: opacity 0.25s ease; transform: translate3d(4%, 0, 0); }
+            .home-mascot-widget:not(.home-mascot-widget--in) { transform: translate3d(4%, 0, 0); opacity: 0; }
+        }
+
         /* Карточки глав - «сага»: частицы, пульс рамки */
         .difficulty-card--saga {
             min-height: 260px;
@@ -6201,6 +6320,16 @@ Read
                     </div>
                 </div>
             </div>
+            <!-- Маскот главной: выезжает с края после интро, реплики циклятся -->
+            <div id="homeMascotWidget" class="home-mascot-widget hidden" aria-hidden="true" aria-live="polite">
+                <div class="home-mascot-widget__stack">
+                    <div id="homeMascotBubble" class="home-mascot-widget__bubble"></div>
+                    <div class="home-mascot-widget__row">
+                        <button type="button" id="homeMascotClose" class="home-mascot-widget__close" data-i18n-aria-label="homeMascotCloseAria" aria-label="Закрыть">&times;</button>
+                        <img id="homeMascotImg" class="home-mascot-widget__img" src="assets/animation/Girl_Horse_Sticker.gif" alt="" width="184" height="240" decoding="async" draggable="false" onerror="this.onerror=null;this.src='assets/animation/Girl_Horse_Sticker.png'">
+                    </div>
+                </div>
+            </div>
         </div>
         
         <!-- Lessons Selection Screen -->
@@ -7771,4 +7900,3 @@ Read
     </script>
 </body>
 </html>
-

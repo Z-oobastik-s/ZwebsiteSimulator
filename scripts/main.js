@@ -301,6 +301,12 @@ let audioFeedback = null;
 let audioClickMenu0 = null;
 let audioClickMenu1 = null;
 let welcomePlayed = false;
+var _homeMascotShowTimer = null;
+var _homeMascotRotateTimer = null;
+var _homeMascotIntroObs = null;
+var _homeMascotIntroFallbackTimer = null;
+var _homeMascotLineIdx = 0;
+var _homeMascotCurrentKey = '';
 /** Ссылка на обработчик ended у welcome - снимаем при общем «выкл звук», чтобы не включать музыку по старому событию */
 var _welcomeEndedHandler = null;
 
@@ -356,6 +362,12 @@ const translations = window.translations || {
         mobilePcHint: 'Для лучшего взаимодействия рекомендуем зайти с компьютера.',
         back: 'Назад',
         chooseDifficulty: 'Выберите уровень сложности',
+        homeMascotCloseAria: 'Скрыть подсказку',
+        homeMascotHi1: 'Привет! Давно не виделись - заходи в уроки, я по тебе скучала.',
+        homeMascotHi2: 'Ты сегодня готов жать на рекорд или пока разминка?',
+        homeMascotHi3: 'Ура, ты здесь! Выбери режим - я с тобой рядом.',
+        homeMascotHi4: 'Пару строк в свободной печати - и день уже победил. Погнали?',
+        homeMascotHi5: 'Не забывай про серию дней - я слежу, чтобы ты не сливался.',
         chooseDifficultyEpic: 'Сюжетная кампания',
         lessonsSagaCampaignLine: 'Три главы. Один путь. Твои пальцы - главное оружие в этом мире.',
         chapterBannerAriaFallback: 'Сюжетная глава.',
@@ -627,6 +639,12 @@ const translations = window.translations || {
         mobilePcHint: 'For a better experience we recommend using a computer.',
         back: 'Back',
         chooseDifficulty: 'Choose Difficulty Level',
+        homeMascotCloseAria: 'Dismiss hint',
+        homeMascotHi1: 'Hi! Long time no see - jump into lessons, I missed you.',
+        homeMascotHi2: 'Ready to chase a record today, or just a warm-up run?',
+        homeMascotHi3: 'You are here! Pick a mode - I am right with you.',
+        homeMascotHi4: 'A few lines in free typing and the day is already a win. Let us go?',
+        homeMascotHi5: 'Keep that daily streak - I am watching so you do not slip.',
         chooseDifficultyEpic: 'Story campaign',
         lessonsSagaCampaignLine: 'Three chapters. One path. Your fingers are the ultimate weapon here.',
         chapterBannerAriaFallback: 'Story chapter.',
@@ -1425,6 +1443,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if (typeof updateGuestPromisedHeader === 'function') updateGuestPromisedHeader();
 
+    initHomeMascotCloseButton();
+    scheduleHomeMascot();
+
     // Воспроизводим welcome звук при загрузке главной страницы
     setTimeout(() => {
         playWelcomeSound();
@@ -2072,6 +2093,11 @@ function updateTranslations() {
     if (_lvlList && !_lvlList.classList.contains('hidden') && typeof fillLevelListModal === 'function') {
         fillLevelListModal();
     }
+    var _mascotW = document.getElementById('homeMascotWidget');
+    var _mascotB = document.getElementById('homeMascotBubble');
+    if (_mascotW && _mascotB && !_mascotW.classList.contains('hidden') && _homeMascotCurrentKey && typeof t === 'function') {
+        _mascotB.textContent = t(_homeMascotCurrentKey);
+    }
     refreshLessonLangButtonStyles();
     if (typeof updateLessonFilterHint === 'function') updateLessonFilterHint();
     if (typeof updateGuestPromisedHeader === 'function') updateGuestPromisedHeader();
@@ -2105,6 +2131,7 @@ function showHome() {
     if (window.statsModule) window.statsModule.updateDisplay();
     if (window.achievementsModule) window.achievementsModule.render('achievementsBlock');
     if (window.levelModule) renderLevelBlock();
+    scheduleHomeMascot();
 }
 
 function showLessons() {
@@ -2362,7 +2389,139 @@ function showSpeedTest() {
     startPractice(testWords.join(' '), 'speedtest');
 }
 
+function homeMascotGreetingKeys() {
+    return ['homeMascotHi1', 'homeMascotHi2', 'homeMascotHi3', 'homeMascotHi4', 'homeMascotHi5'];
+}
+
+function hideHomeMascotWidget() {
+    if (_homeMascotIntroObs) {
+        try { _homeMascotIntroObs.disconnect(); } catch (_e) {}
+        _homeMascotIntroObs = null;
+    }
+    if (_homeMascotIntroFallbackTimer) {
+        clearTimeout(_homeMascotIntroFallbackTimer);
+        _homeMascotIntroFallbackTimer = null;
+    }
+    if (_homeMascotShowTimer) {
+        clearTimeout(_homeMascotShowTimer);
+        _homeMascotShowTimer = null;
+    }
+    if (_homeMascotRotateTimer) {
+        clearInterval(_homeMascotRotateTimer);
+        _homeMascotRotateTimer = null;
+    }
+    var w = document.getElementById('homeMascotWidget');
+    if (w) {
+        w.classList.add('hidden');
+        w.classList.remove('home-mascot-widget--in');
+        w.setAttribute('aria-hidden', 'true');
+    }
+}
+
+function whenIntroOverlayGone(cb) {
+    if (typeof cb !== 'function') return;
+    var ov = document.getElementById('introOverlay');
+    if (!ov) {
+        cb();
+        return;
+    }
+    if (_homeMascotIntroObs) {
+        try { _homeMascotIntroObs.disconnect(); } catch (_e2) {}
+        _homeMascotIntroObs = null;
+    }
+    if (_homeMascotIntroFallbackTimer) {
+        clearTimeout(_homeMascotIntroFallbackTimer);
+        _homeMascotIntroFallbackTimer = null;
+    }
+    var done = false;
+    function once() {
+        if (done) return;
+        done = true;
+        if (_homeMascotIntroObs) {
+            try { _homeMascotIntroObs.disconnect(); } catch (_e3) {}
+            _homeMascotIntroObs = null;
+        }
+        if (_homeMascotIntroFallbackTimer) {
+            clearTimeout(_homeMascotIntroFallbackTimer);
+            _homeMascotIntroFallbackTimer = null;
+        }
+        cb();
+    }
+    _homeMascotIntroObs = new MutationObserver(function () {
+        if (!document.body.contains(ov)) once();
+    });
+    _homeMascotIntroObs.observe(document.body, { childList: true, subtree: true });
+    _homeMascotIntroFallbackTimer = setTimeout(once, 12000);
+}
+
+function showHomeMascotWidget() {
+    var w = document.getElementById('homeMascotWidget');
+    var b = document.getElementById('homeMascotBubble');
+    var img = document.getElementById('homeMascotImg');
+    if (!w || !b) return;
+    if (img) img.src = soundAssetUrl('assets/animation/Girl_Horse_Sticker.gif');
+    var keys = homeMascotGreetingKeys();
+    _homeMascotLineIdx = Math.floor(Math.random() * keys.length);
+    function tickLine() {
+        var k = keys[_homeMascotLineIdx % keys.length];
+        _homeMascotLineIdx++;
+        _homeMascotCurrentKey = k;
+        b.textContent = typeof t === 'function' ? t(k) : '';
+    }
+    w.classList.remove('hidden');
+    w.setAttribute('aria-hidden', 'false');
+    tickLine();
+    if (_homeMascotRotateTimer) clearInterval(_homeMascotRotateTimer);
+    _homeMascotRotateTimer = setInterval(tickLine, 4200);
+    requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+            w.classList.add('home-mascot-widget--in');
+        });
+    });
+}
+
+function scheduleHomeMascot() {
+    hideHomeMascotWidget();
+    try {
+        if (sessionStorage.getItem('zoob_home_mascot_closed') === '1') return;
+    } catch (_s) {}
+    if (app.currentMode !== 'home') return;
+    var homeEl = document.getElementById('homeScreen');
+    if (!homeEl || homeEl.classList.contains('hidden')) return;
+
+    whenIntroOverlayGone(function () {
+        if (app.currentMode !== 'home') return;
+        var h = document.getElementById('homeScreen');
+        if (!h || h.classList.contains('hidden')) return;
+        try {
+            if (sessionStorage.getItem('zoob_home_mascot_closed') === '1') return;
+        } catch (_s2) {}
+        var extra = 800 + Math.floor(Math.random() * 1400);
+        _homeMascotShowTimer = setTimeout(function () {
+            _homeMascotShowTimer = null;
+            if (app.currentMode !== 'home') return;
+            var el = document.getElementById('homeScreen');
+            if (!el || el.classList.contains('hidden')) return;
+            try {
+                if (sessionStorage.getItem('zoob_home_mascot_closed') === '1') return;
+            } catch (_s3) {}
+            showHomeMascotWidget();
+        }, extra);
+    });
+}
+
+function initHomeMascotCloseButton() {
+    var btn = document.getElementById('homeMascotClose');
+    if (!btn || btn.getAttribute('data-mascot-bound') === '1') return;
+    btn.setAttribute('data-mascot-bound', '1');
+    btn.addEventListener('click', function () {
+        try { sessionStorage.setItem('zoob_home_mascot_closed', '1'); } catch (_e) {}
+        hideHomeMascotWidget();
+    });
+}
+
 function hideAllScreens() {
+    hideHomeMascotWidget();
     const screens = [
         'homeScreen', 'lessonsScreen', 'practiceScreen',
         'multiplayerMenuScreen', 'multiplayerWaitingScreen', 'multiplayerGameScreen',
@@ -9451,4 +9610,3 @@ window.showLevelUpSequence = showLevelUpSequence;
 window.renderLevelBlock = renderLevelBlock;
 window.updateUserUI = updateUserUI;
 window.updateGuestPromisedHeader = updateGuestPromisedHeader;
-

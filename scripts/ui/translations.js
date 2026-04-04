@@ -30,6 +30,12 @@ window.translations = {
         progressLessonsHint: 'все языки',
         mobilePcHint: 'Для лучшего взаимодействия рекомендуем зайти с компьютера.',
         back: 'Назад',
+        homeMascotCloseAria: 'Скрыть подсказку',
+        homeMascotHi1: 'Привет! Давно не виделись - заходи в уроки, я по тебе скучала.',
+        homeMascotHi2: 'Ты сегодня готов жать на рекорд или пока разминка?',
+        homeMascotHi3: 'Ура, ты здесь! Выбери режим - я с тобой рядом.',
+        homeMascotHi4: 'Пару строк в свободной печати - и день уже победил. Погнали?',
+        homeMascotHi5: 'Не забывай про серию дней - я слежу, чтобы ты не сливался.',
         chooseDifficulty: 'Выберите уровень сложности',
         chooseDifficultyEpic: 'Сюжетная кампания',
         lessonsSagaCampaignLine: 'Три главы. Один путь. Твои пальцы - главное оружие в этом мире.',
@@ -448,6 +454,12 @@ window.translations = {
         progressLessonsHint: 'all languages',
         mobilePcHint: 'For a better experience we recommend using a computer.',
         back: 'Back',
+        homeMascotCloseAria: 'Dismiss hint',
+        homeMascotHi1: 'Hi! Long time no see - jump into lessons, I missed you.',
+        homeMascotHi2: 'Ready to chase a record today, or just a warm-up run?',
+        homeMascotHi3: 'You are here! Pick a mode - I am right with you.',
+        homeMascotHi4: 'A few lines in free typing and the day is already a win. Let us go?',
+        homeMascotHi5: 'Keep that daily streak - I am watching so you do not slip.',
         chooseDifficulty: 'Choose Difficulty Level',
         chooseDifficultyEpic: 'Story campaign',
         lessonsSagaCampaignLine: 'Three chapters. One path. Your fingers are the ultimate weapon here.',
@@ -866,6 +878,12 @@ window.translations = {
         progressLessonsHint: 'усі мови',
         mobilePcHint: 'Для зручності радимо зайти з комп’ютера.',
         back: 'Назад',
+        homeMascotCloseAria: 'Сховати підказку',
+        homeMascotHi1: 'Привіт! Давно не бачились - заходь до уроків, я скучила.',
+        homeMascotHi2: 'Сьогодні ганяємо рекорд чи поки що розминка?',
+        homeMascotHi3: 'Ура, ти тут! Обери режим - я поруч.',
+        homeMascotHi4: 'Кілька рядків у вільному друку - і день уже переможений. Погнали?',
+        homeMascotHi5: 'Не забувай про серію днів - я стежу, щоб ти не зникав з тренувань.',
         chooseDifficulty: 'Оберіть рівень складності',
         chooseDifficultyEpic: 'Сюжетна кампанія',
         lessonsSagaCampaignLine: 'Три глави. Один шлях. Твої пальці - головна зброя в цій історії.',
@@ -1258,4 +1276,3 @@ window.translations = {
         profileTabOnSite: 'на сайті'
     }
 };
-
