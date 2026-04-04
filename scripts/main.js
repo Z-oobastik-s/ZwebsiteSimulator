@@ -284,7 +284,7 @@ var bgMusicAudio = null;
 var bgMusicTrackIndex = 0;
 var bgMusicPausedAt = 0;
 var bgMusicPausedTrackIndex = 0;
-var BG_MUSIC_TRACKS = ['assets/sounds/violin.mp3', 'assets/sounds/violin_1.mp3'];
+var BG_MUSIC_TRACKS = ['assets/sounds/violin_2.ogg', 'assets/sounds/violin.mp3', 'assets/sounds/violin_1.mp3'];
 var BG_MUSIC_VOLUME = 0.06;
 var SFX_VOLUME = 0.04; // 2–5% громкость всех эффектов
 let audioSwipeAnimation = null;
@@ -324,7 +324,7 @@ var WELCOME_INTRO_SOURCES = [
     'assets/sounds/welcome_1.ogg',
     'assets/sounds/welcome_2.ogg',
     'assets/sounds/welcome_3.ogg',
-    'assets/sounds/welcome_4.ogg'
+    'assets/sounds/violin_2.ogg'
 ];
 
 function pickWelcomeIntroSource() {
@@ -1915,7 +1915,7 @@ function toggleLayout() {
     }
 }
 
-// Фоновая музыка (violin.mp3 ↔ violin_1.mp3 по кругу, продолжение с места паузы)
+// Фоновая музыка (violin_2.ogg → violin.mp3 → violin_1.mp3 по кругу, продолжение с места паузы)
 function startBgMusic() {
     if (!app.bgMusicEnabled || !BG_MUSIC_TRACKS.length) return;
     if (bgMusicAudio) {
@@ -9610,3 +9610,4 @@ window.showLevelUpSequence = showLevelUpSequence;
 window.renderLevelBlock = renderLevelBlock;
 window.updateUserUI = updateUserUI;
 window.updateGuestPromisedHeader = updateGuestPromisedHeader;
+
