@@ -1,5 +1,5 @@
 /**
- * Коллекционные карты: card_1…card_52 и card_54…card_98 (card_53 нет в наборе).
+ * Коллекционные карты: card_1…card_52, card_54…card_98 и card_99 (card_53 нет в наборе).
  * Бустер за монеты, бонус к награде за уроки по числу уникальных карт.
  */
 (function (global) {
@@ -9,7 +9,7 @@
         var a = [];
         var i;
         for (i = 1; i <= 52; i++) a.push(i);
-        for (i = 54; i <= 98; i++) a.push(i);
+        for (i = 54; i <= 99; i++) a.push(i);
         return a;
     }
 
@@ -140,3 +140,4 @@
         formatDropChanceForDisplay: formatDropChanceForDisplay
     };
 })(typeof window !== 'undefined' ? window : this);
+

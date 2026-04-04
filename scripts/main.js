@@ -317,7 +317,8 @@ var WELCOME_INTRO_SOURCES = [
     'assets/sounds/welcome.ogg',
     'assets/sounds/welcome_1.ogg',
     'assets/sounds/welcome_2.ogg',
-    'assets/sounds/welcome_3.ogg'
+    'assets/sounds/welcome_3.ogg',
+    'assets/sounds/welcome_4.ogg'
 ];
 
 function pickWelcomeIntroSource() {
@@ -355,6 +356,25 @@ const translations = window.translations || {
         mobilePcHint: 'Для лучшего взаимодействия рекомендуем зайти с компьютера.',
         back: 'Назад',
         chooseDifficulty: 'Выберите уровень сложности',
+        chooseDifficultyEpic: 'Сюжетная кампания',
+        lessonsSagaCampaignLine: 'Три главы. Один путь. Твои пальцы - главное оружие в этом мире.',
+        chapterBannerAriaFallback: 'Сюжетная глава.',
+        chapterBriefingCombinedObjective: '{{n}} миссий на карте. {{goal}}',
+        chapterCodenameBeginner: 'Глава I // Протокол пробуждения',
+        chapterTitleBeginner: 'Первый контакт',
+        chapterHookBeginner: 'Система выводит тебя из спящего режима. Запомни ряды, поймай ритм - здесь начинается легенда о скорости.',
+        chapterObjectiveBeginner: 'Освоить базу, собрать уверенность и открыть путь к среднему уровню.',
+        chapterCardHookBeginner: 'Тихий старт. Система учит тебя не спешить и не ошибаться.',
+        chapterCodenameMedium: 'Глава II // Режим перегруза',
+        chapterTitleMedium: 'Разгон без тормозов',
+        chapterHookMedium: 'Полигон разогревается: длиннее тексты, выше темп. Мозг и пальцы синхронизируются - ты уже не новичок.',
+        chapterObjectiveMedium: 'Прокачать скорость, держать точность и подготовиться к финальному рубежу.',
+        chapterCardHookMedium: 'Темп растёт. Каждая миссия - как круг на треке.',
+        chapterCodenameAdvanced: 'Глава III // Точка невозврата',
+        chapterTitleAdvanced: 'Адреналин и боссы',
+        chapterHookAdvanced: 'Только для тех, кто готов жечь клавиши. Здесь решают характер, выносливость и точность до последнего знака.',
+        chapterObjectiveAdvanced: 'Закрепить мастерство, выдержать марафоны и бить рекорды без жалости к ошибкам.',
+        chapterCardHookAdvanced: 'Финал сезона. Либо ты тащишь, либо текст тащит тебя.',
         exit: 'Выйти',
         restart: 'Заново',
         pause: 'Пауза',
@@ -607,6 +627,25 @@ const translations = window.translations || {
         mobilePcHint: 'For a better experience we recommend using a computer.',
         back: 'Back',
         chooseDifficulty: 'Choose Difficulty Level',
+        chooseDifficultyEpic: 'Story campaign',
+        lessonsSagaCampaignLine: 'Three chapters. One path. Your fingers are the ultimate weapon here.',
+        chapterBannerAriaFallback: 'Story chapter.',
+        chapterBriefingCombinedObjective: '{{n}} missions on the map. {{goal}}',
+        chapterCodenameBeginner: 'Chapter I // Awakening protocol',
+        chapterTitleBeginner: 'First contact',
+        chapterHookBeginner: 'The system pulls you out of sleep mode. Learn the rows, feel the rhythm - this is where the speed legend starts.',
+        chapterObjectiveBeginner: 'Master the basics, build confidence, and unlock the road to the mid tier.',
+        chapterCardHookBeginner: 'Quiet start. The system teaches you calm hands and clean input.',
+        chapterCodenameMedium: 'Chapter II // Overdrive',
+        chapterTitleMedium: 'Full throttle',
+        chapterHookMedium: 'The range goes hot: longer texts, higher pace. Brain and fingers sync - you are not a rookie anymore.',
+        chapterObjectiveMedium: 'Push your tempo, hold accuracy, and get ready for the final wall.',
+        chapterCardHookMedium: 'Pace climbs. Every mission is another lap on the circuit.',
+        chapterCodenameAdvanced: 'Chapter III // Point of no return',
+        chapterTitleAdvanced: 'Boss rush adrenaline',
+        chapterHookAdvanced: 'For those ready to burn the keyboard. Grit, stamina, and pixel-perfect accuracy decide everything.',
+        chapterObjectiveAdvanced: 'Lock in mastery, survive marathons, and chase records with zero excuses.',
+        chapterCardHookAdvanced: 'Season finale. Either you carry the run, or the text carries you.',
         exit: 'Exit',
         restart: 'Restart',
         pause: 'Pause',
@@ -1819,7 +1858,14 @@ function toggleLanguage() {
     updateTranslations();
     updateRoomSelectionUI();
     if (mpRoomSettingsMode === 'bot') refreshMpBotVoiceSelect();
-    if (app.currentMode === 'lessons') loadLessons();
+    if (app.currentMode === 'lessons') {
+        var _ll = document.getElementById('lessonsList');
+        if (currentLevelData && _ll && !_ll.classList.contains('difficulty-grid')) {
+            showLessonList(currentLevelData);
+        } else {
+            loadLessons();
+        }
+    }
 }
 
 // Layout toggle
@@ -2358,10 +2404,70 @@ function selectLessonLanguage(lang) {
     loadLessons();
 }
 
+function chapterStoryKeyPart(level) {
+    if (level === 'beginner' || level === 'medium' || level === 'advanced') {
+        return level.charAt(0).toUpperCase() + level.slice(1);
+    }
+    return 'Beginner';
+}
+
+function tChapterField(level, field) {
+    var key = 'chapter' + field + chapterStoryKeyPart(level);
+    return typeof t === 'function' ? t(key) : '';
+}
+
+function hideLessonsChapterBriefing() {
+    var b = document.getElementById('lessonsChapterBanner');
+    if (b) {
+        b.classList.add('hidden');
+        b.setAttribute('aria-hidden', 'true');
+    }
+}
+
+function syncLessonsSagaDifficultyScreen() {
+    var titleEl = document.getElementById('lessonsScreenTitle');
+    var subEl = document.getElementById('lessonsSagaSubtitle');
+    if (titleEl) titleEl.textContent = (typeof t === 'function' ? t('chooseDifficultyEpic') : '').toUpperCase();
+    if (subEl) {
+        subEl.textContent = typeof t === 'function' ? t('lessonsSagaCampaignLine') : '';
+        subEl.classList.remove('hidden');
+    }
+}
+
+function syncLessonsChapterBriefing(levelData, missionCount) {
+    var lv = levelData && levelData.level;
+    if (lv !== 'beginner' && lv !== 'medium' && lv !== 'advanced') lv = 'beginner';
+    var banner = document.getElementById('lessonsChapterBanner');
+    if (!banner) return;
+    banner.classList.remove('chapter-briefing--beginner', 'chapter-briefing--medium', 'chapter-briefing--advanced');
+    banner.classList.add('chapter-briefing--' + lv);
+    var titleStory = tChapterField(lv, 'Title');
+    var aria = (typeof t === 'function' ? t('chapterBannerAriaFallback') : '') + ' ' + titleStory;
+    banner.setAttribute('aria-label', aria.trim());
+    var cn = document.getElementById('chapterBannerCodename');
+    var tl = document.getElementById('chapterBannerTitle');
+    var hk = document.getElementById('chapterBannerHook');
+    var ob = document.getElementById('chapterBannerObjective');
+    if (cn) cn.textContent = tChapterField(lv, 'Codename');
+    if (tl) tl.textContent = titleStory;
+    if (hk) hk.textContent = tChapterField(lv, 'Hook');
+    if (ob) {
+        var goal = tChapterField(lv, 'Objective');
+        ob.textContent = typeof trReplace === 'function'
+            ? trReplace('chapterBriefingCombinedObjective', { n: String(missionCount), goal: goal })
+            : (String(missionCount) + ' ' + goal);
+    }
+    banner.classList.remove('hidden');
+    banner.setAttribute('aria-hidden', 'false');
+}
+
 // Load lessons - ОПТИМИЗИРОВАНА с DocumentFragment
 function loadLessons() {
     const container = DOM.get('lessonsList');
     if (!container) return;
+
+    hideLessonsChapterBriefing();
+    syncLessonsSagaDifficultyScreen();
     
     const levels = ['beginner', 'medium', 'advanced'];
     const fragment = document.createDocumentFragment();
@@ -2402,7 +2508,7 @@ function loadLessons() {
         if (lessonsForLang.length === 0) continue;
         
         const card = document.createElement('div');
-        card.className = `difficulty-card difficulty-card--${level}`;
+        card.className = `difficulty-card difficulty-card--saga difficulty-card--${level}`;
         card.onclick = () => showLessonList({ ...data, lessons: lessonsForLang });
         
         var levelTitleKey = level === 'beginner' ? 'difficultyBeginner' : level === 'medium' ? 'difficultyMedium' : 'difficultyAdvanced';
@@ -2411,16 +2517,21 @@ function loadLessons() {
         const levelNumbers = { beginner: '01', medium: '02', advanced: '03' };
         const lessonsLabel = app.lang === 'ru' ? 'уроков' : app.lang === 'en' ? 'lessons' : 'уроків';
         const badgeText = `${lessonsForLang.length} ${lessonsLabel.toUpperCase()}`;
+        var codename = tChapterField(level, 'Codename');
+        var cardHook = tChapterField(level, 'CardHook');
         
         card.innerHTML = `
+            <div class="difficulty-card__particles" aria-hidden="true"></div>
             <div class="difficulty-card__accent">
                 <span class="difficulty-card__number">${levelNumbers[level]}</span>
             </div>
             <div class="difficulty-card__inner">
+                <span class="difficulty-card__codename">${escapeHtml(codename)}</span>
                 <div class="difficulty-card__icon-wrap">
                     <span class="difficulty-card__icon">${levelIcons[level]}</span>
                 </div>
                 <h3 class="difficulty-card__title">${escapeHtml(levelName)}</h3>
+                <p class="difficulty-card__hook">${escapeHtml(cardHook)}</p>
                 <span class="difficulty-card__badge">${escapeHtml(badgeText)}</span>
             </div>
         `;
@@ -2428,8 +2539,6 @@ function loadLessons() {
         fragment.appendChild(card);
     }
     
-    const titleEl = document.getElementById('lessonsScreenTitle');
-    if (titleEl) titleEl.textContent = t('chooseDifficulty').toUpperCase();
     var filterBar = document.getElementById('lessonDurationFilterBar');
     if (filterBar) filterBar.classList.add('hidden');
     container.classList.add('difficulty-grid');
@@ -2705,9 +2814,10 @@ function showLessonList(levelData) {
     const container = DOM.get('lessonsList');
     if (!container) return;
     
-    const levelDisplayName = app.lang === 'en' ? levelData.name_en : (app.lang === 'ua' ? (levelData.name_ua || levelData.name_ru) : levelData.name_ru);
     const titleEl = document.getElementById('lessonsScreenTitle');
-    if (titleEl) titleEl.textContent = levelDisplayName.toUpperCase();
+    if (titleEl) titleEl.textContent = tChapterField(levelData.level, 'Title');
+    var sagaSub = document.getElementById('lessonsSagaSubtitle');
+    if (sagaSub) sagaSub.classList.add('hidden');
 
     var filterBar = document.getElementById('lessonDurationFilterBar');
     if (filterBar) {
@@ -2732,6 +2842,8 @@ function showLessonList(levelData) {
         // Sort filtered lessons by estimated target length.
         lessonsToShow.sort(function (a, b) { return estimateLessonCharMaxForFilter(a) - estimateLessonCharMaxForFilter(b); });
     }
+
+    syncLessonsChapterBriefing(levelData, lessonsToShow.length);
 
     if (lessonsToShow.length === 0) {
         var empty = document.createElement('div');
@@ -9339,3 +9451,4 @@ window.showLevelUpSequence = showLevelUpSequence;
 window.renderLevelBlock = renderLevelBlock;
 window.updateUserUI = updateUserUI;
 window.updateGuestPromisedHeader = updateGuestPromisedHeader;
+

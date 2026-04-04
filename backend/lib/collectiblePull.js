@@ -1,11 +1,11 @@
 /**
  * Серверный выбор карты для бустера (веса и список id совпадают с scripts/collectible-cards.js).
- * Карты: 1–52 и 54–98 (номер 53 в наборе отсутствует).
+ * Карты: 1–52, 54–98 и 99 (номер 53 в наборе отсутствует).
  */
 function buildCardNums() {
     const a = [];
     for (let i = 1; i <= 52; i++) a.push(i);
-    for (let i = 54; i <= 98; i++) a.push(i);
+    for (let i = 54; i <= 99; i++) a.push(i);
     return a;
 }
 
@@ -49,3 +49,4 @@ module.exports = {
     weightForIndex,
     isValidCardNumber
 };
+

@@ -1902,6 +1902,234 @@
             color: rgba(0, 229, 255, 0.8);
             transform: translateX(4px);
         }
+
+        /* Сюжет: подзаголовок кампании под заголовком экрана уроков */
+        .lessons-saga-subtitle {
+            text-shadow: 0 0 24px rgba(34, 211, 238, 0.35);
+        }
+        html:not(.dark) .lessons-saga-subtitle {
+            color: rgba(8, 145, 178, 0.95);
+            text-shadow: 0 0 12px rgba(6, 182, 212, 0.2);
+        }
+
+        /* Карточки глав - «сага»: частицы, пульс рамки */
+        .difficulty-card--saga {
+            min-height: 260px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow:
+                0 0 0 1px rgba(0, 0, 0, 0.45),
+                0 12px 40px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.06);
+        }
+        .difficulty-card--saga::before {
+            background:
+                radial-gradient(ellipse 120% 80% at 20% 0%, rgba(34, 211, 238, 0.12), transparent 50%),
+                radial-gradient(ellipse 100% 60% at 100% 100%, rgba(139, 92, 246, 0.1), transparent 45%),
+                repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.025) 2px, rgba(255,255,255,0.025) 4px);
+        }
+        .difficulty-card--beginner.difficulty-card--saga {
+            box-shadow: 0 0 0 1px rgba(52, 211, 153, 0.15), 0 12px 40px rgba(0, 0, 0, 0.5), 0 0 32px rgba(52, 211, 153, 0.08);
+        }
+        .difficulty-card--medium.difficulty-card--saga {
+            box-shadow: 0 0 0 1px rgba(251, 191, 36, 0.14), 0 12px 40px rgba(0, 0, 0, 0.5), 0 0 32px rgba(251, 191, 36, 0.08);
+        }
+        .difficulty-card--advanced.difficulty-card--saga {
+            box-shadow: 0 0 0 1px rgba(248, 113, 113, 0.14), 0 12px 40px rgba(0, 0, 0, 0.55), 0 0 36px rgba(239, 68, 68, 0.1);
+        }
+        .difficulty-card__particles {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            overflow: hidden;
+            border-radius: inherit;
+            z-index: 0;
+        }
+        .difficulty-card__particles::before,
+        .difficulty-card__particles::after {
+            content: '';
+            position: absolute;
+            width: 120%;
+            height: 2px;
+            left: -10%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
+            animation: saga-sweep 4.5s ease-in-out infinite;
+            opacity: 0.7;
+        }
+        .difficulty-card__particles::after {
+            top: 55%;
+            animation-delay: 2.1s;
+            animation-duration: 5.2s;
+        }
+        @keyframes saga-sweep {
+            0% { transform: translateY(0) rotate(-2deg); opacity: 0; }
+            15% { opacity: 0.85; }
+            100% { transform: translateY(180px) rotate(-2deg); opacity: 0; }
+        }
+        .difficulty-card__codename {
+            display: block;
+            font-size: 0.62rem;
+            font-weight: 800;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            margin-bottom: 0.65rem;
+            background: linear-gradient(90deg, rgba(255,255,255,0.92), rgba(34, 211, 238, 0.95), rgba(255,255,255,0.88));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            filter: drop-shadow(0 0 12px rgba(34, 211, 238, 0.35));
+        }
+        .difficulty-card--beginner .difficulty-card__codename {
+            background: linear-gradient(90deg, #a7f3d0, #6ee7b7, #34d399);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .difficulty-card--medium .difficulty-card__codename {
+            background: linear-gradient(90deg, #fde68a, #fbbf24, #f59e0b);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .difficulty-card--advanced .difficulty-card__codename {
+            background: linear-gradient(90deg, #fecaca, #f87171, #ef4444);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .difficulty-card__hook {
+            font-size: 0.78rem;
+            line-height: 1.45;
+            color: rgba(203, 213, 225, 0.92);
+            margin: 0 0 0.85rem 0;
+            max-width: 22rem;
+        }
+        html:not(.dark) .difficulty-card__hook {
+            color: rgba(51, 65, 85, 0.95);
+        }
+        .difficulty-card--saga .difficulty-card__inner {
+            position: relative;
+            z-index: 1;
+        }
+        .difficulty-card--saga:hover {
+            transform: translateY(-6px) scale(1.01);
+            box-shadow:
+                0 0 0 1px rgba(34, 211, 238, 0.25),
+                0 24px 48px rgba(0, 0, 0, 0.55),
+                0 0 40px rgba(34, 211, 238, 0.12);
+        }
+        .difficulty-card--saga.difficulty-card--beginner:hover {
+            box-shadow: 0 0 0 1px rgba(52, 211, 153, 0.35), 0 24px 48px rgba(0, 0, 0, 0.55), 0 0 44px rgba(52, 211, 153, 0.18);
+        }
+        .difficulty-card--saga.difficulty-card--medium:hover {
+            box-shadow: 0 0 0 1px rgba(251, 191, 36, 0.32), 0 24px 48px rgba(0, 0, 0, 0.55), 0 0 44px rgba(251, 191, 36, 0.15);
+        }
+        .difficulty-card--saga.difficulty-card--advanced:hover {
+            box-shadow: 0 0 0 1px rgba(248, 113, 113, 0.35), 0 24px 48px rgba(0, 0, 0, 0.58), 0 0 48px rgba(248, 113, 113, 0.18);
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .difficulty-card__particles::before,
+            .difficulty-card__particles::after { animation: none; opacity: 0.3; }
+            .difficulty-card--saga:hover { transform: translateY(-4px); }
+            .chapter-briefing__scan { animation: none; }
+        }
+
+        /* Брифинг выбранной главы (список миссий) */
+        .chapter-briefing {
+            position: relative;
+            border-radius: 18px;
+            overflow: hidden;
+            border: 1px solid rgba(34, 211, 238, 0.35);
+            background: linear-gradient(135deg, rgba(8, 12, 24, 0.97) 0%, rgba(15, 23, 42, 0.96) 45%, rgba(6, 10, 22, 0.98) 100%);
+            box-shadow:
+                0 0 0 1px rgba(0, 0, 0, 0.5),
+                0 16px 48px rgba(0, 0, 0, 0.45),
+                0 0 60px rgba(34, 211, 238, 0.08),
+                inset 0 1px 0 rgba(255, 255, 255, 0.06);
+        }
+        html:not(.dark) .chapter-briefing {
+            background: linear-gradient(135deg, rgba(240, 253, 250, 0.98) 0%, rgba(224, 242, 254, 0.96) 50%, rgba(236, 254, 255, 0.98) 100%);
+            border-color: rgba(6, 182, 212, 0.45);
+            box-shadow: 0 8px 32px rgba(6, 182, 212, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+        }
+        .chapter-briefing__scan {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(255,255,255,0.03) 3px, rgba(255,255,255,0.03) 6px);
+            animation: chapter-scan 10s linear infinite;
+            opacity: 0.5;
+        }
+        @keyframes chapter-scan {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(24px); }
+        }
+        .chapter-briefing__inner {
+            position: relative;
+            z-index: 1;
+            padding: 1.15rem 1.25rem 1.25rem;
+        }
+        @media (min-width: 640px) {
+            .chapter-briefing__inner { padding: 1.35rem 1.5rem 1.5rem; }
+        }
+        .chapter-briefing__codename {
+            display: block;
+            font-size: 0.65rem;
+            font-weight: 900;
+            letter-spacing: 0.28em;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+            color: rgba(34, 211, 238, 0.95);
+            text-shadow: 0 0 20px rgba(34, 211, 238, 0.45);
+        }
+        html:not(.dark) .chapter-briefing__codename {
+            color: rgba(8, 145, 178, 0.98);
+            text-shadow: none;
+        }
+        .chapter-briefing.chapter-briefing--beginner { border-color: rgba(52, 211, 153, 0.4); box-shadow: 0 0 0 1px rgba(0,0,0,0.45), 0 16px 48px rgba(0,0,0,0.45), 0 0 50px rgba(52, 211, 153, 0.1), inset 0 1px 0 rgba(255,255,255,0.06); }
+        .chapter-briefing.chapter-briefing--beginner .chapter-briefing__codename { color: rgba(52, 211, 153, 0.98); text-shadow: 0 0 18px rgba(52, 211, 153, 0.4); }
+        .chapter-briefing.chapter-briefing--medium { border-color: rgba(251, 191, 36, 0.42); box-shadow: 0 0 0 1px rgba(0,0,0,0.45), 0 16px 48px rgba(0,0,0,0.45), 0 0 50px rgba(251, 191, 36, 0.1), inset 0 1px 0 rgba(255,255,255,0.06); }
+        .chapter-briefing.chapter-briefing--medium .chapter-briefing__codename { color: rgba(251, 191, 36, 0.98); text-shadow: 0 0 18px rgba(251, 191, 36, 0.35); }
+        .chapter-briefing.chapter-briefing--advanced { border-color: rgba(248, 113, 113, 0.45); box-shadow: 0 0 0 1px rgba(0,0,0,0.45), 0 16px 48px rgba(0,0,0,0.5), 0 0 55px rgba(248, 113, 113, 0.12), inset 0 1px 0 rgba(255,255,255,0.06); }
+        .chapter-briefing.chapter-briefing--advanced .chapter-briefing__codename { color: rgba(252, 165, 165, 0.98); text-shadow: 0 0 20px rgba(248, 113, 113, 0.4); }
+        .chapter-briefing__title {
+            font-size: 1.15rem;
+            font-weight: 900;
+            letter-spacing: 0.04em;
+            line-height: 1.25;
+            margin: 0 0 0.5rem 0;
+            color: #f1f5f9;
+            text-shadow: 0 2px 16px rgba(0, 0, 0, 0.6);
+        }
+        @media (min-width: 640px) {
+            .chapter-briefing__title { font-size: 1.35rem; }
+        }
+        html:not(.dark) .chapter-briefing__title {
+            color: #0f172a;
+            text-shadow: none;
+        }
+        .chapter-briefing__hook {
+            font-size: 0.85rem;
+            line-height: 1.55;
+            margin: 0 0 0.75rem 0;
+            color: rgba(203, 213, 225, 0.95);
+            max-width: 42rem;
+        }
+        html:not(.dark) .chapter-briefing__hook {
+            color: rgba(51, 65, 85, 0.95);
+        }
+        .chapter-briefing__objective {
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+            line-height: 1.5;
+            margin: 0;
+            color: rgba(203, 213, 225, 0.95);
+            text-transform: none;
+        }
+        html:not(.dark) .chapter-briefing__objective {
+            color: rgba(51, 65, 85, 0.96);
+        }
         
         /* === Карточки уроков (миссии) - максимально игровой стиль как у выбора сложности === */
         #lessonsList:not(.difficulty-grid) {
@@ -5977,17 +6205,18 @@ Read
         
         <!-- Lessons Selection Screen -->
         <div id="lessonsScreen" class="hidden fade-in">
-            <div class="flex items-center justify-between mb-8">
-                <button onclick="showHome()" class="glass px-6 py-3 rounded-xl hover:bg-white/20 dark:hover:bg-black/20 flex items-center space-x-2 transition-all">
+            <div class="flex items-start justify-between mb-6 gap-3 sm:gap-4">
+                <button onclick="showHome()" class="glass px-6 py-3 rounded-xl hover:bg-white/20 dark:hover:bg-black/20 flex items-center space-x-2 transition-all shrink-0">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                     </svg>
                     <span data-i18n="back">Назад</span>
                 </button>
-                
-                <h2 id="lessonsScreenTitle" class="text-3xl difficulty-section-title" data-i18n="chooseDifficulty">Выберите уровень сложности</h2>
-                
-                <div class="w-32"></div> <!-- spacer -->
+                <div class="flex-1 text-center min-w-0 px-1">
+                    <h2 id="lessonsScreenTitle" class="text-2xl sm:text-3xl difficulty-section-title leading-tight"></h2>
+                    <p id="lessonsSagaSubtitle" class="lessons-saga-subtitle mt-2 text-[11px] sm:text-sm text-cyan-300/90 dark:text-cyan-200/85 font-semibold tracking-wide max-w-xl mx-auto leading-snug"></p>
+                </div>
+                <div class="w-16 sm:w-32 shrink-0"></div>
             </div>
 
             <!-- Guaranteed mobile back button -->
@@ -6032,6 +6261,15 @@ Read
                                 </div>
                             </div>
                             <p id="lessonFilterHint" class="lesson-filter-hint mt-1.5 text-[11px] sm:text-xs text-gray-500 dark:text-gray-400 leading-snug">-</p>
+                        </div>
+                        <div id="lessonsChapterBanner" class="chapter-briefing hidden mb-5" role="region" aria-label="">
+                            <div class="chapter-briefing__scan" aria-hidden="true"></div>
+                            <div class="chapter-briefing__inner">
+                                <span class="chapter-briefing__codename" id="chapterBannerCodename"></span>
+                                <h3 class="chapter-briefing__title" id="chapterBannerTitle"></h3>
+                                <p class="chapter-briefing__hook" id="chapterBannerHook"></p>
+                                <p class="chapter-briefing__objective" id="chapterBannerObjective"></p>
+                            </div>
                         </div>
                         <div class="grid md:grid-cols-3 gap-5" id="lessonsList">
                             <!-- Will be populated by JS -->
@@ -7533,3 +7771,4 @@ Read
     </script>
 </body>
 </html>
+
