@@ -1789,10 +1789,10 @@
             color: rgba(0, 229, 255, 0.5);
         }
         
-        /* Сетка карточек - больше отступ, карточки как «модули» */
-        #lessonsList.difficulty-grid {
-            gap: 1.5rem;
-            align-items: stretch;
+        /* Сетка глав кампании: высота по контенту, без растягивания на весь экран */
+        #lessonsScreen #lessonsList.difficulty-grid {
+            gap: 1rem;
+            align-items: start;
         }
         
         .difficulty-card {
@@ -2178,8 +2178,8 @@
 
         /* Карточки глав - «сага»: частицы, пульс рамки */
         .difficulty-card--saga {
-            min-height: 260px;
-            border-radius: 16px;
+            min-height: 0;
+            border-radius: 14px;
             border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow:
                 0 0 0 1px rgba(0, 0, 0, 0.45),
@@ -2274,6 +2274,75 @@
         .difficulty-card--saga .difficulty-card__inner {
             position: relative;
             z-index: 1;
+        }
+        /* Компактный вид карточек только на экране выбора главы */
+        #lessonsScreen #lessonsList.difficulty-grid .difficulty-card__accent {
+            width: 44px;
+            border-radius: 14px 0 0 14px;
+        }
+        #lessonsScreen #lessonsList.difficulty-grid .difficulty-card__number {
+            font-size: 1.35rem;
+        }
+        #lessonsScreen #lessonsList.difficulty-grid .difficulty-card__inner {
+            padding: 0.8rem 0.95rem 0.85rem 0.85rem;
+            justify-content: flex-start;
+        }
+        #lessonsScreen #lessonsList.difficulty-grid .difficulty-card__icon-wrap {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 0.5rem;
+            border-radius: 10px;
+        }
+        #lessonsScreen #lessonsList.difficulty-grid .difficulty-card__icon {
+            font-size: 1.6rem;
+        }
+        #lessonsScreen #lessonsList.difficulty-grid .difficulty-card__title {
+            font-size: 1.02rem;
+            margin-bottom: 0.3rem;
+            letter-spacing: 0.03em;
+        }
+        #lessonsScreen #lessonsList.difficulty-grid .difficulty-card__codename {
+            font-size: 0.52rem;
+            margin-bottom: 0.4rem;
+            letter-spacing: 0.16em;
+        }
+        #lessonsScreen #lessonsList.difficulty-grid .difficulty-card__hook {
+            font-size: 0.68rem;
+            line-height: 1.32;
+            margin: 0 0 0.5rem 0;
+            max-width: none;
+        }
+        #lessonsScreen #lessonsList.difficulty-grid .difficulty-card__badge {
+            font-size: 0.6rem;
+            padding: 0.2rem 0.5rem;
+            letter-spacing: 0.14em;
+        }
+        #lessonsScreen #lessonsList.difficulty-grid .difficulty-card__lock-strip {
+            margin-top: 0.35rem;
+            padding-top: 0.35rem;
+        }
+        #lessonsScreen #lessonsList.difficulty-grid .difficulty-card__lock-teaser {
+            margin: 0.25rem 0 0.2rem 0;
+            font-size: 0.6rem;
+        }
+        #lessonsScreen #lessonsList.difficulty-grid .difficulty-card__lock-hint {
+            font-size: 0.58rem;
+        }
+        #lessonsScreen #lessonsList.difficulty-grid .difficulty-card__lock-ring {
+            width: 40px;
+            height: 40px;
+        }
+        #lessonsScreen #lessonsList.difficulty-grid .difficulty-card__lock-svg {
+            width: 18px;
+            height: 18px;
+        }
+        #lessonsScreen #lessonsList.difficulty-grid .difficulty-card__lock-label {
+            font-size: 0.58rem;
+        }
+        #lessonsScreen #lessonsList.difficulty-grid .difficulty-card::after {
+            bottom: 0.55rem;
+            right: 0.65rem;
+            font-size: 0.72rem;
         }
         .difficulty-card--saga:hover {
             transform: translateY(-6px) scale(1.01);
@@ -8524,3 +8593,4 @@ Read
     </script>
 </body>
 </html>
+

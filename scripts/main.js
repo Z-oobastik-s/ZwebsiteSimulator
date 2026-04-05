@@ -2194,6 +2194,13 @@ function updateTranslations() {
     if (typeof updateLessonFilterHint === 'function') updateLessonFilterHint();
     if (typeof updateGuestPromisedHeader === 'function') updateGuestPromisedHeader();
     if (typeof syncAuthPasswordToggleTitles === 'function') syncAuthPasswordToggleTitles();
+    /* Сетка глав: подзаголовок и хаб заполняются из JS, не data-i18n - подтягиваем при смене языка сайта */
+    if (app.currentMode === 'lessons') {
+        var _llGrid = document.getElementById('lessonsList');
+        if (_llGrid && _llGrid.classList.contains('difficulty-grid') && typeof syncLessonsSagaDifficultyScreen === 'function') {
+            syncLessonsSagaDifficultyScreen();
+        }
+    }
 }
 
 // Navigation functions
@@ -10142,3 +10149,4 @@ window.showLevelUpSequence = showLevelUpSequence;
 window.renderLevelBlock = renderLevelBlock;
 window.updateUserUI = updateUserUI;
 window.updateGuestPromisedHeader = updateGuestPromisedHeader;
+
