@@ -306,8 +306,13 @@ var _homeMascotAutoHideTimer = null;
 var _homeMascotIntroObs = null;
 var _homeMascotIntroFallbackTimer = null;
 var _homeMascotIntroPollTimer = null;
+var _homeMascotSafetyTimer = null;
 var _homeMascotSlideEndHandler = null;
 var _homeMascotCurrentKey = '';
+/** Поколение scheduleHomeMascot: старые колбэки интро не трогают новый цикл */
+var _homeMascotPipelineGen = 0;
+/** Уже запланирован или показан маскот в текущем цикле (гонка safety vs основной таймер) */
+var _homeMascotShowPipelineDone = false;
 /** Ссылка на обработчик ended у welcome - снимаем при общем «выкл звук», чтобы не включать музыку по старому событию */
 var _welcomeEndedHandler = null;
 
@@ -1459,6 +1464,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
     initHomeMascotCloseButton();
     scheduleHomeMascot();
+    if (!window.__zoobMascotPageshowBound) {
+        window.__zoobMascotPageshowBound = true;
+        window.addEventListener('pageshow', function (ev) {
+            try {
+                if (!ev.persisted) return;
+                if (app.currentMode !== 'home') return;
+                var h = document.getElementById('homeScreen');
+                if (!h || h.classList.contains('hidden')) return;
+                scheduleHomeMascot();
+            } catch (_pe) {}
+        });
+    }
 
     // Воспроизводим welcome звук при загрузке главной страницы
     setTimeout(() => {
@@ -2466,6 +2483,10 @@ function hideHomeMascotWidget() {
         clearInterval(_homeMascotIntroPollTimer);
         _homeMascotIntroPollTimer = null;
     }
+    if (_homeMascotSafetyTimer) {
+        clearTimeout(_homeMascotSafetyTimer);
+        _homeMascotSafetyTimer = null;
+    }
     if (_homeMascotShowTimer) {
         clearTimeout(_homeMascotShowTimer);
         _homeMascotShowTimer = null;
@@ -2535,7 +2556,10 @@ function whenIntroOverlayGone(cb) {
         cb();
     }
     if (introOverlayEffectivelyGone()) {
-        setTimeout(once, 380);
+        _homeMascotIntroFallbackTimer = setTimeout(function () {
+            _homeMascotIntroFallbackTimer = null;
+            once();
+        }, 380);
         return;
     }
     _homeMascotIntroObs = new MutationObserver(function () {
@@ -2553,6 +2577,7 @@ function showHomeMascotWidget() {
     var b = document.getElementById('homeMascotBubble');
     var img = document.getElementById('homeMascotImg');
     if (!w || !b) return;
+    if (!w.classList.contains('hidden') && w.classList.contains('home-mascot-widget--in')) return;
     if (_homeMascotAutoHideTimer) {
         clearTimeout(_homeMascotAutoHideTimer);
         _homeMascotAutoHideTimer = null;
@@ -2591,24 +2616,42 @@ function showHomeMascotWidget() {
 }
 
 function scheduleHomeMascot() {
+    var gen = ++_homeMascotPipelineGen;
+    _homeMascotShowPipelineDone = false;
     hideHomeMascotWidget();
     if (app.currentMode !== 'home') return;
     var homeEl = document.getElementById('homeScreen');
     if (!homeEl || homeEl.classList.contains('hidden')) return;
 
     whenIntroOverlayGone(function () {
+        if (gen !== _homeMascotPipelineGen) return;
         if (app.currentMode !== 'home') return;
         var h = document.getElementById('homeScreen');
         if (!h || h.classList.contains('hidden')) return;
         var extra = 600 + Math.floor(Math.random() * 1000);
         _homeMascotShowTimer = setTimeout(function () {
             _homeMascotShowTimer = null;
+            if (gen !== _homeMascotPipelineGen) return;
             if (app.currentMode !== 'home') return;
             var el = document.getElementById('homeScreen');
             if (!el || el.classList.contains('hidden')) return;
+            if (_homeMascotShowPipelineDone) return;
+            _homeMascotShowPipelineDone = true;
             showHomeMascotWidget();
         }, extra);
     });
+
+    _homeMascotSafetyTimer = setTimeout(function () {
+        _homeMascotSafetyTimer = null;
+        if (gen !== _homeMascotPipelineGen) return;
+        if (_homeMascotShowPipelineDone) return;
+        if (app.currentMode !== 'home') return;
+        var hs = document.getElementById('homeScreen');
+        if (!hs || hs.classList.contains('hidden')) return;
+        if (!(introOverlayEffectivelyGone() || !document.getElementById('introOverlay'))) return;
+        _homeMascotShowPipelineDone = true;
+        showHomeMascotWidget();
+    }, 15500);
 }
 
 function initHomeMascotCloseButton() {
@@ -9710,4 +9753,3 @@ window.showLevelUpSequence = showLevelUpSequence;
 window.renderLevelBlock = renderLevelBlock;
 window.updateUserUI = updateUserUI;
 window.updateGuestPromisedHeader = updateGuestPromisedHeader;
-
