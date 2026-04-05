@@ -177,8 +177,6 @@
         }
         /* В Chrome скроллбар иногда рисуется у viewport - переносим прокрутку в обёртку */
         #rootScroll {
-            position: relative;
-            z-index: 1;
             overflow-x: hidden;
             overflow-y: auto;
             scrollbar-width: none !important;
@@ -334,116 +332,6 @@
             -webkit-backdrop-filter: blur(14px) saturate(1.2);
             border: 1px solid rgba(0, 188, 212, 0.12);
             box-shadow: 0 4px 28px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(0, 188, 212, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.04);
-        }
-
-        /* Full-screen ambient (behind UI, pointer-events none) */
-        #zoobAmbientRoot {
-            position: fixed;
-            inset: 0;
-            z-index: 0;
-            pointer-events: none;
-            overflow: hidden;
-        }
-        #zoobAmbientRoot .ambient-base {
-            position: absolute;
-            inset: -20%;
-            opacity: 0.85;
-            background: radial-gradient(ellipse 80% 60% at 20% 20%, rgba(6, 182, 212, 0.22), transparent 55%),
-                radial-gradient(ellipse 70% 50% at 85% 15%, rgba(99, 102, 241, 0.18), transparent 50%),
-                radial-gradient(ellipse 60% 45% at 50% 100%, rgba(16, 185, 129, 0.12), transparent 55%);
-            animation: zoob-ambient-mesh 22s ease-in-out infinite alternate;
-        }
-        #zoobAmbientRoot.ambient-light .ambient-base {
-            background: radial-gradient(ellipse 80% 60% at 15% 10%, rgba(6, 182, 212, 0.12), transparent 55%),
-                radial-gradient(ellipse 70% 50% at 90% 20%, rgba(99, 102, 241, 0.1), transparent 50%),
-                radial-gradient(ellipse 60% 40% at 50% 95%, rgba(14, 165, 233, 0.08), transparent 55%);
-            opacity: 0.95;
-        }
-        #zoobAmbientRoot .ambient-grid {
-            position: absolute;
-            inset: 0;
-            opacity: 0.14;
-            background-image: linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-            background-size: 48px 48px;
-            animation: zoob-ambient-grid-drift 48s linear infinite;
-            mask-image: radial-gradient(ellipse 85% 75% at 50% 40%, black 10%, transparent 72%);
-        }
-        #zoobAmbientRoot.ambient-light .ambient-grid {
-            opacity: 0.09;
-            background-image: linear-gradient(rgba(15, 23, 42, 0.06) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(15, 23, 42, 0.06) 1px, transparent 1px);
-        }
-        #zoobAmbientRoot .ambient-glow {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(80px);
-            animation: zoob-ambient-pulse 14s ease-in-out infinite;
-        }
-        #zoobAmbientRoot .ambient-glow-a {
-            width: 42vmin;
-            height: 42vmin;
-            top: -8%;
-            left: -5%;
-            background: rgba(6, 182, 212, 0.22);
-            animation-delay: 0s;
-        }
-        #zoobAmbientRoot .ambient-glow-b {
-            width: 48vmin;
-            height: 48vmin;
-            bottom: -12%;
-            right: -8%;
-            background: rgba(99, 102, 241, 0.2);
-            animation-delay: -4s;
-        }
-        #zoobAmbientRoot .ambient-glow-c {
-            width: 36vmin;
-            height: 36vmin;
-            top: 40%;
-            left: 45%;
-            background: rgba(16, 185, 129, 0.12);
-            animation-delay: -7s;
-        }
-        #zoobAmbientRoot.ambient-light .ambient-glow-a { background: rgba(6, 182, 212, 0.12); }
-        #zoobAmbientRoot.ambient-light .ambient-glow-b { background: rgba(99, 102, 241, 0.1); }
-        #zoobAmbientRoot.ambient-light .ambient-glow-c { background: rgba(14, 165, 233, 0.08); }
-        #zoobAmbientRoot .ambient-canvas {
-            position: absolute;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            opacity: 0;
-            transition: opacity 0.6s ease-out;
-            pointer-events: none;
-        }
-        #zoobAmbientRoot.ambient-paused .ambient-base,
-        #zoobAmbientRoot.ambient-paused .ambient-grid,
-        #zoobAmbientRoot.ambient-paused .ambient-glow {
-            animation-play-state: paused;
-        }
-        @keyframes zoob-ambient-mesh {
-            0% { transform: translate(0, 0) scale(1); }
-            100% { transform: translate(2%, -1%) scale(1.04); }
-        }
-        @keyframes zoob-ambient-grid-drift {
-            0% { transform: translate(0, 0); }
-            100% { transform: translate(48px, 48px); }
-        }
-        @keyframes zoob-ambient-pulse {
-            0%, 100% { opacity: 0.55; transform: scale(1); }
-            50% { opacity: 0.85; transform: scale(1.06); }
-        }
-        @media (prefers-reduced-motion: reduce) {
-            #zoobAmbientRoot .ambient-base,
-            #zoobAmbientRoot .ambient-grid,
-            #zoobAmbientRoot .ambient-glow {
-                animation: none !important;
-            }
-        }
-        .no-animations #zoobAmbientRoot .ambient-base,
-        .no-animations #zoobAmbientRoot .ambient-grid,
-        .no-animations #zoobAmbientRoot .ambient-glow {
-            animation: none !important;
         }
         
         /* ========== Светлая тема: контраст и читаемость ========== */
@@ -8277,7 +8165,6 @@ Read
     <!-- UI data modules (extracted from main.js; load before main) -->
     <script src="scripts/ui/translations.js" defer></script>
     <script src="scripts/ui/backgrounds.js" defer></script>
-    <script src="scripts/ui/ambient-layer.js" defer></script>
     <!-- Feature modules -->
     <script src="scripts/features/wpm-chart.js" defer></script>
     <script src="scripts/features/heatmap.js" defer></script>
@@ -8300,4 +8187,3 @@ Read
     </script>
 </body>
 </html>
-
