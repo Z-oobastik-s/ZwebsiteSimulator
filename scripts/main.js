@@ -2558,7 +2558,18 @@ function showHomeMascotWidget() {
         _homeMascotAutoHideTimer = null;
     }
     _homeMascotClearSlideListener(w);
-    if (img) img.src = soundAssetUrl('assets/animation/Girl_Horse_Sticker.gif');
+    if (img) {
+        var _mGif = soundAssetUrl('assets/animation/Girl_Horse_Sticker.gif');
+        var _mPng = soundAssetUrl('assets/animation/Girl_Horse_Sticker.png');
+        img.onerror = function () {
+            if (img.getAttribute('data-mascot-fallback') === '1') return;
+            img.setAttribute('data-mascot-fallback', '1');
+            img.onerror = null;
+            img.src = _mPng;
+        };
+        img.removeAttribute('data-mascot-fallback');
+        img.src = _mGif;
+    }
     var keys = homeMascotGreetingKeys();
     var k = keys[Math.floor(Math.random() * keys.length)];
     _homeMascotCurrentKey = k;
@@ -9699,3 +9710,4 @@ window.showLevelUpSequence = showLevelUpSequence;
 window.renderLevelBlock = renderLevelBlock;
 window.updateUserUI = updateUserUI;
 window.updateGuestPromisedHeader = updateGuestPromisedHeader;
+

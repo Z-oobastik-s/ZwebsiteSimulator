@@ -3349,6 +3349,20 @@ Read
             animation-iteration-count: 1 !important;
             animation-play-state: paused !important;
         }
+        /* Маскот: иначе .no-animations * глушит transition у #homeMascotWidget - блок остаётся невидимым у края */
+        body.no-animations #homeMascotWidget {
+            transition-property: transform, opacity, visibility !important;
+            transition-duration: 0.7s !important;
+            transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1), ease, linear !important;
+            transition-delay: 0s !important;
+            animation-duration: 0s !important;
+            animation-delay: 0s !important;
+            animation-iteration-count: 1 !important;
+            animation-play-state: running !important;
+        }
+        body.no-animations #homeMascotWidget.home-mascot-widget--leaving {
+            transition-duration: 0.65s, 0.5s, 0s !important;
+        }
         
         .no-animations .particle {
             display: none !important;
@@ -7911,3 +7925,4 @@ Read
     </script>
 </body>
 </html>
+

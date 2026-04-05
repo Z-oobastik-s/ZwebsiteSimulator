@@ -1,4 +1,4 @@
-const CACHE_NAME = 'zoobastiks-v131';
+const CACHE_NAME = 'zoobastiks-v132';
 
 self.addEventListener('install', function (event) {
   self.skipWaiting();
@@ -140,3 +140,4 @@ self.addEventListener('fetch', function (event) {
     })
   );
 });
+
