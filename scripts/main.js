@@ -1367,6 +1367,15 @@ function scheduleBackgroundAfterFirstPaint() {
     }
 }
 
+// Контекстное меню по правой кнопке отключено (обойти можно через инструменты браузера).
+document.addEventListener(
+    'contextmenu',
+    function (e) {
+        e.preventDefault();
+    },
+    true
+);
+
 // Initialize app
 document.addEventListener('DOMContentLoaded', function() {
     app.isPaused = false;
@@ -9959,3 +9968,4 @@ window.showLevelUpSequence = showLevelUpSequence;
 window.renderLevelBlock = renderLevelBlock;
 window.updateUserUI = updateUserUI;
 window.updateGuestPromisedHeader = updateGuestPromisedHeader;
+
