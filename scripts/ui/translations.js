@@ -6,7 +6,6 @@ window.translations = {
     ru: {
         welcome: 'Добро пожаловать в игру',
         subtitle: 'Научитесь печатать быстро и без ошибок',
-        heroSubtitle: '🚀 Быстро • 🎯 Точно • 💪 Эффективно',
         lessons: 'Уроки',
         lessonsDesc: 'Обучение с нуля до профи',
         freeMode: 'Свободная печать',
@@ -463,7 +462,6 @@ window.translations = {
     en: {
         welcome: 'Welcome to Zoobastiks',
         subtitle: 'Learn to type fast and accurately',
-        heroSubtitle: '🚀 Fast • 🎯 Accurate • 💪 Efficient',
         lessons: 'Lessons',
         lessonsDesc: 'From beginner to pro',
         freeMode: 'Free Typing',
@@ -920,7 +918,6 @@ window.translations = {
     ua: {
         welcome: 'Ласкаво просимо до гри',
         subtitle: 'Навчіться друкувати швидко й без помилок',
-        heroSubtitle: '🚀 Швидко • 🎯 Точно • 💪 Ефективно',
         lessons: 'Уроки',
         lessonsDesc: 'Навчання з нуля до про',
         freeMode: 'Вільний друк',
@@ -1375,4 +1372,3 @@ window.translations = {
         integrityAnnulApplying: 'Виконується скидання…'
     }
 };
-

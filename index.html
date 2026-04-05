@@ -354,10 +354,6 @@
         }
         html:not(.dark) header .text-primary { color: #0e7490 !important; }
         html:not(.dark) [class*="text-cyan-200"] { color: #0e7490 !important; text-shadow: 0 0 1px rgba(255,255,255,0.5), 0 1px 1px rgba(0,0,0,0.05); }
-        html:not(.dark) .hero-subtitle {
-            color: #1f2937;
-            text-shadow: 0 0 1px rgba(255,255,255,0.8), 0 1px 1px rgba(0,0,0,0.06);
-        }
         /* Карточки главной: описания под «Уроки», «Свободная печать» и т.д. */
         html:not(.dark) #homeScreen .glass .text-gray-600 {
             color: #374151 !important;
@@ -408,10 +404,6 @@
         html:not(.dark) #homeScreen h3.text-gray-500,
         html:not(.dark) #homeScreen h3.text-gray-400 {
             color: #475569 !important;
-        }
-        html:not(.dark) #homeScreen .hero-subtitle {
-            color: #1e293b !important;
-            text-shadow: none;
         }
         /* Полоса прогресса уроков: дорожка видна на светлой карточке */
         html:not(.dark) #homeScreen .glass .rounded-full.bg-white\/10 {
@@ -3559,13 +3551,6 @@ Read
         .no-animations .particle {
             display: none !important;
         }
-
-        @media (prefers-reduced-motion: reduce) {
-            .hero-subtitle {
-                animation: none !important;
-                opacity: 1;
-            }
-        }
         
         /* Disable Tailwind animations */
         .no-animations .animate-pulse,
@@ -4110,10 +4095,6 @@ Read
             50% { background-position: 100% 50%; }
         }
         
-        .hero-subtitle {
-            animation: fadeIn 1s ease-out 0.8s backwards;
-        }
-        
         /* Floating particles: без box-shadow (дорого), композитный слой */
         .particle {
             position: absolute;
@@ -4126,11 +4107,6 @@ Read
             contain: strict;
             will-change: transform;
             opacity: 0.85;
-        }
-        
-        .hero-container {
-            position: relative;
-            overflow: hidden;
         }
         
         /* Игровые уведомления (очередь, одна карточка) - ниже полноэкранных модалок коллекций */
@@ -6340,18 +6316,12 @@ Read
     <main class="container mx-auto px-4 pt-24 pb-20">
         
         <!-- Home Screen -->
-        <div id="homeScreen" class="fade-in">
+        <div id="homeScreen" class="fade-in relative">
             <!-- Hidden content for search engines -->
             <div style="position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden;">
                 <h1>Zoobastiks - Тренажёр Слепой Печати</h1>
                 <p>Zoobastiks - современный онлайн тренажёр слепой печати. Обучение быстрой и точной печати вслепую на русском, английском и украинском языках. Уроки для начинающих, среднего и продвинутого уровня. Тест скорости печати, мультиплеер режим, система достижений и монет, магазин уроков, статистика прогресса.</p>
                 <h2>Ключевые слова: Zoobastiks, слепая печать, тренажёр печати, typing tutor, клавиатурный тренажёр, обучение печати, быстрая печать</h2>
-            </div>
-            
-            <div class="hero-container text-center mb-4 py-4">
-                <p class="hero-subtitle text-sm font-medium text-gray-300 dark:text-gray-300 mb-1" id="heroSubtitle" data-i18n="heroSubtitle">
-                    🚀 Быстро • 🎯 Точно • 💪 Эффективно
-                </p>
             </div>
             
             <div class="grid grid-cols-2 md:grid-cols-5 gap-3 sm:gap-4 max-w-7xl mx-auto">
@@ -8085,4 +8055,3 @@ Read
     </script>
 </body>
 </html>
-

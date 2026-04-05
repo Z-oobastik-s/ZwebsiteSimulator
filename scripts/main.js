@@ -342,7 +342,6 @@ const translations = window.translations || {
     ru: {
         welcome: 'Добро пожаловать в игру',
         subtitle: 'Научитесь печатать быстро и без ошибок',
-        heroSubtitle: '🚀 Быстро • 🎯 Точно • 💪 Эффективно',
         lessons: 'Уроки',
         lessonsDesc: 'Обучение с нуля до профи',
         freeMode: 'Свободная печать',
@@ -626,7 +625,6 @@ const translations = window.translations || {
     en: {
         welcome: 'Welcome to Zoobastiks',
         subtitle: 'Learn to type fast and accurately',
-        heroSubtitle: '🚀 Fast • 🎯 Accurate • 💪 Efficient',
         lessons: 'Lessons',
         lessonsDesc: 'From beginner to pro',
         freeMode: 'Free Typing',
@@ -1313,7 +1311,8 @@ async function buyProfileBackground(backgroundId) {
 function createParticles() {
     if (!app.animationsEnabled) return;
     
-    const heroContainer = document.querySelector('.hero-container');
+    var heroContainer = document.querySelector('.hero-container')
+        || document.getElementById('homeScreen');
     if (!heroContainer) return;
     
     // Reuse: если частицы уже есть - не пересоздаём (только показываем)
@@ -10018,4 +10017,3 @@ window.showLevelUpSequence = showLevelUpSequence;
 window.renderLevelBlock = renderLevelBlock;
 window.updateUserUI = updateUserUI;
 window.updateGuestPromisedHeader = updateGuestPromisedHeader;
-
