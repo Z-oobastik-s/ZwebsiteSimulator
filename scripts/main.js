@@ -2892,8 +2892,40 @@ function loadLessons() {
         const badgeText = `${lessonsForLang.length} ${lessonsLabel.toUpperCase()}`;
         var codename = tChapterField(level, 'Codename');
         var cardHook = tChapterField(level, 'CardHook');
-        var lockedTag = tierOpen ? '' : `<span class="difficulty-card__locked-tag">${escapeHtml(t('difficultyCardLocked'))}</span>`;
-        
+        var lockStripHtml = '';
+        var lockVeilHtml = '';
+        if (!tierOpen) {
+            var preTier = level === 'medium' ? 'beginner' : 'medium';
+            var pr = progM && typeof progM.getTierCompletion === 'function'
+                ? progM.getTierCompletion(window.statsModule, preTier, selectedLessonLang)
+                : { done: 0, total: 0 };
+            var pct = pr.total > 0 ? Math.min(100, Math.round((pr.done / pr.total) * 100)) : 0;
+            var progLine = pr.total > 0 && typeof trReplace === 'function'
+                ? trReplace('tierLockProgressLine', { done: String(pr.done), total: String(pr.total) })
+                : '';
+            var hintKey = level === 'medium' ? 'tierLockCardHintMedium' : 'tierLockCardHintAdvanced';
+            var hintText = typeof t === 'function' ? t(hintKey) : '';
+            var veilLabel = typeof t === 'function' ? t('tierLockVeilLabel') : '';
+            lockVeilHtml =
+                '<div class="difficulty-card__lock-veil" aria-hidden="true">' +
+                '<span class="difficulty-card__lock-scan"></span>' +
+                '<div class="difficulty-card__lock-ring difficulty-card__lock-ring--' + level + '">' +
+                '<svg class="difficulty-card__lock-svg" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">' +
+                '<path fill="currentColor" d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>' +
+                '</svg></div>' +
+                '<span class="difficulty-card__lock-label">' + escapeHtml(veilLabel) + '</span>' +
+                '</div>';
+            lockStripHtml =
+                '<div class="difficulty-card__lock-strip">' +
+                '<span class="difficulty-card__locked-tag difficulty-card__locked-tag--strip">' + escapeHtml(typeof t === 'function' ? t('difficultyCardLocked') : '') + '</span>' +
+                (pr.total > 0
+                    ? '<div class="difficulty-card__lock-meter" role="presentation"><span class="difficulty-card__lock-meter-fill" style="width:' + pct + '%"></span></div>' +
+                      '<p class="difficulty-card__lock-progress">' + escapeHtml(progLine) + '</p>'
+                    : '') +
+                '<p class="difficulty-card__lock-hint">' + escapeHtml(hintText) + '</p>' +
+                '</div>';
+        }
+
         card.innerHTML = `
             <div class="difficulty-card__particles" aria-hidden="true"></div>
             <div class="difficulty-card__accent">
@@ -2907,8 +2939,9 @@ function loadLessons() {
                 <h3 class="difficulty-card__title">${escapeHtml(levelName)}</h3>
                 <p class="difficulty-card__hook">${escapeHtml(cardHook)}</p>
                 <span class="difficulty-card__badge">${escapeHtml(badgeText)}</span>
-                ${lockedTag}
+                ${lockStripHtml}
             </div>
+            ${lockVeilHtml}
         `;
         
         fragment.appendChild(card);
@@ -10015,4 +10048,3 @@ window.showLevelUpSequence = showLevelUpSequence;
 window.renderLevelBlock = renderLevelBlock;
 window.updateUserUI = updateUserUI;
 window.updateGuestPromisedHeader = updateGuestPromisedHeader;
-

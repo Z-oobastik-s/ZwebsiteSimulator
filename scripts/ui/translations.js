@@ -67,6 +67,10 @@ window.translations = {
         tierLockedToastMedium: 'Сначала пройди все уроки уровня «Начинающий» на этой раскладке (RU, EN или UA).',
         tierLockedToastAdvanced: 'Сначала пройди все уроки уровня «Средний» на этой раскладке.',
         difficultyCardLocked: 'Закрыто',
+        tierLockVeilLabel: 'СЕКТОР ЗАКРЫТ',
+        tierLockProgressLine: '{{done}} / {{total}}',
+        tierLockCardHintMedium: 'Пройди все базовые уроки «Начинающий» на этой раскладке.',
+        tierLockCardHintAdvanced: 'Пройди все базовые уроки «Средний» на этой раскладке.',
         lessonCardLockedHint: 'Пройди предыдущий урок',
         sagaEpisode: 'Эпизод {{n}}',
         sagaBeat0: 'Связь восстанавливается. Система ведёт тебя от буквы к букве - без скачков.',
@@ -523,6 +527,10 @@ window.translations = {
         tierLockedToastMedium: 'Clear every Beginner lesson on this layout (RU, EN, or UA) first.',
         tierLockedToastAdvanced: 'Clear every Medium lesson on this layout first.',
         difficultyCardLocked: 'Locked',
+        tierLockVeilLabel: 'SECTOR LOCKED',
+        tierLockProgressLine: '{{done}} / {{total}}',
+        tierLockCardHintMedium: 'Clear every core Beginner lesson on this layout.',
+        tierLockCardHintAdvanced: 'Clear every core Medium lesson on this layout.',
         lessonCardLockedHint: 'Complete the previous lesson',
         sagaEpisode: 'Episode {{n}}',
         sagaBeat0: 'Link restored. The system walks you from key to key - no skipping.',
@@ -979,6 +987,10 @@ window.translations = {
         tierLockedToastMedium: 'Спочатку пройди всі уроки рівня «Початківець» на цій розкладці (RU, EN або UA).',
         tierLockedToastAdvanced: 'Спочатку пройди всі уроки рівня «Середній» на цій розкладці.',
         difficultyCardLocked: 'Закрито',
+        tierLockVeilLabel: 'СЕКТОР ЗАБЛОКОВАНО',
+        tierLockProgressLine: '{{done}} / {{total}}',
+        tierLockCardHintMedium: 'Пройди всі базові уроки «Початківець» на цій розкладці.',
+        tierLockCardHintAdvanced: 'Пройди всі базові уроки «Середній» на цій розкладці.',
         lessonCardLockedHint: 'Пройди попередній урок',
         sagaEpisode: 'Епізод {{n}}',
         sagaBeat0: "Зв'язок відновлюється. Система веде від літери до літери - без стрибків.",
@@ -1372,4 +1384,3 @@ window.translations = {
         integrityAnnulApplying: 'Виконується скидання…'
     }
 };
-

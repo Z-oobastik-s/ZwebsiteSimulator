@@ -64,7 +64,8 @@
     function isTierUnlocked(statsModule, tier, layout) {
         if (tier === 'beginner') return true;
         if (!global.LESSONS_DATA) return true;
-        var needTier = tier === 'medium' ? 'beginner' : 'advanced';
+        var needTier = tier === 'medium' ? 'beginner' : tier === 'advanced' ? 'medium' : null;
+        if (!needTier) return true;
         var data = global.LESSONS_DATA[needTier];
         if (!data || !data.lessons) return true;
         var core = data.lessons.filter(function (l) { return l.layout === layout && !l.isShopLesson; });
@@ -73,6 +74,22 @@
             if (!isLessonCompleted(statsModule, k)) return false;
         }
         return true;
+    }
+
+    /** Сколько базовых уроков трека пройдено на раскладке (для UI замка). */
+    function getTierCompletion(statsModule, tier, layout) {
+        if (!global.LESSONS_DATA || !global.LESSONS_DATA[tier] || !global.LESSONS_DATA[tier].lessons) {
+            return { done: 0, total: 0 };
+        }
+        var core = global.LESSONS_DATA[tier].lessons.filter(function (l) {
+            return l.layout === layout && !l.isShopLesson;
+        });
+        var total = core.length;
+        var done = 0;
+        for (var i = 0; i < core.length; i++) {
+            if (isLessonCompleted(statsModule, lessonKey(core[i], tier))) done++;
+        }
+        return { done: done, total: total };
     }
 
     function actIndexForCoreIndex(coreIndex) {
@@ -92,8 +109,8 @@
         findCoreIndex: findCoreIndex,
         isLessonUnlocked: isLessonUnlocked,
         isTierUnlocked: isTierUnlocked,
+        getTierCompletion: getTierCompletion,
         actIndexForCoreIndex: actIndexForCoreIndex,
         sagaBeatKeyForAct: sagaBeatKeyForAct
     };
 })(typeof window !== 'undefined' ? window : this);
-
