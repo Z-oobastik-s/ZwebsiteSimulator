@@ -910,9 +910,29 @@ const translations = window.translations || {
 // Ensure window.translations is always set (scripts/ui/translations.js may have pre-populated it)
 window.translations = translations;
 
-// Speed test word lists (расширены для сильного разнообразия)
-const speedTestWords = {
-    ru: [
+// Speed test: ядро в коде; для ru доп. слова из scripts/speed-test-words.js (window.__zoobSpeedTestWords.ru)
+const speedTestWords = (function () {
+    function mergeSpeedLang(baseArr, extraArr) {
+        var seen = Object.create(null);
+        var out = [];
+        function addAll(arr) {
+            if (!arr || !arr.length) return;
+            for (var i = 0; i < arr.length; i++) {
+                var w = arr[i];
+                if (w == null || w === '') continue;
+                var k = String(w).toLowerCase().trim();
+                if (!k || seen[k]) continue;
+                seen[k] = 1;
+                out.push(w);
+            }
+        }
+        addAll(baseArr);
+        addAll(extraArr);
+        return out;
+    }
+    var glob = typeof window !== 'undefined' && window.__zoobSpeedTestWords;
+    var exRu = glob && Array.isArray(glob.ru) ? glob.ru : [];
+    var coreRu = [
         'как', 'так', 'все', 'это', 'был', 'быть', 'может', 'нужно', 'она', 'они', 'мы', 'я', 'ты',
         'мой', 'твой', 'его', 'ее', 'их', 'что', 'когда', 'где', 'почему', 'зачем', 'потому', 'если',
         'год', 'день', 'ночь', 'утро', 'вечер', 'вчера', 'сегодня', 'завтра', 'сейчас', 'потом', 'раньше',
@@ -920,49 +940,51 @@ const speedTestWords = {
         'книга', 'тетрадь', 'ручка', 'карандаш', 'экран', 'клавиатура', 'мышь', 'телефон', 'наушники',
         'рука', 'нога', 'голова', 'спина', 'глаз', 'ухо', 'сердце', 'мозг', 'мысль', 'чувство',
         'мама', 'папа', 'друг', 'подруга', 'семья', 'ребенок', 'учитель', 'ученик', 'коллега', 'сосед',
-        'вода', 'воздух', 'огонь', 'земля', 'снег', 'дождь', 'ветер', 'солнце', 'небо', 'земля', 'мир',
+        'вода', 'воздух', 'огонь', 'земля', 'снег', 'дождь', 'ветер', 'солнце', 'небо', 'планета', 'мир',
         'город', 'деревня', 'улица', 'парк', 'лес', 'река', 'море', 'озеро', 'гора', 'поле', 'дорога',
         'жизнь', 'время', 'дело', 'работа', 'школа', 'игра', 'урок', 'проект', 'задача', 'цель',
         'слово', 'язык', 'буква', 'звук', 'фраза', 'текст', 'строка', 'страница',
         'быстро', 'медленно', 'тихо', 'громко', 'далеко', 'близко', 'рядом', 'вместе', 'один', 'два',
         'новый', 'старый', 'маленький', 'большой', 'длинный', 'короткий', 'легкий', 'тяжелый', 'простой', 'сложный',
         'правда', 'ложь', 'вопрос', 'ответ', 'пример', 'память', 'опыт', 'навык', 'скорость', 'точность'
-    ],
-    en: [
-        'the', 'and', 'for', 'are', 'but', 'not', 'you', 'we', 'they', 'he', 'she', 'it', 'all', 'can',
-        'will', 'would', 'could', 'should', 'must', 'may', 'might', 'have', 'has', 'had', 'was', 'were',
-        'one', 'two', 'three', 'time', 'day', 'night', 'morning', 'evening', 'today', 'yesterday', 'tomorrow',
-        'now', 'soon', 'later', 'early', 'late', 'again', 'always', 'never', 'sometimes',
-        'man', 'woman', 'child', 'friend', 'family', 'teacher', 'student', 'worker', 'player', 'user',
-        'hand', 'head', 'back', 'face', 'eye', 'ear', 'heart', 'mind', 'thought', 'feeling',
-        'new', 'old', 'good', 'bad', 'small', 'large', 'short', 'long', 'fast', 'slow', 'easy', 'hard',
-        'home', 'room', 'door', 'window', 'table', 'chair', 'screen', 'keyboard', 'mouse', 'phone',
-        'book', 'page', 'line', 'word', 'letter', 'text', 'code', 'error', 'result',
-        'life', 'world', 'work', 'game', 'lesson', 'project', 'task', 'goal', 'skill', 'speed', 'accuracy',
-        'water', 'air', 'fire', 'snow', 'rain', 'wind', 'sun', 'sky', 'river', 'mountain', 'city', 'street',
-        'walk', 'run', 'move', 'think', 'type', 'learn', 'play', 'start', 'finish', 'press', 'hold', 'release'
-    ],
-    ua: [
-        'як', 'так', 'все', 'це', 'був', 'бути', 'може', 'треба', 'вона', 'вони', 'ми', 'я', 'ти',
-        'мій', 'твій', 'його', 'її', 'їхній', 'що', 'коли', 'де', 'чому', 'навіщо', 'тому', 'якщо',
-        'рік', 'день', 'ніч', 'ранок', 'вечір', 'вчора', 'сьогодні', 'завтра', 'зараз', 'потім', 'раніше',
-        'дім', 'квартира', 'кімната', 'вікно', 'двері', 'стіна', 'підлога', 'стеля', 'стіл', 'стілець', 'лампа',
-        'книга', 'зошит', 'ручка', 'олівець', 'екран', 'клавіатура', 'миша', 'телефон', 'навушники',
-        'рука', 'нога', 'голова', 'спина', 'око', 'вухо', 'серце', 'мозок', 'думка', 'почуття',
-        'мама', 'тато', 'друг', 'подруга', 'родина', 'дитина', 'учитель', 'учень', 'колега', 'сусід',
-        'вода', 'повітря', 'вогонь', 'земля', 'сніг', 'дощ', 'вітер', 'сонце', 'небо', 'світ',
-        'місто', 'село', 'вулиця', 'парк', 'ліс', 'річка', 'море', 'озеро', 'гора', 'поле', 'дорога',
-        'життя', 'час', 'справа', 'робота', 'школа', 'гра', 'урок', 'проєкт', 'завдання', 'мета',
-        'слово', 'мова', 'літера', 'звук', 'фраза', 'текст', 'рядок', 'сторінка',
-        'швидко', 'повільно', 'тихо', 'голосно', 'далеко', 'близько', 'поруч', 'разом', 'один', 'два',
-        'новий', 'старий', 'маленький', 'великий', 'довгий', 'короткий', 'легкий', 'важкий', 'простий', 'складний',
-        'правда', 'брехня', 'питання', 'відповідь', 'приклад', 'пам\'ять', 'досвід', 'навичка', 'швидкість', 'точність',
-        'акція', 'продаж', 'покупка', 'замовлення', 'доставка', 'оплата', 'повернення', 'гарантія', 'сервіс', 'підтримка',
-        'пошта', 'телефон', 'месенджер', 'скайп', 'відео', 'аудіо', 'фото', 'текст', 'стиль', 'дизайн', 'верстка', 'розробка',
-        'програмування', 'фронтенд', 'бекенд', 'алгоритм', 'база даних', 'сервер', 'хост', 'домен', 'хостинг', 'ампелологія',
-        'амбіція', 'завдання', 'мета', 'слово', 'мова', 'літера', 'звук', 'фраза', 'текст', 'рядок', 'сторінка',         'анімізм'
-    ]
-};
+    ];
+    return {
+        ru: mergeSpeedLang(coreRu, exRu),
+        en: [
+            'the', 'and', 'for', 'are', 'but', 'not', 'you', 'we', 'they', 'he', 'she', 'it', 'all', 'can',
+            'will', 'would', 'could', 'should', 'must', 'may', 'might', 'have', 'has', 'had', 'was', 'were',
+            'one', 'two', 'three', 'time', 'day', 'night', 'morning', 'evening', 'today', 'yesterday', 'tomorrow',
+            'now', 'soon', 'later', 'early', 'late', 'again', 'always', 'never', 'sometimes',
+            'man', 'woman', 'child', 'friend', 'family', 'teacher', 'student', 'worker', 'player', 'user',
+            'hand', 'head', 'back', 'face', 'eye', 'ear', 'heart', 'mind', 'thought', 'feeling',
+            'new', 'old', 'good', 'bad', 'small', 'large', 'short', 'long', 'fast', 'slow', 'easy', 'hard',
+            'home', 'room', 'door', 'window', 'table', 'chair', 'screen', 'keyboard', 'mouse', 'phone',
+            'book', 'page', 'line', 'word', 'letter', 'text', 'code', 'error', 'result',
+            'life', 'world', 'work', 'game', 'lesson', 'project', 'task', 'goal', 'skill', 'speed', 'accuracy',
+            'water', 'air', 'fire', 'snow', 'rain', 'wind', 'sun', 'sky', 'river', 'mountain', 'city', 'street',
+            'walk', 'run', 'move', 'think', 'type', 'learn', 'play', 'start', 'finish', 'press', 'hold', 'release'
+        ],
+        ua: [
+            'як', 'так', 'все', 'це', 'був', 'бути', 'може', 'треба', 'вона', 'вони', 'ми', 'я', 'ти',
+            'мій', 'твій', 'його', 'її', 'їхній', 'що', 'коли', 'де', 'чому', 'навіщо', 'тому', 'якщо',
+            'рік', 'день', 'ніч', 'ранок', 'вечір', 'вчора', 'сьогодні', 'завтра', 'зараз', 'потім', 'раніше',
+            'дім', 'квартира', 'кімната', 'вікно', 'двері', 'стіна', 'підлога', 'стеля', 'стіл', 'стілець', 'лампа',
+            'книга', 'зошит', 'ручка', 'олівець', 'екран', 'клавіатура', 'миша', 'телефон', 'навушники',
+            'рука', 'нога', 'голова', 'спина', 'око', 'вухо', 'серце', 'мозок', 'думка', 'почуття',
+            'мама', 'тато', 'друг', 'подруга', 'родина', 'дитина', 'учитель', 'учень', 'колега', 'сусід',
+            'вода', 'повітря', 'вогонь', 'земля', 'сніг', 'дощ', 'вітер', 'сонце', 'небо', 'світ',
+            'місто', 'село', 'вулиця', 'парк', 'ліс', 'річка', 'море', 'озеро', 'гора', 'поле', 'дорога',
+            'життя', 'час', 'справа', 'робота', 'школа', 'гра', 'урок', 'проєкт', 'завдання', 'мета',
+            'слово', 'мова', 'літера', 'звук', 'фраза', 'текст', 'рядок', 'сторінка',
+            'швидко', 'повільно', 'тихо', 'голосно', 'далеко', 'близько', 'поруч', 'разом', 'один', 'два',
+            'новий', 'старий', 'маленький', 'великий', 'довгий', 'короткий', 'легкий', 'важкий', 'простий', 'складний',
+            'правда', 'брехня', 'питання', 'відповідь', 'приклад', 'пам\'ять', 'досвід', 'навичка', 'швидкість', 'точність',
+            'акція', 'продаж', 'покупка', 'замовлення', 'доставка', 'оплата', 'повернення', 'гарантія', 'сервіс', 'підтримка',
+            'пошта', 'месенджер', 'скайп', 'відео', 'аудіо', 'фото', 'стиль', 'дизайн', 'верстка', 'розробка',
+            'програмування', 'фронтенд', 'бекенд', 'алгоритм', 'база', 'дані', 'сервер', 'хост', 'домен', 'хостинг'
+        ]
+    };
+})();
 
 // Доп. слова для режима «слабые клавиши» (буквы ы ф г и т.д. в обычном списке реже)
 const adaptiveExtraWords = {
@@ -5040,7 +5062,10 @@ function resetResultAbabaSticker() {
     if (!el) return;
     el.classList.add('hidden');
     el.classList.remove('is-ababa-visible');
+    el.classList.remove('is-ababa-mirror');
     el.setAttribute('aria-hidden', 'true');
+    var row = document.getElementById('resultCoachTipRow');
+    if (row) row.classList.remove('resultCoachTipRow--sticker-only');
 }
 
 /** Стикер Ababa только после теста скорости: плавное появление снизу. */
@@ -5276,6 +5301,17 @@ function showResults(speed, accuracy, time, errors, rewardCoins, options) {
         } else {
             coachBox.classList.add('hidden');
         }
+    }
+
+    var coachTipRow = document.getElementById('resultCoachTipRow');
+    var ababaStickerEl = document.getElementById('resultAbabaSticker');
+    var coachTipVisible = coachBox && !coachBox.classList.contains('hidden');
+    var ababaMirror = app.currentMode === 'speedtest' && !coachTipVisible;
+    if (coachTipRow) {
+        coachTipRow.classList.toggle('resultCoachTipRow--sticker-only', ababaMirror);
+    }
+    if (ababaStickerEl) {
+        ababaStickerEl.classList.toggle('is-ababa-mirror', ababaMirror);
     }
 
     // === Топ-3 проблемных клавиши сессии ===
@@ -10205,3 +10241,4 @@ window.showLevelUpSequence = showLevelUpSequence;
 window.renderLevelBlock = renderLevelBlock;
 window.updateUserUI = updateUserUI;
 window.updateGuestPromisedHeader = updateGuestPromisedHeader;
+
