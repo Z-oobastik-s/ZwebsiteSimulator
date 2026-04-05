@@ -1121,23 +1121,55 @@ function setSelectedBackgroundId(theme, id) {
     } catch (e) {}
 }
 
-function applyBackgroundToPage() {
-    var theme = getCurrentTheme();
+/** Разрешить фон для темы (та же логика, что у applyBackgroundToPage). */
+function resolveBackgroundForTheme(theme) {
     var selectedId = getSelectedBackgroundId(theme);
     var unlocked = getUnlockedBackgroundIds();
     var bg = null;
     if (selectedId && unlocked.indexOf(selectedId) >= 0) {
-        bg = BACKGROUNDS.find(function(b) { return b.id === selectedId; });
+        bg = BACKGROUNDS.find(function (b) { return b.id === selectedId; });
     }
     if (!bg) {
-        var available = BACKGROUNDS.filter(function(b) { return b.theme === theme && unlocked.indexOf(b.id) >= 0; });
-        bg = available.length ? available[Math.floor(Math.random() * available.length)] : BACKGROUNDS.find(function(b) { return b.theme === theme; });
+        var available = BACKGROUNDS.filter(function (b) { return b.theme === theme && unlocked.indexOf(b.id) >= 0; });
+        bg = available.length ? available[Math.floor(Math.random() * available.length)] : BACKGROUNDS.find(function (b) { return b.theme === theme; });
         if (bg && !selectedId) setSelectedBackgroundId(theme, bg.id);
     }
+    return bg || null;
+}
+
+function applyBackgroundToPage() {
+    var theme = getCurrentTheme();
+    var bg = resolveBackgroundForTheme(theme);
     if (bg) {
         document.body.style.backgroundImage = "url('" + bg.path + "')";
         var preview = document.getElementById('profileCurrentBgPreview');
         if (preview) preview.style.backgroundImage = "url('" + bg.path + "')";
+    }
+}
+
+/** Прогреть URL в кэше изображений (смена темы без «подвисания» на декоде). */
+function warmImageUrls(urls, done) {
+    var list = urls.filter(Boolean);
+    if (!list.length) {
+        done();
+        return;
+    }
+    var left = list.length;
+    function one() {
+        if (--left <= 0) done();
+    }
+    for (var i = 0; i < list.length; i++) {
+        var img = new Image();
+        img.onload = function () {
+            var el = this;
+            if (el.decode) {
+                el.decode().then(one).catch(one);
+            } else {
+                one();
+            }
+        };
+        img.onerror = one;
+        img.src = list[i];
     }
 }
 
@@ -1277,7 +1309,7 @@ async function buyProfileBackground(backgroundId) {
     }
 }
 
-// Create floating particles effect
+// Create floating particles effect (мало DOM-узлов, без box-shadow - дешевле для GPU)
 function createParticles() {
     if (!app.animationsEnabled) return;
     
@@ -1290,16 +1322,22 @@ function createParticles() {
         existing.forEach(p => { p.style.display = ''; });
         return;
     }
-    
-    // Создаём 20 частиц один раз
+
+    var count = 8;
+    try {
+        if (window.matchMedia('(max-width: 768px)').matches) count = 5;
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) count = 0;
+    } catch (e) {}
+    if (count <= 0) return;
+
     const frag = document.createDocumentFragment();
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < count; i++) {
         const particle = document.createElement('div');
         particle.className = 'particle';
         particle.style.left = Math.random() * 100 + '%';
-        particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+        particle.style.animationDuration = (Math.random() * 10 + 14) + 's';
         particle.style.animationDelay = Math.random() * 5 + 's';
-        particle.style.opacity = Math.random() * 0.5 + 0.3;
+        particle.style.opacity = String(Math.random() * 0.35 + 0.25);
         frag.appendChild(particle);
     }
     heroContainer.appendChild(frag);
@@ -1853,28 +1891,44 @@ function updateFooterBackground() {
     footer.style.backgroundImage = `url('${imagePath}')`;
 }
 
-// Theme toggle - короткий плавный переход фона и оверлея, остальное сразу
+// Theme toggle: прогрев фонов + один кадр без transition на всём дереве (меньше jank от backdrop-filter)
 function toggleTheme() {
     if (app.soundEnabled && audioThemeTransition) {
         audioThemeTransition.currentTime = 0;
         audioThemeTransition.play().catch(() => {});
     }
-    
-    app.theme = app.theme === 'dark' ? 'light' : 'dark';
-    document.documentElement.classList.toggle('dark', app.theme === 'dark');
-    localStorage.setItem('theme', app.theme);
-    
-    setRandomBackground();
-    updateFooterBackground();
-    
-    const icon = DOM.get('themeIcon');
-    if (icon) {
-        if (app.theme === 'dark') {
-            icon.innerHTML = '<path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />';
-        } else {
-            icon.innerHTML = '<path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd" />';
-        }
-    }
+
+    var nextTheme = app.theme === 'dark' ? 'light' : 'dark';
+    var nextBg = resolveBackgroundForTheme(nextTheme);
+    var footerPath = nextTheme === 'dark'
+        ? 'assets/images/contact_black.jpg'
+        : 'assets/images/contact_white.jpg';
+    var warm = [footerPath];
+    if (nextBg && nextBg.path) warm.push(nextBg.path);
+
+    warmImageUrls(warm, function () {
+        document.documentElement.classList.add('zoob-theme-switching');
+        requestAnimationFrame(function () {
+            app.theme = nextTheme;
+            document.documentElement.classList.toggle('dark', app.theme === 'dark');
+            localStorage.setItem('theme', app.theme);
+            applyBackgroundToPage();
+            updateFooterBackground();
+
+            const icon = DOM.get('themeIcon');
+            if (icon) {
+                if (app.theme === 'dark') {
+                    icon.innerHTML = '<path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />';
+                } else {
+                    icon.innerHTML = '<path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd" />';
+                }
+            }
+
+            requestAnimationFrame(function () {
+                document.documentElement.classList.remove('zoob-theme-switching');
+            });
+        });
+    });
 }
 
 /** localStorage мог хранить `uk` (ISO); в коде везде `ua` для украинского UI */
@@ -9967,3 +10021,4 @@ window.showLevelUpSequence = showLevelUpSequence;
 window.renderLevelBlock = renderLevelBlock;
 window.updateUserUI = updateUserUI;
 window.updateGuestPromisedHeader = updateGuestPromisedHeader;
+

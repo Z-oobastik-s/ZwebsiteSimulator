@@ -192,8 +192,8 @@
             padding-top: max(0.75rem, env(safe-area-inset-top));
             border-bottom: 1px solid var(--zoob-glow-soft);
             box-shadow: 0 8px 36px rgba(0, 0, 0, 0.22), 0 0 80px rgba(0, 188, 212, 0.05);
-            backdrop-filter: blur(18px) saturate(1.14);
-            -webkit-backdrop-filter: blur(18px) saturate(1.14);
+            backdrop-filter: blur(12px) saturate(1.1);
+            -webkit-backdrop-filter: blur(12px) saturate(1.1);
         }
         .dark header.glass {
             background: linear-gradient(180deg, rgba(15, 23, 42, 0.82) 0%, rgba(15, 23, 42, 0.55) 100%);
@@ -277,11 +277,11 @@
             #keyboardContainer .h-10 { height: 32px !important; }
         }
         
-        /* Background image with overlay */
+        /* Background: scroll вместо fixed - намного меньше лагов при скролле и смене темы (GPU) */
         body {
             background-size: cover;
             background-position: center;
-            background-attachment: fixed;
+            background-attachment: scroll;
             background-repeat: no-repeat;
             position: relative;
             transition: background-color 0.28s ease-out;
@@ -316,11 +316,11 @@
             background-color: #f3f4f6;
         }
         
-        /* Glassmorphism + premium edge glow */
+        /* Glassmorphism: умеренный blur - backdrop-filter очень дорогой при смене темы */
         .glass {
             background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(12px) saturate(1.08);
-            -webkit-backdrop-filter: blur(12px) saturate(1.08);
+            backdrop-filter: blur(8px) saturate(1.06);
+            -webkit-backdrop-filter: blur(8px) saturate(1.06);
             border: 1px solid rgba(255, 255, 255, 0.2);
             box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12), inset 0 1px 0 var(--zoob-sheen);
             transition: background-color 0.32s ease-out, border-color 0.32s ease-out, box-shadow 0.32s ease-out, transform 0.25s ease-out;
@@ -328,10 +328,18 @@
         
         .dark .glass {
             background: rgba(6, 10, 22, 0.42);
-            backdrop-filter: blur(14px) saturate(1.2);
-            -webkit-backdrop-filter: blur(14px) saturate(1.2);
+            backdrop-filter: blur(10px) saturate(1.12);
+            -webkit-backdrop-filter: blur(10px) saturate(1.12);
             border: 1px solid rgba(0, 188, 212, 0.12);
             box-shadow: 0 4px 28px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(0, 188, 212, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+        }
+
+        /* Один кадр без transition при смене светлая/тёмная - меньше каскадных пересчётов */
+        html.zoob-theme-switching body,
+        html.zoob-theme-switching body::before,
+        html.zoob-theme-switching .glass,
+        html.zoob-theme-switching header.glass {
+            transition: none !important;
         }
         
         /* ========== Светлая тема: контраст и читаемость ========== */
@@ -3599,6 +3607,30 @@ Read
         .no-animations .particle {
             display: none !important;
         }
+
+        .no-animations .hero-title {
+            animation: none !important;
+            background: linear-gradient(135deg, #00BCD4, #00E5FF);
+            background-size: 100% 100%;
+            -webkit-text-fill-color: transparent;
+            text-shadow: none;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .hero-title {
+                animation: none !important;
+                background: linear-gradient(135deg, #00BCD4, #00E5FF);
+                background-size: 100% 100%;
+            }
+            .hero-word-1,
+            .hero-word-2 {
+                animation: none !important;
+            }
+            .hero-subtitle {
+                animation: none !important;
+                opacity: 1;
+            }
+        }
         
         /* Disable Tailwind animations */
         .no-animations .animate-pulse,
@@ -4144,8 +4176,8 @@ Read
         }
         
         @keyframes particleFloat {
-            0% { 
-                transform: translateY(0) translateX(0) rotate(0deg);
+            0% {
+                transform: translate3d(0, 0, 0) rotate(0deg);
                 opacity: 0;
             }
             10% {
@@ -4154,14 +4186,13 @@ Read
             90% {
                 opacity: 1;
             }
-            100% { 
-                transform: translateY(-100vh) translateX(50px) rotate(360deg);
+            100% {
+                transform: translate3d(50px, -100vh, 0) rotate(360deg);
                 opacity: 0;
             }
         }
         
         .hero-title {
-            animation: scaleIn 1s ease-out, heroGlow 3s ease-in-out infinite 1s;
             font-size: 3.5rem;
             font-weight: 900;
             background: linear-gradient(135deg, #00BCD4, #00E5FF, #00BCD4);
@@ -4169,7 +4200,8 @@ Read
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
-            animation: scaleIn 1s ease-out, heroGlow 3s ease-in-out infinite 1s, gradientShift 4s ease infinite;
+            /* Без gradientShift: меньше постоянных перерисовок; heroGlow реже */
+            animation: scaleIn 1s ease-out, heroGlow 5s ease-in-out infinite 1s;
         }
         
         @media (max-width: 768px) {
@@ -4214,7 +4246,7 @@ Read
             animation: fadeIn 1s ease-out 0.8s backwards;
         }
         
-        /* Floating particles effect */
+        /* Floating particles: без box-shadow (дорого), композитный слой */
         .particle {
             position: absolute;
             width: 4px;
@@ -4223,7 +4255,9 @@ Read
             border-radius: 50%;
             pointer-events: none;
             animation: particleFloat linear infinite;
-            box-shadow: 0 0 10px var(--primary);
+            contain: strict;
+            will-change: transform;
+            opacity: 0.85;
         }
         
         .hero-container {
@@ -8187,3 +8221,4 @@ Read
     </script>
 </body>
 </html>
+
