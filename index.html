@@ -1957,6 +1957,45 @@
                 font-size: 0.72rem;
             }
         }
+        .lessons-saga-hub {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.2rem;
+            margin-top: 0.5rem;
+            max-width: 28rem;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 0.45rem 0.65rem;
+            border-radius: 10px;
+            background: rgba(15, 23, 42, 0.55);
+            border: 1px solid rgba(34, 211, 238, 0.2);
+            box-shadow: 0 0 20px rgba(34, 211, 238, 0.08);
+        }
+        html:not(.dark) .lessons-saga-hub {
+            background: rgba(255, 255, 255, 0.75);
+            border-color: rgba(6, 182, 212, 0.28);
+        }
+        .lessons-saga-hub__title {
+            font-size: 0.58rem;
+            font-weight: 800;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: rgba(103, 232, 249, 0.95);
+        }
+        html:not(.dark) .lessons-saga-hub__title {
+            color: rgba(8, 145, 178, 0.98);
+        }
+        .lessons-saga-hub__line {
+            font-size: 0.65rem;
+            font-weight: 700;
+            line-height: 1.35;
+            color: rgba(226, 232, 240, 0.92);
+            font-variant-numeric: tabular-nums;
+        }
+        html:not(.dark) .lessons-saga-hub__line {
+            color: rgba(51, 65, 85, 0.95);
+        }
         #lessonsScreen .chapter-briefing {
             border-radius: 14px;
         }
@@ -2430,6 +2469,17 @@
         html:not(.dark) .difficulty-card__lock-hint {
             color: rgba(51, 65, 85, 0.92);
         }
+        .difficulty-card__lock-teaser {
+            margin: 0.35rem 0 0.3rem 0;
+            font-size: 0.68rem;
+            line-height: 1.4;
+            font-weight: 700;
+            font-style: italic;
+            color: rgba(186, 230, 253, 0.9);
+        }
+        html:not(.dark) .difficulty-card__lock-teaser {
+            color: rgba(3, 105, 161, 0.92);
+        }
         .difficulty-card__locked-tag {
             display: block;
             margin-top: 0.55rem;
@@ -2585,6 +2635,29 @@
         }
         html:not(.dark) .chapter-briefing__objective {
             color: rgba(51, 65, 85, 0.96);
+        }
+        .chapter-briefing__track {
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+            margin: 0.55rem 0 0 0;
+            color: rgba(167, 243, 208, 0.95);
+            font-variant-numeric: tabular-nums;
+        }
+        .chapter-briefing--medium .chapter-briefing__track {
+            color: rgba(253, 224, 71, 0.95);
+        }
+        .chapter-briefing--advanced .chapter-briefing__track {
+            color: rgba(252, 165, 165, 0.96);
+        }
+        html:not(.dark) .chapter-briefing__track {
+            color: rgba(21, 128, 61, 0.95);
+        }
+        html:not(.dark) .chapter-briefing--medium .chapter-briefing__track {
+            color: rgba(180, 83, 9, 0.95);
+        }
+        html:not(.dark) .chapter-briefing--advanced .chapter-briefing__track {
+            color: rgba(185, 28, 28, 0.92);
         }
         
         /* === Карточки уроков (миссии) - максимально игровой стиль как у выбора сложности === */
@@ -6859,6 +6932,7 @@ Read
                 <div class="flex-1 text-center min-w-0 px-1">
                     <h2 id="lessonsScreenTitle" class="difficulty-section-title"></h2>
                     <p id="lessonsSagaSubtitle" class="lessons-saga-subtitle text-cyan-300/90 dark:text-cyan-200/85 font-semibold tracking-wide mx-auto"></p>
+                    <div id="lessonsSagaHub" class="lessons-saga-hub hidden" aria-live="polite"></div>
                 </div>
                 <div class="w-16 sm:w-32 shrink-0"></div>
             </div>
@@ -6910,6 +6984,7 @@ Read
                                 <h3 class="chapter-briefing__title" id="chapterBannerTitle"></h3>
                                 <p class="chapter-briefing__hook" id="chapterBannerHook"></p>
                                 <p class="chapter-briefing__objective" id="chapterBannerObjective"></p>
+                                <p class="chapter-briefing__track hidden" id="chapterBannerTrack"></p>
                             </div>
                         </div>
                         <div class="grid md:grid-cols-3 gap-5" id="lessonsList">
@@ -7459,6 +7534,7 @@ Read
 
             <div class="results-modal-body px-3 py-2 sm:px-4 flex flex-col gap-2 min-w-0 flex-1 min-h-0">
                 <p id="resultMissionLine" class="hidden text-xs text-cyan-200/90" role="status"></p>
+                <p id="resultCampaignNextLine" class="hidden text-[11px] text-amber-200/90 dark:text-amber-200/80 leading-snug font-semibold" role="status"></p>
                 <div class="results-main-split flex flex-col sm:flex-row md:flex-row md:items-stretch gap-2 md:gap-3 min-w-0">
                     <div class="results-metrics-col md:w-[min(100%,22.5rem)] shrink-0 min-w-0">
                         <div id="resultMetricsGrid" class="grid grid-cols-4 gap-1.5">
@@ -8448,4 +8524,3 @@ Read
     </script>
 </body>
 </html>
-

@@ -380,7 +380,7 @@ const translations = window.translations || {
         homeMascotHi11: 'Сегодня хватит и одного закрытого урока - это уже маленькая победа.',
         homeMascotHi12: 'Клавиатура внизу подсказывает пальцы - спокойно смотри на экран.',
         chooseDifficultyEpic: 'Сюжетная кампания',
-        lessonsSagaCampaignLine: 'Три главы. Один путь. Твои пальцы - главное оружие в этом мире.',
+        lessonsSagaCampaignLine: 'Три акта, один замысел: от первой буквы до финала сезона. Язык уроков (RU/EN/UA) - твой выбор, цепочка и награды общие.',
         chapterBannerAriaFallback: 'Сюжетная глава.',
         chapterBriefingCombinedObjective: '{{n}} миссий на карте. {{goal}}',
         chapterCodenameBeginner: 'Глава I // Протокол пробуждения',
@@ -663,7 +663,7 @@ const translations = window.translations || {
         homeMascotHi11: 'Finishing a single lesson today still counts as a win. Promise.',
         homeMascotHi12: 'The keyboard below nudges your fingers - keep your eyes on the text.',
         chooseDifficultyEpic: 'Story campaign',
-        lessonsSagaCampaignLine: 'Three chapters. One path. Your fingers are the ultimate weapon here.',
+        lessonsSagaCampaignLine: 'Three acts, one arc: from the first keypress to the season finale. Pick a lesson language (RU/EN/UA) - the chain and rewards stay yours.',
         chapterBannerAriaFallback: 'Story chapter.',
         chapterBriefingCombinedObjective: '{{n}} missions on the map. {{goal}}',
         chapterCodenameBeginner: 'Chapter I // Awakening protocol',
@@ -2779,6 +2779,13 @@ function tChapterField(level, field) {
     return typeof t === 'function' ? t(key) : '';
 }
 
+/** Ключ перевода эпизода саги по главе и номеру акта (0..5). */
+function sagaBeatKeyForTier(levelKey, storyAct) {
+    var i = Math.abs(storyAct) % 6;
+    var part = levelKey === 'medium' ? 'Medium' : levelKey === 'advanced' ? 'Advanced' : 'Beginner';
+    return 'sagaBeat' + part + i;
+}
+
 function hideLessonsChapterBriefing() {
     var b = document.getElementById('lessonsChapterBanner');
     if (b) {
@@ -2790,10 +2797,36 @@ function hideLessonsChapterBriefing() {
 function syncLessonsSagaDifficultyScreen() {
     var titleEl = document.getElementById('lessonsScreenTitle');
     var subEl = document.getElementById('lessonsSagaSubtitle');
+    var hubEl = document.getElementById('lessonsSagaHub');
     if (titleEl) titleEl.textContent = (typeof t === 'function' ? t('chooseDifficultyEpic') : '').toUpperCase();
     if (subEl) {
         subEl.textContent = typeof t === 'function' ? t('lessonsSagaCampaignLine') : '';
         subEl.classList.remove('hidden');
+    }
+    if (hubEl) {
+        var progM = window.lessonProgressionModule;
+        if (typeof t === 'function' && progM && typeof progM.getTierCompletion === 'function' && typeof progM.isTierUnlocked === 'function' && window.statsModule) {
+            function hubLine(tier, labelKey) {
+                var label = t(labelKey);
+                if (!progM.isTierUnlocked(window.statsModule, tier, selectedLessonLang)) {
+                    return label + ': ' + t('sagaHubLockedPiece');
+                }
+                var c = progM.getTierCompletion(window.statsModule, tier, selectedLessonLang);
+                if (c.total > 0 && typeof trReplace === 'function') {
+                    return label + ': ' + trReplace('sagaHubProgressPiece', { done: String(c.done), total: String(c.total) });
+                }
+                return label + ': 0 / 0';
+            }
+            hubEl.innerHTML =
+                '<span class="lessons-saga-hub__title">' + escapeHtml(t('sagaHubPulseTitle')) + '</span>' +
+                '<span class="lessons-saga-hub__line">' + escapeHtml(hubLine('beginner', 'sagaHubChapter1')) + '</span>' +
+                '<span class="lessons-saga-hub__line">' + escapeHtml(hubLine('medium', 'sagaHubChapter2')) + '</span>' +
+                '<span class="lessons-saga-hub__line">' + escapeHtml(hubLine('advanced', 'sagaHubChapter3')) + '</span>';
+            hubEl.classList.remove('hidden');
+        } else {
+            hubEl.textContent = '';
+            hubEl.classList.add('hidden');
+        }
     }
 }
 
@@ -2819,6 +2852,23 @@ function syncLessonsChapterBriefing(levelData, missionCount) {
         ob.textContent = typeof trReplace === 'function'
             ? trReplace('chapterBriefingCombinedObjective', { n: String(missionCount), goal: goal })
             : (String(missionCount) + ' ' + goal);
+    }
+    var trk = document.getElementById('chapterBannerTrack');
+    if (trk) {
+        var progM = window.lessonProgressionModule;
+        if (progM && typeof progM.getTierCompletion === 'function' && window.statsModule && typeof trReplace === 'function') {
+            var tc = progM.getTierCompletion(window.statsModule, lv, selectedLessonLang);
+            if (tc.total > 0) {
+                trk.textContent = trReplace('chapterBriefingTrackLine', { done: String(tc.done), total: String(tc.total) });
+                trk.classList.remove('hidden');
+            } else {
+                trk.textContent = '';
+                trk.classList.add('hidden');
+            }
+        } else {
+            trk.textContent = '';
+            trk.classList.add('hidden');
+        }
     }
     banner.classList.remove('hidden');
     banner.setAttribute('aria-hidden', 'false');
@@ -2906,6 +2956,8 @@ function loadLessons() {
             var hintKey = level === 'medium' ? 'tierLockCardHintMedium' : 'tierLockCardHintAdvanced';
             var hintText = typeof t === 'function' ? t(hintKey) : '';
             var veilLabel = typeof t === 'function' ? t('tierLockVeilLabel') : '';
+            var teaserKey = level === 'medium' ? 'tierLockTeaserMedium' : 'tierLockTeaserAdvanced';
+            var teaserText = typeof t === 'function' ? t(teaserKey) : '';
             lockVeilHtml =
                 '<div class="difficulty-card__lock-veil" aria-hidden="true">' +
                 '<span class="difficulty-card__lock-scan"></span>' +
@@ -2922,6 +2974,7 @@ function loadLessons() {
                     ? '<div class="difficulty-card__lock-meter" role="presentation"><span class="difficulty-card__lock-meter-fill" style="width:' + pct + '%"></span></div>' +
                       '<p class="difficulty-card__lock-progress">' + escapeHtml(progLine) + '</p>'
                     : '') +
+                '<p class="difficulty-card__lock-teaser">' + escapeHtml(teaserText) + '</p>' +
                 '<p class="difficulty-card__lock-hint">' + escapeHtml(hintText) + '</p>' +
                 '</div>';
         }
@@ -3229,6 +3282,11 @@ function showLessonList(levelData) {
         sagaSub.textContent = t('lessonsSagaUnlockLine');
         sagaSub.classList.remove('hidden');
     }
+    var sagaHub = document.getElementById('lessonsSagaHub');
+    if (sagaHub) {
+        sagaHub.textContent = '';
+        sagaHub.classList.add('hidden');
+    }
 
     var filterBar = document.getElementById('lessonDurationFilterBar');
     if (filterBar) {
@@ -3283,8 +3341,12 @@ function showLessonList(levelData) {
         if (prog && fullIdx >= 0 && typeof prog.actIndexForCoreIndex === 'function') {
             var storyAct = prog.actIndexForCoreIndex(fullIdx);
             if (storyAct !== prevStoryAct) {
-                var beatKey = typeof prog.sagaBeatKeyForAct === 'function' ? prog.sagaBeatKeyForAct(storyAct) : 'sagaBeat0';
+                var beatKey = sagaBeatKeyForTier(levelData.level, storyAct);
                 var beatText = typeof t === 'function' ? t(beatKey) : '';
+                if (!beatText || beatText === beatKey) {
+                    beatKey = typeof prog.sagaBeatKeyForAct === 'function' ? prog.sagaBeatKeyForAct(storyAct) : 'sagaBeat0';
+                    beatText = typeof t === 'function' ? t(beatKey) : '';
+                }
                 var epLine = typeof trReplace === 'function'
                     ? trReplace('sagaEpisode', { n: String(storyAct + 1) })
                     : ('Ep ' + (storyAct + 1));
@@ -4850,6 +4912,21 @@ async function finishPractice() {
     }
     
     window.statsModule.addSession(sessionData);
+
+    if (isFirstTimeCompletion && app.currentLesson && !app.currentLesson.isShopLesson && (app.currentMode === 'lesson' || app.currentMode === 'practice')) {
+        var _progS = window.lessonProgressionModule;
+        var _lk = app.currentLesson.level || (currentLevelData && currentLevelData.level);
+        if (_progS && typeof _progS.getTierCompletion === 'function' && window.statsModule && (_lk === 'beginner' || _lk === 'medium' || _lk === 'advanced')) {
+            var _lay = app.currentLesson.layout || (typeof selectedLessonLang !== 'undefined' ? selectedLessonLang : 'ru');
+            var _tc = _progS.getTierCompletion(window.statsModule, _lk, _lay);
+            if (_tc.total > 0 && _tc.done >= _tc.total && typeof showToast === 'function' && typeof t === 'function') {
+                if (_lk === 'beginner') showToast(t('sagaToastChapter2Unlocked'), 'success', t('tip'));
+                else if (_lk === 'medium') showToast(t('sagaToastChapter3Unlocked'), 'success', t('tip'));
+                else showToast(t('sagaToastCampaignComplete'), 'success', t('tip'));
+            }
+        }
+    }
+
     updateStreak();
     if (window.levelModule) {
         applySessionXpAndLevelReward(window.levelModule.calculateSessionXP(sessionData));
@@ -4967,6 +5044,23 @@ function showResults(speed, accuracy, time, errors, rewardCoins, options) {
         } else {
             rMission.textContent = '';
             rMission.classList.add('hidden');
+        }
+    }
+    var rCampNext = document.getElementById('resultCampaignNextLine');
+    if (rCampNext) {
+        rCampNext.textContent = '';
+        rCampNext.classList.add('hidden');
+        if (options.missionFirstClear && app.currentLesson && !app.currentLesson.isShopLesson && (app.currentMode === 'lesson' || app.currentMode === 'practice')) {
+            var progR = window.lessonProgressionModule;
+            var layR = app.currentLesson.layout || (typeof selectedLessonLang !== 'undefined' ? selectedLessonLang : 'ru');
+            var advR = progR && progR.getTierCompletion && window.statsModule
+                ? progR.getTierCompletion(window.statsModule, 'advanced', layR)
+                : { done: 0, total: 0 };
+            var campaignDoneR = advR.total > 0 && advR.done >= advR.total;
+            if (!campaignDoneR && typeof t === 'function') {
+                rCampNext.textContent = t('resultCampaignNextHint');
+                rCampNext.classList.remove('hidden');
+            }
         }
     }
     const speedEl = DOM.get('resultSpeed');
@@ -10048,4 +10142,3 @@ window.showLevelUpSequence = showLevelUpSequence;
 window.renderLevelBlock = renderLevelBlock;
 window.updateUserUI = updateUserUI;
 window.updateGuestPromisedHeader = updateGuestPromisedHeader;
-
