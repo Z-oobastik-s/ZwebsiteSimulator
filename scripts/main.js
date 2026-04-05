@@ -9414,8 +9414,10 @@ function showCollectibles() {
     var el = document.getElementById('collectibleScreen');
     if (el) el.classList.remove('hidden');
     toggleFooter(false);
-    renderCollectiblesGrid();
-    if (typeof updateTranslations === 'function') updateTranslations();
+    requestAnimationFrame(function () {
+        renderCollectiblesGrid();
+        if (typeof updateTranslations === 'function') updateTranslations();
+    });
 }
 
 /** SVG «?» и значок пустого слота для карточек коллекции (без эмодзи, Win 8.1). */
@@ -9436,15 +9438,10 @@ function renderCollectiblesGrid() {
         var have = !!ownedSet[id];
         var r = mod.getRarityKey(id);
         var path = mod.cardPath(id);
-        var phase = '';
-        if (have) {
-            var ni = parseInt(id, 10) || 0;
-            phase = ' style="--cc-d:' + (-(ni % 11) * 0.34).toFixed(2) + 's"';
-        }
         if (have) {
             return (
-                '<div class="cc-slot cc-slot--owned cc-rarity-' + r + '"' + phase + ' data-card-id="' + id + '">' +
-                '<img src="' + path + '" alt="" loading="lazy" decoding="async" width="240" height="320">' +
+                '<div class="cc-slot cc-slot--owned cc-rarity-' + r + '" data-card-id="' + id + '">' +
+                '<img src="' + path + '" alt="" loading="lazy" decoding="async" fetchpriority="low" width="240" height="320">' +
                 '<span class="cc-slot__ring"></span>' +
                 '<span class="cc-slot__badge cc-badge--' + r + '">' + r + '</span></div>'
             );
@@ -10021,3 +10018,4 @@ window.showLevelUpSequence = showLevelUpSequence;
 window.renderLevelBlock = renderLevelBlock;
 window.updateUserUI = updateUserUI;
 window.updateGuestPromisedHeader = updateGuestPromisedHeader;
+
