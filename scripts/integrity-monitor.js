@@ -17,6 +17,10 @@
 
     var lastPingAt = 0;
     var annulRunning = false;
+    /** Авто-аннулирование через N мс после показа окна (без кнопки). */
+    var AUTO_ANNUL_MS = 5000;
+    var annulCountdownTimer = null;
+    var annulAutoTimer = null;
 
     function useApi() {
         return typeof window !== 'undefined' && window.API_BASE_URL && String(window.API_BASE_URL).trim() !== '';
@@ -38,6 +42,26 @@
         if ((!t || t === '') && L === 'ua' && tr.ru) t = tr.ru[key];
         if ((!t || t === '') && tr.en) t = tr.en[key];
         return t || key;
+    }
+
+    function igReplace(key, map) {
+        var s = igT(key);
+        if (!map) return s;
+        Object.keys(map).forEach(function (k) {
+            s = s.split('{{' + k + '}}').join(String(map[k]));
+        });
+        return s;
+    }
+
+    function clearAnnulUiTimers() {
+        if (annulCountdownTimer) {
+            clearInterval(annulCountdownTimer);
+            annulCountdownTimer = null;
+        }
+        if (annulAutoTimer) {
+            clearTimeout(annulAutoTimer);
+            annulAutoTimer = null;
+        }
     }
 
     function bonusCoinsForReachedLevel(level) {
@@ -268,16 +292,16 @@
         var body = document.createElement('p');
         body.style.cssText = 'margin:0 0 18px;color:#cbd5e1;';
         body.textContent = igT('integrityAnnulBody');
-        var btn = document.createElement('button');
-        btn.type = 'button';
-        btn.textContent = igT('integrityAnnulConfirm');
-        btn.style.cssText =
-            'width:100%;padding:12px 16px;border-radius:10px;border:none;background:linear-gradient(135deg,#dc2626,#b91c1c);color:#fff;font-weight:600;cursor:pointer;font-size:15px;';
+        var status = document.createElement('p');
+        status.id = 'integrityAnnulStatus';
+        status.style.cssText =
+            'margin:0;padding:14px 16px;border-radius:10px;text-align:center;font-weight:700;font-size:15px;color:#fecaca;background:rgba(127,29,29,0.35);border:1px solid rgba(248,113,113,0.4);';
+        status.textContent = igReplace('integrityAnnulSeconds', { n: String(Math.ceil(AUTO_ANNUL_MS / 1000)) });
         box.appendChild(title);
         box.appendChild(body);
-        box.appendChild(btn);
+        box.appendChild(status);
         wrap.appendChild(box);
-        return { wrap: wrap, btn: btn };
+        return { wrap: wrap, statusEl: status };
     }
 
     async function shouldSkip(user) {
@@ -318,24 +342,48 @@
             }
         } finally {
             annulRunning = false;
+            clearAnnulUiTimers();
             location.reload();
         }
     }
 
     function showAnnulModal() {
         if (isAnnulOverlayInDom()) return;
+        clearAnnulUiTimers();
+
+        var u = window.authModule && window.authModule.getCurrentUser();
+        var uid = u && u.uid ? u.uid : null;
+
         var m = buildModal();
         document.body.appendChild(m.wrap);
-        m.btn.addEventListener('click', function () {
-            m.btn.disabled = true;
-            var u = window.authModule && window.authModule.getCurrentUser();
-            if (u && u.uid) executeAnnulment(u.uid);
+
+        var totalSec = Math.max(1, Math.ceil(AUTO_ANNUL_MS / 1000));
+        var left = totalSec;
+        m.statusEl.textContent = igReplace('integrityAnnulSeconds', { n: String(left) });
+
+        annulCountdownTimer = setInterval(function () {
+            left -= 1;
+            if (left <= 0) {
+                if (annulCountdownTimer) {
+                    clearInterval(annulCountdownTimer);
+                    annulCountdownTimer = null;
+                }
+                m.statusEl.textContent = igT('integrityAnnulApplying');
+                return;
+            }
+            m.statusEl.textContent = igReplace('integrityAnnulSeconds', { n: String(left) });
+        }, 1000);
+
+        annulAutoTimer = setTimeout(function () {
+            annulAutoTimer = null;
+            clearAnnulUiTimers();
+            if (uid) executeAnnulment(uid);
             else {
                 clearViolationFlag();
                 wipeGameLocalStorage();
                 location.reload();
             }
-        });
+        }, AUTO_ANNUL_MS);
     }
 
     async function runChecks() {
@@ -418,4 +466,3 @@
         setTimeout(bootViolationFromStorage, 0);
     }
 })();
-
