@@ -80,6 +80,80 @@ router.post('/:uid/cards/pull', async (req, res) => {
     }
 });
 
+// POST /api/users/:uid/cards/pull-batch — несколько бустеров за один запрос (count 1..50)
+router.post('/:uid/cards/pull-batch', async (req, res) => {
+    try {
+        if (req.uid !== req.params.uid) {
+            return res.status(403).json({ success: false, error: 'Forbidden' });
+        }
+        const uid = req.params.uid;
+        const raw = parseInt(req.body && req.body.count, 10);
+        if (!Number.isFinite(raw) || raw < 1 || raw > 50) {
+            return res.status(400).json({ success: false, error: 'count must be 1-50' });
+        }
+        const count = raw;
+        const row = await query(
+            `SELECT Balance, CollectedCardsJson FROM Users WHERE Uid = @uid`,
+            { uid }
+        );
+        if (row.recordset.length === 0) {
+            return res.status(404).json({ success: false, error: 'User not found' });
+        }
+        let balance = row.recordset[0].Balance ?? 0;
+        let collected = [];
+        try {
+            collected = JSON.parse(row.recordset[0].CollectedCardsJson || '[]');
+        } catch (e) {
+            collected = [];
+        }
+        collected = normalizeCollectedIds(collected);
+        const need = count * BOOSTER_COST;
+        if (balance < need) {
+            return res.status(400).json({ success: false, error: 'Недостаточно монет' });
+        }
+        const pulls = [];
+        for (let i = 0; i < count; i++) {
+            balance -= BOOSTER_COST;
+            const cardId = pickRandomCardId();
+            const had = collected.includes(cardId);
+            let duplicate = false;
+            if (!had) {
+                collected.push(cardId);
+            } else {
+                duplicate = true;
+                balance += DUPLICATE_REFUND;
+            }
+            pulls.push({
+                cardId,
+                duplicate,
+                refundCoins: duplicate ? DUPLICATE_REFUND : 0
+            });
+        }
+        await query(
+            `UPDATE Users SET Balance = @bal, CollectedCardsJson = @json WHERE Uid = @uid`,
+            { uid, bal: balance, json: JSON.stringify(collected) }
+        );
+        const user = await getUserById(uid);
+        const newCards = pulls.filter((p) => !p.duplicate).length;
+        const duplicates = pulls.filter((p) => p.duplicate).length;
+        const totalRefund = pulls.reduce((sum, p) => sum + (p.refundCoins || 0), 0);
+        return res.json({
+            success: true,
+            count,
+            pulls,
+            summary: {
+                newCards,
+                duplicates,
+                totalRefund
+            },
+            balance: user.balance,
+            collectedCards: user.collectedCards || collected
+        });
+    } catch (err) {
+        return send500(res, err, 'Cards pull-batch error');
+    }
+});
+
 // GET /api/users/:uid/profile
 router.get('/:uid/profile', async (req, res) => {
     try {
@@ -354,3 +428,4 @@ router.get('/:uid/lesson-purchased/:lessonId', async (req, res) => {
 });
 
 module.exports = router;
+

@@ -679,6 +679,89 @@ export async function pullCollectibleBooster(uid) {
     });
 }
 
+/** Несколько бустеров подряд (1..50), один запрос к API или одна блокировка баланса локально. */
+export async function pullCollectibleBoosterBatch(uid, count) {
+    const COST = (typeof window !== 'undefined' && window.collectibleCardsModule && window.collectibleCardsModule.BOOSTER_COST) || 95;
+    const DUP = (typeof window !== 'undefined' && window.collectibleCardsModule && window.collectibleCardsModule.DUPLICATE_REFUND) || 30;
+    const n = parseInt(count, 10);
+    if (!Number.isFinite(n) || n < 1 || n > 50) {
+        return { success: false, error: 'Неверное число бустеров' };
+    }
+    return withBalanceLock(async () => {
+        if (useApi()) {
+            try {
+                const data = await apiFetch(`/api/users/${uid}/cards/pull-batch`, {
+                    method: 'POST',
+                    body: JSON.stringify({ count: n })
+                });
+                const user = getCurrentUserFromStorage();
+                if (user && user.uid === uid) {
+                    user.balance = data.balance;
+                    user.collectedCards = data.collectedCards || user.collectedCards || [];
+                    saveCurrentUserToStorage(user);
+                    notifyAuthStateListeners(user);
+                }
+                return {
+                    success: true,
+                    count: data.count,
+                    pulls: data.pulls,
+                    summary: data.summary,
+                    balance: data.balance,
+                    collectedCards: data.collectedCards
+                };
+            } catch (err) {
+                return { success: false, error: (err.data && err.data.error) || err.message };
+            }
+        }
+        const users = getAllUsersStorage();
+        const user = users[uid];
+        if (!user) return { success: false, error: 'User not found' };
+        let b = user.balance || 0;
+        if (b < n * COST) return { success: false, error: 'Недостаточно монет' };
+        if (!user.collectedCards) user.collectedCards = [];
+        const pickFn =
+            typeof window !== 'undefined' && window.collectibleCardsModule && window.collectibleCardsModule.pickRandomCardIdForPull
+                ? () => window.collectibleCardsModule.pickRandomCardIdForPull()
+                : () => String(1 + Math.floor(Math.random() * 52));
+        const pulls = [];
+        for (let i = 0; i < n; i++) {
+            b -= COST;
+            const pick = pickFn();
+            let duplicate = false;
+            if (user.collectedCards.indexOf(pick) === -1) {
+                user.collectedCards.push(pick);
+            } else {
+                duplicate = true;
+                b += DUP;
+            }
+            pulls.push({
+                cardId: pick,
+                duplicate,
+                refundCoins: duplicate ? DUP : 0
+            });
+        }
+        user.balance = b;
+        users[uid] = user;
+        if (!saveAllUsersStorage(users)) return { success: false, error: 'Ошибка сохранения данных' };
+        const current = getCurrentUserFromStorage();
+        if (current && current.uid === uid) {
+            saveCurrentUserToStorage(user);
+            notifyAuthStateListeners(user);
+        }
+        const newCards = pulls.filter((p) => !p.duplicate).length;
+        const duplicates = pulls.filter((p) => p.duplicate).length;
+        const totalRefund = pulls.reduce((sum, p) => sum + (p.refundCoins || 0), 0);
+        return {
+            success: true,
+            count: n,
+            pulls,
+            summary: { newCards, duplicates, totalRefund },
+            balance: user.balance,
+            collectedCards: user.collectedCards.slice()
+        };
+    });
+}
+
 export async function purchaseLesson(uid, lessonId) {
     const shopLesson = window.shopModule && window.shopModule.getLessonById && window.shopModule.getLessonById(lessonId);
     if (!shopLesson) return { success: false, error: 'Урок не найден в магазине' };
@@ -764,6 +847,8 @@ window.authModule = {
     deductCoins,
     purchaseLesson,
     pullCollectibleBooster,
+    pullCollectibleBoosterBatch,
     getUserBalance,
     isLessonPurchased
 };
+

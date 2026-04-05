@@ -17,7 +17,7 @@
         { kind: 'level', code: 'cheatlevelup' }
     ];
 
-    /** Только аккаунт с логином zzz (без учёта регистра), гость - нет. */
+    
     function cheatsAllowed() {
         var auth = window.authModule;
         if (!auth || typeof auth.getCurrentUser !== 'function') return false;
@@ -137,3 +137,4 @@
 
     setInterval(syncModeAndMaybeReset, 500);
 })();
+

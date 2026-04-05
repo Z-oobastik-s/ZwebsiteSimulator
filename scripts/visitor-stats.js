@@ -74,6 +74,30 @@ function _escapeHtml(s) {
         .replace(/"/g, '&quot;');
 }
 
+/** URL аватара для src: только http(s), корень или assets/, без javascript/data. */
+function _isSafeAvatarUrl(s) {
+    if (!s || typeof s !== 'string') return false;
+    var t = s.trim();
+    if (!t || t.indexOf('<') >= 0) return false;
+    var low = t.toLowerCase();
+    if (low.indexOf('javascript:') === 0 || low.indexOf('data:') === 0) return false;
+    if (/^https?:\/\//i.test(t)) return true;
+    if (t.charAt(0) === '/') return true;
+    if (/^assets\//i.test(t)) return true;
+    return false;
+}
+
+function _resolveOnlineAvatarSrc(u) {
+    if (!u || typeof u !== 'object') return '';
+    if (_isSafeAvatarUrl(u.photoURL)) return u.photoURL.trim();
+    var idx = u.avatarIndex;
+    if (typeof idx === 'number' && window.authModule && Array.isArray(window.authModule.AVAILABLE_AVATARS)) {
+        var p = window.authModule.AVAILABLE_AVATARS[idx];
+        if (p && _isSafeAvatarUrl(p)) return String(p).trim();
+    }
+    return '';
+}
+
 function getStatsLang() {
     if (typeof window.app !== 'undefined' && window.app.lang) {
         return window.app.lang === 'ua' ? 'uk' : window.app.lang;
@@ -179,7 +203,8 @@ function _getCurrentUserInfo() {
         var result = {
             displayName: user.displayName || user.username || null,
             username: user.username || null,
-            avatarIndex: typeof user.avatarIndex === 'number' ? user.avatarIndex : 0
+            avatarIndex: typeof user.avatarIndex === 'number' ? user.avatarIndex : 0,
+            photoURL: user.photoURL && typeof user.photoURL === 'string' ? user.photoURL : null
         };
         try {
             var xp = parseInt(localStorage.getItem(XP_KEY)) || 0;
@@ -336,6 +361,7 @@ async function registerPresence() {
         data.displayName = userInfo.displayName;
         data.username    = userInfo.username;
         data.avatarIndex = userInfo.avatarIndex;
+        data.photoURL    = userInfo.photoURL || null;
         data.level       = userInfo.level || null;
         data.tierName    = userInfo.tierName || null;
     }
@@ -355,6 +381,7 @@ window.__updatePresenceUser = function (user) {
         updates.displayName = user.displayName || user.username || null;
         updates.username    = user.username || null;
         updates.avatarIndex = typeof user.avatarIndex === 'number' ? user.avatarIndex : 0;
+        updates.photoURL    = user.photoURL && typeof user.photoURL === 'string' ? user.photoURL : null;
         try {
             var xp = parseInt(localStorage.getItem(XP_KEY)) || 0;
             if (window.levelModule && window.levelModule.getLevelInfo) {
@@ -368,6 +395,7 @@ window.__updatePresenceUser = function (user) {
         updates.displayName = null;
         updates.username    = null;
         updates.avatarIndex = null;
+        updates.photoURL    = null;
         updates.level       = null;
         updates.tierName    = null;
     }
@@ -475,10 +503,34 @@ function _buildContent() {
             var tier        = u.tierName || null;
             var ago         = u.joinedAt ? timeAgo(u.joinedAt, lang) : '';
 
-            // Avatar circle
-            var avatarHTML = hasAccount
-                ? '<div style="width:38px;height:38px;border-radius:50%;background:' + avatarColor + ';display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#fff;flex-shrink:0;box-shadow:0 0 0 2px rgba(255,255,255,0.1)">' + _escapeHtml(initial) + '</div>'
-                : '<div style="width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">👤</div>';
+            var avatarSrc = hasAccount ? _resolveOnlineAvatarSrc(u) : '';
+            var avatarHTML;
+            if (hasAccount) {
+                if (avatarSrc) {
+                    var srcEsc = _escapeHtml(avatarSrc);
+                    avatarHTML =
+                        '<div style="width:38px;height:38px;border-radius:50%;overflow:hidden;flex-shrink:0;box-shadow:0 0 0 2px rgba(255,255,255,0.1);position:relative;background:' +
+                        avatarColor +
+                        '">' +
+                        '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#fff">' +
+                        _escapeHtml(initial) +
+                        '</div>' +
+                        '<img src="' +
+                        srcEsc +
+                        '" alt="" width="38" height="38" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;z-index:1" onerror="this.style.display=\'none\'"/>' +
+                        '</div>';
+                } else {
+                    avatarHTML =
+                        '<div style="width:38px;height:38px;border-radius:50%;background:' +
+                        avatarColor +
+                        ';display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#fff;flex-shrink:0;box-shadow:0 0 0 2px rgba(255,255,255,0.1)">' +
+                        _escapeHtml(initial) +
+                        '</div>';
+                }
+            } else {
+                avatarHTML =
+                    '<div style="width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">👤</div>';
+            }
 
             // Level badge
             var levelHTML = lvl
@@ -604,3 +656,4 @@ if (typeof window !== 'undefined') {
     window.__siteStatsRefreshModal = _refreshModal;
 }
 export { pluralPlayers, updateUI };
+
