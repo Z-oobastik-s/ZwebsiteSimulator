@@ -1766,8 +1766,15 @@
             font-size: 0.72rem !important;
         }
 
-        /* Стикер в одной строке с советом тренера: выравнивание по нижнему краю ряда */
+        /* Стикер в одной строке с советом тренера; карточка совета - только по содержимому, без растягивания по высоте */
         #resultsModal #resultCoachTipRow {
+            min-width: 0;
+            align-items: flex-end;
+        }
+        #resultsModal #resultCoachTip {
+            height: fit-content;
+            align-self: flex-end;
+            flex: 1 1 auto;
             min-width: 0;
         }
         #resultsModal #resultAbabaSticker {
@@ -7710,8 +7717,8 @@ Read
                     <div id="resultSpeedInsight" class="hidden results-panel-surface p-2 rounded-xl bg-slate-800/75 text-slate-100 min-w-0 sm:flex-1 sm:max-w-sm shrink-0">
                         <p id="resultSpeedInsightYesterday" class="text-xs text-slate-100 leading-snug"></p>
                     </div>
-                    <div id="resultCoachTipRow" class="flex flex-row flex-wrap items-end gap-2 min-w-0 flex-1">
-                        <div id="resultCoachTip" class="hidden results-panel-surface p-2 rounded-xl bg-amber-950/55 min-w-0 flex-1">
+                    <div id="resultCoachTipRow" class="flex flex-row flex-wrap items-end gap-2 min-w-0 w-full sm:flex-1">
+                        <div id="resultCoachTip" class="hidden results-panel-surface p-2 rounded-xl bg-amber-950/55 min-w-0">
                             <p class="text-[9px] font-bold text-amber-400/95 uppercase tracking-wide mb-0.5 leading-none drop-shadow-sm" data-i18n="resultCoachTitle">Совет тренера</p>
                             <p id="resultCoachTipText" class="text-xs text-amber-50/95 leading-snug"></p>
                         </div>
@@ -8657,4 +8664,3 @@ Read
     </script>
 </body>
 </html>
-
