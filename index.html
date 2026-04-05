@@ -2157,6 +2157,69 @@
         .difficulty-card--saga.difficulty-card--advanced:hover {
             box-shadow: 0 0 0 1px rgba(248, 113, 113, 0.35), 0 24px 48px rgba(0, 0, 0, 0.58), 0 0 48px rgba(248, 113, 113, 0.18);
         }
+        .difficulty-card--saga.difficulty-card--locked {
+            opacity: 0.78;
+            filter: grayscale(0.2);
+            cursor: not-allowed;
+        }
+        .difficulty-card--saga.difficulty-card--locked:hover {
+            transform: none;
+            box-shadow:
+                0 0 0 1px rgba(100, 116, 139, 0.35),
+                0 12px 28px rgba(0, 0, 0, 0.45),
+                inset 0 1px 0 rgba(255, 255, 255, 0.04);
+        }
+        .difficulty-card__locked-tag {
+            display: block;
+            margin-top: 0.55rem;
+            font-size: 0.62rem;
+            font-weight: 900;
+            letter-spacing: 0.24em;
+            text-transform: uppercase;
+            color: rgba(248, 113, 113, 0.92);
+            text-shadow: 0 0 12px rgba(248, 113, 113, 0.25);
+        }
+        html:not(.dark) .difficulty-card__locked-tag {
+            color: rgba(185, 28, 28, 0.95);
+            text-shadow: none;
+        }
+        .lesson-saga-act {
+            grid-column: 1 / -1;
+        }
+        .lesson-saga-act__inner {
+            border-radius: 14px;
+            padding: 0.7rem 1rem 0.75rem;
+            margin: 0.15rem 0 0.35rem;
+            background: linear-gradient(100deg, rgba(6, 182, 212, 0.14), rgba(99, 102, 241, 0.1), rgba(15, 23, 42, 0.35));
+            border: 1px solid rgba(34, 211, 238, 0.28);
+            box-shadow: 0 0 24px rgba(34, 211, 238, 0.06);
+        }
+        html:not(.dark) .lesson-saga-act__inner {
+            background: linear-gradient(100deg, rgba(224, 242, 254, 0.95), rgba(238, 242, 255, 0.9));
+            border-color: rgba(6, 182, 212, 0.35);
+        }
+        .lesson-saga-act__ep {
+            display: block;
+            font-size: 0.62rem;
+            font-weight: 900;
+            letter-spacing: 0.26em;
+            text-transform: uppercase;
+            color: rgba(34, 211, 238, 0.95);
+            margin-bottom: 0.35rem;
+        }
+        html:not(.dark) .lesson-saga-act__ep {
+            color: rgba(8, 145, 178, 0.98);
+        }
+        .lesson-saga-act__hook {
+            margin: 0;
+            font-size: 0.78rem;
+            line-height: 1.5;
+            font-weight: 600;
+            color: rgba(226, 232, 240, 0.9);
+        }
+        html:not(.dark) .lesson-saga-act__hook {
+            color: rgba(51, 65, 85, 0.95);
+        }
         @media (prefers-reduced-motion: reduce) {
             .difficulty-card__particles::before,
             .difficulty-card__particles::after { animation: none; opacity: 0.3; }
@@ -2298,6 +2361,60 @@
         .lesson-card--hard:hover {
             border-color: rgba(248, 113, 113, 0.72);
             box-shadow: 0 0 0 1px rgba(248, 113, 113, 0.1), 0 16px 36px rgba(0, 0, 0, 0.58), 0 0 22px rgba(248, 113, 113, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        }
+        .lesson-card--locked {
+            opacity: 0.82;
+            cursor: not-allowed;
+        }
+        .lesson-card--locked:hover {
+            transform: none;
+        }
+        .lesson-card--locked.lesson-card--easy:hover {
+            border-color: rgba(52, 211, 153, 0.4);
+            box-shadow:
+                0 0 0 1px rgba(0, 0, 0, 0.5),
+                0 10px 28px rgba(0, 0, 0, 0.55),
+                inset 0 1px 0 rgba(255, 255, 255, 0.06);
+        }
+        .lesson-card--locked.lesson-card--medium:hover {
+            border-color: rgba(251, 191, 36, 0.42);
+            box-shadow:
+                0 0 0 1px rgba(0, 0, 0, 0.5),
+                0 10px 28px rgba(0, 0, 0, 0.55),
+                inset 0 1px 0 rgba(255, 255, 255, 0.06);
+        }
+        .lesson-card--locked.lesson-card--hard:hover {
+            border-color: rgba(248, 113, 113, 0.4);
+            box-shadow:
+                0 0 0 1px rgba(0, 0, 0, 0.5),
+                0 10px 28px rgba(0, 0, 0, 0.55),
+                inset 0 1px 0 rgba(255, 255, 255, 0.06);
+        }
+        .lesson-card--locked::after {
+            opacity: 0.2;
+        }
+        .lesson-card__lock-badge {
+            position: absolute;
+            top: 0.65rem;
+            right: 0.65rem;
+            padding: 0.28rem 0.55rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            line-height: 1;
+            background: rgba(15, 23, 42, 0.65);
+            border: 1px solid rgba(251, 191, 36, 0.45);
+            box-shadow: 0 0 14px rgba(251, 191, 36, 0.15);
+        }
+        .lesson-card__locked-hint {
+            margin: 0.45rem 0 0 0;
+            font-size: 0.62rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            color: rgba(251, 191, 36, 0.95);
+            text-transform: uppercase;
+        }
+        html:not(.dark) .lesson-card__locked-hint {
+            color: rgba(180, 83, 9, 0.95);
         }
         .lesson-card::after {
             content: '▶';
@@ -7894,6 +8011,7 @@ Read
     <script src="assets/js/themed-texts.min.js" defer></script>
     <script src="scripts/shop-data.js" defer></script>
     <script src="scripts/lesson-missions.js" defer></script>
+    <script src="scripts/lesson-progression.js" defer></script>
     <script src="assets/js/keyboard.min.js" defer></script>
     <script src="scripts/stats.js" defer></script>
     <script src="scripts/achievements.js" defer></script>
@@ -7925,3 +8043,4 @@ Read
     </script>
 </body>
 </html>
+

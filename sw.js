@@ -1,4 +1,4 @@
-const CACHE_NAME = 'zoobastiks-v133';
+const CACHE_NAME = 'zoobastiks-v135';
 
 self.addEventListener('install', function (event) {
   self.skipWaiting();
@@ -23,6 +23,7 @@ self.addEventListener('install', function (event) {
         './scripts/guest-promised-coins.js',
         './scripts/cheat-codes.js',
         './scripts/lesson-missions.js',
+        './scripts/lesson-progression.js',
         './scripts/main.js',
         './scripts/ui/translations.js',
         './scripts/ui/backgrounds.js',
@@ -140,3 +141,4 @@ self.addEventListener('fetch', function (event) {
     })
   );
 });
+

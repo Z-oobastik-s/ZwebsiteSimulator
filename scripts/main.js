@@ -2608,7 +2608,7 @@ function showHomeMascotWidget() {
         });
     });
     var reduced = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    var visibleMs = reduced ? 1400 : 2600;
+    var visibleMs = reduced ? 2000 : 4000;
     _homeMascotAutoHideTimer = setTimeout(function () {
         _homeMascotAutoHideTimer = null;
         beginHomeMascotSlideOut();
@@ -2810,8 +2810,18 @@ function loadLessons() {
         if (lessonsForLang.length === 0) continue;
         
         const card = document.createElement('div');
-        card.className = `difficulty-card difficulty-card--saga difficulty-card--${level}`;
-        card.onclick = () => showLessonList({ ...data, lessons: lessonsForLang });
+        var progM = window.lessonProgressionModule;
+        var tierOpen = !progM || typeof progM.isTierUnlocked !== 'function' || progM.isTierUnlocked(window.statsModule, level, selectedLessonLang);
+        card.className = `difficulty-card difficulty-card--saga difficulty-card--${level}` + (tierOpen ? '' : ' difficulty-card--locked');
+        if (tierOpen) {
+            card.onclick = () => showLessonList({ ...data, lessons: lessonsForLang });
+        } else {
+            card.onclick = function (ev) {
+                if (ev) { ev.preventDefault(); ev.stopPropagation(); }
+                var msg = level === 'medium' ? t('tierLockedToastMedium') : t('tierLockedToastAdvanced');
+                showToast(msg, 'info', t('tip'));
+            };
+        }
         
         var levelTitleKey = level === 'beginner' ? 'difficultyBeginner' : level === 'medium' ? 'difficultyMedium' : 'difficultyAdvanced';
         const levelName = typeof t === 'function' ? t(levelTitleKey) : (app.lang === 'en' ? data.name_en : (app.lang === 'ua' ? (data.name_ua || data.name_ru) : data.name_ru));
@@ -2821,6 +2831,7 @@ function loadLessons() {
         const badgeText = `${lessonsForLang.length} ${lessonsLabel.toUpperCase()}`;
         var codename = tChapterField(level, 'Codename');
         var cardHook = tChapterField(level, 'CardHook');
+        var lockedTag = tierOpen ? '' : `<span class="difficulty-card__locked-tag">${escapeHtml(t('difficultyCardLocked'))}</span>`;
         
         card.innerHTML = `
             <div class="difficulty-card__particles" aria-hidden="true"></div>
@@ -2835,6 +2846,7 @@ function loadLessons() {
                 <h3 class="difficulty-card__title">${escapeHtml(levelName)}</h3>
                 <p class="difficulty-card__hook">${escapeHtml(cardHook)}</p>
                 <span class="difficulty-card__badge">${escapeHtml(badgeText)}</span>
+                ${lockedTag}
             </div>
         `;
         
@@ -3119,7 +3131,10 @@ function showLessonList(levelData) {
     const titleEl = document.getElementById('lessonsScreenTitle');
     if (titleEl) titleEl.textContent = tChapterField(levelData.level, 'Title');
     var sagaSub = document.getElementById('lessonsSagaSubtitle');
-    if (sagaSub) sagaSub.classList.add('hidden');
+    if (sagaSub) {
+        sagaSub.textContent = t('lessonsSagaUnlockLine');
+        sagaSub.classList.remove('hidden');
+    }
 
     var filterBar = document.getElementById('lessonDurationFilterBar');
     if (filterBar) {
@@ -3156,13 +3171,40 @@ function showLessonList(levelData) {
         container.appendChild(fragment);
         return;
     }
-    
+
+    var fullTrackLessons = levelData.lessons;
+    var prog = window.lessonProgressionModule;
+    var prevStoryAct = -1;
+
     lessonsToShow.forEach((lesson, index) => {
         // Для shop уроков используем другой ключ
         const lessonKey = lesson.isShopLesson 
             ? `shop_lesson_${lesson.id}` 
             : `lesson_${levelData.level}_${lesson.id}`;
         const lessonStats = window.statsModule.getLessonStats(lessonKey);
+
+        var fullIdx = prog && typeof prog.findCoreIndex === 'function'
+            ? prog.findCoreIndex(lesson, levelData.level, fullTrackLessons)
+            : -1;
+        if (prog && fullIdx >= 0 && typeof prog.actIndexForCoreIndex === 'function') {
+            var storyAct = prog.actIndexForCoreIndex(fullIdx);
+            if (storyAct !== prevStoryAct) {
+                var beatKey = typeof prog.sagaBeatKeyForAct === 'function' ? prog.sagaBeatKeyForAct(storyAct) : 'sagaBeat0';
+                var beatText = typeof t === 'function' ? t(beatKey) : '';
+                var epLine = typeof trReplace === 'function'
+                    ? trReplace('sagaEpisode', { n: String(storyAct + 1) })
+                    : ('Ep ' + (storyAct + 1));
+                var actRow = document.createElement('div');
+                actRow.className = 'lesson-saga-act col-span-full';
+                actRow.innerHTML =
+                    '<div class="lesson-saga-act__inner">' +
+                    '<span class="lesson-saga-act__ep">' + escapeHtml(epLine) + '</span>' +
+                    '<p class="lesson-saga-act__hook">' + escapeHtml(beatText) + '</p>' +
+                    '</div>';
+                fragment.appendChild(actRow);
+                prevStoryAct = storyAct;
+            }
+        }
         
         let lessonDifficulty = lesson.difficulty;
         if (!lessonDifficulty || lessonDifficulty === 'easy') {
@@ -3175,15 +3217,31 @@ function showLessonList(levelData) {
         else if (lessonDifficulty === 'medium') rewardCoins = 15;
         
         const difficultyClass = lessonDifficulty === 'hard' || lessonDifficulty === 'advanced' ? 'hard' : lessonDifficulty === 'medium' ? 'medium' : 'easy';
+
+        var unlocked = lesson.isShopLesson
+            || (lessonStats && lessonStats.completed)
+            || !prog
+            || typeof prog.isLessonUnlocked !== 'function'
+            || prog.isLessonUnlocked(window.statsModule, levelData.level, lesson, fullTrackLessons);
+
         const card = document.createElement('div');
-        card.className = `lesson-card lesson-card--${difficultyClass}`;
-        card.onclick = () => startPractice(lesson.text, 'lesson', { ...lesson, key: lessonKey, difficulty: lessonDifficulty, level: levelData.level });
+        card.className = 'lesson-card lesson-card--' + difficultyClass + (unlocked ? '' : ' lesson-card--locked');
+        var payload = { ...lesson, key: lessonKey, difficulty: lessonDifficulty, level: levelData.level };
+        if (unlocked) {
+            card.onclick = () => startPractice(lesson.text, 'lesson', payload);
+        } else {
+            card.onclick = function () {
+                showToast(t('lessonLockedToast'), 'info', t('tip'));
+            };
+        }
         
         let topBadge = '';
         if (lessonStats && lessonStats.completed) {
             topBadge = `<div class="lesson-card__done"><svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>✓</div>`;
         } else if (lesson.isShopLesson) {
             topBadge = `<div class="lesson-card__shop">Магазин</div>`;
+        } else if (!unlocked) {
+            topBadge = '<div class="lesson-card__lock-badge" aria-hidden="true">🔒</div>';
         }
         
         let statsBlock = '';
@@ -3200,7 +3258,7 @@ function showLessonList(levelData) {
                 ? (app.lang === 'ru' ? 'средне' : app.lang === 'ua' ? 'середньо' : 'medium')
                 : (app.lang === 'ru' ? 'легко' : app.lang === 'ua' ? 'легко' : 'easy');
         
-        const missionNum = String(index + 1).padStart(2, '0');
+        const missionNum = (fullIdx >= 0 ? String(fullIdx + 1) : String(index + 1)).padStart(2, '0');
         var descTrim = (lesson.description || '').trim();
         var descHtml = descTrim
             ? '<p class="lesson-card__desc lesson-card__desc--line">' + escapeHtml(descTrim) + '</p>'
@@ -3210,6 +3268,9 @@ function showLessonList(levelData) {
         var vibeLabel = typeof t === 'function' ? t(vibeMeta.key) : '';
         var vibeTone = vibeMeta.tone || 'calm';
         const vibeTagHtml = `<span class="lesson-card__tag lesson-card__tag--vibe lesson-card__tag--vibe-${vibeTone}" title="${escapeHtml(vibeHint)}">${escapeHtml(vibeLabel)}</span>`;
+        var lockStrip = !unlocked && !lesson.isShopLesson
+            ? '<p class="lesson-card__locked-hint">' + escapeHtml(t('lessonCardLockedHint')) + '</p>'
+            : '';
         card.innerHTML = `
             ${topBadge}
             <div class="lesson-card__accent">
@@ -3228,6 +3289,7 @@ function showLessonList(levelData) {
                 <span>${t('rewardUpTo')} ${rewardCoins * 2} ${t('coinsAtAccuracy')}</span>
             </div>
                 ${statsBlock}
+                ${lockStrip}
             </div>
         `;
         
@@ -3919,6 +3981,16 @@ function generateRuEnBeginnerUniqueText(poolText, lessonKey, layout, minChars = 
 
 // Start practice - ОПТИМИЗИРОВАНА
 function startPractice(text, mode, lesson = null) {
+    if (mode === 'lesson' && lesson && !lesson.isShopLesson && window.lessonProgressionModule && typeof window.lessonProgressionModule.isLessonUnlocked === 'function') {
+        var lv = lesson.level || (currentLevelData && currentLevelData.level) || 'beginner';
+        var fullList = (currentLevelData && currentLevelData.lessons) ? currentLevelData.lessons : [];
+        var lKey = lesson.key || ('lesson_' + lv + '_' + lesson.id);
+        var alreadyDone = window.statsModule && window.statsModule.getLessonStats(lKey);
+        if (fullList.length && !(alreadyDone && alreadyDone.completed) && !window.lessonProgressionModule.isLessonUnlocked(window.statsModule, lv, lesson, fullList)) {
+            showToast(t('lessonLockedToast'), 'info', t('tip'));
+            return;
+        }
+    }
     toggleFooter(false); // Скрываем футер при начале практики
     // КРИТИЧНО: Сразу сбрасываем паузу чтобы избежать блокировки ввода
     app.isPaused = false;
@@ -9753,3 +9825,4 @@ window.showLevelUpSequence = showLevelUpSequence;
 window.renderLevelBlock = renderLevelBlock;
 window.updateUserUI = updateUserUI;
 window.updateGuestPromisedHeader = updateGuestPromisedHeader;
+
