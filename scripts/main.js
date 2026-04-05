@@ -1452,9 +1452,20 @@ document.addEventListener('DOMContentLoaded', function() {
     setTimeout(showOnboardingIfFirstVisit, 700);
     
     if ('serviceWorker' in navigator) {
+        var swUpdateIntervalId = null;
+        function clearSwUpdateInterval() {
+            if (swUpdateIntervalId != null) {
+                clearInterval(swUpdateIntervalId);
+                swUpdateIntervalId = null;
+            }
+        }
+        window.addEventListener('pagehide', function (ev) {
+            if (ev.persisted) return;
+            clearSwUpdateInterval();
+        });
         navigator.serviceWorker.register('sw.js').then(function (reg) {
             if (reg) {
-                setInterval(function () { reg.update(); }, 5 * 60 * 1000);
+                swUpdateIntervalId = setInterval(function () { reg.update(); }, 5 * 60 * 1000);
             }
         }).catch(function () {});
         window.addEventListener('focus', function () {
@@ -3221,7 +3232,11 @@ function updateReplayDeadlineUI() {
 
 function startErrorReplayPractice() {
     var modal = DOM.get('resultsModal');
-    if (modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); }
+    if (modal) {
+        resetResultAbabaSticker();
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
     var profileScreen = document.getElementById('profileScreen');
     if (profileScreen && !profileScreen.classList.contains('hidden')) profileScreen.classList.add('hidden');
     var sn = app._lastErrorReplaySnippets && app._lastErrorReplaySnippets.length
@@ -5020,9 +5035,42 @@ async function finishPractice() {
 // Last result data for copy to clipboard
 let lastResultData = { speed: 0, accuracy: 0, time: 0, errors: 0, progressPct: null, progressPrevPct: null };
 
+function resetResultAbabaSticker() {
+    var el = document.getElementById('resultAbabaSticker');
+    if (!el) return;
+    el.classList.add('hidden');
+    el.classList.remove('is-ababa-visible');
+    el.setAttribute('aria-hidden', 'true');
+}
+
+/** Стикер Ababa только после теста скорости: плавное появление снизу. */
+function scheduleResultAbabaStickerEntrance() {
+    var el = document.getElementById('resultAbabaSticker');
+    if (!el) return;
+    el.classList.remove('hidden');
+    el.setAttribute('aria-hidden', 'false');
+    var instant = !app.animationsEnabled;
+    try {
+        if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) instant = true;
+    } catch (_e) {}
+    el.classList.remove('is-ababa-visible');
+    if (instant) {
+        el.classList.add('is-ababa-visible');
+        return;
+    }
+    setTimeout(function () {
+        requestAnimationFrame(function () {
+            requestAnimationFrame(function () {
+                el.classList.add('is-ababa-visible');
+            });
+        });
+    }, 200);
+}
+
 // Show results modal - ОПТИМИЗИРОВАНА. rewardCoins - уже посчитанная награда из finishPractice (чтобы не пересчитывать после addSession).
 function showResults(speed, accuracy, time, errors, rewardCoins, options) {
     options = options || {};
+    resetResultAbabaSticker();
     lastResultData = { speed, accuracy, time: Math.round(time), errors, progressPct: null, progressPrevPct: null };
     if (app.currentMode === 'speedtest' && typeof options.speedTestProgressPct === 'number') {
         lastResultData.progressPct = options.speedTestProgressPct;
@@ -5289,6 +5337,9 @@ function showResults(speed, accuracy, time, errors, rewardCoins, options) {
         } else {
             focusFirstInModal(modal);
         }
+    }
+    if (app.currentMode === 'speedtest') {
+        scheduleResultAbabaStickerEntrance();
     }
     updateResultsModalHotkeysHint();
 }
@@ -5558,7 +5609,11 @@ function generateAdaptiveText(lang) {
 function startAdaptivePractice() {
     // Закрываем модал результатов если открыт
     var modal = DOM.get('resultsModal');
-    if (modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); }
+    if (modal) {
+        resetResultAbabaSticker();
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
     // Закрываем экран профиля если открыт
     var profileScreen = document.getElementById('profileScreen');
     if (profileScreen && !profileScreen.classList.contains('hidden')) {
@@ -5635,6 +5690,7 @@ function copyResultsToClipboard() {
 
 // Close results modal - ОПТИМИЗИРОВАНА. skipExit = true: только скрыть окно (для «Повторить»).
 function closeResults(skipExit) {
+    resetResultAbabaSticker();
     const modal = DOM.get('resultsModal');
     if (modal) {
         var shell = modal.querySelector('.results-modal-shell');
@@ -10149,4 +10205,3 @@ window.showLevelUpSequence = showLevelUpSequence;
 window.renderLevelBlock = renderLevelBlock;
 window.updateUserUI = updateUserUI;
 window.updateGuestPromisedHeader = updateGuestPromisedHeader;
-

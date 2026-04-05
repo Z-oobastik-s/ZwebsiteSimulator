@@ -517,6 +517,9 @@ export function onAuthStateChange(callback) {
 }
 
 // --------------- Монеты и магазин ---------------
+/** Должно совпадать с backend/routes/users.js MAX_POSITIVE_COINS_PER_REQUEST. */
+const MAX_POSITIVE_COINS_PER_REQUEST = 50000;
+
 /** Последовательная очередь: быстрые двойные клики не читают один и тот же баланс параллельно. */
 let balanceOpChain = Promise.resolve();
 function withBalanceLock(fn) {
@@ -531,10 +534,16 @@ export async function addCoins(uid, amount) {
     return withBalanceLock(async () => {
         if (useApi()) {
             try {
-                const data = await apiFetch(`/api/users/${uid}/coins`, {
-                    method: 'POST',
-                    body: JSON.stringify({ amount: n })
-                });
+                let remaining = n;
+                let data = null;
+                while (remaining > 0) {
+                    const chunk = Math.min(remaining, MAX_POSITIVE_COINS_PER_REQUEST);
+                    data = await apiFetch(`/api/users/${uid}/coins`, {
+                        method: 'POST',
+                        body: JSON.stringify({ amount: chunk })
+                    });
+                    remaining -= chunk;
+                }
                 const user = getCurrentUserFromStorage();
                 if (user && user.uid === uid) {
                     user.balance = data.balance;
@@ -851,4 +860,3 @@ window.authModule = {
     getUserBalance,
     isLessonPurchased
 };
-

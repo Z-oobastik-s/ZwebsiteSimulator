@@ -8,6 +8,9 @@ const { pickRandomCardId, BOOSTER_COST, DUPLICATE_REFUND, isValidCardNumber } = 
 
 const router = express.Router();
 
+/** Разовое начисление больше этого отклоняется; клиент режет крупные суммы на несколько запросов (см. scripts/auth.js). */
+const MAX_POSITIVE_COINS_PER_REQUEST = 50000;
+
 // Все роуты требуют авторизации
 router.use(authMiddleware);
 
@@ -307,6 +310,9 @@ router.post('/:uid/coins', async (req, res) => {
         const amount = parseInt(req.body.amount, 10) || 0;
         if (amount === 0) return res.status(400).json({ success: false, error: 'Invalid amount' });
         if (amount > 0) {
+            if (amount > MAX_POSITIVE_COINS_PER_REQUEST) {
+                return res.status(400).json({ success: false, error: 'credit_too_large' });
+            }
             await query(
                 `UPDATE Users SET Balance = Balance + @amount WHERE Uid = @uid`,
                 { uid: req.params.uid, amount }
@@ -428,4 +434,3 @@ router.get('/:uid/lesson-purchased/:lessonId', async (req, res) => {
 });
 
 module.exports = router;
-

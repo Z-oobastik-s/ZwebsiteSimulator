@@ -17,6 +17,8 @@
 
     var lastPingAt = 0;
     var annulRunning = false;
+    var periodicPingId = null;
+    var initialPingTimeoutId = null;
     /** Авто-аннулирование через N мс после показа окна (без кнопки). */
     var AUTO_ANNUL_MS = 5000;
     var annulCountdownTimer = null;
@@ -531,9 +533,25 @@
     };
 
     function scheduleInitial() {
-        setTimeout(function () {
+        if (initialPingTimeoutId != null) {
+            clearTimeout(initialPingTimeoutId);
+            initialPingTimeoutId = null;
+        }
+        initialPingTimeoutId = setTimeout(function () {
+            initialPingTimeoutId = null;
             ping();
         }, INITIAL_DELAY_MS);
+    }
+
+    function teardownIntegrityTimers() {
+        if (periodicPingId != null) {
+            clearInterval(periodicPingId);
+            periodicPingId = null;
+        }
+        if (initialPingTimeoutId != null) {
+            clearTimeout(initialPingTimeoutId);
+            initialPingTimeoutId = null;
+        }
     }
 
     if (document.readyState === 'loading') {
@@ -542,7 +560,14 @@
         scheduleInitial();
     }
 
-    setInterval(ping, PERIODIC_MS);
+    periodicPingId = setInterval(ping, PERIODIC_MS);
+
+    try {
+        window.addEventListener('pagehide', function (ev) {
+            if (ev.persisted) return;
+            teardownIntegrityTimers();
+        });
+    } catch (_e) {}
 
     if (window.authModule && typeof window.authModule.onAuthStateChange === 'function') {
         window.authModule.onAuthStateChange(function (u) {
@@ -581,4 +606,3 @@
         setTimeout(bootViolationFromStorage, 0);
     }
 })();
-

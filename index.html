@@ -1765,6 +1765,54 @@
         #resultsModal .results-error-pill-count {
             font-size: 0.72rem !important;
         }
+
+        /* Стикер после теста скорости: «выползание» снизу в центр модалки */
+        #resultsModal #resultAbabaSticker {
+            pointer-events: none;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            min-height: 0;
+            margin: 0.15rem 0 0.1rem;
+        }
+        #resultsModal #resultAbabaSticker .result-ababa-clip {
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            max-width: 100%;
+            height: clamp(4.25rem, 12vw, 6.25rem);
+        }
+        #resultsModal #resultAbabaSticker .result-ababa-img {
+            display: block;
+            width: auto;
+            max-height: clamp(5rem, 16vw, 7.5rem);
+            height: auto;
+            object-fit: contain;
+            object-position: bottom center;
+            transform: translateY(calc(100% + 6px));
+            opacity: 0;
+            will-change: transform, opacity;
+            transition: transform 0.72s cubic-bezier(0.22, 1, 0.32, 1), opacity 0.5s ease-out;
+        }
+        #resultsModal #resultAbabaSticker.is-ababa-visible .result-ababa-img {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        body.no-animations #resultsModal #resultAbabaSticker .result-ababa-img {
+            transition: none;
+            transform: none;
+            opacity: 1;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            #resultsModal #resultAbabaSticker .result-ababa-img {
+                transition: none;
+            }
+            #resultsModal #resultAbabaSticker.is-ababa-visible .result-ababa-img {
+                transform: none;
+                opacity: 1;
+            }
+        }
         
         /* Переход только у фона и оверлея - остальное меняется сразу, без тянучки */
         #themeIcon {
@@ -7659,6 +7707,12 @@ Read
                     </div>
                 </div>
 
+                <div id="resultAbabaSticker" class="hidden" aria-hidden="true">
+                    <div class="result-ababa-clip">
+                        <img class="result-ababa-img" src="assets/animation/Ababa_Sticker.gif" alt="" width="160" height="160" decoding="async" loading="eager" fetchpriority="low">
+                    </div>
+                </div>
+
                 <div id="resultReward" class="hidden results-panel-surface flex flex-col gap-0.5 px-3 py-1.5 min-h-0 bg-purple-600/28 rounded-xl min-w-0">
                     <div class="flex justify-between items-center gap-2 min-w-0">
                     <span class="flex items-center gap-2 text-sm text-purple-50 min-w-0 font-semibold drop-shadow-sm">
@@ -8593,4 +8647,3 @@ Read
     </script>
 </body>
 </html>
-
