@@ -354,12 +354,6 @@
         }
         html:not(.dark) header .text-primary { color: #0e7490 !important; }
         html:not(.dark) [class*="text-cyan-200"] { color: #0e7490 !important; text-shadow: 0 0 1px rgba(255,255,255,0.5), 0 1px 1px rgba(0,0,0,0.05); }
-        /* Герой: заголовок и подзаголовок */
-        html:not(.dark) .hero-word-1,
-        html:not(.dark) .hero-word-2 {
-            color: #0c4a6e !important;
-            text-shadow: 0 0 1px rgba(255,255,255,0.9), 0 0 2px rgba(255,255,255,0.5), 0 1px 2px rgba(0,0,0,0.1);
-        }
         html:not(.dark) .hero-subtitle {
             color: #1f2937;
             text-shadow: 0 0 1px rgba(255,255,255,0.8), 0 1px 1px rgba(0,0,0,0.06);
@@ -3608,24 +3602,7 @@ Read
             display: none !important;
         }
 
-        .no-animations .hero-title {
-            animation: none !important;
-            background: linear-gradient(135deg, #00BCD4, #00E5FF);
-            background-size: 100% 100%;
-            -webkit-text-fill-color: transparent;
-            text-shadow: none;
-        }
-
         @media (prefers-reduced-motion: reduce) {
-            .hero-title {
-                animation: none !important;
-                background: linear-gradient(135deg, #00BCD4, #00E5FF);
-                background-size: 100% 100%;
-            }
-            .hero-word-1,
-            .hero-word-2 {
-                animation: none !important;
-            }
             .hero-subtitle {
                 animation: none !important;
                 opacity: 1;
@@ -4023,42 +4000,6 @@ Read
             }
         }
         
-        /* EPIC Welcome Animation */
-        @keyframes heroGlow {
-            0%, 100% { 
-                text-shadow: 0 0 20px rgba(0, 188, 212, 0.5),
-                             0 0 40px rgba(0, 188, 212, 0.3),
-                             0 0 60px rgba(0, 188, 212, 0.2);
-            }
-            50% { 
-                text-shadow: 0 0 30px rgba(0, 188, 212, 0.8),
-                             0 0 60px rgba(0, 188, 212, 0.5),
-                             0 0 90px rgba(0, 188, 212, 0.3);
-            }
-        }
-        
-        @keyframes slideInFromLeft {
-            0% { 
-                opacity: 0;
-                transform: translateX(-100px) scale(0.8);
-            }
-            100% { 
-                opacity: 1;
-                transform: translateX(0) scale(1);
-            }
-        }
-        
-        @keyframes slideInFromRight {
-            0% { 
-                opacity: 0;
-                transform: translateX(100px) scale(0.8);
-            }
-            100% { 
-                opacity: 1;
-                transform: translateX(0) scale(1);
-            }
-        }
-        
         @keyframes scaleIn {
             0% { 
                 opacity: 0;
@@ -4192,24 +4133,6 @@ Read
             }
         }
         
-        .hero-title {
-            font-size: 3.5rem;
-            font-weight: 900;
-            background: linear-gradient(135deg, #00BCD4, #00E5FF, #00BCD4);
-            background-size: 200% 200%;
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            /* Без gradientShift: меньше постоянных перерисовок; heroGlow реже */
-            animation: scaleIn 1s ease-out, heroGlow 5s ease-in-out infinite 1s;
-        }
-        
-        @media (max-width: 768px) {
-            .hero-title {
-                font-size: 2.5rem;
-            }
-        }
-        
         @keyframes shimmer {
             0% {
                 background-position: -200% 0;
@@ -4227,19 +4150,6 @@ Read
         @keyframes gradientShift {
             0%, 100% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
-        }
-        
-        .hero-word-1 {
-            display: inline-block;
-            animation: slideInFromLeft 0.8s ease-out;
-            will-change: transform;
-        }
-        
-        .hero-word-2 {
-            display: inline-block;
-            animation: slideInFromRight 0.8s ease-out 0.3s backwards;
-            color: var(--primary);
-            will-change: transform;
         }
         
         .hero-subtitle {
@@ -6481,10 +6391,6 @@ Read
             </div>
             
             <div class="hero-container text-center mb-4 py-4">
-                <h2 class="hero-title mb-2 text-3xl">
-                    <span class="hero-word-1">Mastering</span>
-                    <span class="hero-word-2"> Keyboard</span>
-                </h2>
                 <p class="hero-subtitle text-sm font-medium text-gray-300 dark:text-gray-300 mb-1" id="heroSubtitle" data-i18n="heroSubtitle">
                     🚀 Быстро • 🎯 Точно • 💪 Эффективно
                 </p>
@@ -8221,4 +8127,3 @@ Read
     </script>
 </body>
 </html>
-
