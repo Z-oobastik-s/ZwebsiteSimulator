@@ -21,6 +21,13 @@
     var AUTO_ANNUL_MS = 5000;
     var annulCountdownTimer = null;
     var annulAutoTimer = null;
+    /** Пока висит бан-экран: слежение за DOM, попытка снять блок - сразу сброс. */
+    var integrityLockUid = null;
+    var shieldBodyObserver = null;
+    var shieldAttrObserver = null;
+    var watchdogTimer = null;
+    var tamperRaf = null;
+    var WATCHDOG_MS = 100;
 
     function useApi() {
         return typeof window !== 'undefined' && window.API_BASE_URL && String(window.API_BASE_URL).trim() !== '';
@@ -189,6 +196,109 @@
         return !!document.getElementById('integrityAnnulOverlay');
     }
 
+    /** Оверлей на месте, видим и перекрывает экран (не только удаление в Elements). */
+    function isIntegrityGateOk() {
+        var el = document.getElementById('integrityAnnulOverlay');
+        if (!el || !el.isConnected) return false;
+        if (el.hasAttribute('hidden')) return false;
+        var s = window.getComputedStyle(el);
+        if (s.display === 'none' || s.visibility === 'hidden' || Number(s.opacity) < 0.08) return false;
+        if (s.pointerEvents === 'none') return false;
+        var r = el.getBoundingClientRect();
+        var vw = window.innerWidth || 0;
+        var vh = window.innerHeight || 0;
+        var minW = Math.min(240, vw * 0.35);
+        var minH = Math.min(240, vh * 0.35);
+        if (r.width < minW || r.height < minH) return false;
+        var overlaps = r.bottom > 40 && r.right > 40 && r.left < vw - 40 && r.top < vh - 40;
+        return overlaps;
+    }
+
+    function stopIntegritySentinels() {
+        if (shieldBodyObserver) {
+            try {
+                shieldBodyObserver.disconnect();
+            } catch (_e) {}
+            shieldBodyObserver = null;
+        }
+        if (shieldAttrObserver) {
+            try {
+                shieldAttrObserver.disconnect();
+            } catch (_e) {}
+            shieldAttrObserver = null;
+        }
+        if (watchdogTimer) {
+            clearInterval(watchdogTimer);
+            watchdogTimer = null;
+        }
+        if (tamperRaf != null) {
+            try {
+                cancelAnimationFrame(tamperRaf);
+            } catch (_e2) {}
+            tamperRaf = null;
+        }
+        integrityLockUid = null;
+        try {
+            window.__zoobIntegrityActive = false;
+        } catch (_e3) {}
+    }
+
+    function triggerTamperAnnul() {
+        if (annulRunning) return;
+        var uid = integrityLockUid || readViolationFlagUid();
+        if (!uid) {
+            stopIntegritySentinels();
+            clearViolationFlag();
+            wipeGameLocalStorage();
+            location.reload();
+            return;
+        }
+        clearAnnulUiTimers();
+        executeAnnulment(uid);
+    }
+
+    function scheduleTamperCheck() {
+        if (tamperRaf != null) return;
+        tamperRaf = requestAnimationFrame(function () {
+            tamperRaf = null;
+            if (!integrityLockUid || annulRunning) return;
+            if (readViolationFlagUid() !== integrityLockUid) return;
+            if (!isIntegrityGateOk()) triggerTamperAnnul();
+        });
+    }
+
+    function startIntegritySentinels(uid, overlayEl) {
+        stopIntegritySentinels();
+        if (!uid) return;
+        integrityLockUid = uid;
+        try {
+            window.__zoobIntegrityActive = true;
+        } catch (_e) {}
+
+        watchdogTimer = setInterval(scheduleTamperCheck, WATCHDOG_MS);
+
+        if (typeof MutationObserver !== 'undefined' && document.body) {
+            try {
+                shieldBodyObserver = new MutationObserver(function () {
+                    scheduleTamperCheck();
+                });
+                shieldBodyObserver.observe(document.body, { childList: true });
+            } catch (_e1) {}
+        }
+        if (overlayEl && typeof MutationObserver !== 'undefined') {
+            try {
+                shieldAttrObserver = new MutationObserver(function () {
+                    scheduleTamperCheck();
+                });
+                shieldAttrObserver.observe(overlayEl, {
+                    attributes: true,
+                    attributeFilter: ['style', 'class', 'hidden']
+                });
+            } catch (_e2) {}
+        }
+        scheduleTamperCheck();
+    }
+
     function trapOverlayKeys(e) {
         if (!isAnnulOverlayInDom()) return;
         if (e.key === 'Escape') {
@@ -281,8 +391,9 @@
         wrap.id = 'integrityAnnulOverlay';
         wrap.setAttribute('role', 'dialog');
         wrap.setAttribute('aria-modal', 'true');
+        wrap.setAttribute('data-zoob-integrity-shield', '1');
         wrap.style.cssText =
-            'position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(15,23,42,0.88);backdrop-filter:blur(8px);';
+            'position:fixed;left:0;top:0;right:0;bottom:0;width:100vw;height:100vh;max-width:none;max-height:none;margin:0;box-sizing:border-box;z-index:2147483646;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(15,23,42,0.92);backdrop-filter:blur(8px);pointer-events:auto;user-select:none;-webkit-user-select:none;';
         var box = document.createElement('div');
         box.style.cssText =
             'max-width:440px;width:100%;background:linear-gradient(160deg,#1e293b,#0f172a);border:1px solid rgba(248,113,113,0.35);border-radius:16px;padding:22px 24px;box-shadow:0 24px 64px rgba(0,0,0,0.55);color:#e2e8f0;font-family:system-ui,sans-serif;font-size:15px;line-height:1.45;';
@@ -317,6 +428,7 @@
 
     async function executeAnnulment(uid) {
         if (annulRunning) return;
+        stopIntegritySentinels();
         annulRunning = true;
         try {
             clearViolationFlag();
@@ -379,11 +491,14 @@
             clearAnnulUiTimers();
             if (uid) executeAnnulment(uid);
             else {
+                stopIntegritySentinels();
                 clearViolationFlag();
                 wipeGameLocalStorage();
                 location.reload();
             }
         }, AUTO_ANNUL_MS);
+
+        if (uid) startIntegritySentinels(uid, m.wrap);
     }
 
     async function runChecks() {
@@ -466,3 +581,4 @@
         setTimeout(bootViolationFromStorage, 0);
     }
 })();
+

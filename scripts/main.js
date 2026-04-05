@@ -2049,6 +2049,9 @@ function applyAnimationsSetting() {
         const particles = document.querySelectorAll('.particle');
         particles.forEach(p => p.remove());
     }
+    if (window.ZoobAmbient && typeof window.ZoobAmbient.sync === 'function') {
+        window.ZoobAmbient.sync();
+    }
     
     // Обновляем иконку
     const icon = DOM.get('animationsIcon');
@@ -9968,3 +9971,4 @@ window.showLevelUpSequence = showLevelUpSequence;
 window.renderLevelBlock = renderLevelBlock;
 window.updateUserUI = updateUserUI;
 window.updateGuestPromisedHeader = updateGuestPromisedHeader;
+
