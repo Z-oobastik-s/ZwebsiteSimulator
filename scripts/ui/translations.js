@@ -1372,4 +1372,3 @@ window.translations = {
         integrityAnnulConfirm: 'Скинути й перезавантажити'
     }
 };
-

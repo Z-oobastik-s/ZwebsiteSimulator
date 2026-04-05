@@ -12,9 +12,10 @@
     var STORAGE_USERS = 'zwebsitesimulator_users';
     var STORAGE_CURRENT = 'zwebsitesimulator_current_user';
     var STORAGE_TOKEN = 'zwebsitesimulator_token';
+    /** Синхронизация вкладок: нарушение зафиксировано, пока не выполнен сброс. */
+    var VIOLATION_FLAG_KEY = '__zoob_integrity_violation';
 
     var lastPingAt = 0;
-    var annulUiLock = false;
     var annulRunning = false;
 
     function useApi() {
@@ -135,6 +136,41 @@
                 localStorage.setItem(STORAGE_CURRENT, JSON.stringify(u));
             }
         } catch (_e) {}
+    }
+
+    function readViolationFlagUid() {
+        try {
+            var raw = localStorage.getItem(VIOLATION_FLAG_KEY);
+            if (!raw) return null;
+            var o = JSON.parse(raw);
+            return o && o.uid ? String(o.uid) : null;
+        } catch (_e) {
+            return null;
+        }
+    }
+
+    function setViolationFlag(uid) {
+        try {
+            localStorage.setItem(VIOLATION_FLAG_KEY, JSON.stringify({ uid: uid, at: Date.now() }));
+        } catch (_e) {}
+    }
+
+    function clearViolationFlag() {
+        try {
+            localStorage.removeItem(VIOLATION_FLAG_KEY);
+        } catch (_e) {}
+    }
+
+    function isAnnulOverlayInDom() {
+        return !!document.getElementById('integrityAnnulOverlay');
+    }
+
+    function trapOverlayKeys(e) {
+        if (!isAnnulOverlayInDom()) return;
+        if (e.key === 'Escape') {
+            e.preventDefault();
+            e.stopPropagation();
+        }
     }
 
     async function postIntegrityReset(uid) {
@@ -259,6 +295,7 @@
         if (annulRunning) return;
         annulRunning = true;
         try {
+            clearViolationFlag();
             if (useApi()) {
                 try {
                     var data = await postIntegrityReset(uid);
@@ -286,8 +323,7 @@
     }
 
     function showAnnulModal() {
-        if (annulUiLock) return;
-        annulUiLock = true;
+        if (isAnnulOverlayInDom()) return;
         var m = buildModal();
         document.body.appendChild(m.wrap);
         m.btn.addEventListener('click', function () {
@@ -295,6 +331,7 @@
             var u = window.authModule && window.authModule.getCurrentUser();
             if (u && u.uid) executeAnnulment(u.uid);
             else {
+                clearViolationFlag();
                 wipeGameLocalStorage();
                 location.reload();
             }
@@ -302,15 +339,20 @@
     }
 
     async function runChecks() {
-        if (annulUiLock || annulRunning) return;
+        if (annulRunning) return;
         var user = window.authModule && window.authModule.getCurrentUser();
         if (!user) return;
         if (await shouldSkip(user)) return;
 
         var violations = evaluateViolations(user);
-        if (!violations.length) return;
+        var flaggedUid = readViolationFlagUid();
 
-        showAnnulModal();
+        if (violations.length) setViolationFlag(user.uid);
+
+        var needModal = violations.length > 0 || flaggedUid === user.uid;
+        if (!needModal) return;
+
+        if (!isAnnulOverlayInDom()) showAnnulModal();
     }
 
     function ping() {
@@ -344,5 +386,35 @@
             if (u) setTimeout(ping, 2600);
         });
     }
-})();
 
+    try {
+        window.addEventListener('storage', function (e) {
+            if (e.key !== VIOLATION_FLAG_KEY || !e.newValue) return;
+            var u = window.authModule && window.authModule.getCurrentUser();
+            if (!u || !u.uid) return;
+            var flagged = readViolationFlagUid();
+            if (flagged !== u.uid) return;
+            if (annulRunning) return;
+            if (!isAnnulOverlayInDom()) showAnnulModal();
+        });
+    } catch (_e) {}
+
+    try {
+        document.addEventListener('keydown', trapOverlayKeys, true);
+    } catch (_e) {}
+
+    function bootViolationFromStorage() {
+        var u = window.authModule && window.authModule.getCurrentUser();
+        if (!u || !u.uid) return;
+        if (readViolationFlagUid() !== u.uid) return;
+        showAnnulModal();
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function () {
+            setTimeout(bootViolationFromStorage, 0);
+        });
+    } else {
+        setTimeout(bootViolationFromStorage, 0);
+    }
+})();
