@@ -266,7 +266,7 @@
             /* Уроки: компактнее сайдбар слева, чтобы карточки не становились слишком узкими */
             #lessonsScreen .sticky { position: relative !important; top: auto !important; }
             #lessonsScreen .w-24 { width: 100% !important; min-width: 0 !important; }
-            #lessonsScreen .space-y-3 { display: grid !important; grid-template-columns: repeat(3, minmax(0, 1fr)) !important; gap: 0.5rem !important; }
+            #lessonsScreen .lesson-lang-buttons { display: grid !important; grid-template-columns: repeat(3, minmax(0, 1fr)) !important; gap: 0.5rem !important; }
             #lessonsScreen [id^="lessonLang"] { padding: 0.65rem 0.25rem !important; font-size: 0.95rem !important; }
             #lessonsScreen #lessonsList { gap: 1rem !important; }
             #lessonsScreen .flex.gap-6 { flex-direction: column !important; gap: 1rem !important; }
@@ -3875,69 +3875,32 @@ Read
         .site-star:hover .site-star-svg { color: #fbbf24; filter: drop-shadow(0 0 6px rgba(251, 191, 36, 0.6)); }
         .site-star.active .site-star-svg { color: #fbbf24; filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.8)); }
         .site-rating-wrap .site-star.hover .site-star-svg { color: #fbbf24; filter: drop-shadow(0 0 6px rgba(251, 191, 36, 0.5)); }
-        /* Фильтры уроков - один ряд, горизонтальный скролл, «игровой» неон */
-        .lesson-filter-dock-wrap { margin-bottom: 1rem; }
-        .lesson-filter-dock {
+        /* Фильтры уроков - вертикально в левой колонке над RU/EN/UA */
+        .lesson-filter-sidebar {
             display: flex;
-            align-items: stretch;
-            gap: 0.5rem;
-            padding: 0.35rem 0.45rem;
-            border-radius: 14px;
-            border: 1px solid rgba(34, 211, 238, 0.28);
-            background: linear-gradient(155deg, rgba(15, 23, 42, 0.94), rgba(30, 41, 59, 0.88));
-            box-shadow: 0 0 24px rgba(34, 211, 238, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+            flex-direction: column;
+            gap: 0;
         }
-        html:not(.dark) .lesson-filter-dock {
-            background: linear-gradient(155deg, rgba(255, 255, 255, 0.96), rgba(241, 245, 249, 0.94));
-            border-color: rgba(14, 116, 144, 0.32);
-            box-shadow: 0 4px 20px rgba(15, 23, 42, 0.08);
+        .lesson-filter-sidebar__chips {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
         }
-        .lesson-filter-dock__ad {
-            display: inline-flex;
+        .lesson-filter-sidebar .lesson-filter-chip {
+            width: 100%;
+            display: flex;
             align-items: center;
             justify-content: center;
-            padding: 2px;
-            border-radius: 10px;
-            border: 1px solid rgba(34, 211, 238, 0.35);
-            background: rgba(0, 0, 0, 0.35);
-            transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
-            align-self: center;
-        }
-        html:not(.dark) .lesson-filter-dock__ad {
-            background: rgba(255, 255, 255, 0.9);
-            border-color: rgba(14, 116, 144, 0.3);
-        }
-        .lesson-filter-dock__ad:hover {
-            transform: scale(1.04);
-            box-shadow: 0 0 14px rgba(34, 211, 238, 0.35);
-            border-color: rgba(34, 211, 238, 0.6);
-        }
-        .lesson-filter-dock__ad:focus-visible {
-            outline: 2px solid rgba(34, 211, 238, 0.85);
-            outline-offset: 2px;
-        }
-        .lesson-filter-dock__scroll {
-            display: flex;
-            flex-wrap: nowrap;
-            align-items: center;
-            gap: 0.35rem;
-            overflow-x: auto;
-            overflow-y: hidden;
-            min-width: 0;
-            flex: 1 1 auto;
-            padding: 2px 2px 5px 0;
-            -webkit-overflow-scrolling: touch;
-            scrollbar-width: thin;
-            scrollbar-color: rgba(34, 211, 238, 0.45) rgba(15, 23, 42, 0.2);
-        }
-        .lesson-filter-dock__scroll::-webkit-scrollbar { height: 5px; }
-        .lesson-filter-dock__scroll::-webkit-scrollbar-thumb {
-            background: rgba(34, 211, 238, 0.45);
-            border-radius: 6px;
+            padding-left: 0.35rem;
+            padding-right: 0.35rem;
+            font-size: 0.7rem;
         }
         .lesson-filter-hint {
             line-height: 1.35;
             max-width: 56rem;
+        }
+        .lesson-filter-hint--rail {
+            max-width: none;
         }
         .lesson-filter-chip {
             appearance: none;
@@ -6666,7 +6629,19 @@ Read
                 <div class="flex gap-6">
                     <!-- Left sidebar - Language tabs -->
                     <div class="w-24 flex-shrink-0">
-                        <div class="bg-gray-800/40 dark:bg-gray-900/60 rounded-2xl p-3 space-y-3 sticky top-24 border border-gray-700/30">
+                        <div class="bg-gray-800/40 dark:bg-gray-900/60 rounded-2xl p-3 sticky top-24 border border-gray-700/30 flex flex-col gap-3">
+                            <div id="lessonDurationFilterBar" class="hidden lesson-filter-sidebar">
+                                <div class="lesson-filter-sidebar__chips">
+                                    <button type="button" id="lessonFilterAll" data-i18n="lessonFilterAll" data-i18n-title="lessonFilterTitleAll" onclick="setLessonListFilter('all')" class="lesson-filter-chip lesson-filter-chip--on">Все</button>
+                                    <button type="button" id="lessonFilterLen100" data-i18n="lessonFilterLen100" data-i18n-title="lessonFilterTitleLen100" onclick="setLessonListFilter('len_100')" class="lesson-filter-chip lesson-filter-chip--off">≤100</button>
+                                    <button type="button" id="lessonFilterLen200" data-i18n="lessonFilterLen200" data-i18n-title="lessonFilterTitleLen200" onclick="setLessonListFilter('len_200')" class="lesson-filter-chip lesson-filter-chip--off">≤200</button>
+                                    <button type="button" id="lessonFilterLen300" data-i18n="lessonFilterLen300" data-i18n-title="lessonFilterTitleLen300" onclick="setLessonListFilter('len_300')" class="lesson-filter-chip lesson-filter-chip--off">≤300</button>
+                                    <button type="button" id="lessonFilterLen400" data-i18n="lessonFilterLen400" data-i18n-title="lessonFilterTitleLen400" onclick="setLessonListFilter('len_400')" class="lesson-filter-chip lesson-filter-chip--off">≤400</button>
+                                    <button type="button" id="lessonFilterDigits" data-i18n="lessonFilterDigits" data-i18n-title="lessonFilterTitleDigits" onclick="setLessonListFilter('digits')" class="lesson-filter-chip lesson-filter-chip--off">0–9</button>
+                                </div>
+                                <p id="lessonFilterHint" class="lesson-filter-hint lesson-filter-hint--rail mt-2 text-[10px] text-gray-500 dark:text-gray-400 leading-snug text-center">-</p>
+                            </div>
+                            <div class="lesson-lang-buttons space-y-3">
                             <button onclick="selectLessonLanguage('ru')" id="lessonLangRu" class="w-full px-4 py-4 rounded-xl bg-gradient-to-br from-primary to-cyan-500 text-white font-bold text-lg shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all transform hover:scale-105">
                                 RU
                             </button>
@@ -6676,27 +6651,12 @@ Read
                             <button onclick="selectLessonLanguage('ua')" id="lessonLangUa" class="w-full px-4 py-4 rounded-xl bg-gray-700/50 dark:bg-gray-800/50 hover:bg-gray-600/50 text-gray-300 font-bold text-lg transition-all transform hover:scale-105">
                                 UA
                             </button>
+                            </div>
                         </div>
                     </div>
                     
                     <!-- Right side - Lessons grid -->
                     <div class="flex-1">
-                        <div id="lessonDurationFilterBar" class="hidden lesson-filter-dock-wrap">
-                            <div class="lesson-filter-dock">
-                                <a href="#" onclick="return openLeaveHostingModal(event);" class="lesson-filter-dock__ad shrink-0" data-i18n-title="leaveHostingAdTitle" data-i18n-aria-label="leaveHostingAdTitle" aria-label="LeaveHosting">
-                                    <img src="assets/images/leavehosting.png" alt="" class="w-[42px] h-[41px] sm:w-[47px] sm:h-[46px] object-contain" width="51" height="50" draggable="false">
-                                </a>
-                                <div class="lesson-filter-dock__scroll">
-                                    <button type="button" id="lessonFilterAll" data-i18n="lessonFilterAll" data-i18n-title="lessonFilterTitleAll" onclick="setLessonListFilter('all')" class="lesson-filter-chip lesson-filter-chip--on">Все</button>
-                                    <button type="button" id="lessonFilterLen100" data-i18n="lessonFilterLen100" data-i18n-title="lessonFilterTitleLen100" onclick="setLessonListFilter('len_100')" class="lesson-filter-chip lesson-filter-chip--off">≤100</button>
-                                    <button type="button" id="lessonFilterLen200" data-i18n="lessonFilterLen200" data-i18n-title="lessonFilterTitleLen200" onclick="setLessonListFilter('len_200')" class="lesson-filter-chip lesson-filter-chip--off">≤200</button>
-                                    <button type="button" id="lessonFilterLen300" data-i18n="lessonFilterLen300" data-i18n-title="lessonFilterTitleLen300" onclick="setLessonListFilter('len_300')" class="lesson-filter-chip lesson-filter-chip--off">≤300</button>
-                                    <button type="button" id="lessonFilterLen400" data-i18n="lessonFilterLen400" data-i18n-title="lessonFilterTitleLen400" onclick="setLessonListFilter('len_400')" class="lesson-filter-chip lesson-filter-chip--off">≤400</button>
-                                    <button type="button" id="lessonFilterDigits" data-i18n="lessonFilterDigits" data-i18n-title="lessonFilterTitleDigits" onclick="setLessonListFilter('digits')" class="lesson-filter-chip lesson-filter-chip--off">0–9</button>
-                                </div>
-                            </div>
-                            <p id="lessonFilterHint" class="lesson-filter-hint mt-1.5 text-[11px] sm:text-xs text-gray-500 dark:text-gray-400 leading-snug">-</p>
-                        </div>
                         <div id="lessonsChapterBanner" class="chapter-briefing hidden mb-5" role="region" aria-label="">
                             <div class="chapter-briefing__scan" aria-hidden="true"></div>
                             <div class="chapter-briefing__inner">
@@ -8242,4 +8202,3 @@ Read
     </script>
 </body>
 </html>
-

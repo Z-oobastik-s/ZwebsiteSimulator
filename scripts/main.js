@@ -3022,8 +3022,8 @@ function updateLessonFilterBarStyles() {
     var len300Btn = document.getElementById('lessonFilterLen300');
     var len400Btn = document.getElementById('lessonFilterLen400');
     var digBtn = document.getElementById('lessonFilterDigits');
-    var on = 'lesson-filter-chip lesson-filter-chip--on whitespace-nowrap shrink-0';
-    var off = 'lesson-filter-chip lesson-filter-chip--off whitespace-nowrap shrink-0';
+    var on = 'lesson-filter-chip lesson-filter-chip--on whitespace-nowrap';
+    var off = 'lesson-filter-chip lesson-filter-chip--off whitespace-nowrap';
     if (allBtn) allBtn.className = lessonListFilter === 'all' ? on : off;
     if (len100Btn) len100Btn.className = lessonListFilter === 'len_100' ? on : off;
     if (len200Btn) len200Btn.className = lessonListFilter === 'len_200' ? on : off;
@@ -10015,4 +10015,3 @@ window.showLevelUpSequence = showLevelUpSequence;
 window.renderLevelBlock = renderLevelBlock;
 window.updateUserUI = updateUserUI;
 window.updateGuestPromisedHeader = updateGuestPromisedHeader;
-
