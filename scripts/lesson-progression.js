@@ -10,6 +10,13 @@
     /** Сколько уроков подряд объединяем в один «эпизод» сюжета в списке (3 = один ряд в сетке md:grid-cols-3). */
     var ACT_LESSON_COUNT = 3;
 
+    /** const LESSONS_DATA в lessons-data.js не всегда на window - берём оба источника */
+    function lessonsDataRoot() {
+        if (global.LESSONS_DATA) return global.LESSONS_DATA;
+        if (typeof LESSONS_DATA !== 'undefined') return LESSONS_DATA;
+        return null;
+    }
+
     function lessonKey(lesson, levelKey) {
         if (!lesson) return '';
         if (lesson.isShopLesson) return 'shop_lesson_' + lesson.id;
@@ -63,12 +70,14 @@
 
     function isTierUnlocked(statsModule, tier, layout) {
         if (tier === 'beginner') return true;
-        if (!global.LESSONS_DATA) return true;
+        var root = lessonsDataRoot();
+        if (!root) return false;
         var needTier = tier === 'medium' ? 'beginner' : tier === 'advanced' ? 'medium' : null;
         if (!needTier) return true;
-        var data = global.LESSONS_DATA[needTier];
-        if (!data || !data.lessons) return true;
+        var data = root[needTier];
+        if (!data || !data.lessons) return false;
         var core = data.lessons.filter(function (l) { return l.layout === layout && !l.isShopLesson; });
+        if (core.length === 0) return false;
         for (var i = 0; i < core.length; i++) {
             var k = lessonKey(core[i], needTier);
             if (!isLessonCompleted(statsModule, k)) return false;
@@ -78,10 +87,11 @@
 
     /** Сколько базовых уроков трека пройдено на раскладке (для UI замка). */
     function getTierCompletion(statsModule, tier, layout) {
-        if (!global.LESSONS_DATA || !global.LESSONS_DATA[tier] || !global.LESSONS_DATA[tier].lessons) {
+        var root = lessonsDataRoot();
+        if (!root || !root[tier] || !root[tier].lessons) {
             return { done: 0, total: 0 };
         }
-        var core = global.LESSONS_DATA[tier].lessons.filter(function (l) {
+        var core = root[tier].lessons.filter(function (l) {
             return l.layout === layout && !l.isShopLesson;
         });
         var total = core.length;
@@ -114,3 +124,4 @@
         sagaBeatKeyForAct: sagaBeatKeyForAct
     };
 })(typeof window !== 'undefined' ? window : this);
+

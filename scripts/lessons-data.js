@@ -2419,3 +2419,7 @@ const LESSONS_DATA = {
         ]
     }
 };
+
+/** Для lesson-progression и других модулей, которые читают window.LESSONS_DATA */
+if (typeof window !== 'undefined') window.LESSONS_DATA = LESSONS_DATA;
+
