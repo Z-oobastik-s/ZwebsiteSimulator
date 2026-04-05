@@ -310,6 +310,7 @@ var _homeMascotSafetyTimer = null;
 var _homeMascotSlideEndHandler = null;
 var _homeMascotCurrentKey = '';
 /** Поколение scheduleHomeMascot: старые колбэки интро не трогают новый цикл */
+var HOME_MASCOT_HI_COUNT = 30;
 var _homeMascotPipelineGen = 0;
 /** Уже запланирован или показан маскот в текущем цикле (гонка safety vs основной таймер) */
 var _homeMascotShowPipelineDone = false;
@@ -374,11 +375,29 @@ const translations = window.translations || {
         homeMascotHi5: 'Не забывай про серию дней - я слежу, чтобы ты не сливался.',
         homeMascotHi6: 'Тест на скорость на минуту - честная проверка, если хочешь цифры без сюсюканья.',
         homeMascotHi7: 'В мультиплеере можно устроить дуэль - позови друга, будет веселее.',
-        homeMascotHi8: 'Тема и звук внизу - подстрой вайб, я только за.',
+        homeMascotHi8: 'Тема сверху, фон меняешь в профиле - подстрой вайб, я только за.',
         homeMascotHi9: 'Уроки копят награды - чем ровнее строка, тем приятнее прогресс.',
         homeMascotHi10: 'Устали руки - сделай паузу. Я подожду, лишь бы не пропадал надолго.',
         homeMascotHi11: 'Сегодня хватит и одного закрытого урока - это уже маленькая победа.',
         homeMascotHi12: 'Клавиатура внизу подсказывает пальцы - спокойно смотри на экран.',
+        homeMascotHi13: 'Магазин уроков иногда подкидывает сюрпризы - глянь, если скучно.',
+        homeMascotHi14: 'Не гонись за идеальным заходом - лучше ровный ритм, чем рывками.',
+        homeMascotHi15: 'Ошибка не приговор - главное не закипеть и поправить пальцы.',
+        homeMascotHi16: 'Дыхание ровное, плечи ниже ушей - так удобнее печатать дольше.',
+        homeMascotHi17: 'Если застрял на уроке, переключись на минутку в свободный режим.',
+        homeMascotHi18: 'Достижения любопытные - загляни в профиль, когда будет настроение.',
+        homeMascotHi19: 'Мультиплеер терпеливый: можно собраться не спеша и потом догнать.',
+        homeMascotHi20: 'Звук кликов можно выключить - я не обижусь, кому-то так спокойнее.',
+        homeMascotHi21: 'Главная - твой лобби: отсюда во все режимы без лишних кликов.',
+        homeMascotHi22: 'Раскладку не забывай переключать - я однажды сама чуть не попала в капс.',
+        homeMascotHi23: 'Короткая сессия лучше, чем никакой - пять минут тоже считаются.',
+        homeMascotHi24: 'Точность иногда важнее скорости - нервы скажут спасибо.',
+        homeMascotHi25: 'Урок с подсказками рук - смотри на экран, не на пальцы, постепенно привыкнешь.',
+        homeMascotHi26: 'Прогресс сохраняется - можешь закрыть вкладку и вернуться, маршрут не сбросится.',
+        homeMascotHi27: 'Если друг онлайн, кинь ему линк на мультиплеер - посоревнуетесь честно.',
+        homeMascotHi28: 'Награды за серию дней копятся - не ломай цепочку без нужды.',
+        homeMascotHi29: 'Свободная печать принимает свой текст - учебник, заметки, что угодно.',
+        homeMascotHi30: 'Я тут не судья - ты сам выбираешь темп, я просто болею за тебя.',
         chooseDifficultyEpic: 'Сюжетная кампания',
         lessonsSagaCampaignLine: 'Три акта, один замысел: от первой буквы до финала сезона. Язык уроков (RU/EN/UA) - твой выбор, цепочка и награды общие.',
         chapterBannerAriaFallback: 'Сюжетная глава.',
@@ -657,11 +676,29 @@ const translations = window.translations || {
         homeMascotHi5: 'Keep that daily streak - I am watching so you do not slip.',
         homeMascotHi6: 'The one minute speed test is a straight shootout if you want hard numbers.',
         homeMascotHi7: 'Multiplayer duels exist - ping a friend and chase the win together.',
-        homeMascotHi8: 'Theme and sound live in the footer - tune the vibe, I am fine with it.',
+        homeMascotHi8: 'Theme toggle is up top; background is in your profile - tune the vibe, I am all for it.',
         homeMascotHi9: 'Lessons stack rewards - cleaner lines make the grind feel good.',
         homeMascotHi10: 'Hands tired? Pause. I will wait - just do not ghost for weeks.',
         homeMascotHi11: 'Finishing a single lesson today still counts as a win. Promise.',
         homeMascotHi12: 'The keyboard below nudges your fingers - keep your eyes on the text.',
+        homeMascotHi13: 'The lesson shop sometimes drops fun stuff - peek if you are bored.',
+        homeMascotHi14: 'Do not wait for a perfect start - steady rhythm beats jittery bursts.',
+        homeMascotHi15: 'A typo is not a sentence - breathe and fix your fingers calmly.',
+        homeMascotHi16: 'Steady breath, shoulders down - easier to type for longer that way.',
+        homeMascotHi17: 'Stuck on a lesson? Hop into free mode for a minute to reset.',
+        homeMascotHi18: 'Achievements are quirky - check your profile when you feel like it.',
+        homeMascotHi19: 'Multiplayer is patient: gather calmly, then chase each other later.',
+        homeMascotHi20: 'You can mute the key clicks - I will not mind if it feels calmer.',
+        homeMascotHi21: 'Home is your lobby: every mode starts here without extra clicks.',
+        homeMascotHi22: 'Do not forget the keyboard layout - I almost trapped myself in caps once.',
+        homeMascotHi23: 'A short session beats none - five minutes still counts.',
+        homeMascotHi24: 'Accuracy can beat raw speed sometimes - your nerves will thank you.',
+        homeMascotHi25: 'Hand hint lessons want your eyes on the screen, not the keys - you will adapt.',
+        homeMascotHi26: 'Progress saves - close the tab and return, your path stays put.',
+        homeMascotHi27: 'If a friend is online, toss them a multiplayer link - fair duel.',
+        homeMascotHi28: 'Streak rewards stack - try not to break the chain for no reason.',
+        homeMascotHi29: 'Free typing accepts your own text - notes, homework, whatever helps.',
+        homeMascotHi30: 'I am not here to judge - you pick the pace, I am just cheering.',
         chooseDifficultyEpic: 'Story campaign',
         lessonsSagaCampaignLine: 'Three acts, one arc: from the first keypress to the season finale. Pick a lesson language (RU/EN/UA) - the chain and rewards stay yours.',
         chapterBannerAriaFallback: 'Story chapter.',
@@ -2524,7 +2561,7 @@ function showSpeedTest() {
 function homeMascotGreetingKeys() {
     var keys = [];
     var n;
-    for (n = 1; n <= 12; n++) keys.push('homeMascotHi' + n);
+    for (n = 1; n <= HOME_MASCOT_HI_COUNT; n++) keys.push('homeMascotHi' + n);
     return keys;
 }
 
@@ -10241,4 +10278,3 @@ window.showLevelUpSequence = showLevelUpSequence;
 window.renderLevelBlock = renderLevelBlock;
 window.updateUserUI = updateUserUI;
 window.updateGuestPromisedHeader = updateGuestPromisedHeader;
-
