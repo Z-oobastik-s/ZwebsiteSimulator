@@ -1932,6 +1932,81 @@
             text-shadow: 0 0 12px rgba(6, 182, 212, 0.2);
         }
 
+        /* Список уроков: ниже шапка и сюжетные блоки - больше карточек без скролла */
+        #lessonsScreen .lessons-screen-head {
+            margin-bottom: 1rem;
+        }
+        @media (min-width: 640px) {
+            #lessonsScreen .lessons-screen-head {
+                margin-bottom: 1.15rem;
+            }
+        }
+        #lessonsScreen #lessonsScreenTitle.difficulty-section-title {
+            font-size: clamp(0.78rem, 2.4vw, 0.95rem);
+            letter-spacing: 0.14em;
+            line-height: 1.2;
+        }
+        #lessonsScreen .lessons-saga-subtitle {
+            margin-top: 0.35rem;
+            font-size: 0.65rem;
+            line-height: 1.35;
+            max-width: 36rem;
+        }
+        @media (min-width: 640px) {
+            #lessonsScreen .lessons-saga-subtitle {
+                font-size: 0.72rem;
+            }
+        }
+        #lessonsScreen .chapter-briefing {
+            border-radius: 14px;
+        }
+        #lessonsScreen .chapter-briefing__inner {
+            padding: 0.6rem 0.8rem 0.7rem;
+        }
+        @media (min-width: 640px) {
+            #lessonsScreen .chapter-briefing__inner {
+                padding: 0.7rem 1rem 0.8rem;
+            }
+        }
+        #lessonsScreen .chapter-briefing__codename {
+            font-size: 0.56rem;
+            letter-spacing: 0.2em;
+            margin-bottom: 0.28rem;
+        }
+        #lessonsScreen .chapter-briefing__title {
+            font-size: 1rem;
+            line-height: 1.18;
+            margin-bottom: 0.32rem;
+        }
+        @media (min-width: 640px) {
+            #lessonsScreen .chapter-briefing__title {
+                font-size: 1.08rem;
+            }
+        }
+        #lessonsScreen .chapter-briefing__hook {
+            font-size: 0.75rem;
+            line-height: 1.38;
+            margin-bottom: 0.4rem;
+        }
+        #lessonsScreen .chapter-briefing__objective {
+            font-size: 0.7rem;
+            line-height: 1.38;
+        }
+        #lessonsScreen .lesson-saga-act__inner {
+            padding: 0.42rem 0.7rem 0.48rem;
+            margin: 0 0 0.2rem;
+            border-radius: 12px;
+        }
+        #lessonsScreen .lesson-saga-act__ep {
+            font-size: 0.56rem;
+            letter-spacing: 0.2em;
+            margin-bottom: 0.2rem;
+        }
+        #lessonsScreen .lesson-saga-act__hook {
+            font-size: 0.7rem;
+            line-height: 1.35;
+        }
+
         /* Главная: маскот с края экрана */
         .home-mascot-widget {
             position: fixed;
@@ -2349,6 +2424,9 @@
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 1.1rem;
+        }
+        #lessonsScreen #lessonsList:not(.difficulty-grid) {
+            gap: 0.9rem;
         }
         
         .lesson-card {
@@ -6603,7 +6681,7 @@ Read
         
         <!-- Lessons Selection Screen -->
         <div id="lessonsScreen" class="hidden fade-in">
-            <div class="flex items-start justify-between mb-6 gap-3 sm:gap-4">
+            <div class="lessons-screen-head flex items-start justify-between gap-3 sm:gap-4">
                 <button onclick="showHome()" class="glass px-6 py-3 rounded-xl hover:bg-white/20 dark:hover:bg-black/20 flex items-center space-x-2 transition-all shrink-0">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
@@ -6611,8 +6689,8 @@ Read
                     <span data-i18n="back">Назад</span>
                 </button>
                 <div class="flex-1 text-center min-w-0 px-1">
-                    <h2 id="lessonsScreenTitle" class="text-2xl sm:text-3xl difficulty-section-title leading-tight"></h2>
-                    <p id="lessonsSagaSubtitle" class="lessons-saga-subtitle mt-2 text-[11px] sm:text-sm text-cyan-300/90 dark:text-cyan-200/85 font-semibold tracking-wide max-w-xl mx-auto leading-snug"></p>
+                    <h2 id="lessonsScreenTitle" class="difficulty-section-title"></h2>
+                    <p id="lessonsSagaSubtitle" class="lessons-saga-subtitle text-cyan-300/90 dark:text-cyan-200/85 font-semibold tracking-wide mx-auto"></p>
                 </div>
                 <div class="w-16 sm:w-32 shrink-0"></div>
             </div>
@@ -6657,7 +6735,7 @@ Read
                     
                     <!-- Right side - Lessons grid -->
                     <div class="flex-1">
-                        <div id="lessonsChapterBanner" class="chapter-briefing hidden mb-5" role="region" aria-label="">
+                        <div id="lessonsChapterBanner" class="chapter-briefing hidden mb-3" role="region" aria-label="">
                             <div class="chapter-briefing__scan" aria-hidden="true"></div>
                             <div class="chapter-briefing__inner">
                                 <span class="chapter-briefing__codename" id="chapterBannerCodename"></span>
@@ -8202,3 +8280,4 @@ Read
     </script>
 </body>
 </html>
+
