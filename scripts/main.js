@@ -9473,8 +9473,6 @@ function renderCollectiblesGrid() {
         bonus.textContent = trReplace('collectiblesBonusLine', { pct: String(mod.getCollectionBonusPercent(owned.length)) });
     }
     var bal = user ? (user.balance || 0) : 0;
-    var balHdr = document.getElementById('collectibleScreenBalance');
-    if (balHdr) balHdr.textContent = String(bal);
     var packs = [
         { id: 'collectibleBoosterBtn', n: 1, labelKey: 'collectiblesBooster' },
         { id: 'collectibleBoosterBtn10', n: 10, labelKey: 'collectiblesBooster10' },
@@ -10017,3 +10015,4 @@ window.showLevelUpSequence = showLevelUpSequence;
 window.renderLevelBlock = renderLevelBlock;
 window.updateUserUI = updateUserUI;
 window.updateGuestPromisedHeader = updateGuestPromisedHeader;
+

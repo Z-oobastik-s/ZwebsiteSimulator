@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru" class="dark">
+<html lang="ru" class="dark h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -136,6 +136,9 @@
     <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet"></noscript>
     
     <style>
+        html.h-full {
+            height: 100%;
+        }
         * {
             font-family: 'Inter', sans-serif;
         }
@@ -176,12 +179,15 @@
             -ms-overflow-style: none !important;
         }
         /* В Chrome скроллбар иногда рисуется у viewport - переносим прокрутку в обёртку */
+        /* Высота = вьюпорт: фон body + cover не растягиваются на длину коллекции/магазина */
         #rootScroll {
             overflow-x: hidden;
             overflow-y: auto;
             scrollbar-width: none !important;
             -ms-overflow-style: none !important;
-            min-height: 100vh;
+            height: 100%;
+            min-height: 0;
+            max-height: 100%;
             -webkit-overflow-scrolling: touch;
         }
         #rootScroll::-webkit-scrollbar { display: none !important; width: 0 !important; height: 0 !important; }
@@ -277,7 +283,7 @@
             #keyboardContainer .h-10 { height: 32px !important; }
         }
         
-        /* Background: scroll вместо fixed - намного меньше лагов при скролле и смене темы (GPU) */
+        /* cover привязан к размеру body; body = высота экрана (не всего скролла) */
         body {
             background-size: cover;
             background-position: center;
@@ -2703,38 +2709,82 @@ Read
             background: rgba(255, 255, 255, 0.96) !important;
             border-color: rgba(15, 23, 42, 0.12) !important;
         }
-        /* Коллекция: изоляция слоя, меньше лишних перерисовок фона при скролле */
-        #collectibleScreen {
-            contain: layout style;
-        }
-        /* Коллекция карт — без backdrop-filter в «стекле», сетка легковесная */
+        /* Коллекция карт — без backdrop-filter, плоские панели */
         #collectibleScreen .glass {
             backdrop-filter: none !important;
             -webkit-backdrop-filter: none !important;
-            background: rgba(15, 23, 42, 0.92) !important;
-            border-color: rgba(217, 70, 239, 0.22) !important;
+            background: rgba(7, 9, 16, 0.78) !important;
+            border: 1px solid rgba(255, 255, 255, 0.06) !important;
+            box-shadow: 0 24px 48px rgba(0, 0, 0, 0.35) !important;
         }
         html:not(.dark) #collectibleScreen .glass {
-            background: rgba(255, 255, 255, 0.96) !important;
-            border-color: rgba(15, 23, 42, 0.12) !important;
+            background: rgba(255, 255, 255, 0.94) !important;
+            border-color: rgba(15, 23, 42, 0.08) !important;
+            box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08) !important;
+        }
+        .cc-page-head {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 2.75rem;
+            margin-bottom: 1.75rem;
+        }
+        .cc-back-btn {
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(15, 23, 42, 0.6);
+            color: rgba(226, 232, 240, 0.95);
+        }
+        .cc-back-btn:hover {
+            background: rgba(30, 41, 59, 0.85);
+            border-color: rgba(34, 211, 238, 0.35);
+        }
+        html:not(.dark) .cc-back-btn {
+            background: rgba(255, 255, 255, 0.85);
+            color: #0f172a;
+            border-color: rgba(15, 23, 42, 0.1);
         }
         .cc-header-title {
-            font-weight: 900;
-            letter-spacing: 0.12em;
+            font-weight: 800;
+            letter-spacing: 0.2em;
             text-transform: uppercase;
-            background: linear-gradient(120deg, #e9d5ff 0%, #22d3ee 45%, #f472b6 100%);
+            font-size: clamp(0.8rem, 2.5vw, 1.05rem);
+            background: linear-gradient(105deg, #c4b5fd 0%, #22d3ee 42%, #f0abfc 100%);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
-            text-shadow: none;
-            filter: none;
+            padding: 0 4.5rem;
+            line-height: 1.35;
+        }
+        @media (max-width: 480px) {
+            .cc-header-title { letter-spacing: 0.14em; padding: 0 3rem; }
         }
         html:not(.dark) .cc-header-title {
-            background: linear-gradient(120deg, #7c3aed 0%, #0891b2 50%, #be185d 100%);
+            background: linear-gradient(105deg, #6d28d9 0%, #0e7490 45%, #be185d 100%);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
-            filter: none;
+        }
+        html:not(.dark) #collectibleScreen .cc-booster-panel {
+            border-top-color: rgba(14, 116, 144, 0.4) !important;
+        }
+        #collectibleScreen .cc-legend {
+            background: rgba(7, 9, 16, 0.72) !important;
+            border: 1px solid rgba(255, 255, 255, 0.07) !important;
+            box-shadow: 0 20px 48px rgba(0, 0, 0, 0.28) !important;
+        }
+        #collectibleScreen .cc-legend::before {
+            height: 2px;
+            opacity: 0.75;
+        }
+        html:not(.dark) #collectibleScreen .cc-legend {
+            background: rgba(255, 255, 255, 0.93) !important;
+            border-color: rgba(15, 23, 42, 0.08) !important;
+            box-shadow: 0 12px 32px rgba(15, 23, 42, 0.07) !important;
         }
         .cc-grid {
             display: grid;
@@ -6161,13 +6211,13 @@ Read
         }
     </style>
 </head>
-<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen" tabindex="-1">
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 h-screen min-h-0 overflow-hidden" tabindex="-1">
     <div id="appUpdateOverlay" role="status" aria-live="assertive" aria-busy="true">
         <div class="app-update-spinner" aria-hidden="true"></div>
         <div class="app-update-title" data-update-title>Сайт обновляется</div>
         <div class="app-update-sub" data-update-sub>Подождите, загружается новая версия…</div>
     </div>
-    <div id="rootScroll" class="min-h-screen">
+    <div id="rootScroll" class="h-full min-h-0">
     <!-- Intro video overlay (plays on each page load) -->
     <div id="introOverlay" style="position:fixed; inset:0; z-index:99999; background:#000; display:flex; align-items:center; justify-content:center; pointer-events:auto; overflow:hidden;">
         <video
@@ -7604,20 +7654,16 @@ Read
     <!-- Collectible cards: бустеры, сетка, бонус к монетам за уроки -->
     <div id="collectibleScreen" class="hidden">
         <div class="max-w-6xl mx-auto">
-            <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
-                <button type="button" onclick="showHome()" class="shop-back-btn glass px-4 py-2 rounded-lg border border-fuchsia-500/35 hover:bg-fuchsia-500/15 flex items-center gap-2 transition-all">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+            <div class="cc-page-head">
+                <button type="button" onclick="showHome()" class="cc-back-btn glass px-3 py-2 rounded-lg flex items-center gap-2 text-sm font-medium transition-colors">
+                    <svg class="w-4 h-4 shrink-0 opacity-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
                     <span data-i18n="back">Назад</span>
                 </button>
-                <h2 class="cc-header-title text-lg sm:text-xl md:text-2xl px-2 text-center flex-1 min-w-0">
+                <h2 class="cc-header-title text-center">
                     <span data-i18n="collectiblesTitle">Коллекция карт</span>
                 </h2>
-                <div class="shop-balance-badge flex items-center gap-2 px-4 py-2 rounded-lg border border-amber-500/50 bg-amber-500/10">
-                    <img src="assets/images/money.png" alt="" class="w-6 h-6 object-contain shrink-0" width="24" height="24" decoding="async" loading="lazy">
-                    <span id="collectibleScreenBalance" class="font-bold text-amber-400 tabular-nums text-lg">0</span>
-                </div>
             </div>
-            <div class="glass rounded-2xl p-5 mb-5 border border-fuchsia-500/20">
+            <div class="glass rounded-xl p-5 sm:p-6 mb-6 cc-booster-panel border-t-2 border-cyan-500/30">
                 <p class="text-sm text-gray-600 dark:text-gray-300 mb-2 leading-relaxed" data-i18n="collectiblesDesc">Открывай бустеры…</p>
                 <p id="collectibleBonusLine" class="text-sm font-semibold text-cyan-300 dark:text-cyan-300 mb-1"></p>
                 <p id="collectibleProgressText" class="text-xs text-gray-500 dark:text-gray-400 font-mono tabular-nums mb-4">0 / 97</p>
@@ -8055,3 +8101,4 @@ Read
     </script>
 </body>
 </html>
+
