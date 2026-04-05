@@ -445,7 +445,11 @@ window.translations = {
         profileTabAccTrend: 'Динамика точности',
         profileTabSpeed: 'Скорость',
         profileTabLocked: 'закрыто',
-        profileTabOnSite: 'на сайте'
+        profileTabOnSite: 'на сайте',
+        integrityAnnulTitle: 'Ваш аккаунт аннулирован',
+        integrityAnnulBody:
+            'Обнаружены несовместимые данные прогресса (слишком много наград при слишком малой активности). Будут сброшены монеты, карточки, купленные уроки, опыт, достижения и локальная статистика. Нажмите кнопку, чтобы применить сброс и перезагрузить страницу.',
+        integrityAnnulConfirm: 'Сбросить и перезагрузить'
     },
     en: {
         welcome: 'Welcome to Zoobastiks',
@@ -889,7 +893,11 @@ window.translations = {
         profileTabAccTrend: 'Accuracy Trend',
         profileTabSpeed: 'Speed',
         profileTabLocked: 'locked',
-        profileTabOnSite: 'on site'
+        profileTabOnSite: 'on site',
+        integrityAnnulTitle: 'Your account has been voided',
+        integrityAnnulBody:
+            'We detected inconsistent progress (too many rewards for too little real activity). Coins, cards, purchased lessons, XP, achievements, and local stats will be reset. Press the button to apply the reset and reload the page.',
+        integrityAnnulConfirm: 'Reset and reload'
     },
     ua: {
         welcome: 'Ласкаво просимо до гри',
@@ -1333,7 +1341,10 @@ window.translations = {
         profileTabAccTrend: 'Динаміка точності',
         profileTabSpeed: 'Швидкість',
         profileTabLocked: 'закрито',
-        profileTabOnSite: 'на сайті'
+        profileTabOnSite: 'на сайті',
+        integrityAnnulTitle: 'Ваш обліковий запис анульовано',
+        integrityAnnulBody:
+            'Виявлено несумісні дані прогресу (забагато нагород при замалій активності). Буде скинуто монети, картки, куплені уроки, досвід, досягнення та локальну статистику. Натисніть кнопку, щоб застосувати скидання й перезавантажити сторінку.',
+        integrityAnnulConfirm: 'Скинути й перезавантажити'
     }
 };
-

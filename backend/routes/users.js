@@ -293,6 +293,37 @@ router.post('/:uid/purchase', async (req, res) => {
     }
 });
 
+// POST /api/users/:uid/integrity-reset - сброс прогресса при срабатывании анти-накрутки (только свой uid)
+router.post('/:uid/integrity-reset', async (req, res) => {
+    try {
+        if (req.uid !== req.params.uid) {
+            return res.status(403).json({ success: false, error: 'Forbidden' });
+        }
+        const uid = req.params.uid;
+        await query(`DELETE FROM UserSessions WHERE UserId = @uid`, { uid });
+        await query(
+            `UPDATE Users SET
+                Balance = 50,
+                PurchasedLessonsJson = '[]',
+                CollectedCardsJson = '[]',
+                TotalSessions = 0,
+                TotalTime = 0,
+                BestSpeed = 0,
+                AverageAccuracy = 0,
+                CompletedLessonsCount = 0,
+                TotalErrors = 0,
+                RecentSessionsJson = '[]'
+             WHERE Uid = @uid`,
+            { uid }
+        );
+        const user = await getUserById(uid);
+        if (!user) return res.status(404).json({ success: false, error: 'User not found' });
+        return res.json({ success: true, user });
+    } catch (err) {
+        return send500(res, err, 'Integrity reset error');
+    }
+});
+
 // GET /api/users/:uid/balance
 router.get('/:uid/balance', async (req, res) => {
     try {
@@ -323,4 +354,3 @@ router.get('/:uid/lesson-purchased/:lessonId', async (req, res) => {
 });
 
 module.exports = router;
-

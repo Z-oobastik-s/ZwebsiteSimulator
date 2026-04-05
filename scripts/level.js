@@ -223,6 +223,7 @@ function calculateSessionXP(sessionData) {
 window.levelModule = {
     getLevelInfo: getLevelInfo,
     getPlayerXP: getPlayerXP,
+    setPlayerXP: setPlayerXP,
     addPlayerXP: addPlayerXP,
     calculateSessionXP: calculateSessionXP,
     getTierName: getTierName,
@@ -232,4 +233,3 @@ window.levelModule = {
     getLevelUpBonusCoins: getLevelUpBonusCoins,
     bonusCoinsForReachedLevel: bonusCoinsForReachedLevel
 };
-

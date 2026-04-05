@@ -4832,6 +4832,11 @@ async function finishPractice() {
         } catch (_lsE) {}
     }
     showResults(speed, accuracy, elapsed, app.errors, rewardCoins, _resultOpts);
+    setTimeout(function () {
+        if (window.integrityMonitor && typeof window.integrityMonitor.ping === 'function') {
+            window.integrityMonitor.ping();
+        }
+    }, 2600);
 }
 
 // Last result data for copy to clipboard
@@ -9825,4 +9830,3 @@ window.showLevelUpSequence = showLevelUpSequence;
 window.renderLevelBlock = renderLevelBlock;
 window.updateUserUI = updateUserUI;
 window.updateGuestPromisedHeader = updateGuestPromisedHeader;
-

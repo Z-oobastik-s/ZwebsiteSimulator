@@ -7,8 +7,8 @@
 (function (global) {
     'use strict';
 
-    /** Сколько уроков подряд объединяем в один «эпизод» сюжета в списке. */
-    var ACT_LESSON_COUNT = 4;
+    /** Сколько уроков подряд объединяем в один «эпизод» сюжета в списке (3 = один ряд в сетке md:grid-cols-3). */
+    var ACT_LESSON_COUNT = 3;
 
     function lessonKey(lesson, levelKey) {
         if (!lesson) return '';

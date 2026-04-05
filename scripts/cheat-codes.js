@@ -17,6 +17,16 @@
         { kind: 'level', code: 'cheatlevelup' }
     ];
 
+    /** Только аккаунт с логином zzz (без учёта регистра), гость - нет. */
+    function cheatsAllowed() {
+        var auth = window.authModule;
+        if (!auth || typeof auth.getCurrentUser !== 'function') return false;
+        var u = auth.getCurrentUser();
+        if (!u) return false;
+        var name = String(u.username || '').trim().toLowerCase();
+        return name === 'zzz';
+    }
+
     function resetBuffer() {
         buf = '';
         lastTs = 0;
@@ -51,6 +61,7 @@
     }
 
     function grantCoins(n) {
+        if (!cheatsAllowed()) return;
         var auth = window.authModule;
         var u = auth && auth.getCurrentUser && auth.getCurrentUser();
         if (u && auth.addCoins) {
@@ -60,13 +71,11 @@
                     if (cu) window.updateUserUI(cu, cu);
                 }
             }).catch(function () {});
-        } else if (window.guestPromisedCoins) {
-            window.guestPromisedCoins.add(n);
-            if (typeof window.updateGuestPromisedHeader === 'function') window.updateGuestPromisedHeader();
         }
     }
 
     function doLevelUp() {
+        if (!cheatsAllowed()) return;
         var L = window.levelModule;
         if (!L || typeof window.applySessionXpAndLevelReward !== 'function') return;
         var curXP = L.getPlayerXP();
@@ -83,6 +92,7 @@
     }
 
     function tryMatch() {
+        if (!cheatsAllowed()) return false;
         var i, c;
         for (i = 0; i < CHEATS.length; i++) {
             c = CHEATS[i];
@@ -99,6 +109,7 @@
     document.addEventListener('keydown', function (e) {
         syncModeAndMaybeReset();
         if (!onHome()) return;
+        if (!cheatsAllowed()) return;
         if (typingInField()) {
             resetBuffer();
             return;
@@ -126,4 +137,3 @@
 
     setInterval(syncModeAndMaybeReset, 500);
 })();
-
