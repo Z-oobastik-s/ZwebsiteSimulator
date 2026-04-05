@@ -2739,21 +2739,37 @@ Read
         }
         #collectibleScreen {
             overflow: visible;
+            /* Узкая фиксированная «полоса» слева (как отметка на макете), не из 1fr - иначе при max-w-7xl боковые колонки схлопываются и панель наезжает на сетку */
+            --cc-rail-width: 9.375rem;
         }
         #collectibleScreen > .max-w-7xl {
             overflow: visible;
         }
-        /* Центральная колонка с сеткой карт визуально по центру экрана; сайдбар в левой 1fr, у края колонки */
         .cc-layout-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 0.85rem;
+            display: flex;
+            flex-direction: column;
             align-items: stretch;
+            gap: 0.85rem;
+            width: 100%;
         }
         @media (min-width: 1024px) {
             .cc-layout-grid {
-                grid-template-columns: 1fr min(100%, 72rem) 1fr;
-                column-gap: 0.85rem;
+                align-items: center;
+            }
+        }
+        .cc-cluster {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 0.85rem;
+            width: 100%;
+        }
+        @media (min-width: 1024px) {
+            .cc-cluster {
+                flex-direction: row;
+                align-items: stretch;
+                gap: 0.9rem;
+                width: min(100%, calc(72rem + var(--cc-rail-width) + 0.9rem));
             }
         }
         .cc-sidebar-cell {
@@ -2764,25 +2780,35 @@ Read
         }
         @media (min-width: 1024px) {
             .cc-sidebar-cell {
-                justify-self: end;
-                align-items: flex-end;
+                flex: 0 0 var(--cc-rail-width);
+                width: var(--cc-rail-width);
+                max-width: var(--cc-rail-width);
+                min-height: 0;
+                align-self: stretch;
             }
         }
-        /* Sticky на обёртке без backdrop-filter - иначе в ряде браузеров ломается прилипание к #rootScroll */
+        /* Sticky на обёртке без backdrop-filter; ячейка тянется по высоте ряда, иначе sticky не держит прокрутку */
         .cc-sidebar-stick {
             width: 100%;
         }
         @media (min-width: 1024px) {
             .cc-sidebar-stick {
+                flex: 1 1 auto;
+                min-height: 0;
                 position: sticky;
                 top: 6rem;
-                width: 10.5rem;
-                max-width: 100%;
                 z-index: 2;
             }
         }
         .cc-sidebar {
             width: 100%;
+        }
+        @media (min-width: 1024px) {
+            .cc-collect-main {
+                flex: 1 1 auto;
+                min-width: 0;
+                max-width: 72rem;
+            }
         }
         .cc-desc-compact {
             font-size: 0.625rem;
@@ -2875,12 +2901,6 @@ Read
         }
         @media (min-width: 1024px) {
             .cc-grid { grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); gap: 1rem; }
-        }
-        /* Коллекция: не больше 6 карточек в ряд на десктопе - место для боковой панели */
-        @media (min-width: 1024px) {
-            #collectibleGrid.cc-grid {
-                grid-template-columns: repeat(6, minmax(0, 1fr));
-            }
         }
         .cc-slot {
             position: relative;
@@ -7771,9 +7791,10 @@ Read
                 </h2>
             </div>
             <div class="cc-layout-grid">
+            <div class="cc-cluster">
                 <div class="cc-sidebar-cell">
                 <div class="cc-sidebar-stick">
-                <aside class="cc-sidebar glass rounded-xl p-3 cc-booster-panel border-t-2 border-cyan-500/30">
+                <aside class="cc-sidebar glass rounded-xl p-2.5 sm:p-3 cc-booster-panel border-t-2 border-cyan-500/30">
                     <button type="button" onclick="showHome()" class="cc-back-btn glass px-3 py-2 rounded-lg flex items-center gap-2 text-sm font-medium transition-colors">
                         <svg class="w-4 h-4 shrink-0 opacity-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
                         <span data-i18n="back">Назад</span>
@@ -7844,6 +7865,7 @@ Read
                         </ul>
                     </section>
                 </div>
+            </div>
             </div>
         </div>
     </div>
@@ -8220,3 +8242,4 @@ Read
     </script>
 </body>
 </html>
+
