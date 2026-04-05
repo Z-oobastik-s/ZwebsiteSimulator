@@ -2737,6 +2737,12 @@ Read
             padding-left: 1rem;
             padding-right: 1rem;
         }
+        #collectibleScreen {
+            overflow: visible;
+        }
+        #collectibleScreen > .max-w-7xl {
+            overflow: visible;
+        }
         /* Центральная колонка с сеткой карт визуально по центру экрана; сайдбар в левой 1fr, у края колонки */
         .cc-layout-grid {
             display: grid;
@@ -2747,27 +2753,36 @@ Read
         @media (min-width: 1024px) {
             .cc-layout-grid {
                 grid-template-columns: 1fr min(100%, 72rem) 1fr;
-                column-gap: 0.65rem;
+                column-gap: 0.85rem;
             }
         }
         .cc-sidebar-cell {
             min-width: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
         }
         @media (min-width: 1024px) {
             .cc-sidebar-cell {
                 justify-self: end;
+                align-items: flex-end;
+            }
+        }
+        /* Sticky на обёртке без backdrop-filter - иначе в ряде браузеров ломается прилипание к #rootScroll */
+        .cc-sidebar-stick {
+            width: 100%;
+        }
+        @media (min-width: 1024px) {
+            .cc-sidebar-stick {
+                position: sticky;
+                top: 6rem;
+                width: 10.5rem;
+                max-width: 100%;
+                z-index: 2;
             }
         }
         .cc-sidebar {
             width: 100%;
-        }
-        @media (min-width: 1024px) {
-            .cc-sidebar {
-                width: 10.25rem;
-                max-width: 100%;
-                position: sticky;
-                top: 5.75rem;
-            }
         }
         .cc-desc-compact {
             font-size: 0.625rem;
@@ -2829,9 +2844,15 @@ Read
             border-top-color: rgba(14, 116, 144, 0.4) !important;
         }
         #collectibleScreen .cc-legend {
+            margin-top: 2.75rem;
             background: rgba(7, 9, 16, 0.72) !important;
             border: 1px solid rgba(255, 255, 255, 0.07) !important;
             box-shadow: 0 20px 48px rgba(0, 0, 0, 0.28) !important;
+        }
+        @media (min-width: 640px) {
+            #collectibleScreen .cc-legend {
+                margin-top: 3.25rem;
+            }
         }
         #collectibleScreen .cc-legend::before {
             height: 2px;
@@ -2854,6 +2875,12 @@ Read
         }
         @media (min-width: 1024px) {
             .cc-grid { grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); gap: 1rem; }
+        }
+        /* Коллекция: не больше 6 карточек в ряд на десктопе - место для боковой панели */
+        @media (min-width: 1024px) {
+            #collectibleGrid.cc-grid {
+                grid-template-columns: repeat(6, minmax(0, 1fr));
+            }
         }
         .cc-slot {
             position: relative;
@@ -7745,6 +7772,7 @@ Read
             </div>
             <div class="cc-layout-grid">
                 <div class="cc-sidebar-cell">
+                <div class="cc-sidebar-stick">
                 <aside class="cc-sidebar glass rounded-xl p-3 cc-booster-panel border-t-2 border-cyan-500/30">
                     <button type="button" onclick="showHome()" class="cc-back-btn glass px-3 py-2 rounded-lg flex items-center gap-2 text-sm font-medium transition-colors">
                         <svg class="w-4 h-4 shrink-0 opacity-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
@@ -7778,8 +7806,9 @@ Read
                     </div>
                 </aside>
                 </div>
+                </div>
                 <div class="cc-collect-main min-w-0">
-                    <div id="collectibleGrid" class="cc-grid pb-6"></div>
+                    <div id="collectibleGrid" class="cc-grid pb-4"></div>
                     <section id="collectibleRarityLegend" class="cc-legend rounded-2xl p-5 sm:p-6 mb-6" aria-labelledby="collectibleLegendHeading">
                         <h3 id="collectibleLegendHeading" class="cc-legend-title" data-i18n="collectiblesLegendTitle">Редкости и дроп</h3>
                         <p class="cc-legend-lead" data-i18n="collectiblesLegendLead">Каждое открытие бустера…</p>
@@ -8191,4 +8220,3 @@ Read
     </script>
 </body>
 </html>
-

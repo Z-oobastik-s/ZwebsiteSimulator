@@ -581,4 +581,3 @@
         setTimeout(bootViolationFromStorage, 0);
     }
 })();
-
