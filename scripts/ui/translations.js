@@ -255,7 +255,7 @@ window.translations = {
         shopTipFlip: 'Наведи на карточку - увидишь совет на обороте.',
         shopTipLevel: 'Сложнее урок - выше награда за прохождение.',
         collectiblesTitle: 'Коллекция карт',
-        collectiblesDesc: 'Открывай бустеры, собирай редкие карты. Чем полнее коллекция, тем больше монет за уроки с точностью 90%+.',
+        collectiblesDesc: 'Открывай бустеры\nСобирай редкие карты\nЧем полнее коллекция\nТем больше монет за уроки\nС точностью 90%+',
         collectiblesBonusLine: 'Бонус к монетам за урок: +{{pct}}% (макс. при полной коллекции).',
         collectiblesBooster: 'Бустер',
         collectiblesPulling: 'Открываем…',
@@ -711,7 +711,7 @@ window.translations = {
         shopTipFlip: 'Hover over the card to see a tip on the back.',
         shopTipLevel: 'Harder lesson = bigger reward for completing it.',
         collectiblesTitle: 'Card collection',
-        collectiblesDesc: 'Open boosters and hunt rare drops. The more unique cards you own, the more lesson coins you earn at 90%+ accuracy.',
+        collectiblesDesc: 'Open boosters\nCollect rare cards\nThe fuller your collection\nThe more lesson coins you earn\nAt 90%+ accuracy',
         collectiblesBonusLine: 'Lesson coin bonus: +{{pct}}% (max when the set is complete).',
         collectiblesBooster: 'Booster',
         collectiblesPulling: 'Opening…',
@@ -1167,7 +1167,7 @@ window.translations = {
         shopTipFlip: 'Наведи на картку - побачиш пораду на звороті.',
         shopTipLevel: 'Складніший урок - вища нагорода за проходження.',
         collectiblesTitle: 'Колекція карт',
-        collectiblesDesc: 'Відкривай бустери, збирай рідкісні карти. Чим повніша колекція, тим більше монет за уроки при точності 90%+.',
+        collectiblesDesc: 'Відкривай бустери\nЗбирай рідкісні карти\nЧим повніша колекція\nТим більше монет за уроки\nПри точності 90%+',
         collectiblesBonusLine: 'Бонус до монет за урок: +{{pct}}% (макс. при повній колекції).',
         collectiblesBooster: 'Бустер',
         collectiblesPulling: 'Відкриваємо…',
@@ -1372,4 +1372,3 @@ window.translations = {
         integrityAnnulApplying: 'Виконується скидання…'
     }
 };
-
