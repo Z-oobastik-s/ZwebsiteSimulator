@@ -60,4 +60,25 @@
         <priority>0.8</priority>
     </url>
 
+    <!-- RGB Minecraft (Zoobastiks): generator, enchant/effect IDs -->
+    <url>
+        <loc>https://zoobastik.me/zrgb/</loc>
+        <lastmod>2026-04-19</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.95</priority>
+    </url>
+    <url>
+        <loc>https://zoobastik.me/zrgb/enchant</loc>
+        <lastmod>2026-04-19</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.85</priority>
+    </url>
+    <url>
+        <loc>https://zoobastik.me/zrgb/effects</loc>
+        <lastmod>2026-04-19</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.85</priority>
+    </url>
+
 </urlset>
+

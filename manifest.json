@@ -1,7 +1,7 @@
 {
   "name": "Zoobastiks - тренажёр слепой печати",
   "short_name": "Zoobastiks",
-  "description": "Бесплатный тренажёр слепой печати. Уроки, тест скорости, свободная печать, мультиплеер.",
+  "description": "Бесплатный тренажёр слепой печати. Уроки, тест скорости, мультиплеер. Ещё от Zoobastiks: RGB Minecraft на zoobastik.me/zrgb/",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
@@ -30,3 +30,4 @@
     }
   ]
 }
+

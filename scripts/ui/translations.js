@@ -425,6 +425,8 @@ window.translations = {
         statsVisits: 'Посещений:',
         aboutProject: 'О проекте',
         reviewsLink: 'Отзывы',
+        sitePortalTitle: 'О проекте, отзывы и RGB Minecraft',
+        rgbMinecraftNav: 'RGB Minecraft',
         allReviews: 'Все отзывы',
         copyResult: 'Скопировать результат',
         copyResultShort: 'Копия',
@@ -934,6 +936,8 @@ window.translations = {
         statsVisits: 'Visits:',
         aboutProject: 'About',
         reviewsLink: 'Reviews',
+        sitePortalTitle: 'About, reviews and RGB Minecraft',
+        rgbMinecraftNav: 'RGB Minecraft',
         allReviews: 'All reviews',
         copyResult: 'Copy result',
         copyResultShort: 'Copy',
@@ -1443,6 +1447,8 @@ window.translations = {
         statsVisits: 'Відвідувань:',
         aboutProject: 'Про проєкт',
         reviewsLink: 'Відгуки',
+        sitePortalTitle: 'Про проєкт, відгуки та RGB Minecraft',
+        rgbMinecraftNav: 'RGB Minecraft',
         allReviews: 'Усі відгуки',
         copyResult: 'Скопіювати результат',
         copyResultShort: 'Копія',
@@ -1531,3 +1537,4 @@ window.translations = {
         integrityAnnulApplying: 'Виконується скидання…'
     }
 };
+

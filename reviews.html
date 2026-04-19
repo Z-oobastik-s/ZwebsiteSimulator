@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Отзывы о Zoobastiks - тренажёр слепой печати</title>
-    <meta name="description" content="Отзывы пользователей о тренажёре слепой печати Zoobastiks.">
+    <meta name="description" content="Отзывы пользователей о тренажёре слепой печати Zoobastiks. Другие проекты автора: RGB Minecraft на zoobastik.me/zrgb/.">
+    <meta name="keywords" content="Zoobastiks отзывы, тренажёр печати, клавиатура онлайн, RGB Minecraft, zoobastik zrgb">
     <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -67,11 +68,14 @@
 
     <div class="page-enter">
         <header class="sticky top-0 z-50 header-bar">
-            <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="container mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-2">
                 <button type="button" onclick="window.portalTo && portalTo('index.html')" class="text-xl font-display font-bold text-white hover:text-cyan-400 transition-colors bg-transparent border-0 cursor-pointer">Zooba<span class="text-cyan-400">stiks</span></button>
-                <button type="button" onclick="window.portalTo && portalTo('index.html')" class="portal-btn px-4 py-2 rounded-lg font-display text-sm font-semibold text-cyan-300 hover:text-white hover:border-cyan-400">
-                    ← На главную
-                </button>
+                <div class="flex flex-wrap items-center gap-2">
+                    <a href="https://zoobastik.me/zrgb/" target="_blank" rel="noopener noreferrer" class="portal-btn px-3 py-2 rounded-lg font-display text-xs sm:text-sm font-semibold text-emerald-300 hover:text-white border-emerald-500/35">RGB Minecraft</a>
+                    <button type="button" onclick="window.portalTo && portalTo('index.html')" class="portal-btn px-4 py-2 rounded-lg font-display text-sm font-semibold text-cyan-300 hover:text-white hover:border-cyan-400">
+                        ← На главную
+                    </button>
+                </div>
             </div>
         </header>
 
@@ -338,3 +342,4 @@
     </script>
 </body>
 </html>
+

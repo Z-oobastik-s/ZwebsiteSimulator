@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>О проекте Zoobastiks - тренажёр слепой печати</title>
-    <meta name="description" content="О проекте Zoobastiks: кто мы, зачем тренажёр слепой печати, миссия, возможности и контакты.">
+    <meta name="description" content="О проекте Zoobastiks: кто мы, зачем тренажёр слепой печати, миссия, возможности и контакты. Другие проекты: RGB Minecraft (генератор текста для Minecraft) на zoobastik.me/zrgb/.">
+    <meta name="keywords" content="Zoobastiks, о проекте, тренажёр слепой печати, клавиатура онлайн, RGB Minecraft, zoobastik.me zrgb, Зубастик, зубастик генератор текста">
     <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -54,11 +55,14 @@
 
     <div class="page-enter">
         <header class="sticky top-0 z-50 header-bar">
-            <div class="container mx-auto px-4 sm:px-4 py-3 flex items-center justify-between">
+            <div class="container mx-auto px-4 sm:px-4 py-3 flex flex-wrap items-center justify-between gap-2">
                 <button type="button" onclick="window.portalTo && portalTo('index.html')" class="text-xl font-display font-bold text-white hover:text-cyan-400 transition-colors bg-transparent border-0 cursor-pointer">Zooba<span class="text-cyan-400">stiks</span></button>
-                <button type="button" onclick="window.portalTo && portalTo('index.html')" class="portal-btn px-5 py-2.5 rounded-lg font-display font-semibold text-cyan-300 hover:text-white hover:border-cyan-400">
-                    ← На главную
-                </button>
+                <div class="flex flex-wrap items-center gap-2">
+                    <a href="https://zoobastik.me/zrgb/" target="_blank" rel="noopener noreferrer" class="portal-btn px-4 py-2 rounded-lg font-display text-sm font-semibold text-emerald-300 hover:text-white border-emerald-500/40">RGB Minecraft</a>
+                    <button type="button" onclick="window.portalTo && portalTo('index.html')" class="portal-btn px-5 py-2.5 rounded-lg font-display font-semibold text-cyan-300 hover:text-white hover:border-cyan-400">
+                        ← На главную
+                    </button>
+                </div>
             </div>
         </header>
 
@@ -101,6 +105,12 @@
             </article>
 
             <article class="section-card rounded-2xl pl-6 pr-6 py-6 md:p-8 stagger-5">
+                <h2 class="font-display text-2xl md:text-3xl font-bold text-cyan-300 mb-4">Ещё от Zoobastiks: RGB Minecraft</h2>
+                <p class="text-gray-200 leading-relaxed mb-4">Отдельное веб-приложение на том же домене: генератор цветного и градиентного текста для Minecraft (MiniMessage, коды &amp;, §, JSON), правка строк в YAML и JSON для конфигов плагинов, списки ID зачарований и эффектов для команд. Открывается в новой вкладке.</p>
+                <a href="https://zoobastik.me/zrgb/" target="_blank" rel="noopener noreferrer" class="link-tg inline-flex items-center gap-2 px-5 py-3 rounded-xl font-display font-semibold text-emerald-300 border border-emerald-500/50 hover:bg-emerald-500/10">Перейти на zoobastik.me/zrgb/</a>
+            </article>
+
+            <article class="section-card rounded-2xl pl-6 pr-6 py-6 md:p-8 stagger-6">
                 <h2 class="font-display text-2xl md:text-3xl font-bold text-cyan-300 mb-4">Напишите нам</h2>
                 <p class="text-gray-200 leading-relaxed mb-5">Есть идеи, вопросы или хотите подключить школу или класс? Нам важна обратная связь. Пишите в Telegram - ответим по возможности быстро.</p>
                 <a href="https://t.me/Zoobastiks" target="_blank" rel="noopener noreferrer" class="link-tg inline-flex items-center gap-2 px-5 py-3 rounded-xl font-display font-semibold">
@@ -114,3 +124,4 @@
     <script src="scripts/portal-transition.js"></script>
 </body>
 </html>
+

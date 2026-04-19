@@ -1,9 +1,11 @@
 User-agent: *
 Allow: /
 
-# Sitemap
+# Sitemap (корень сайта и отдельное приложение RGB Minecraft в /zrgb/)
 Sitemap: https://zoobastik.me/sitemap.xml
+Sitemap: https://zoobastik.me/zrgb/sitemap.xml
 
 # Disallow admin panel and other private areas
 Disallow: /admin
 Disallow: /api/
+
