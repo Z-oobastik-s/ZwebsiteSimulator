@@ -348,7 +348,6 @@ window.translations = {
         checkpointNext: 'До чекпоинта:',
         checkpointDone: 'Чекпоинт!',
         checkpointAlmost: 'Финиш близко',
-        leaveHostingAdTitle: 'LeaveHosting - хостинг Minecraft (подробности по клику)',
         lessonFilterAll: 'Все',
         lessonFilterDigits: '0–9',
         lessonFilterLen100: '≤100',
@@ -859,7 +858,6 @@ window.translations = {
         checkpointNext: 'To checkpoint:',
         checkpointDone: 'Checkpoint!',
         checkpointAlmost: 'Almost there',
-        leaveHostingAdTitle: 'LeaveHosting - Minecraft hosting (click for details)',
         lessonFilterAll: 'All',
         lessonFilterDigits: '0–9',
         lessonFilterLen100: '≤100',
@@ -1370,7 +1368,6 @@ window.translations = {
         checkpointNext: 'До чекпоінта:',
         checkpointDone: 'Чекпоінт!',
         checkpointAlmost: 'Фініш близько',
-        leaveHostingAdTitle: 'LeaveHosting - хостинг Minecraft (деталі по кліку)',
         lessonFilterAll: 'Усі',
         lessonFilterDigits: '0–9',
         lessonFilterLen100: '≤100',
@@ -1537,3 +1534,4 @@ window.translations = {
         integrityAnnulApplying: 'Виконується скидання…'
     }
 };
+
